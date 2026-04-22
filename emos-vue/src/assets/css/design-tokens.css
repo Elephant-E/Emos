@@ -1,0 +1,307 @@
+/**
+ * CSS 变量设计系统文档
+ * 
+ * 本文件记录了项目中所有 CSS 变量的定义和使用规范
+ * 用于统一设计风格，便于维护和扩展
+ */
+
+/* ==================== 设计令牌 (Design Tokens) ==================== */
+
+/* 
+ * 📐 布局相关
+ */
+:root {
+  /* 容器最大宽度 */
+  --container-width: 1180px;
+  
+  /* TopBar 相关尺寸 */
+  --top-bar-height: 56px;        /* TopBar 本身高度 */
+  --top-bar-offset: 16px;        /* TopBar 顶部偏移 */
+  --top-bar-total: 72px;         /* 总占用空间 (offset + height) */
+}
+
+/* 
+ * 🎨 背景色系统
+ */
+:root {
+  /* 主背景 - 页面底色 */
+  --bg-primary: #1c1c1e;
+  
+  /* 表面背景 - 卡片、面板等 */
+  --bg-surface: #2c2c2e;
+  --bg-surface-hover: #3a3a3c;
+  
+  /* 提升背景 - 模态框、浮层（带透明度） */
+  --bg-elevated: rgb(28 28 30 / 75%);
+  
+  /* 输入框背景 */
+  --bg-input: rgb(44 44 46 / 65%);
+  
+  /* 模态框遮罩 */
+  --bg-modal-overlay: rgb(0 0 0 / 45%);
+  
+  /* Hero Section 底部渐变遮罩 */
+  --hero-gradient-bottom: rgb(0 0 0 / 95%);
+  --hero-gradient-mid: rgb(0 0 0 / 60%);
+  --hero-gradient-top: rgb(0 0 0 / 25%);
+  --hero-gradient-fade: rgb(0 0 0 / 10%);
+  
+  /* Hero Section 左侧渐变遮罩 */
+  --hero-gradient-left-start: rgb(0 0 0 / 30%);
+  --hero-gradient-left-end: transparent;
+  
+  /* 网格渐变背景（装饰性） */
+  --mesh-a: rgb(0 122 255 / 12%);
+  --mesh-b: rgb(10 132 255 / 8%);
+  --mesh-c: rgb(170 140 255 / 8%);
+}
+
+/*
+ * 📝 文本颜色系统
+ */
+:root {
+  /* 主要文本 - 标题、重要内容 */
+  --text-primary: #fff;
+  
+  /* 次要文本 - 描述、辅助信息 */
+  --text-secondary: rgb(235 235 245 / 70%);
+  
+  /* 三级文本 - 占位符、禁用状态 */
+  --text-tertiary: rgb(235 235 245 / 40%);
+}
+
+/*
+ * 🎯 强调色系统
+ */
+:root {
+  /* 主强调色 - 链接、按钮、激活状态 */
+  --accent: #0a84ff;
+  --accent-hover: #0071e3;
+  
+  /* 成功色 - 成功提示、完成状态 */
+  --success: #30d158;
+  
+  /* 警告色 - 警告提示、注意状态 */
+  --warning: #ff9f0a;
+  
+  /* 危险色 - 错误提示、删除操作 */
+  --danger: #ff453a;
+  
+  /* 在强调色背景上的文字颜色（始终为白色） */
+  --text-on-accent: #fff;
+}
+
+/*
+ * 🔲 边框系统
+ */
+:root {
+  /* 标准边框 */
+  --border: rgb(255 255 255 / 12%);
+  --border-hover: rgb(255 255 255 / 25%);
+  
+  /* 卡片边框 */
+  --card-border: rgb(255 255 255 / 25%);
+  --card-border-top: rgb(255 255 255 / 40%);
+}
+
+/*
+ * 💫 阴影系统
+ */
+:root {
+  /* 小阴影 - 轻微浮起 */
+  --shadow-sm: 0 2px 8px rgb(0 0 0 / 20%);
+  
+  /* 中阴影 - 明显浮起（导航栏、下拉菜单） */
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 35%), 0 2px 8px rgb(0 0 0 / 20%);
+  
+  /* 大阴影 - 强烈浮起（模态框、弹窗） */
+  --shadow-lg: 0 12px 36px rgb(0 0 0 / 45%), 0 4px 12px rgb(0 0 0 / 30%);
+  
+  /* Liquid Glass 卡片阴影 */
+  --glass-shadow: rgb(0 0 0 / 40%);
+}
+
+/*
+ * 🌊 动效系统
+ */
+:root {
+  /* 毛玻璃效果 */
+  --blur: blur(28px) saturate(180%);
+  
+  /* 弹簧动画曲线 - 交互反馈 */
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  
+  /* 标准缓动曲线 - 过渡动画 */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== 浅色主题覆盖 ==================== */
+
+[data-theme="light"] {
+  /* 背景色调整 */
+  --mesh-a: rgb(0 122 255 / 6%);
+  --mesh-b: rgb(90 200 250 / 6%);
+  --mesh-c: rgb(200 160 255 / 6%);
+  --bg-primary: #f5f5f7;
+  --bg-surface: rgb(255 255 255 / 80%);
+  --bg-surface-hover: rgb(255 255 255 / 90%);
+  --bg-elevated: rgb(255 255 255 / 70%);
+  --bg-input: rgb(240 240 245 / 60%);
+  --bg-modal-overlay: rgb(0 0 0 / 15%);
+  
+  /* Hero Section 底部渐变遮罩（浅色主题使用白色） */
+  --hero-gradient-bottom: rgb(255 255 255 / 80%);
+  --hero-gradient-mid: rgb(255 255 255 / 45%);
+  --hero-gradient-top: rgb(255 255 255 / 18%);
+  --hero-gradient-fade: rgb(255 255 255 / 6%);
+  
+  /* Hero Section 左侧渐变遮罩（浅色主题使用白色） */
+  --hero-gradient-left-start: rgb(255 255 255 / 30%);
+  --hero-gradient-left-end: transparent;
+  
+  /* 文本色调整 */
+  --text-primary: #1d1d1f;
+  --text-secondary: rgb(60 60 67 / 75%);
+  --text-tertiary: rgb(60 60 67 / 45%);
+  
+  /* 强调色调整 */
+  --accent: #007aff;
+  --accent-hover: #005ecb;
+  --success: #34c759;
+  --warning: #ff9500;
+  --danger: #ff3b30;
+  
+  /* 在强调色背景上的文字颜色（始终为白色） */
+  --text-on-accent: #fff;
+  
+  /* 边框调整 */
+  --border: rgb(0 0 0 / 10%);
+  --border-hover: rgb(0 0 0 / 20%);
+  --card-border: rgb(255 255 255 / 60%);
+  --card-border-top: rgb(255 255 255 / 90%);
+  
+  /* 阴影调整（Liquid Glass 风格） */
+  --shadow-sm: 0 8px 32px rgb(0 0 0 / 8%), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 8%), 0 12px 32px rgb(0 0 0 / 6%);
+  --shadow-lg: 0 8px 24px rgb(0 0 0 / 12%), 0 24px 48px rgb(0 0 0 / 8%);
+}
+
+/* ==================== 使用指南 ==================== */
+
+/*
+ * ✅ 推荐用法
+ */
+
+/* 1. 使用语义化变量名 */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 2. 使用动效变量保持一致性 */
+.button {
+  transition: all 0.25s var(--spring);
+}
+
+.modal {
+  backdrop-filter: var(--blur);
+}
+
+/* 3. 状态变化使用对应的变量 */
+.button:hover {
+  background: var(--bg-surface-hover);
+  color: var(--accent);
+}
+
+.button.danger {
+  color: var(--danger);
+}
+
+.button.success {
+  color: var(--success);
+}
+
+/*
+ * ❌ 避免用法
+ */
+
+/* 不要硬编码颜色值 */
+.card {
+  background: #1c1c1e; /* ❌ 应该用 var(--bg-surface) */
+}
+
+/* 不要重复定义相同的值 */
+.button {
+  transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1); /* ❌ 应该用 var(--spring) */
+}
+
+/*
+ * 📋 变量命名规范
+ */
+
+/* 格式：--{类别}-{用途}-{状态?} */
+
+/* 示例： */
+
+/* --bg-surface        ✅ 好：背景-表面 */
+
+/* --text-primary      ✅ 好：文本-主要 */
+
+/* --shadow-md         ✅ 好：阴影-中等 */
+
+/* --accent-hover      ✅ 好：强调色-悬停 */
+
+/* 类别前缀： */
+
+/* bg-     背景色 */
+
+/* text-   文本色 */
+
+/* border  边框 */
+
+/* shadow  阴影 */
+
+/* accent  强调色 */
+
+/* success 成功色 */
+
+/* warning 警告色 */
+
+/* danger  危险色 */
+
+/*
+ * 🎯 最佳实践
+ */
+
+/* 1. 优先使用语义化变量，而不是具体颜色 */
+
+/* 这样切换主题时只需修改变量定义 */
+
+/* 2. 保持变量粒度适中 */
+
+/* 不要太细（每个像素都定义变量） */
+
+/* 也不要太粗（一个变量用于多个场景） */
+
+/* 3. 新变量添加到对应分类的注释下 */
+
+/* 保持文件结构清晰 */
+
+/* 4. 浅色主题的变量要与深色主题对应 */
+
+/* 确保两种主题下的视觉效果一致 */
+
+/*
+ * 🔧 添加新变量的步骤
+ */
+
+/* 1. 确定变量类别（bg/text/border/shadow/accent等） */
+
+/* 2. 在 :root 中添加深色主题的值 */
+
+/* 3. 在 [data-theme="light"] 中添加浅色主题的值 */
+
+/* 4. 在本文件中添加注释说明用途 */
+
+/* 5. 在使用处替换硬编码值为变量 */

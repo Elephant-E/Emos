@@ -1,0 +1,90 @@
+/* ================= Apple Design System (2026 Edition) ================= */
+:root {
+  --container-width: 1180px;
+  --mesh-a: rgba(0, 122, 255, 0.12);
+  --mesh-b: rgba(10, 132, 255, 0.08);
+  --mesh-c: rgba(170, 140, 255, 0.08);
+  --bg-primary: var(--bg-primary);
+  --bg-surface: #1c1c1e;
+  --bg-surface-hover: var(--bg-surface-hover);
+  --bg-elevated: rgba(28, 28, 30, 0.75);
+  --bg-input: rgba(44, 44, 46, 0.65);
+  --bg-modal-overlay: rgba(0, 0, 0, 0.45);
+  --text-primary: var(--text-primary);
+  --text-secondary: rgba(235, 235, 245, 0.7);
+  --text-tertiary: rgba(235, 235, 245, 0.4);
+  --accent: var(--accent);
+  --accent-hover: var(--accent-hover);
+  --success: var(--success);
+  --warning: #ff9f0a;
+  --danger: var(--danger);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-lg: 0 12px 36px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3);
+  --blur: blur(28px) saturate(180%);
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --mesh-a: rgba(0, 122, 255, 0.06);
+  --mesh-b: rgba(90, 200, 250, 0.06);
+  --mesh-c: rgba(200, 160, 255, 0.06);
+  --bg-primary: #f5f5f7;
+  --bg-surface: rgba(255, 255, 255, 0.75);
+  --bg-surface-hover: rgba(255, 255, 255, 0.85);
+  --bg-elevated: rgba(255, 255, 255, 0.55);
+  --bg-input: rgba(240, 240, 245, 0.6);
+  --bg-modal-overlay: rgba(0, 0, 0, 0.15);
+  --text-primary: #1d1d1f;
+  --text-secondary: rgba(60, 60, 67, 0.75);
+  --text-tertiary: rgba(60, 60, 67, 0.45);
+  --accent: #007aff;
+  --accent-hover: #005ecb;
+  --success: #34c759;
+  --warning: #ff9500;
+  --danger: var(--danger);
+  --border: rgba(255, 255, 255, 0.25);
+  --border-hover: rgba(255, 255, 255, 0.6);
+  --card-border: rgba(255, 255, 255, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12), 0 24px 48px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+body {
+  background: var(--bg-primary);
+  background-image: 
+    radial-gradient(50% 50% at 15% 25%, var(--mesh-a), transparent 60%),
+    radial-gradient(45% 45% at 85% 15%, var(--mesh-b), transparent 65%),
+    radial-gradient(40% 40% at 50% 85%, var(--mesh-c), transparent 70%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  line-height: 1.45;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.35s var(--ease), color 0.35s var(--ease);
+  padding-top: 100px;
+  padding-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  body { padding-top: 76px; padding-bottom: 20px; }
+}
+
+/* 详情页激活时移除 body 的顶部 padding，让内容直接贴合 TopBar */
+body.detail-page-active {
+  padding-top: 72px !important; /* TopBar 下边缘位置 */
+}
+
+@media (max-width: 768px) {
+  body.detail-page-active {
+    padding-top: 68px !important; /* 移动端 TopBar 下边缘位置 */
+  }
+}

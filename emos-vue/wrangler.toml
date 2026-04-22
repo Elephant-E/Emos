@@ -1,0 +1,11 @@
+name = "emos"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# 绑定静态资源目录（前端构建产物）
+[assets]
+directory = "./dist"
+
+# 环境变量
+[vars]
+EMOS_BACKEND = "https://emos.best"
