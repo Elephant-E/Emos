@@ -1,1 +1,8 @@
 Nothing should be ignored based on the provided file changes, as they only include source files (.vue files) without any build artifacts, dependencies, or temporary files.
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
