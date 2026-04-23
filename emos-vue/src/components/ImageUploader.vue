@@ -327,20 +327,9 @@ const handleScroll = (event) => {
   }
 }
 
-// 选择图片 - 点击直接确认选择
+// 选择图片 - 仅设置选中状态，等待用户点击确认按钮
 const selectImage = (img) => {
-  fileId.value = img.file_id
-  previewUrl.value = img.url
-  
-  emit('update:modelValue', img.file_id)
-  emit('change', {
-    fileId: img.file_id,
-    url: img.url
-  })
-  emit('upload-success', img.file_id)
-  
-  showToast('图片选择成功！', 'success')
-  closeSelector()
+  selectedImageId.value = img.file_id
 }
 
 // 确认选择
