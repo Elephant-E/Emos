@@ -327,9 +327,20 @@ const handleScroll = (event) => {
   }
 }
 
-// 选择图片
+// 选择图片 - 点击直接确认选择
 const selectImage = (img) => {
-  selectedImageId.value = img.file_id
+  fileId.value = img.file_id
+  previewUrl.value = img.url
+  
+  emit('update:modelValue', img.file_id)
+  emit('change', {
+    fileId: img.file_id,
+    url: img.url
+  })
+  emit('upload-success', img.file_id)
+  
+  showToast('图片选择成功！', 'success')
+  closeSelector()
 }
 
 // 确认选择
