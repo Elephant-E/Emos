@@ -71,10 +71,27 @@ const displayName = computed(() => {
 
 // ================= 下拉菜单管理 =================
 const dropdownVisible = ref(false)
+const dropdownStyle = ref({})
+
+const updateDropdownPosition = () => {
+  const avatarContainer = document.querySelector('.user-avatar-container')
+  if (!avatarContainer) return
+  
+  const rect = avatarContainer.getBoundingClientRect()
+  dropdownStyle.value = {
+    position: 'fixed',
+    top: `${rect.bottom + 8}px`,
+    right: `${window.innerWidth - rect.right}px`
+  }
+}
 
 const toggleDropdown = (e) => {
   e.stopPropagation()
   dropdownVisible.value = !dropdownVisible.value
+  if (dropdownVisible.value) {
+    // 下次 DOM 更新后计算位置
+    setTimeout(updateDropdownPosition, 0)
+  }
 }
 
 const closeDropdown = () => {
@@ -338,10 +355,16 @@ onMounted(() => {
       closeDropdown()
     }
   })
+  
+  // 监听窗口大小变化，更新下拉框位置
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition)
 })
 
 onUnmounted(() => {
   // 清理工作
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition)
 })
 </script>
 
@@ -375,9 +398,15 @@ onUnmounted(() => {
         
         <!-- 用户名显示（可选） -->
         <span class="user-display-name" v-if="displayName">{{ displayName }}</span>
-        
-        <!-- 下拉菜单 -->
-        <div class="user-dropdown" :class="{ show: dropdownVisible }">
+      </div>
+      
+      <!-- 下拉菜单 - 使用 Teleport 传送到 body -->
+      <Teleport to="body">
+        <div 
+          class="user-dropdown" 
+          :class="{ show: dropdownVisible }"
+          :style="dropdownStyle"
+        >
           <!-- 主题切换 -->
           <div class="dropdown-item" @click.stop="toggleTheme">
             <i class="fas fa-moon" v-if="theme === 'dark'"></i>
@@ -401,7 +430,7 @@ onUnmounted(() => {
             <i class="fas fa-sign-out-alt"></i> 退出登录
           </div>
         </div>
-      </div>
+      </Teleport>
     </div>
   </nav>
   

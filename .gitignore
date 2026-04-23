@@ -1,14 +1,15 @@
 # Node modules
 node_modules/
-package-lock.json
 
 # Build output
 dist/
 .vite/
+worker-with-assets.js
 
 # Environment files
 .env.local
 .env.*.local
+.dev.vars
 
 # IDE
 .vscode/

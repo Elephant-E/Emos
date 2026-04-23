@@ -25,11 +25,11 @@
  */
 :root {
   /* 主背景 - 页面底色 */
-  --bg-primary: #1c1c1e;
+  --bg-primary: #000000;
   
   /* 表面背景 - 卡片、面板等 */
-  --bg-surface: #2c2c2e;
-  --bg-surface-hover: #3a3a3c;
+  --bg-surface: #1c1c1e;
+  --bg-surface-hover: #2c2c2e;
   
   /* 提升背景 - 模态框、浮层（带透明度） */
   --bg-elevated: rgb(28 28 30 / 75%);
@@ -50,10 +50,10 @@
   --hero-gradient-left-start: rgb(0 0 0 / 30%);
   --hero-gradient-left-end: transparent;
   
-  /* 网格渐变背景（装饰性） */
-  --mesh-a: rgb(0 122 255 / 12%);
-  --mesh-b: rgb(10 132 255 / 8%);
-  --mesh-c: rgb(170 140 255 / 8%);
+  /* 网格渐变背景（装饰性）- 已移至 base.css */
+  /* --mesh-a: rgb(0 122 255 / 12%); */
+  /* --mesh-b: rgb(10 132 255 / 8%); */
+  /* --mesh-c: rgb(170 140 255 / 8%); */
 }
 
 /*
@@ -139,15 +139,16 @@
 
 [data-theme="light"] {
   /* 背景色调整 */
-  --mesh-a: rgb(0 122 255 / 6%);
-  --mesh-b: rgb(90 200 250 / 6%);
-  --mesh-c: rgb(200 160 255 / 6%);
-  --bg-primary: #f5f5f7;
-  --bg-surface: rgb(255 255 255 / 80%);
-  --bg-surface-hover: rgb(255 255 255 / 90%);
-  --bg-elevated: rgb(255 255 255 / 70%);
-  --bg-input: rgb(240 240 245 / 60%);
-  --bg-modal-overlay: rgb(0 0 0 / 15%);
+  /* mesh 变量已移至 base.css */
+  /* --mesh-a: rgb(0 122 255 / 6%); */
+  /* --mesh-b: rgb(90 200 250 / 6%); */
+  /* --mesh-c: rgb(200 160 255 / 6%); */
+  --bg-primary: #f2f2f7;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f5f5f7;
+  --bg-elevated: rgb(255 255 255 / 82%);
+  --bg-input: rgb(235 235 240 / 85%);
+  --bg-modal-overlay: rgb(0 0 0 / 25%);
   
   /* Hero Section 底部渐变遮罩（浅色主题使用白色） */
   --hero-gradient-bottom: rgb(255 255 255 / 80%);
@@ -161,8 +162,8 @@
   
   /* 文本色调整 */
   --text-primary: #1d1d1f;
-  --text-secondary: rgb(60 60 67 / 75%);
-  --text-tertiary: rgb(60 60 67 / 45%);
+  --text-secondary: rgb(60 60 67 / 65%);
+  --text-tertiary: rgb(60 60 67 / 40%);
   
   /* 强调色调整 */
   --accent: #007aff;
@@ -175,13 +176,12 @@
   --text-on-accent: #fff;
   
   /* 边框调整 */
-  --border: rgb(0 0 0 / 10%);
-  --border-hover: rgb(0 0 0 / 20%);
-  --card-border: rgb(255 255 255 / 60%);
-  --card-border-top: rgb(255 255 255 / 90%);
+  --border: rgb(0 0 0 / 8%);
+  --border-hover: rgb(0 0 0 / 15%);
+  --card-border: rgb(0 0 0 / 8%);
   
   /* 阴影调整（Liquid Glass 风格） */
-  --shadow-sm: 0 8px 32px rgb(0 0 0 / 8%), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 4%), 0 4px 12px rgb(0 0 0 / 6%);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 8%), 0 12px 32px rgb(0 0 0 / 6%);
   --shadow-lg: 0 8px 24px rgb(0 0 0 / 12%), 0 24px 48px rgb(0 0 0 / 8%);
 }

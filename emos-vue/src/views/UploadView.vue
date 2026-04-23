@@ -27,6 +27,27 @@ const currentFilter = ref('all')
 const isDragging = ref(false)
 const fileInputRef = ref(null)
 
+const getTaskById = (taskId) => allTasks.value.find(f => f.id === taskId)
+
+const isAbortError = (error) => {
+  if (!error) return false
+  const message = String(error.message || '').toLowerCase()
+  return error.name === 'AbortError' || message.includes('abort')
+}
+
+const createTusAbortHandle = (taskId) => ({
+  abort: async () => {
+    const upload = window.tusUploads?.[taskId]
+    if (upload) {
+      try {
+        await upload.abort(true)
+      } finally {
+        delete window.tusUploads[taskId]
+      }
+    }
+  }
+})
+
 // 处理拖拽
 const handleDragOver = (e) => {
   e.preventDefault()
@@ -204,9 +225,6 @@ const startNext = () => {
 
 // 启动上传任务
 const startUpload = async (fileEntry) => {
-  const controller = new AbortController()
-  activeXHRs.set(fileEntry.name, controller)
-
   try {
     // 获取文件的 MIME type
     const fileExtension = fileEntry.name.split('.').pop().toLowerCase()
@@ -237,23 +255,45 @@ const startUpload = async (fileEntry) => {
       mimeType = subtitleTypes[fileExtension] || 'text/plain'
     }
     
-    const tokenData = await uploadApi.getUploadToken({
-      type: fileEntry.category,
-      file_type: mimeType,
-      file_name: fileEntry.name,
-      file_size: fileEntry.size,
-      file_storage: 'global', 
-    })
+    if (!fileEntry.uploadType || !fileEntry.uploadUrl || !fileEntry.fileId) {
+      const tokenData = await uploadApi.getUploadToken({
+        type: fileEntry.category,
+        file_type: mimeType,
+        file_name: fileEntry.name,
+        file_size: fileEntry.size,
+        file_storage: 'global',
+      })
+
+      fileEntry.fileId = tokenData.file_id
+      fileEntry.uploadUrl = tokenData.data.upload_url
+      fileEntry.uploadType = tokenData.type
+      fileEntry.userId = tokenData.user_id || uploadApi.getStoredUserId()
+      if (!fileEntry.uploadedBytes) {
+        fileEntry.progress = 0
+      }
+      saveToStorage()
+    }
 
     fileEntry.status = UploadStatus.UPLOADING
     fileEntry._saving = false
-    fileEntry.fileId = tokenData.file_id
-    fileEntry.uploadUrl = tokenData.data.upload_url
-    saveToStorage()
 
-    await uploadWithChunks(fileEntry, controller)
+    if (fileEntry.uploadType === 'tusd') {
+      const tusHandle = createTusAbortHandle(fileEntry.id)
+      activeXHRs.set(fileEntry.id, tusHandle)
+      await uploadWithTus(fileEntry)
+    } else if (fileEntry.uploadType === 'r2') {
+      fileEntry.uploadedBytes = 0
+      fileEntry.progress = 0
+      const controller = new AbortController()
+      activeXHRs.set(fileEntry.id, controller)
+      await uploadWholeFile(fileEntry, controller)
+    } else {
+      const controller = new AbortController()
+      activeXHRs.set(fileEntry.id, controller)
+      await uploadWithChunks(fileEntry, controller)
+    }
   } catch (error) {
-    if (error.name === 'AbortError') {
+    if (isAbortError(error)) {
       return
     } else {
       fileEntry.status = UploadStatus.FAILED
@@ -262,8 +302,9 @@ const startUpload = async (fileEntry) => {
       saveToStorage()
     }
   } finally {
-    activeXHRs.delete(fileEntry.name)
-    if (fileEntry.status === UploadStatus.UPLOADING || fileEntry.status === UploadStatus.SAVING) {
+    activeXHRs.delete(fileEntry.id)
+    const taskStillExists = allTasks.value.some(f => f.id === fileEntry.id)
+    if (taskStillExists && (fileEntry.status === UploadStatus.UPLOADING || fileEntry.status === UploadStatus.SAVING)) {
       uploadingCount.value = Math.max(0, uploadingCount.value - 1)
       saveToStorage()
       startNext()
@@ -275,7 +316,7 @@ const startUpload = async (fileEntry) => {
 const uploadWithChunks = async (fileEntry, controller) => {
   const CHUNK_SIZE = 200 * 1024 * 1024
   const fileSize = fileEntry.fileObj.size
-  let uploadedBytes = 0
+  let uploadedBytes = Math.min(fileEntry.uploadedBytes || 0, fileSize)
 
   try {
     while (uploadedBytes < fileSize) {
@@ -294,6 +335,7 @@ const uploadWithChunks = async (fileEntry, controller) => {
         
         if (progress !== fileEntry.progress) {
           fileEntry.progress = progress
+          fileEntry.uploadedBytes = currentTotal
           if (progress % 5 === 0) {
             saveToStorage()
           }
@@ -301,6 +343,9 @@ const uploadWithChunks = async (fileEntry, controller) => {
       })
 
       uploadedBytes = end + 1
+      fileEntry.uploadedBytes = uploadedBytes
+      fileEntry.progress = Math.round((uploadedBytes / fileSize) * 100)
+      saveToStorage()
     }
 
     fileEntry.status = UploadStatus.SAVING
@@ -323,6 +368,7 @@ const uploadWithChunks = async (fileEntry, controller) => {
 
     fileEntry.status = UploadStatus.COMPLETED
     fileEntry.progress = 100
+    fileEntry.uploadedBytes = fileSize
     fileEntry.retryCount = 0
     
     saveToStorage()
@@ -333,6 +379,87 @@ const uploadWithChunks = async (fileEntry, controller) => {
     }
     throw error
   }
+}
+
+const uploadWholeFile = async (fileEntry, controller) => {
+  const fileSize = fileEntry.fileObj.size
+
+  await uploadFileWithProgress(fileEntry.uploadUrl, fileEntry.fileObj, controller, (loaded) => {
+    const progress = Math.round((loaded / fileSize) * 100)
+    fileEntry.progress = progress
+    fileEntry.uploadedBytes = loaded
+    if (progress % 5 === 0 || loaded === fileSize) {
+      saveToStorage()
+    }
+  })
+
+  fileEntry.status = UploadStatus.SAVING
+  saveToStorage()
+
+  if (fileEntry.category === 'video') {
+    await uploadApi.saveVideoResult({
+      item_type: fileEntry.itemType,
+      item_id: fileEntry.itemId,
+      file_id: fileEntry.fileId,
+    })
+  } else {
+    await uploadApi.saveSubtitleResult({
+      item_type: fileEntry.itemType,
+      item_id: fileEntry.itemId,
+      file_id: fileEntry.fileId,
+    })
+  }
+
+  fileEntry.status = UploadStatus.COMPLETED
+  fileEntry.progress = 100
+  fileEntry.uploadedBytes = fileSize
+  fileEntry.retryCount = 0
+
+  saveToStorage()
+  showToast(`上传完成: ${fileEntry.name}`, 'success')
+}
+
+const uploadWithTus = async (fileEntry) => {
+  const fileSize = fileEntry.fileObj.size
+
+  await uploadApi.uploadFile(fileEntry.uploadType, { upload_url: fileEntry.uploadUrl }, fileEntry.fileObj, {
+    userId: fileEntry.userId || uploadApi.getStoredUserId(),
+    fileId: fileEntry.fileId,
+    taskId: fileEntry.id,
+    onProgress: (bytesUploaded, bytesTotal) => {
+      const safeTotal = bytesTotal || fileSize
+      fileEntry.uploadedBytes = bytesUploaded
+      fileEntry.progress = Math.round((bytesUploaded / safeTotal) * 100)
+      if (fileEntry.progress % 5 === 0 || bytesUploaded === safeTotal) {
+        saveToStorage()
+      }
+    }
+  })
+
+  fileEntry.status = UploadStatus.SAVING
+  saveToStorage()
+
+  if (fileEntry.category === 'video') {
+    await uploadApi.saveVideoResult({
+      item_type: fileEntry.itemType,
+      item_id: fileEntry.itemId,
+      file_id: fileEntry.fileId,
+    })
+  } else {
+    await uploadApi.saveSubtitleResult({
+      item_type: fileEntry.itemType,
+      item_id: fileEntry.itemId,
+      file_id: fileEntry.fileId,
+    })
+  }
+
+  fileEntry.status = UploadStatus.COMPLETED
+  fileEntry.progress = 100
+  fileEntry.uploadedBytes = fileSize
+  fileEntry.retryCount = 0
+
+  saveToStorage()
+  showToast(`上传完成: ${fileEntry.name}`, 'success')
 }
 
 // 使用XMLHttpRequest上传分片
@@ -373,12 +500,48 @@ const uploadChunkWithProgress = (url, chunk, contentRange, controller, onProgres
   })
 }
 
+const uploadFileWithProgress = (url, file, controller, onProgress) => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        onProgress(event.loaded)
+      }
+    })
+
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response)
+      } else {
+        reject(new Error(`上传失败: ${xhr.status} ${xhr.statusText}`))
+      }
+    })
+
+    xhr.addEventListener('error', () => {
+      reject(new Error('网络错误'))
+    })
+
+    xhr.addEventListener('abort', () => {
+      reject(new DOMException('Aborted', 'AbortError'))
+    })
+
+    xhr.open('PUT', url)
+
+    controller.signal.addEventListener('abort', () => {
+      xhr.abort()
+    })
+
+    xhr.send(file)
+  })
+}
+
 // 暂停上传
-const pauseUpload = (fileName) => {
-  const file = allTasks.value.find(f => f.name === fileName)
+const pauseUpload = (taskId) => {
+  const file = getTaskById(taskId)
   if (!file) return
 
-  const controller = activeXHRs.get(fileName)
+  const controller = activeXHRs.get(taskId)
   if (controller) {
     controller.abort()
   }
@@ -392,8 +555,8 @@ const pauseUpload = (fileName) => {
 }
 
 // 继续上传
-const resumeUpload = async (fileName) => {
-  const file = allTasks.value.find(f => f.name === fileName)
+const resumeUpload = async (taskId) => {
+  const file = getTaskById(taskId)
   if (!file) return
 
   // PAUSED状态直接触发文件恢复
@@ -448,17 +611,23 @@ const recoverFile = async (fileEntry) => {
 }
 
 // 删除任务
-const deleteFile = (fileName) => {
+const deleteFile = (taskId) => {
   if (!confirm('确定要删除该任务吗？')) return
-  
-  const controller = activeXHRs.get(fileName)
+
+  const file = getTaskById(taskId)
+  if (!file) return
+
+  const wasUploading = file.status === UploadStatus.UPLOADING || file.status === UploadStatus.SAVING
+  const controller = activeXHRs.get(taskId)
   if (controller) {
+    if (wasUploading) {
+      file.status = UploadStatus.PAUSED
+    }
     controller.abort()
   }
 
-  const wasUploading = allTasks.value.some(f => f.name === fileName && f.status === UploadStatus.UPLOADING)
-  allTasks.value = allTasks.value.filter(f => f.name !== fileName)
-  activeXHRs.delete(fileName)
+  allTasks.value = allTasks.value.filter(f => f.id !== taskId)
+  activeXHRs.delete(taskId)
   
   if (wasUploading) {
     uploadingCount.value = Math.max(0, uploadingCount.value - 1)
@@ -470,8 +639,8 @@ const deleteFile = (fileName) => {
 }
 
 // 从识别池开始上传（单个文件）
-const startUploadFromIdentified = async (fileName) => {
-  const file = allTasks.value.find(f => f.name === fileName)
+const startUploadFromIdentified = async (taskId) => {
+  const file = getTaskById(taskId)
   if (!file) {
     showToast('文件不存在', 'error')
     return
@@ -524,10 +693,6 @@ const clearAllTasks = () => {
   if (completedCount > 0) {
     // 有已完成任务，只清空已完成的
     if (!confirm(`确定要清空 ${completedCount} 个已完成的任务吗？`)) return
-    
-    // 中止所有活跃上传
-    activeXHRs.forEach(controller => controller.abort())
-    activeXHRs.clear()
 
     // 只移除已完成的任务
     allTasks.value = allTasks.value.filter(f => f.status !== UploadStatus.COMPLETED)
@@ -593,15 +758,16 @@ onMounted(async () => {
   // 后续切换界面返回时，不调用 startNext()，保持当前状态
 })
 
-// 监听账号切换，清空上传任务
-watch(() => appStore.userInfo, (newUserInfo) => {
-  if (newUserInfo) {
-    // 清空所有上传任务
+// 监听真正的账号切换，避免普通用户信息刷新清空队列
+watch(() => appStore.token, async (newToken, oldToken) => {
+  if (newToken && oldToken && newToken !== oldToken) {
+    activeXHRs.forEach(controller => controller.abort())
+    activeXHRs.clear()
     allTasks.value = []
-    // 重置自动启动标记
+    uploadingCount.value = 0
     hasAutoStarted.value = false
-    // 重新初始化
-    uploadStore.init()
+    saveToStorage()
+    await uploadStore.init()
   }
 }, { immediate: false })
 
@@ -738,7 +904,7 @@ const filteredItems = computed(() => {
         <!-- 队列项目 -->
         <div 
           v-for="file in filteredItems" 
-          :key="file.name"
+          :key="file.id"
           class="list-item" 
           style="display: flex; flex-direction: column; padding: 14px 20px; background: transparent; border-bottom: 0.5px solid var(--border); transition: background 0.2s;"
         >
@@ -769,41 +935,41 @@ const filteredItems = computed(() => {
             </div>
             <div class="list-item-action" style="display: flex; gap: 0.5rem; flex-shrink: 0;">
               <!-- 识别中 -->
-              <button v-if="file.isIdentifying" class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);" disabled>
+              <button v-if="file.isIdentifying" class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);" disabled>
                 <i class="fas fa-times"></i>
               </button>
               
               <!-- 待处理 -->
               <template v-else-if="file.status === UploadStatus.PENDING">
-                <button class="action-simple" @click="startUploadFromIdentified(file.name)" style="color: var(--accent);">
+                <button class="action-simple" @click="startUploadFromIdentified(file.id)" style="color: var(--accent);">
                   <i class="fas fa-play"></i>
                 </button>
-                <button class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+                <button class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                   <i class="fas fa-times"></i>
                 </button>
               </template>
               
               <!-- 等待 -->
-              <button v-else-if="file.status === UploadStatus.WAITING" class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+              <button v-else-if="file.status === UploadStatus.WAITING" class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                 <i class="fas fa-times"></i>
               </button>
               
               <!-- 已暂停 -->
               <template v-else-if="file.status === UploadStatus.PAUSED">
-                <button class="action-simple" @click="resumeUpload(file.name)" style="color: var(--accent);">
+                <button class="action-simple" @click="resumeUpload(file.id)" style="color: var(--accent);">
                   <i class="fas fa-play"></i>
                 </button>
-                <button class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+                <button class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                   <i class="fas fa-times"></i>
                 </button>
               </template>
               
               <!-- 上传中 -->
               <template v-else-if="file.status === UploadStatus.UPLOADING">
-                <button class="action-simple" @click="pauseUpload(file.name)" style="color: var(--warning);">
+                <button class="action-simple" @click="pauseUpload(file.id)" style="color: var(--warning);">
                   <i class="fas fa-pause"></i>
                 </button>
-                <button class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+                <button class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                   <i class="fas fa-times"></i>
                 </button>
               </template>
@@ -814,12 +980,12 @@ const filteredItems = computed(() => {
               </template>
               
               <!-- 已完成 -->
-              <button v-else-if="file.status === UploadStatus.COMPLETED" class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+              <button v-else-if="file.status === UploadStatus.COMPLETED" class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                 <i class="fas fa-times"></i>
               </button>
               
               <!-- 失败（仅删除，无重试） -->
-              <button v-else-if="file.status === UploadStatus.FAILED" class="action-simple" @click="deleteFile(file.name)" style="color: var(--text-secondary);">
+              <button v-else-if="file.status === UploadStatus.FAILED" class="action-simple" @click="deleteFile(file.id)" style="color: var(--text-secondary);">
                 <i class="fas fa-times"></i>
               </button>
             </div>

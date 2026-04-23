@@ -6,9 +6,10 @@ import api from './index.js';
 const watchlistApi = {
   /**
    * 获取片单列表
+   * @param {Object} params - 查询参数 { is_self, is_public, is_subscribe, ... }
    */
-  getList() {
-    return api.get('/api/watch');
+  getList(params = {}) {
+    return api.get('/api/watch', { params });
   },
   
   /**

@@ -139,9 +139,9 @@
             <div class="card-buttons">
               <span 
                 class="id-btn" 
-                @click="copyId(getVideoId(item))"
+                @click="copyId(item.item_id)"
               >
-                <i class="fas fa-hashtag"></i> {{ getVideoId(item) }}
+                <i class="fas fa-hashtag"></i> {{ item.item_id }}
               </span>
               <a 
                 :href="getTmdbUrl(item)" 
@@ -425,8 +425,8 @@ const copyId = async (id) => {
 
 // 跳转到视频详情页
 const goToDetail = (item) => {
-  // 根据视频类型确定 item_id
-  const itemId = item.video_type === 'movie' ? `vl-${item.video_list_id}` : item.todb_id
+  // 使用 video_list_id 构建路径
+  const itemId = `${item.video_list_id}`
   router.push(`/media/${itemId}`)
 }
 
@@ -625,6 +625,11 @@ watch(() => appStore.userInfo, (newUserInfo) => {
     loadSeeks(true)
   }
 }, { immediate: false })
+
+// 监听“我认领的”切换，重新加载数据
+watch(isUploadSelf, () => {
+  loadSeeks(true)
+})
 
 // keep-alive 激活时 - 重新添加滚动监听
 onActivated(() => {
@@ -960,6 +965,7 @@ onUnmounted(() => {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
@@ -1224,13 +1230,13 @@ onUnmounted(() => {
   }
   
   .card-main-row {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
   
   .card-poster {
-    width: 100%;
-    height: 180px;
+    width: 85px;
+    height: 120px;
   }
   
   .card-actions {

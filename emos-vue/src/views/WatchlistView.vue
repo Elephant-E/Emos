@@ -106,7 +106,7 @@ const loadWatchlists = async (isLoadMore = false) => {
       }
     }
     
-    const response = await watchlistApi.getList()
+    const response = await watchlistApi.getList(params)
     const items = response.items || []
     totalItems.value = response.total || 0
     

@@ -1,11 +1,17 @@
 name = "emos"
-main = "worker.js"
+main = "worker-with-assets.js"
 compatibility_date = "2024-01-01"
 
-# 绑定静态资源目录（前端构建产物）
-[assets]
-directory = "./dist"
+# 构建配置
+[build]
+command = "npm run build && node build-worker.cjs"
 
 # 环境变量
 [vars]
-EMOS_BACKEND = "https://emos.best"
+TMDB_API_KEY = "1413b833d2eaa044a2a0671611e083c8"
+EMOS_PROXY_NAME = "@Elephant"
+EMOS_PROXY_ID = "e7E6K6OE4s"
+
+# 路由配置（可选，如果需要自定义域名）
+# [env.production]
+# routes = ["emos.best/*"]

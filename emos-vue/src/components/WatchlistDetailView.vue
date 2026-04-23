@@ -1,12 +1,14 @@
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAppStore } from '@/stores/app.js'
 import api from '@/api/index.js'
 import { showToast } from '@/utils/toast.js'
 import ImageUploader from '@/components/ImageUploader.vue'
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
 
 // 组件名称（用于keep-alive）
 defineOptions({
@@ -132,6 +134,15 @@ onActivated(() => {
 onDeactivated(() => {
   window.removeEventListener('scroll', handleDetailScroll)
 })
+
+// 监听账号切换，重新加载片单详情
+watch(() => appStore.userInfo, (newUserInfo) => {
+  if (newUserInfo && detailState.id) {
+    // 切换账号后重新加载片单信息和视频列表
+    loadWatchlistInfo(detailState.id)
+    loadWatchVideos(true)
+  }
+}, { immediate: false })
 
 // ================= 方法 =================
 
@@ -632,7 +643,9 @@ const removeVideo = async (videoId) => {
       <button class="operation-btn back-btn" @click="backToList" title="返回">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <div v-if="detailState.isSelf || detailState.isEditVideo" class="detail-actions-group">
+      
+      <!-- 操作按钮组：已订阅或拥有权限时显示 -->
+      <div v-if="detailState.isSubscribe || detailState.isSelf || detailState.isEditVideo" class="detail-actions-group">
         <!-- 有编辑权限时显示（最高频操作放最左） -->
         <template v-if="detailState.isEditVideo">
           <!-- 添加视频（最高频） -->

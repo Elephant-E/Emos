@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app.js'
 import { userApi } from '@/api/userApi.js'
 import signApi from '@/api/signApi.js'
@@ -14,6 +15,7 @@ import { STORAGE_KEYS } from '@/utils/storage.js'
 import { formatFileSize, formatDate, formatRelativeTime, formatDateTime, animateValue, copyToClipboard as copyText } from '@/utils/format.js'
 
 const appStore = useAppStore()
+const { token: activeToken } = storeToRefs(appStore)
 
 // 用户信息（本地 ref，用于动画）
 const userInfo = ref(null)
@@ -816,7 +818,7 @@ const uploadCoverFile = async (file) => {
     formData.append('file', file)
     formData.append('emos_id', userId)
     
-    const response = await fetch('https://temporary.emos.best/upload', {
+    const response = await fetch('/temporary/upload', {
       method: 'POST',
       body: formData
     })
@@ -1339,10 +1341,10 @@ onMounted(() => {
           </div>
         </div>
         <div class="quick-actions">
-          <div class="action-icon" @click="copyToClipboard(userInfo?.id, '已复制用户ID')" title="复制用户ID">
+          <div class="action-icon" @click="copyToClipboard(userInfo?.user_id, '已复制用户ID')" title="复制用户ID">
             <i class="fas fa-id-card"></i>
           </div>
-          <div class="action-icon" @click="copyToClipboard(userInfo?.token || '', '已复制Token')" title="复制 Token">
+          <div class="action-icon" @click="copyToClipboard(activeToken || '', '已复制Token')" title="复制 Token">
             <i class="fas fa-key"></i>
           </div>
           <div class="action-icon" @click="copyPassword" title="复制密码">
@@ -1410,7 +1412,7 @@ onMounted(() => {
           <i class="fas fa-calendar-check"></i>
           <span>每日签到</span>
         </div>
-        <i class="fas fa-trophy" style="color:var(--accent);font-size:1.1rem;cursor:pointer;transition:all 0.2s var(--ease);" @click="openModal('signRank')"></i>
+        <i class="fas fa-trophy" style="color:var(--accent);font-size:1.1rem;cursor:pointer;transition:all 0.2s var(--ease);" @click="openModal('signRank')" @mouseenter="$event.target.style.transform='scale(1.2)'" @mouseleave="$event.target.style.transform='scale(1)'"></i>
       </div>
       <div class="signin-visual">
         <div class="signin-ring"></div>

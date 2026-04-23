@@ -1,6 +1,21 @@
 import api from './index.js';
+import { STORAGE_KEYS } from '@/utils/storage.js';
 
 const uploadApi = {
+  getStoredUserId() {
+    try {
+      const userInfo = JSON.parse(
+        localStorage.getItem(STORAGE_KEYS.USER_INFO) ||
+        localStorage.getItem(STORAGE_KEYS.ACTIVE_USER) ||
+        '{}'
+      );
+      return userInfo.id || userInfo.user_id || '';
+    } catch (e) {
+      console.warn('无法从 localStorage 获取用户信息:', e);
+      return '';
+    }
+  },
+
   // 获取上传排行榜
   rank() {
     return api.get('/api/rank/upload');
@@ -265,15 +280,7 @@ const uploadApi = {
       });
 
       // 从 localStorage 获取用户 ID
-      let userId = tokenData.user_id || '';
-      if (!userId) {
-        try {
-          const userInfo = JSON.parse(localStorage.getItem('activeUser') || '{}');
-          userId = userInfo.id || userInfo.user_id || '';
-        } catch (e) {
-          console.warn('无法从 localStorage 获取用户信息:', e);
-        }
-      }
+      let userId = tokenData.user_id || this.getStoredUserId();
 
       // 3. 上传文件
       await this.uploadFile(tokenData.type, tokenData.data, file, {
@@ -322,15 +329,7 @@ const uploadApi = {
       });
 
       // 从 localStorage 获取用户 ID
-      let userId = tokenData.user_id || '';
-      if (!userId) {
-        try {
-          const userInfo = JSON.parse(localStorage.getItem('activeUser') || '{}');
-          userId = userInfo.id || userInfo.user_id || '';
-        } catch (e) {
-          console.warn('无法从 localStorage 获取用户信息:', e);
-        }
-      }
+      let userId = tokenData.user_id || this.getStoredUserId();
 
       // 2. 上传文件
       await this.uploadFile(tokenData.type, tokenData.data, file, {

@@ -115,7 +115,7 @@
         <!-- 加载更多骨架屏 -->
         <template v-if="isLoadingMore">
           <div 
-            v-for="i in Math.min(pageSize, totalItems - products.length)" 
+            v-for="i in pageSize" 
             :key="`loading-more-${i}`"
             class="product-card skeleton-card"
           >
@@ -345,7 +345,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import shopApi from '@/api/shopApi.js'
@@ -515,16 +515,21 @@ const confirmOrder = async () => {
 
 onMounted(async () => {
   await loadProducts()
-  
-  // 添加滚动监听 - 只监听当前组件的滚动
-  const scrollContainer = document.querySelector('.layout-container') || window
-  scrollContainer.addEventListener('scroll', handleScroll)
+})
+
+// keep-alive 激活时 - 重新添加滚动监听
+onActivated(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+// keep-alive 停用时 - 移除滚动监听（防止页面切换时触发）
+onDeactivated(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 
 // 组件卸载时移除监听
 onUnmounted(() => {
-  const scrollContainer = document.querySelector('.layout-container') || window
-  scrollContainer.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('scroll', handleScroll)
 })
 
 // ================= Watch 监听 =================
@@ -552,22 +557,10 @@ watch(currentSort, () => {
 const handleScroll = () => {
   if (isLoading.value || isLoadingMore.value || !hasMore.value) return
   
-  // 获取滚动容器（优先使用 .layout-container，否则使用 window）
-  const scrollContainer = document.querySelector('.layout-container')
-  
-  let scrollTop, windowHeight, scrollHeight
-  
-  if (scrollContainer) {
-    // 监听特定容器
-    scrollTop = scrollContainer.scrollTop
-    windowHeight = scrollContainer.clientHeight
-    scrollHeight = scrollContainer.scrollHeight
-  } else {
-    // 降级到 window
-    scrollTop = window.scrollY || document.documentElement.scrollTop
-    windowHeight = window.innerHeight
-    scrollHeight = document.documentElement.scrollHeight
-  }
+  // 使用 window 滚动
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  const windowHeight = window.innerHeight
+  const scrollHeight = document.documentElement.scrollHeight
   
   // 距离底部 200px 时触发加载
   if (scrollTop + windowHeight >= scrollHeight - 200) {
@@ -629,11 +622,6 @@ const loadProducts = async (isLoadMore = false) => {
       // 更新总数和是否有更多
       totalItems.value = res.total || 0
       hasMore.value = products.value.length < totalItems.value
-      
-      // 如果有更多数据，页码+1
-      if (hasMore.value) {
-        currentPage.value += 1
-      }
     }
   } catch (error) {
     console.error('加载商品失败:', error)
@@ -764,6 +752,7 @@ const loadMore = async () => {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex: 1;

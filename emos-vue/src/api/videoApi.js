@@ -189,6 +189,19 @@ export const videoApi = {
     
     return results;
   },
+  
+  /**
+   * 获取 TMDB 预告片
+   * @param {string|number} tmdbId - TMDB ID
+   * @param {string} mediaType - 媒体类型：'movie' 或 'tv'
+   * @returns {Promise<Object>} 预告片信息 { embed_url: string }
+   */
+  getTrailer(tmdbId, mediaType) {
+    const query = new URLSearchParams();
+    query.append('tmdb_id', tmdbId);
+    query.append('media_type', mediaType);
+    return api.get(`/api/video/trailer?${query.toString()}`);
+  },
 };
 
 export default videoApi;

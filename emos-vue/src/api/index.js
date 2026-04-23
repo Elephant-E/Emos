@@ -1,26 +1,9 @@
 // 检测是否为本地开发环境（localhost）
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// API Base URL 配置：
-// 1. 本地开发：使用空字符串（通过 Vite 代理）
-// 2. 生产环境：使用生产地址
-let API_BASE;
-if (isLocalhost) {
-  // 本地开发：使用空字符串，通过 Vite 代理转发到后端
-  API_BASE = '';
-} else {
-  API_BASE = 'https://emos.best';
-}
-
-// 打印当前环境信息（仅开发环境）
-if (import.meta.env.DEV) {
-  if (isLocalhost) {
-    console.log('💻 当前环境: 本地开发模式');
-    console.log('🔧 Base URL:', API_BASE || '(使用 Vite 代理)', '(直连 EMOS Backend)');
-  } else {
-    console.log('✅ 当前环境: 生产模式');
-  }
-}
+// API Base URL 配置
+// 使用相对路径，通过 Vite 代理转发到后端
+const API_BASE = '';
 
 class ApiClient {
   constructor() {

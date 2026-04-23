@@ -41,6 +41,7 @@ onMounted(() => {
 <style scoped>
 .layout-container {
   min-height: calc(100vh - 140px); /* 减去 body 的 padding-top (100px) 和 padding-bottom (40px) */
+  background: transparent; /* 确保不覆盖 body 的背景渐变 */
 }
 
 @media (max-width: 768px) {

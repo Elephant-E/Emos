@@ -114,7 +114,7 @@ router.beforeEach((to, from, next) => {
   // 检查认证状态
   if (to.meta.requiresAuth && !appStore.isAuthenticated) {
     // 未登录，跳转到独立登录页
-    window.location.href = '/public/login.html'
+    window.location.href = '/login'
     return
   }
   

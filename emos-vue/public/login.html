@@ -186,7 +186,7 @@ html, body {
   <div class="glass-card">
     <div class="brand-logo"><i class="fas fa-play-circle"></i></div>
     <h1 class="brand-title">探索无界</h1>
-    <p class="brand-subtitle">欢迎回到 EMOS，请选择登录方式</p>
+    <p class="brand-subtitle">欢迎来到 EMOS，请选择登录方式</p>
 
     <div class="login-section">
       <div class="tab-container">
@@ -230,7 +230,7 @@ html, body {
 <script>
 // ================= 登录逻辑 =================
 const STORAGE_KEYS = { ACTIVE_TOKEN: 'activeToken' };
-const API_BASE = 'https://emos.best'; // 后端 API 地址
+const API_BASE = ''; // 同源 Worker 代理
 
 // 初始化 Tab 切换
 window.switchTab = function(type) {
@@ -361,7 +361,7 @@ async function getUserInfo(token) {
     } catch (err) {
       console.error('登录失败:', err);
       alert('登录失败: ' + err.message);
-      window.location.href = '/login.html';
+      window.location.href = '/login';
     }
   }
 })();
@@ -375,8 +375,8 @@ document.getElementById('jumpLoginBtn').addEventListener('click', () => {
   
   const returnUrl = encodeURIComponent(window.location.href.split('?')[0]);
   
-  // 跳转到后端登录接口
-  window.location.href = `${API_BASE}/link?uuid=${uuid}&name=EMOS&url=${returnUrl}`;
+  // 直接跳转到后端授权接口（不经过 Worker 代理）
+  window.location.href = `https://emos.best/link?uuid=${uuid}&name=EMOS&url=${returnUrl}`;
 });
 
 // Token 登录逻辑

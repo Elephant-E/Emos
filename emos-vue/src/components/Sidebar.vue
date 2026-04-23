@@ -1,7 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { showToast } from '@/utils/toast.js'
 
 const router = useRouter()
 const route = useRoute()
@@ -21,7 +20,6 @@ const menuItems = [
 
 // 侧边栏状态
 const sidebarOpen = ref(false)
-const overlayVisible = ref(false)
 
 // 判断是否为活动路由
 const isActive = (path) => {
@@ -38,22 +36,55 @@ const navigateTo = (path) => {
   }
 }
 
-// 切换侧边栏（桌面端和移动端都是显示/隐藏）
+// 切换侧边栏
 const toggleSidebar = () => {
   if (window.innerWidth <= 768) {
-    // 移动端：弹出/收起
+    // 移动端：模态抽屉
     sidebarOpen.value = !sidebarOpen.value
-    overlayVisible.value = sidebarOpen.value
+    
+    // 如果打开，禁止背景滚动
+    if (sidebarOpen.value) {
+      document.body.style.overflow = 'hidden'
+      // 添加全局点击事件监听器来关闭侧边栏
+      setTimeout(() => {
+        document.addEventListener('click', handleOutsideClick)
+      }, 100)
+    } else {
+      // 延迟恢复滚动，等待动画完成
+      setTimeout(() => {
+        if (!sidebarOpen.value) {
+          document.body.style.overflow = ''
+        }
+      }, 450)
+      document.removeEventListener('click', handleOutsideClick)
+    }
   } else {
-    // 桌面端：显示/隐藏
-    document.body.classList.toggle('sidebar-open')
+    // 桌面端：切换收起/展开状态
+    document.body.classList.toggle('sidebar-collapsed')
   }
 }
 
-// 关闭侧边栏（移动端）
+// 关闭侧边栏
 const closeSidebar = () => {
   sidebarOpen.value = false
-  overlayVisible.value = false
+  document.removeEventListener('click', handleOutsideClick)
+  // 延迟恢复滚动，等待动画完成
+  setTimeout(() => {
+    if (!sidebarOpen.value) {
+      document.body.style.overflow = ''
+    }
+  }, 450)
+}
+
+// 处理外部点击（点击侧边栏外部区域）
+const handleOutsideClick = (e) => {
+  const sidebar = document.querySelector('.sidebar-apple')
+  const hamburgerBtn = document.querySelector('.hamburger-btn')
+  
+  // 如果点击的不是侧边栏本身也不是汉堡按钮，则关闭侧边栏
+  if (sidebar && !sidebar.contains(e.target) && (!hamburgerBtn || !hamburgerBtn.contains(e.target))) {
+    closeSidebar()
+  }
 }
 
 // 暴露toggleSidebar方法给父组件调用
@@ -66,33 +97,29 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     if (window.innerWidth > 768) {
       sidebarOpen.value = false
-      overlayVisible.value = false
+      document.body.style.overflow = ''
     }
   })
+})
+
+onUnmounted(() => {
+  document.body.style.overflow = ''
 })
 </script>
 
 <template>
   <aside class="sidebar-apple" :class="{ open: sidebarOpen }">
-    <div class="sidebar-content">
-      <div 
-        v-for="item in menuItems" 
-        :key="item.path"
-        class="sidebar-item" 
-        :class="{ active: isActive(item.path) }"
-        @click="navigateTo(item.path)"
-      >
-        <i :class="`fas ${item.icon}`"></i>
-        <span>{{ item.label }}</span>
-      </div>
+    <div 
+      v-for="item in menuItems" 
+      :key="item.path"
+      class="sidebar-item" 
+      :class="{ active: isActive(item.path) }"
+      @click="navigateTo(item.path)"
+    >
+      <i :class="`fas ${item.icon}`"></i>
+      <span>{{ item.label }}</span>
     </div>
   </aside>
-  
-  <div 
-    class="sidebar-overlay" 
-    :class="{ show: overlayVisible }"
-    @click="closeSidebar"
-  ></div>
 </template>
 
 <style scoped>

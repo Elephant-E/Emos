@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 
 // 状态枚举
 const UploadStatus = {
@@ -59,7 +59,7 @@ export const useUploadStore = defineStore('upload', () => {
         const parsedTasks = JSON.parse(tasksData)
         
         allTasks.value = parsedTasks.map(f => {
-          if (f.status === UploadStatus.UPLOADING) {
+          if (f.status === UploadStatus.UPLOADING || f.status === UploadStatus.SAVING) {
             f.status = UploadStatus.PAUSED
           }
           f.fileObj = null
@@ -71,15 +71,7 @@ export const useUploadStore = defineStore('upload', () => {
           }
           return f
         })
-        
-        const originalCount = allTasks.value.length
-        allTasks.value = allTasks.value.filter(f => {
-          return f.progress != null && f.progress > 0 && f.status !== UploadStatus.COMPLETED
-        })
-        
-        if (allTasks.value.length < originalCount) {
-          saveToStorage()
-        }
+        allTasks.value = allTasks.value.filter(f => f.status !== UploadStatus.COMPLETED)
       }
 
       if (concurrencyData) {

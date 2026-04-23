@@ -159,7 +159,7 @@ const submitChannel = async () => {
 const loadPlaylists = async () => {
   playlistLoading.value = true
   try {
-    const response = await watchlistApi.getList()
+    const response = await watchlistApi.getList({ is_self: 1 })
     playlists.value = response.items || []
   } catch (error) {
     console.error('加载片单失败:', error)

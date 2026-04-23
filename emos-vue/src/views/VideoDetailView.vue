@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import videoApi from '@/api/videoApi.js'
 import seekApi from '@/api/seekApi.js'
+import tmdbApi from '@/api/tmdbApi.js'
 import { formatDate, escapeHtml, formatFileSize } from '@/utils/format.js'
 import { showToast } from '@/utils/toast.js'
 
@@ -51,6 +52,14 @@ const deleteForm = ref({ media_id: '', reason: '' }) // 删除表单
 // 季列表、集列表、资源列表
 const seasons = ref([])
 const episodes = ref({}) // { season_id: [episodes] }
+
+// 预告片相关
+const trailerKey = ref(null) // YouTube 视频 key
+const trailerEmbedUrl = ref(null) // YouTube embed URL（来自后端）
+const showTrailer = ref(false) // 是否显示预告片
+const isTrailerMuted = ref(true) // 是否静音（默认静音）
+let trailerTimer = null // 预告片播放定时器
+const trailerIframeRef = ref(null)
 const resources = ref([]) // 当前选中的集的资源列表
 const expandedSeasons = ref({}) // { season_id: boolean } 跟踪哪些季被展开
 const selectedEpisode = ref(null) // 当前选中的集
@@ -98,6 +107,14 @@ const formatDuration = (seconds) => {
   }
   return `${minutes}:${String(secs).padStart(2, '0')}`
 }
+
+const trailerPlayerUrl = computed(() => {
+  if (!trailerEmbedUrl.value) return null
+
+  const url = new URL(trailerEmbedUrl.value, window.location.origin)
+  url.searchParams.set('mute', isTrailerMuted.value ? '1' : '0')
+  return url.toString()
+})
 
 // 加载指定集的资源列表
 const loadResourcesForEpisode = async (seasonId, episodeId) => {
@@ -247,7 +264,46 @@ const loadVideoDetail = async () => {
     showToast('加载视频详情失败', 'error')
   } finally {
     isLoading.value = false
+    // 加载完成后获取预告片
+    loadTrailer()
   }
+}
+
+// 获取预告片
+const loadTrailer = async () => {
+  if (!videoData.value?.tmdb_id || !videoData.value?.video_type) return
+  
+  try {
+    const tmdbId = videoData.value.tmdb_id
+    const mediaType = videoData.value.video_type === 'movie' ? 'movie' : 'tv'
+    
+    // 调用 TMDB API 获取预告片
+    const trailer = await tmdbApi.getTrailer(tmdbId, mediaType)
+    
+    if (trailer && trailer.key) {
+      if (trailerTimer) {
+        clearTimeout(trailerTimer)
+        trailerTimer = null
+      }
+
+      showTrailer.value = false
+      isTrailerMuted.value = true
+      trailerKey.value = trailer.key
+      trailerEmbedUrl.value = trailer.embed_url
+      
+      // 3秒后显示并播放预告片
+      trailerTimer = setTimeout(() => {
+        showTrailer.value = true
+      }, 3000)
+    }
+  } catch (error) {
+    console.error('加载预告片失败:', error)
+  }
+}
+
+// 切换预告片静音状态
+const toggleTrailerMute = () => {
+  isTrailerMuted.value = !isTrailerMuted.value
 }
 
 // 返回上一页
@@ -674,6 +730,11 @@ onUnmounted(() => {
   document.body.classList.remove('detail-page-active')
   // 移除全局点击事件监听
   document.removeEventListener('click', handleGlobalClick)
+  // 清理预告片定时器
+  if (trailerTimer) {
+    clearTimeout(trailerTimer)
+    trailerTimer = null
+  }
 })
 
 // 全局点击关闭下拉菜单
@@ -773,10 +834,34 @@ const handleGlobalClick = (event) => {
         ></div>
         <div class="hero-gradient"></div>
         
+        <!-- 预告片视频 -->
+        <div 
+          v-if="trailerPlayerUrl && showTrailer" 
+          class="hero-trailer"
+        >
+          <iframe
+            ref="trailerIframeRef"
+            :src="trailerPlayerUrl"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        
         <!-- 顶部操作栏 -->
         <div class="hero-actions">
           <button class="hero-action-btn back-btn" @click="goBack">
             <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <!-- 预告片控制按钮 -->
+          <button 
+            v-if="trailerKey"
+            class="hero-action-btn trailer-mute-btn" 
+            @click="toggleTrailerMute"
+            :title="isTrailerMuted ? '开启声音' : '静音'"
+          >
+            <i :class="isTrailerMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up'"></i>
           </button>
         </div>
         
@@ -855,7 +940,8 @@ const handleGlobalClick = (event) => {
                 :class="{ 
                   expanded: expandedSeasons[season.season_id],
                   'no-bottom-radius': expandedSeasons[season.season_id],
-                  'no-top-radius': index > 0 && expandedSeasons[seasons[index - 1].season_id]
+                  'no-top-radius': index > 0 && expandedSeasons[seasons[index - 1].season_id],
+                  'last-season': index === seasons.length - 1
                 }"
                 @click="toggleSeason(season)"
               >
@@ -917,8 +1003,10 @@ const handleGlobalClick = (event) => {
                       <span class="episode-number">{{ episode.episode_number }}.</span>
                       <span class="episode-title">{{ episode.episode_title || `第 ${episode.episode_number} 集` }}</span>
                     </div>
-                    <div class="setting-desc" v-if="episode.date_air">
-                      {{ episode.date_air }}
+                    <div class="setting-desc" v-if="episode.date_air || episode.item_id">
+                      <span v-if="episode.date_air">{{ episode.date_air }}</span>
+                      <span v-if="episode.date_air && episode.item_id"> · </span>
+                      <span v-if="episode.item_id">{{ episode.item_id }}</span>
                     </div>
                   </div>
                   
@@ -1769,6 +1857,41 @@ const handleGlobalClick = (event) => {
   z-index: 0;
 }
 
+/* 预告片视频容器 */
+.hero-trailer {
+  position: absolute;
+  top: -75px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  animation: trailer-fade-in 0.8s ease forwards;
+}
+
+.hero-trailer iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 177.777vh;
+  min-width: 100%;
+  height: 56.25vw;
+  min-height: calc(100% + 75px);
+  border: none;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes trailer-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .hero-gradient {
   position: absolute;
   top: -75px; /* 与背景图同步向上延伸 */
@@ -2046,6 +2169,24 @@ const handleGlobalClick = (event) => {
   z-index: 1;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+/* 季项内的 setting-info 不需要 margin-bottom */
+.season-item-clickable .setting-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.season-item-clickable .setting-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
 }
 
 /* 季项圆角处理 */
@@ -2061,6 +2202,11 @@ const handleGlobalClick = (event) => {
 .season-item-clickable.expanded {
   border-radius: 0;
   border-bottom: none !important;
+}
+
+/* 最后一个季项（未展开时）移除底部边框 */
+.season-item-clickable.last-season:not(.expanded) {
+  border-bottom: none;
 }
 
 /* 左侧箭头样式 */
@@ -2158,7 +2304,7 @@ const handleGlobalClick = (event) => {
 /* 集号 */
 .episode-number {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.95rem;
   margin-right: 0.25rem;
 }
@@ -2166,8 +2312,8 @@ const handleGlobalClick = (event) => {
 /* 集标题 */
 .episode-title {
   color: var(--text-primary);
-  font-weight: 400;
-  font-size: 0.9rem;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 /* 求片图标 */
@@ -2380,6 +2526,10 @@ const handleGlobalClick = (event) => {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
+  .hero-actions {
+    padding: 1rem 1rem 0;
+  }
+  
   .hero-content {
     padding: 0 1rem 1rem;
     flex-direction: column;
@@ -2499,6 +2649,15 @@ const handleGlobalClick = (event) => {
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+/* 移动端资源列表模态框适配 */
+@media (max-width: 768px) {
+  .resource-desc {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
   }
 }
 </style>

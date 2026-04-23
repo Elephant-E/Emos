@@ -16,18 +16,25 @@ export default defineConfig({
           next()
         })
       }
+    },
+    {
+      name: 'api-fallback',
+      configureServer(server) {
+        server.middlewares.use((req: any, res: any, next: any) => {
+          // 如果是 API 请求，不要返回 index.html
+          if (req.url && req.url.startsWith('/api/')) {
+            // 让请求继续，如果后端没有处理，会返回 404
+            return next()
+          }
+          next()
+        })
+      }
     }
   ],
   server: {
     host: '0.0.0.0', // 监听所有网络接口，允许局域网访问
     port: 5173,
-    open: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:61680',
-        changeOrigin: true
-      }
-    }
+    open: true
   },
   resolve: {
     alias: {
