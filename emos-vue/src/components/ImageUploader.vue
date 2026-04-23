@@ -230,7 +230,7 @@ watch(() => props.modelValue, (newVal) => {
     if (newVal.startsWith('http')) {
       previewUrl.value = newVal
     }
-    // 如果是file_id，需要获取URL（这里简化处理，实际可能需要API查询）
+    // 现在直接使用 URL，不再处理 file_id
   } else if (!newVal) {
     previewUrl.value = ''
     fileId.value = ''
@@ -327,20 +327,9 @@ const handleScroll = (event) => {
   }
 }
 
-// 选择图片 - 点击直接确认选择
+// 选择图片 - 仅设置选中状态，等待用户点击确认按钮
 const selectImage = (img) => {
-  fileId.value = img.file_id
-  previewUrl.value = img.url
-  
-  emit('update:modelValue', img.file_id)
-  emit('change', {
-    fileId: img.file_id,
-    url: img.url
-  })
-  emit('upload-success', img.file_id)
-  
-  showToast('图片选择成功！', 'success')
-  closeSelector()
+  selectedImageId.value = img.file_id
 }
 
 // 确认选择
@@ -352,7 +341,7 @@ const confirmSelection = () => {
     fileId.value = selectedImg.file_id
     previewUrl.value = selectedImg.url
     
-    emit('update:modelValue', selectedImg.file_id)
+    emit('update:modelValue', selectedImg.url)
     emit('change', {
       fileId: selectedImg.file_id,
       url: selectedImg.url
@@ -483,10 +472,11 @@ const uploadImage = async (file) => {
       selectedImageId.value = tokenData.file_id
     }
     
-    // 5. 触发事件
-    emit('update:modelValue', tokenData.file_id)
+    // 5. 触发事件 - 使用 URL 而不是 file_id
+    emit('update:modelValue', tokenData.url || previewUrl.value)
     emit('change', {
       fileId: tokenData.file_id,
+      url: tokenData.url || previewUrl.value,
       file: file
     })
     emit('upload-success', tokenData.file_id)

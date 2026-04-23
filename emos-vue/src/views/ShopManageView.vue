@@ -861,8 +861,8 @@
         <div class="form-group">
           <label class="form-label">商品封面</label>
           <ImageUploader 
-            :model-value="productForm.cover"
-            @change="(data) => { productForm.cover = data.fileId }"
+            :model-value="productForm.cover_url"
+            @change="(data) => { productForm.cover_url = data.url }"
             :max-size="5 * 1024 * 1024"
             placeholder-text="点击选择图片"
             hint-text="从已上传图片中选择或上传新图片"
@@ -1403,7 +1403,7 @@ const isProductSaving = ref(false)
 const productForm = ref({
   product_id: null,
   category_id: null,
-  cover: '',
+  cover_url: '',
   name: '',
   description: '',
   exchange_way: '',
@@ -1525,7 +1525,7 @@ const openProductModal = (product = null) => {
     productForm.value = {
       product_id: product.product_id,
       category_id: product.category_id,
-      cover: product.cover_url || product.cover || '',
+      cover_url: product.cover_url || '',
       name: product.name,
       description: product.description || '',
       exchange_way: product.exchange_way || '',
@@ -1542,7 +1542,7 @@ const openProductModal = (product = null) => {
     productForm.value = {
       product_id: null,
       category_id: categories.value.length > 0 ? categories.value[0].category_id : null,
-      cover: '',
+      cover_url: '',
       name: '',
       description: '',
       exchange_way: '',
@@ -1593,7 +1593,7 @@ const saveProduct = async () => {
     const res = await shopApi.createOrUpdateProduct({
       product_id: productForm.value.product_id,
       category_id: productForm.value.category_id,
-      cover: productForm.value.cover,
+      cover_url: productForm.value.cover_url,
       name: productForm.value.name.trim(),
       description: productForm.value.description.trim(),
       exchange_way: productForm.value.exchange_way.trim(),
