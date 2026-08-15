@@ -1,21 +1,21 @@
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import liveApi from '@/api/liveApi.js'
-import { showToast } from '@/utils/toast.js'
-import { confirmDialog } from '@/utils/confirm.js'
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const router = useRouter()
-const route = useRoute()
+import { useChannelDetail } from '@/composables/useChannelDetail.js'
+import { useChannelEdit } from '@/composables/useChannelEdit.js'
+import { useChannelMedia } from '@/composables/useChannelMedia.js'
 
 // 组件名称（用于keep-alive）
 defineOptions({
   name: 'LiveChannelDetailView'
 })
 
-// ================= 状态管理 =================
+const router = useRouter()
+
+// ================= 共享状态（装配层创建，注入各域）=================
 const detailState = reactive({
   id: null,
   title: '',
@@ -30,370 +30,50 @@ const detailState = reactive({
   isLoading: false
 })
 
-// 加载状态
-const isLoadingInfo = ref(false)
-const isLoadingMore = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(20)
-const hasMoreMedias = ref(true)
-
-// 搜索防抖定时器
-let searchTimeout = null
-
 // 模态框状态
 const modals = reactive({
   addMedia: false,
   editChannel: false
 })
 
-// 添加直播源表单（支持批量）
-const mediaFormList = ref([
-  { name: '', pathUrl: '', pathType: 'm3u8' }
-])
+// ================= 核心数据域 =================
+const {
+  isLoadingInfo,
+  isLoadingMore,
+  hasMoreMedias,
+  loadChannelInfo,
+  loadChannelMedias,
+  backToList,
+  handleSearchInput,
+} = useChannelDetail({ detailState })
 
-const isSavingMedia = ref(false)
+// ================= 频道编辑域 =================
+const {
+  editChannelForm,
+  isSubmittingChannel,
+  closeEditChannelModal,
+  openEditChannelModal,
+  saveEditChannel,
+  deleteChannel,
+  setRouterPushMedia,
+} = useChannelEdit({ detailState, modals, loadChannelInfo })
 
-// 编辑频道表单
-const editChannelForm = reactive({
-  id: null,
-  title: '',
-  description: '',
-  tagline: '',
-  imagePosterUrl: ''  // 新 API：使用 URL
-})
-
-const isSubmittingChannel = ref(false)
-
-const closeAddMediaModal = () => {
-  modals.addMedia = false
-  mediaFormList.value = [{ name: '', pathUrl: '', pathType: 'm3u8' }]
-}
-
-const closeEditChannelModal = () => {
-  modals.editChannel = false
-  editChannelForm.id = null
-  editChannelForm.title = ''
-  editChannelForm.description = ''
-  editChannelForm.tagline = ''
-  editChannelForm.imagePosterUrl = ''
-}
-
-// ================= 生命周期 =================
-onMounted(() => {
-  const channelId = route.params.id
-  if (channelId) {
-    detailState.id = channelId
-    loadChannelInfo(channelId)
-    loadChannelMedias()
-    window.addEventListener('scroll', handleDetailScroll)
-  } else {
-    showToast('无效的频道ID', 'error')
-    // 如果有历史记录，返回上一页；否则跳转到媒体页面
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      router.push('/media')
-    }
-  }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleDetailScroll)
-})
-
-// keep-alive 激活时刷新数据
-onActivated(() => {
-  window.addEventListener('scroll', handleDetailScroll)
-  // 如果路由参数变化，重新加载
-  const channelId = route.params.id
-  if (channelId && channelId !== detailState.id) {
-    detailState.id = channelId
-    loadChannelInfo(channelId)
-    loadChannelMedias()
-  }
-})
-
-onDeactivated(() => {
-  window.removeEventListener('scroll', handleDetailScroll)
-})
-
-// ================= 方法 =================
-
-const applyChannelDetail = (channel = {}) => {
-  detailState.title = channel.title || ''
-  detailState.description = channel.description || ''
-  detailState.tagline = channel.tagline || ''
-  detailState.imagePosterUrl = channel.image_poster_url || ''
-  detailState.code = channel.code || ''
-  detailState.mediaCount = channel.media_count || 0
-  detailState.isCanEdit = channel.is_can_edit === true
-}
-
-// 加载频道基本信息
-const loadChannelInfo = async (channelId) => {
-  isLoadingInfo.value = true
-  try {
-    const response = await liveApi.getChannelList({ id: channelId })
-    
-    // API 返回的可能是数组或直接对象
-    let channel
-    if (Array.isArray(response)) {
-      channel = response[0]
-    } else if (response && response.items && Array.isArray(response.items)) {
-      // 如果返回的是分页格式 { items: [...] }
-      channel = response.items[0]
-    } else {
-      channel = response
-    }
-    
-    if (!channel) {
-      throw new Error('频道不存在或无权访问')
-    }
-
-    applyChannelDetail(channel)
-  } catch (error) {
-    console.error('加载频道信息失败:', error)
-    showToast(error.message || '加载失败', 'error')
-    // 如果有历史记录，返回上一页；否则跳转到媒体页面
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      router.push('/media')
-    }
-  } finally {
-    isLoadingInfo.value = false
-  }
-}
-
-const handleDetailScroll = () => {
-  if (detailState.isLoading || isLoadingMore.value || !hasMoreMedias.value) return
-
-  const scrollTop = window.scrollY || document.documentElement.scrollTop
-  const windowHeight = window.innerHeight
-  const documentHeight = document.documentElement.scrollHeight
-
-  if (scrollTop + windowHeight >= documentHeight - 240) {
-    loadChannelMedias(false)
-  }
-}
-
-// 加载频道资源列表
-const loadChannelMedias = async (reset = true) => {
-  if (!detailState.id) return
-  
-  if (reset) {
-    detailState.isLoading = true
-    currentPage.value = 1
-    hasMoreMedias.value = true
-  } else {
-    if (!hasMoreMedias.value) return
-    isLoadingMore.value = true
-  }
-
-  try {
-    const response = await liveApi.getMediaList({
-      live_list_id: detailState.id,
-      page: currentPage.value,
-      page_size: pageSize.value,
-      name: detailState.searchQuery.trim() || undefined
-    })
-    
-    const items = response.items || []
-    const total = response.total ?? items.length
-
-    if (reset) {
-      detailState.medias = items
-    } else {
-      detailState.medias = [...detailState.medias, ...items]
-    }
-
-    detailState.mediaCount = total
-    hasMoreMedias.value = detailState.medias.length < total && items.length > 0
-
-    if (hasMoreMedias.value) {
-      currentPage.value += 1
-    }
-  } catch (error) {
-    console.error('加载频道资源失败:', error)
-    showToast(error.message || '加载失败', 'error')
-  } finally {
-    if (reset) {
-      detailState.isLoading = false
-    } else {
-      isLoadingMore.value = false
-    }
-  }
-}
-
-// 返回频道列表
-const backToList = () => {
-  if (window.history.length > 1) {
-    router.back()
-    return
-  }
-
+// 删除频道后跳转媒体页
+setRouterPushMedia(() => {
   router.push('/media')
-}
+})
 
-// 处理搜索输入（防抖）
-const handleSearchInput = () => {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    loadChannelMedias(true)
-  }, 300)
-}
-
-// 打开添加直播源模态框
-const openAddMediaModal = () => {
-  // 重置为一个空表单行
-  mediaFormList.value = [
-    { name: '', pathUrl: '', pathType: 'm3u8' }
-  ]
-  modals.addMedia = true
-}
-
-// 添加新的表单行
-const addMediaRow = () => {
-  mediaFormList.value.push({ name: '', pathUrl: '', pathType: 'm3u8' })
-}
-
-// 删除表单行
-const removeMediaRow = (index) => {
-  if (mediaFormList.value.length > 1) {
-    mediaFormList.value.splice(index, 1)
-  } else {
-    showToast('至少保留一个表单行', 'warning')
-  }
-}
-
-// 保存直播源（使用批量更新 API）
-const saveMedia = async () => {
-  if (isSavingMedia.value) return
-  
-  // 验证所有表单行
-  for (let i = 0; i < mediaFormList.value.length; i++) {
-    const row = mediaFormList.value[i]
-    if (!row.name.trim()) {
-      showToast(`第 ${i + 1} 行的直播源名称不能为空`, 'warning')
-      return
-    }
-    if (!row.pathUrl.trim()) {
-      showToast(`第 ${i + 1} 行的直播源地址不能为空`, 'warning')
-      return
-    }
-  }
-  
-  isSavingMedia.value = true
-  
-  try {
-    // 构建批量提交数据
-    const medias = mediaFormList.value
-      .filter(row => row.name.trim() && row.pathUrl.trim())
-      .map(row => ({
-        name: row.name.trim(),
-        path_type: row.pathType,
-        path_url: row.pathUrl.trim()
-      }))
-    
-    if (medias.length === 0) {
-      showToast('请至少填写一个有效的直播源', 'warning')
-      return
-    }
-    
-    // 使用批量更新 API 添加直播源
-    await liveApi.updateMediaBatch({
-      live_list_id: detailState.id,
-      medias: medias
-    })
-    
-    showToast(`成功添加 ${medias.length} 个直播源`, 'success')
-    modals.addMedia = false
-    await loadChannelMedias(true)
-  } catch (error) {
-    console.error('添加直播源失败:', error)
-    showToast(error.message || '添加失败', 'error')
-  } finally {
-    isSavingMedia.value = false
-  }
-}
-
-// 删除直播源
-const deleteMedia = async (mediaId) => {
-  if (!(await confirmDialog('确定要删除该直播源吗？', '确认', true))) return
-
-  try {
-    await liveApi.deleteMedia(mediaId)
-    showToast('直播源已删除', 'success')
-    await loadChannelMedias(true)
-  } catch (error) {
-    console.error('删除直播源失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
-
-// 删除频道
-const deleteChannel = async () => {
-  if (!detailState.id) return
-  if (!(await confirmDialog('确定要删除该频道吗？此操作不可恢复！', '确认', true))) return
-
-  try {
-    await liveApi.deleteChannel(detailState.id)
-    showToast('频道已删除', 'success')
-    router.push('/media')
-  } catch (error) {
-    console.error('删除频道失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
-
-// 打开编辑频道模态框
-const openEditChannelModal = () => {
-  editChannelForm.id = detailState.id
-  editChannelForm.title = detailState.title
-  editChannelForm.description = detailState.description || ''
-  editChannelForm.tagline = detailState.tagline || ''
-  // 默认显示当前频道的封面图片
-  editChannelForm.imagePosterUrl = detailState.imagePosterUrl || ''  // 新 API：使用 URL
-  isSubmittingChannel.value = false
-  modals.editChannel = true
-}
-
-// 保存编辑频道
-const saveEditChannel = async () => {
-  if (!editChannelForm.title.trim()) {
-    showToast('请输入频道标题', 'warning')
-    return
-  }
-  
-  isSubmittingChannel.value = true
-  
-  try {
-    const requestData = {
-      id: editChannelForm.id,
-      title: editChannelForm.title.trim(),
-      description: editChannelForm.description.trim() || null,
-      tagline: editChannelForm.tagline.trim() || null
-    }
-    
-    // 如果有上传图片，添加到请求中
-    if (editChannelForm.imagePosterUrl) {
-      requestData.image_poster_url = editChannelForm.imagePosterUrl  // 新 API：使用 URL
-    }
-    
-    await liveApi.createOrUpdateChannel(requestData)
-    
-    showToast('频道信息已更新', 'success')
-    modals.editChannel = false
-    
-    // 重新加载频道信息
-    await loadChannelInfo(detailState.id)
-  } catch (error) {
-    console.error('更新频道失败:', error)
-    showToast(error.message || '更新失败', 'error')
-  } finally {
-    isSubmittingChannel.value = false
-  }
-}
+// ================= 媒体管理域 =================
+const {
+  mediaFormList,
+  isSavingMedia,
+  closeAddMediaModal,
+  openAddMediaModal,
+  addMediaRow,
+  removeMediaRow,
+  saveMedia,
+  deleteMedia,
+} = useChannelMedia({ detailState, modals, loadChannelMedias })
 </script>
 
 <template>
