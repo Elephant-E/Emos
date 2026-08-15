@@ -35,3 +35,11 @@ worker.js.timestamp-*.mjs
 
 # Cloudflare local env (keys live here, never commit)
 .dev.vars
+
+# 同级其他独立项目（非 emos-vue 内容，不入库）
+NeteaseCloudMusicApi/
+medb.emos.club/
+music.emos.best/
+music.emos.club/
+todb/
+emos.club/
