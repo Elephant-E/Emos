@@ -7,21 +7,21 @@ const lotteryApi = createApi({
     url: '/api/lottery/create',
     body: (data) => data,
   },
-  list: {
-    method: 'get',
-    url: (params = {}) => `/api/lottery/list?${buildQuery(params)}`,
-  },
-  detail: {
-    method: 'get',
-    url: (lotteryId) => `/api/lottery/${lotteryId}`,
-  },
   cancel: {
-    method: 'delete',
-    url: (lotteryId) => `/api/lottery/${lotteryId}`,
+    method: 'put',
+    url: '/api/lottery/cancel',
+    body: false,
+    params: (lotteryId) => ({ lottery_id: lotteryId }),
+  },
+  stop: {
+    method: 'put',
+    url: '/api/lottery/stop',
+    body: false,
+    params: (lotteryId) => ({ lottery_id: lotteryId }),
   },
   winners: {
     method: 'get',
-    url: (lotteryId, params = {}) => `/api/lottery/${lotteryId}/winners?${buildQuery(params)}`,
+    url: (lotteryId, params = {}) => `/api/lottery/win?${buildQuery({ lottery_id: lotteryId, ...params })}`,
   },
 })
 
