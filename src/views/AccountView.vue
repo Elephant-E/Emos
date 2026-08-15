@@ -1,376 +1,65 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useAppStore } from '@/stores/app.js'
-import { userApi } from '@/api/userApi.js'
-import watchlistApi from '@/api/watchlistApi.js'
-import { showToast } from '@/utils/toast.js'
-import { confirmDialog } from '@/utils/confirm.js'
-import { STORAGE_KEYS } from '@/utils/storage.js'
+import { onMounted } from 'vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const appStore = useAppStore()
+import { useAccountSettings } from '@/composables/useAccountSettings.js'
+import { useAccountModals } from '@/composables/useAccountModals.js'
+import { useBanManager } from '@/composables/useBanManager.js'
 
-// 从 Store 获取用户信息（响应式）
-const userInfo = computed(() => appStore.userInfo)
-const isLoading = ref(true)
+// ================= 核心设置域（用户信息 + 通用操作） =================
+const {
+  userInfo,
+  isLoading,
+  isAdmin,
+  loadUserInfo,
+  resetToken,
+  handleTelegramAction,
+  toggleShowEmpty,
+  toggleHdPoster,
+  exchangeWatch,
+} = useAccountSettings()
 
-// 模态框状态
-const isEditPseudonymModalVisible = ref(false)
-const isUploadAgreementModalVisible = ref(false)
-const isDownAgreementModalVisible = ref(false)
-const isSetPasswordModalVisible = ref(false)
-const isBanListModalVisible = ref(false)
+// ================= 资料与协议模态框域 =================
+const {
+  isEditPseudonymModalVisible,
+  isUploadAgreementModalVisible,
+  isDownAgreementModalVisible,
+  isSetPasswordModalVisible,
+  pseudonymForm,
+  passwordForm,
+  isSubmittingPseudonym,
+  isAgreeingUpload,
+  isAgreeingDown,
+  isSubmittingPassword,
+  openEditPseudonymModal,
+  closeEditPseudonymModal,
+  submitPseudonym,
+  openSetPasswordModal,
+  closeSetPasswordModal,
+  submitPassword,
+  handlePasswordInput,
+  openUploadAgreementModal,
+  closeUploadAgreementModal,
+  agreeUploadAgreement,
+  openDownAgreementModal,
+  closeDownAgreementModal,
+  agreeDownAgreement,
+} = useAccountModals({ userInfo, loadUserInfo })
 
-// 表单数据
-const pseudonymForm = ref({ name: '' })
-const passwordForm = ref({ password: '' })
-const banReasonForm = ref({ reason: '' })
-
-// 提交状态
-const isSubmittingPseudonym = ref(false)
-const isAgreeingUpload = ref(false)
-const isAgreeingDown = ref(false)
-const isSubmittingPassword = ref(false)
-const isLoadingBanList = ref(false)
-const isUpdatingBanStatus = ref(false)
-
-// 加载用户信息
-const loadUserInfo = async (forceRefresh = false) => {
-  if (!forceRefresh) {
-    // 先尝试从 Store 缓存读取
-    if (appStore.userInfo) {
-      isLoading.value = false
-      return
-    }
-  }
-  
-  try {
-    // 从 API 刷新（会自动更新 Store）
-    await appStore.refreshUserInfo()
-  } catch (error) {
-    showToast('加载用户信息失败: ' + error.message, 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// 打开编辑笔名模态框
-const openEditPseudonymModal = () => {
-  pseudonymForm.value.name = userInfo.value?.pseudonym || ''
-  isEditPseudonymModalVisible.value = true
-}
-
-// 关闭编辑笔名模态框
-const closeEditPseudonymModal = () => {
-  isEditPseudonymModalVisible.value = false
-  pseudonymForm.value = { name: '' }
-}
-
-// 提交笔名修改
-const submitPseudonym = async () => {
-  if (isSubmittingPseudonym.value) return
-  
-  const name = pseudonymForm.value.name.trim()
-  
-  if (!name) {
-    showToast('笔名不能为空', 'error')
-    return
-  }
-  
-  if (name.length > 20) {
-    showToast('笔名不能超过20个字', 'error')
-    return
-  }
-  
-  isSubmittingPseudonym.value = true
-  
-  try {
-    await userApi.updatePseudonym(name)
-    showToast('笔名修改成功', 'success')
-    closeEditPseudonymModal()
-    await loadUserInfo(true)
-  } catch (error) {
-    showToast('修改失败: ' + error.message, 'error')
-  } finally {
-    isSubmittingPseudonym.value = false
-  }
-}
-
-// 打开设置密码模态框
-const openSetPasswordModal = () => {
-  if (!userInfo.value) return
-  if (!userInfo.value.is_viewing) {
-    showToast('目前无权限', 'error')
-    return
-  }
-  if (userInfo.value.must_otp) {
-    showToast('请使用动态密码登录', 'error')
-    return
-  }
-  
-  passwordForm.value.password = ''
-  isSetPasswordModalVisible.value = true
-}
-
-// 关闭设置密码模态框
-const closeSetPasswordModal = () => {
-  isSetPasswordModalVisible.value = false
-  passwordForm.value = { password: '' }
-}
-
-// 提交密码设置
-const submitPassword = async () => {
-  if (isSubmittingPassword.value) return
-  
-  // 检查是否必须使用动态密码
-  if (userInfo.value && userInfo.value.must_otp) {
-    showToast('请使用动态密码登录，无法设置固定密码', 'error')
-    closeSetPasswordModal()
-    return
-  }
-  
-  const pwd = passwordForm.value.password.trim()
-  
-  if (!pwd || pwd.length !== 6) {
-    showToast('请输入 6 位密码', 'error')
-    return
-  }
-  
-  isSubmittingPassword.value = true
-  
-  try {
-    await userApi.resetPassword(pwd)
-    showToast('密码设置成功！', 'success')
-    closeSetPasswordModal()
-  } catch (error) {
-    showToast('设置失败: ' + error.message, 'error')
-  } finally {
-    isSubmittingPassword.value = false
-  }
-}
-
-// 密码输入限制（只允许数字）
-const handlePasswordInput = (event) => {
-  event.target.value = event.target.value.slice(0, 6)
-}
-
-// 重置 Token
-const resetToken = async () => {
-  if (await confirmDialog('确定要重置 Token 吗？重置后需要重新登录。', '确认', true)) {
-    try {
-      await userApi.resetToken()
-      showToast('Token 已重置，请重新登录', 'success')
-      // 清除本地token并跳转到登录页
-      localStorage.removeItem(STORAGE_KEYS.ACTIVE_TOKEN)
-      localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER)
-      setTimeout(() => {
-        window.location.href = '/login'
-      }, 1500)
-    } catch (error) {
-      showToast('重置失败: ' + error.message, 'error')
-    }
-  }
-}
-
-// Telegram 操作
-const handleTelegramAction = async () => {
-  if (!userInfo.value) return
-  
-  if (userInfo.value.telegram_user_id) {
-    // 已绑定，点击解绑
-    if (await confirmDialog('确定要解绑 Telegram 吗？', '确认', true)) {
-      try {
-        await userApi.unbindTelegram()
-        showToast('解绑成功', 'success')
-        await loadUserInfo(true)
-      } catch (error) {
-        showToast('解绑失败: ' + error.message, 'error')
-      }
-    }
-  } else if (userInfo.value.telegram_bind_url) {
-    // 未绑定，有链接，打开链接
-    window.open(userInfo.value.telegram_bind_url, '_blank')
-  } else {
-    // 无链接
-    showToast('暂无 Telegram 绑定链接', 'error')
-  }
-}
-
-// 切换显示空媒体库
-const toggleShowEmpty = async () => {
-  if (!userInfo.value) return
-  
-  const newValue = !userInfo.value.is_show_empty
-  
-  try {
-    await userApi.setShowEmpty(newValue)
-    showToast(newValue ? '已开启显示空媒体库' : '已关闭显示空媒体库', 'success')
-    await loadUserInfo(true)
-  } catch (error) {
-    showToast('操作失败: ' + error.message, 'error')
-  }
-}
-
-// 切换高清海报
-const toggleHdPoster = async () => {
-  if (!userInfo.value) return
-  
-  // 验证萝卜余额
-  if (userInfo.value.carrot < 1000) {
-    showToast('萝卜余额不足1000，无法开启高清海报', 'error')
-    return
-  }
-  
-  const newValue = !userInfo.value.is_original_image
-  
-  try {
-    await userApi.setOriginalImage(newValue)
-    showToast(newValue ? '高清海报已开启' : '高清海报已关闭', 'success')
-    await loadUserInfo(true)
-  } catch (error) {
-    showToast('操作失败: ' + error.message, 'error')
-  }
-}
-
-// 打开上传协议模态框
-const openUploadAgreementModal = () => {
-  isUploadAgreementModalVisible.value = true
-}
-
-// 关闭上传协议模态框
-const closeUploadAgreementModal = () => {
-  isUploadAgreementModalVisible.value = false
-}
-
-// 同意上传协议
-const agreeUploadAgreement = async () => {
-  if (isAgreeingUpload.value) return
-  
-  try {
-    await userApi.agreeUploadAgreement()
-    showToast('上传权限已开启', 'success')
-    closeUploadAgreementModal()
-    await loadUserInfo(true)
-  } catch (error) {
-    showToast('操作失败: ' + error.message, 'error')
-  } finally {
-    isAgreeingUpload.value = false
-  }
-}
-
-// 打开下载协议模态框
-const openDownAgreementModal = () => {
-  isDownAgreementModalVisible.value = true
-}
-
-// 关闭下载协议模态框
-const closeDownAgreementModal = () => {
-  isDownAgreementModalVisible.value = false
-}
-
-// 同意下载协议
-const agreeDownAgreement = async () => {
-  if (isAgreeingDown.value) return
-  
-  try {
-    await userApi.agreeDownAgreement()
-    showToast('下载权限已开启', 'success')
-    closeDownAgreementModal()
-    await loadUserInfo(true)
-  } catch (error) {
-    showToast('操作失败: ' + error.message, 'error')
-  } finally {
-    isAgreeingDown.value = false
-  }
-}
-
-// 兑换片单
-const exchangeWatch = async () => {
-  if (await confirmDialog('确定要兑换一个片单额度吗？该操作不可撤销。')) {
-    try {
-      await watchlistApi.exchangeSlot()
-      showToast('兑换成功', 'success')
-      await loadUserInfo(true)
-    } catch (error) {
-      showToast('兑换失败: ' + error.message, 'error')
-    }
-  }
-}
-
-// ==================== 封禁管理 ====================
-
-// 封禁列表数据
-const banList = ref([])
-const currentBanUser = ref(null)
-
-// 判断是否为管理员
-const isAdmin = computed(() => {
-  return userInfo.value?.roles?.includes('admin') || false
-})
-
-// 打开封禁列表模态框
-const openBanListModal = async () => {
-  if (!isAdmin.value) {
-    showToast('仅管理员可访问', 'error')
-    return
-  }
-  
-  isBanListModalVisible.value = true
-  await loadBanList()
-}
-
-// 关闭封禁列表模态框
-const closeBanListModal = () => {
-  isBanListModalVisible.value = false
-  banList.value = []
-  currentBanUser.value = null
-  banReasonForm.value.reason = ''
-}
-
-// 加载封禁列表
-const loadBanList = async () => {
-  try {
-    isLoadingBanList.value = true
-    const res = await userApi.getBanList()
-    if (res && Array.isArray(res)) {
-      banList.value = res
-    }
-  } catch (error) {
-    showToast('加载封禁列表失败: ' + error.message, 'error')
-  } finally {
-    isLoadingBanList.value = false
-  }
-}
-
-// 打开更新状态模态框
-const openUpdateBanStatus = (user) => {
-  currentBanUser.value = user
-  banReasonForm.value.reason = ''
-}
-
-// 更新封禁状态
-const updateBanStatus = async (type) => {
-  if (!currentBanUser.value) return
-  if (isUpdatingBanStatus.value) return
-  
-  const reason = banReasonForm.value.reason.trim()
-  if (!reason) {
-    showToast('请输入原因', 'error')
-    return
-  }
-  
-  isUpdatingBanStatus.value = true
-  
-  try {
-    await userApi.updateBanStatus(type, currentBanUser.value.user_id, reason)
-    showToast(type === 'disable' ? '封禁成功' : '解禁成功', 'success')
-    closeBanListModal()
-  } catch (error) {
-    showToast('操作失败: ' + error.message, 'error')
-  } finally {
-    isUpdatingBanStatus.value = false
-  }
-}
+// ================= 封禁管理域 =================
+const {
+  isBanListModalVisible,
+  isLoadingBanList,
+  isUpdatingBanStatus,
+  banList,
+  currentBanUser,
+  banReasonForm,
+  openBanListModal,
+  closeBanListModal,
+  loadBanList,
+  openUpdateBanStatus,
+  updateBanStatus,
+} = useBanManager({ isAdmin })
 
 onMounted(() => {
   loadUserInfo()
