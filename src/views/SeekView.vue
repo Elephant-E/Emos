@@ -126,341 +126,53 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onUnmounted, onActivated, onDeactivated, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app.js'
-import seekApi from '@/api/seekApi.js'
 import { formatDate } from '@/utils/format.js'
-import { showToast } from '@/utils/toast.js'
 import BaseModal from '@/components/common/BaseModal.vue'
 import SegmentedControl from '@/components/common/SegmentedControl.vue'
 
-const router = useRouter()
-const appStore = useAppStore()
+import { useSeekList } from '@/composables/useSeekList.js'
+import { useUrgeModal } from '@/composables/useUrgeModal.js'
 
-defineOptions({
-  name: 'SeekView'
-})
+// ================= 求片列表域 =================
+const {
+  loading,
+  loadingMore,
+  seekList,
+  claiming,
+  selectedStatus,
+  currentSort,
+  currentOrder,
+  isUploadSelf,
+  searchQuery,
+  statusTabs,
+  showSortMenu,
+  sortBtnRef,
+  sortMenuStyle,
+  toggleSortMenu,
+  sortList,
+  getTmdbUrl,
+  getStatusText,
+  getRemainingTime,
+  copyId,
+  goToDetail,
+  getEmptyMessage,
+  resetAndLoad,
+  handleSearchInput,
+  handleSortChange,
+  handleClaim,
+} = useSeekList()
 
-// ================= 状态管理 =================
-const loading = ref(false)
-const loadingMore = ref(false)
-const currentPage = ref(1)
-const hasMore = ref(true)
-const seekList = ref([])
-const claiming = reactive({}) // 认领状态
-
-// 筛选状态
-const selectedStatus = ref('default')
-const currentSort = ref('updated_at')
-const currentOrder = ref('desc')
-const isUploadSelf = ref(false)
-const searchQuery = ref('')
-
-const statusTabs = computed(() => [
-  { label: '待认领', value: 'default' },
-  { label: '已认领', value: 'upload' },
-  { label: '已完成', value: 'complete' },
-  { label: '已取消', value: 'cancel' },
-  { label: '遗忘', value: 'forget' }
-])
-
-const showSortMenu = ref(false)
-const sortBtnRef = ref(null)
-const sortMenuStyle = ref({})
-
-const toggleSortMenu = () => {
-  if (showSortMenu.value) { showSortMenu.value = false; return }
-  if (sortBtnRef.value) {
-    const rect = sortBtnRef.value.getBoundingClientRect()
-    sortMenuStyle.value = { top: `${rect.bottom + 8}px`, right: `${window.innerWidth - rect.right}px` }
-  }
-  showSortMenu.value = true
-}
-
-// 催上片模态框
-const showUrgeModal = ref(false)
-const currentSeekId = ref(null)
-const urgeCarrot = ref('')
-const urgeError = ref('')
-const urging = ref(false)
-
-
-const sortList = [
-  { field: 'updated_at', label: '更新时间' },
-  { field: 'count_request', label: '求片人数' },
-  { field: 'seek_carrot', label: '萝卜数' }
-]
-
-let debounceTimer = null
-
-// ================= 方法 =================
-
-// 获取视频ID
-
-
-// 获取TMDB链接
-const getTmdbUrl = (item) => {
-  const type = item.video_type === 'movie' ? 'movie' : 'tv'
-  return `https://www.themoviedb.org/${type}/${item.tmdb_id}`
-}
-
-// 获取状态文本
-const getStatusText = (status) => {
-  const map = {
-    default: '待认领',
-    upload: '已认领',
-    complete: '已完成',
-    cancel: '已取消',
-    forget: '遗忘'
-  }
-  return map[status] || status
-}
-
-// 获取剩余时间
-const getRemainingTime = (expiredAt) => {
-  if (!expiredAt) return '已过期'
-  const now = new Date()
-  const expire = new Date(expiredAt)
-  const diffMs = expire - now
-  if (diffMs <= 0) return '已过期'
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  return diffHours > 0 ? `${diffHours}小时` : `${Math.floor(diffMs / (1000 * 60))}分钟`
-}
-
-// 复制ID
-const copyId = async (id) => {
-  try {
-    await navigator.clipboard.writeText(id)
-    showToast('ID 已复制')
-  } catch (error) {
-    console.error('复制失败:', error)
-  }
-}
-
-// 跳转到视频详情页
-const goToDetail = (item) => {
-  // 使用 video_list_id 构建路径
-  const itemId = `${item.video_list_id}`
-  router.push(`/media/${itemId}`)
-}
-
-// 获取空状态消息
-const getEmptyMessage = () => {
-  const statusText = {
-    default: '待认领',
-    upload: '已认领',
-    complete: '已完成',
-    cancel: '已取消',
-    forget: '遗忘'
-  }
-  return `暂无${statusText[selectedStatus.value] || ''}求片`
-}
-
-// 加载求片列表
-const loadSeeks = async (reset = false) => {
-  if (loading.value || loadingMore.value) return
-  if (!hasMore.value && !reset) return
-  
-  if (reset) {
-    currentPage.value = 1
-    hasMore.value = true
-    seekList.value = []
-    loading.value = true
-  } else {
-    loadingMore.value = true
-  }
-  
-  try {
-    const response = await seekApi.create({
-      page: currentPage.value,
-      page_size: 20,
-      video_type: null,
-      sort_by: currentSort.value,
-      sort_order: currentOrder.value,
-      status: [selectedStatus.value],
-      upload_self: isUploadSelf.value,
-      video_title: searchQuery.value || null,
-      with_user: true
-    })
-    
-    // axios 拦截器已解包，response 直接就是 { page, page_size, total, items }
-    const data = response.items || []
-    
-    if (reset) {
-      seekList.value = data
-    } else {
-      seekList.value = [...seekList.value, ...data]
-    }
-    
-    // 判断是否还有更多数据
-    const total = response.total || 0
-    const currentPageNum = response.page || currentPage.value
-    const pageSize = response.page_size || 20
-    hasMore.value = (currentPageNum * pageSize) < total
-    
-    if (hasMore.value) {
-      currentPage.value++
-    }
-  } catch (error) {
-    console.error('加载求片列表失败:', error)
-    showToast('加载失败，请重试', 'error')
-  } finally {
-    loading.value = false
-    loadingMore.value = false
-  }
-}
-
-// 重置并重新加载
-const resetAndLoad = () => {
-  loadSeeks(true)
-}
-
-
-// 搜索输入（防抖）
-const handleSearchInput = () => {
-  clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => {
-    resetAndLoad()
-  }, 400)
-}
-
-// 排序切换
-const handleSortChange = (field) => {
-  if (currentSort.value === field) {
-    currentOrder.value = currentOrder.value === 'desc' ? 'asc' : 'desc'
-  } else {
-    currentSort.value = field
-    currentOrder.value = 'desc'
-  }
-  resetAndLoad()
-}
-
-// 认领/取消认领
-const handleClaim = async (seekId, currentStatus) => {
-  claiming[seekId] = true
-  
-  try {
-    // 根据当前状态决定操作类型
-    const type = currentStatus === 'upload' ? 'cancel' : 'confirm'
-    const actionText = type === 'confirm' ? '认领' : '取消认领'
-    
-    const response = await seekApi.claim(seekId, type)
-    
-    showToast(`${actionText}成功！`, 'success')
-    
-    // 更新本地数据
-    const item = seekList.value.find(s => s.id === seekId)
-    if (item) {
-      item.status = response.status || (type === 'confirm' ? 'upload' : 'default')
-      item.upload_username = type === 'confirm' ? '我' : null
-    }
-    
-
-    setTimeout(() => resetAndLoad(), 500)
-  } catch (error) {
-    console.error('操作失败:', error)
-    const type = currentStatus === 'upload' ? 'cancel' : 'confirm'
-    const actionText = type === 'confirm' ? '认领' : '取消认领'
-    showToast(error.message || `${actionText}失败`, 'error')
-  } finally {
-    delete claiming[seekId]
-  }
-}
-
-// 打开催上片模态框
-const openUrgeModal = (seekId) => {
-  currentSeekId.value = seekId
-  urgeCarrot.value = ''
-  urgeError.value = ''
-  showUrgeModal.value = true
-}
-
-// 关闭催上片模态框
-const closeUrgeModal = () => {
-  showUrgeModal.value = false
-  currentSeekId.value = null
-  urgeCarrot.value = ''
-  urgeError.value = ''
-}
-
-// 催上片
-const handleUrge = async () => {
-  const carrot = parseInt(urgeCarrot.value)
-  
-  if (!carrot || carrot < 1 || carrot > 5000) {
-    urgeError.value = '请输入 1-5000 之间的有效数字'
-    return
-  }
-  
-  urging.value = true
-  
-  try {
-    await seekApi.urge(currentSeekId.value, carrot)
-    
-    showToast('催片成功！', 'success')
-    closeUrgeModal()
-    
-    // 重新加载列表以更新数据
-    resetAndLoad()
-  } catch (error) {
-    console.error('催片失败:', error)
-    urgeError.value = error.message || '催片失败'
-  } finally {
-    urging.value = false
-  }
-}
-
-// 滚动加载更多
-const handleScroll = () => {
-  if (loading.value || loadingMore.value || !hasMore.value) return
-  
-  const scrollY = window.scrollY
-  const windowH = window.innerHeight
-  const docH = document.documentElement.scrollHeight
-  
-  if (scrollY + windowH >= docH - 300) {
-    loadSeeks(false)
-  }
-}
-
-// ================= 生命周期 =================
-onMounted(() => {
-  // 首次挂载时加载数据
-  loadSeeks(true)
-  window.addEventListener('scroll', handleScroll)
-})
-
-// 监听账号切换，重新加载求片列表
-watch(() => appStore.userInfo, (newUserInfo) => {
-  if (newUserInfo) {
-    loadSeeks(true)
-  }
-}, { immediate: false })
-
-// 监听“我认领的”切换，重新加载数据
-watch(isUploadSelf, () => {
-  loadSeeks(true)
-})
-
-watch(selectedStatus, () => {
-  loadSeeks(true)
-})
-
-// keep-alive 激活时 - 重新添加滚动监听
-onActivated(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-
-// keep-alive 停用时 - 移除滚动监听（防止页面切换时触发）
-onDeactivated(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-  clearTimeout(debounceTimer)
-})
+// ================= 催上片域（依赖 resetAndLoad）=================
+const {
+  showUrgeModal,
+  currentSeekId,
+  urgeCarrot,
+  urgeError,
+  urging,
+  openUrgeModal,
+  closeUrgeModal,
+  handleUrge,
+} = useUrgeModal({ resetAndLoad })
 </script>
 
 <style scoped>
