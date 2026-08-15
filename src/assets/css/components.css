@@ -1105,10 +1105,6 @@ select.modal-input {
 }
 
 /* 必填项标记 */
-.required {
-  color: var(--danger);
-  margin-left: 2px;
-}
 
 /* 表单行：两列布局 */
 .form-row {
@@ -2491,7 +2487,6 @@ input:checked + .slider:before {
 
 
 /* ===== 分隔线 ===== */
-.divider { border: none; border-top: var(--keyline-border-style); margin: 0; }
 
 /* ===== 区块标题 ===== */
 
@@ -2501,13 +2496,6 @@ input:checked + .slider:before {
 }
 
 /* ===== 卡片封面图 ===== */
-.artwork {
-  border-radius: 20px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.01), 0 2px 2px rgba(0,0,0,0.01), 0 4px 4px rgba(0,0,0,0.02), 0 8px 8px rgba(0,0,0,0.03), 0 14px 14px rgba(0,0,0,0.03);
-  position: relative;
-  overflow: hidden;
-}
-.artwork--large { border-radius: 20px; }
 
 /* ===== 卡片标题/副标题 ===== */
 .card-title {
