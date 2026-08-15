@@ -1,9 +1,10 @@
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app.js'
 import watchlistApi from '@/api/watchlistApi.js'
 import { showToast } from '@/utils/toast.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 import ImageUploader from '@/components/ImageUploader.vue'
 import { formatRelativeTime } from '@/utils/format.js'
 import BaseModal from '@/components/common/BaseModal.vue'
@@ -279,26 +280,14 @@ const formatCount = (num) => {
 
 // ================= 生命周期 =================
 
-// 滚动加载处理
-const handleScroll = () => {
-  if (isLoadingMore.value || !hasMore.value) return
-  
-  // 获取滚动容器（通常是 window 或者特定的滚动容器）
-  const scrollTop = window.scrollY || document.documentElement.scrollTop
-  const windowHeight = window.innerHeight
-  const documentHeight = document.documentElement.scrollHeight
-  
-  // 距离底部 200px 时触发加载
-  if (scrollTop + windowHeight >= documentHeight - 200) {
-    loadMore()
-  }
-}
-
-// 生命周期
 onMounted(() => {
   loadWatchlists()
-  // 添加滚动监听（只添加一次）
-  window.addEventListener('scroll', handleScroll)
+})
+
+useInfiniteScroll({
+  loadMore: () => loadMore(),
+  shouldLoad: () => !isLoadingMore.value && hasMore.value,
+  threshold: 200,
 })
 
 // 监听账号切换，重新加载片单列表
@@ -307,21 +296,6 @@ watch(() => appStore.userInfo, (newUserInfo) => {
     loadWatchlists()
   }
 }, { immediate: false })
-
-// keep-alive 激活时 - 重新添加滚动监听
-onActivated(() => {
-  window.addEventListener('scroll', handleScroll)
-})
-
-// keep-alive 停用时 - 移除滚动监听（防止页面切换时触发）
-onDeactivated(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  // 移除滚动监听
-  window.removeEventListener('scroll', handleScroll)
-})
 </script>
 
 <template>

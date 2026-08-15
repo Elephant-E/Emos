@@ -1,7 +1,8 @@
-import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
+import { ref, reactive, onMounted, onActivated } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import liveApi from '@/api/liveApi.js'
 import { showToast } from '@/utils/toast.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 
 /**
  * 直播频道详情核心数据域：频道信息、资源列表加载（滚动分页）、搜索、导航。
@@ -72,17 +73,11 @@ export function useChannelDetail({ detailState }) {
     }
   }
 
-  const handleDetailScroll = () => {
-    if (detailState.isLoading || isLoadingMore.value || !hasMoreMedias.value) return
-
-    const scrollTop = window.scrollY || document.documentElement.scrollTop
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-
-    if (scrollTop + windowHeight >= documentHeight - 240) {
-      loadChannelMedias(false)
-    }
-  }
+  useInfiniteScroll({
+    loadMore: () => loadChannelMedias(false),
+    shouldLoad: () => !detailState.isLoading && !isLoadingMore.value && hasMoreMedias.value,
+    threshold: 240,
+  })
 
   // 加载频道资源列表
   const loadChannelMedias = async (reset = true) => {
@@ -159,7 +154,6 @@ export function useChannelDetail({ detailState }) {
       detailState.id = channelId
       loadChannelInfo(channelId)
       loadChannelMedias()
-      window.addEventListener('scroll', handleDetailScroll)
     } else {
       showToast('无效的频道ID', 'error')
       // 如果有历史记录，返回上一页；否则跳转到媒体页面
@@ -171,13 +165,8 @@ export function useChannelDetail({ detailState }) {
     }
   })
 
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleDetailScroll)
-  })
-
   // keep-alive 激活时刷新数据
   onActivated(() => {
-    window.addEventListener('scroll', handleDetailScroll)
     // 如果路由参数变化，重新加载
     const channelId = route.params.id
     if (channelId && channelId !== detailState.id) {
@@ -185,10 +174,6 @@ export function useChannelDetail({ detailState }) {
       loadChannelInfo(channelId)
       loadChannelMedias()
     }
-  })
-
-  onDeactivated(() => {
-    window.removeEventListener('scroll', handleDetailScroll)
   })
 
   return {
@@ -199,7 +184,6 @@ export function useChannelDetail({ detailState }) {
     hasMoreMedias,
     applyChannelDetail,
     loadChannelInfo,
-    handleDetailScroll,
     loadChannelMedias,
     backToList,
     handleSearchInput,

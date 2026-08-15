@@ -1,8 +1,9 @@
-import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, onActivated, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/app.js'
 import watchlistApi from '@/api/watchlistApi.js'
 import { showToast } from '@/utils/toast.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 
 /**
  * 片单详情核心数据域：片单信息、视频列表加载（滚动分页）、搜索、导航。
@@ -72,18 +73,11 @@ export function useWatchlistDetail({ detailState }) {
     }
   }
 
-  // 滚动触底加载更多
-  const handleDetailScroll = () => {
-    if (detailState.isLoading || isLoadingMore.value || !hasMoreVideos.value) return
-
-    const scrollTop = window.scrollY || document.documentElement.scrollTop
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-
-    if (scrollTop + windowHeight >= documentHeight - 240) {
-      loadWatchVideos(false)
-    }
-  }
+  useInfiniteScroll({
+    loadMore: () => loadWatchVideos(false),
+    shouldLoad: () => !detailState.isLoading && !isLoadingMore.value && hasMoreVideos.value,
+    threshold: 240,
+  })
 
   // 加载片单视频
   const loadWatchVideos = async (reset = true) => {
@@ -164,7 +158,6 @@ export function useWatchlistDetail({ detailState }) {
       detailState.id = watchId
       loadWatchlistInfo(watchId)
       loadWatchVideos()
-      window.addEventListener('scroll', handleDetailScroll)
     } else {
       showToast('无效的片单ID', 'error')
       // 如果有历史记录，返回上一页；否则跳转到片单列表
@@ -176,14 +169,8 @@ export function useWatchlistDetail({ detailState }) {
     }
   })
 
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleDetailScroll)
-    clearTimeout(searchTimeout)
-  })
-
   // keep-alive 激活时刷新数据
   onActivated(() => {
-    window.addEventListener('scroll', handleDetailScroll)
     // 如果路由参数变化，重新加载
     const watchId = route.params.id
     if (watchId && watchId !== detailState.id) {
@@ -193,8 +180,8 @@ export function useWatchlistDetail({ detailState }) {
     }
   })
 
-  onDeactivated(() => {
-    window.removeEventListener('scroll', handleDetailScroll)
+  // 组件卸载时清理搜索防抖定时器
+  onUnmounted(() => {
     clearTimeout(searchTimeout)
   })
 
@@ -215,7 +202,6 @@ export function useWatchlistDetail({ detailState }) {
     hasMoreVideos,
     applyWatchlistDetail,
     loadWatchlistInfo,
-    handleDetailScroll,
     loadWatchVideos,
     backToList,
     goToVideoDetail,

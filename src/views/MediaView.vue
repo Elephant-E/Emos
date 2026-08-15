@@ -1,10 +1,11 @@
 <script setup>
-import { ref, nextTick, computed, watch, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue'
+import { ref, nextTick, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import videoApi from '@/api/videoApi.js'
 import liveApi from '@/api/liveApi.js'
 import seekApi from '@/api/seekApi.js'
 import musicApi from '@/api/musicApi.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 import { normalizeList } from '@/utils/format.js'
 import { showToast } from '@/utils/toast.js'
 import ImageUploader from '@/components/ImageUploader.vue'
@@ -271,22 +272,21 @@ const handleSearch = () => {
   else if (currentView.value === 'music') loadMusicData()
 }
 
-const handleScroll = () => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (!scrollContainer) return
-  const scrollTop = scrollContainer.scrollTop
-  const windowHeight = scrollContainer.clientHeight
-  const scrollHeight = scrollContainer.scrollHeight
-  if (scrollHeight - scrollTop - windowHeight < 200) {
-    if (currentView.value === 'video' && hasMore.value && !isLoading.value) loadVideos(false)
-    else if (currentView.value === 'live' && liveHasMore.value && !liveLoading.value) loadLiveChannels(false)
-    else if (currentView.value === 'music') {
-      if (musicSubView.value === 'song' && musicSongHasMore.value && !musicLoading.value) loadMusicSongs(false)
-      else if (musicSubView.value === 'artist' && musicArtistHasMore.value && !musicLoading.value) loadMusicArtists(false)
-      else if (musicSubView.value === 'album' && musicAlbumHasMore.value && !musicLoading.value) loadMusicAlbums(false)
-    }
+const dispatchLoadMore = () => {
+  if (currentView.value === 'video' && hasMore.value && !isLoading.value) loadVideos(false)
+  else if (currentView.value === 'live' && liveHasMore.value && !liveLoading.value) loadLiveChannels(false)
+  else if (currentView.value === 'music') {
+    if (musicSubView.value === 'song' && musicSongHasMore.value && !musicLoading.value) loadMusicSongs(false)
+    else if (musicSubView.value === 'artist' && musicArtistHasMore.value && !musicLoading.value) loadMusicArtists(false)
+    else if (musicSubView.value === 'album' && musicAlbumHasMore.value && !musicLoading.value) loadMusicAlbums(false)
   }
 }
+
+useInfiniteScroll({
+  loadMore: dispatchLoadMore,
+  getContainer: () => document.getElementById('scrollable-page'),
+  threshold: 200,
+})
 
 const goToDetail = (videoId) => router.push(`/media/${videoId}`)
 const goToLiveChannelDetail = (channel) => router.push(`/live/${channel.id}`)
@@ -304,27 +304,9 @@ const handleSeekRequest = async (video) => {
 
 onMounted(() => {
   loadVideos()
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.addEventListener('scroll', handleScroll)
-})
-
-onActivated(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.addEventListener('scroll', handleScroll)
-})
-
-onDeactivated(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll)
 })
 
 onUnmounted(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
   if (searchTimeout) clearTimeout(searchTimeout)
   if (videosAbortController) videosAbortController.abort()
   if (liveAbortController) liveAbortController.abort()

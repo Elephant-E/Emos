@@ -1,9 +1,10 @@
-import { ref, reactive, computed, onUnmounted, onActivated, onDeactivated, onMounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app.js'
 import seekApi from '@/api/seekApi.js'
 import { formatDate } from '@/utils/format.js'
 import { showToast } from '@/utils/toast.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 
 /**
  * 求片列表域：列表加载/分页、搜索、排序、认领、滚动加载、生命周期监听。
@@ -222,24 +223,17 @@ export function useSeekList() {
 
   // ================= 滚动加载 =================
 
-  const handleScroll = () => {
-    if (loading.value || loadingMore.value || !hasMore.value) return
-
-    const scrollY = window.scrollY
-    const windowH = window.innerHeight
-    const docH = document.documentElement.scrollHeight
-
-    if (scrollY + windowH >= docH - 300) {
-      loadSeeks(false)
-    }
-  }
+  useInfiniteScroll({
+    loadMore: () => loadSeeks(false),
+    shouldLoad: () => !loading.value && !loadingMore.value && hasMore.value,
+    threshold: 300,
+  })
 
   // ================= 生命周期 =================
 
   onMounted(() => {
     // 首次挂载时加载数据
     loadSeeks(true)
-    window.addEventListener('scroll', handleScroll)
   })
 
   // 监听账号切换，重新加载求片列表
@@ -258,18 +252,8 @@ export function useSeekList() {
     loadSeeks(true)
   })
 
-  // keep-alive 激活时 - 重新添加滚动监听
-  onActivated(() => {
-    window.addEventListener('scroll', handleScroll)
-  })
-
-  // keep-alive 停用时 - 移除滚动监听
-  onDeactivated(() => {
-    window.removeEventListener('scroll', handleScroll)
-  })
-
+  // 组件卸载时清理防抖定时器
   onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
     clearTimeout(debounceTimer)
   })
 
@@ -302,6 +286,5 @@ export function useSeekList() {
     handleSearchInput,
     handleSortChange,
     handleClaim,
-    handleScroll,
   }
 }

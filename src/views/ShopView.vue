@@ -50,9 +50,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import shopApi from '@/api/shopApi.js'
 import { showToast } from '@/utils/toast.js'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll.js'
 import { useShopCart } from '@/composables/useShopCart.js'
 import { useProductDetail } from '@/composables/useProductDetail.js'
 import ProductGrid from '@/components/shop/ProductGrid.vue'
@@ -106,17 +107,11 @@ const totalItems = ref(0)
 const hasMore = ref(true)
 
 onMounted(() => loadProducts())
-onActivated(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.addEventListener('scroll', handleScroll)
-})
-onDeactivated(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll)
-})
-onUnmounted(() => {
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (scrollContainer) scrollContainer.removeEventListener('scroll', handleScroll)
+
+useInfiniteScroll({
+  loadMore: () => loadMore(),
+  shouldLoad: () => !isLoading.value && !isLoadingMore.value && hasMore.value,
+  getContainer: () => document.getElementById('scrollable-page'),
 })
 
 let searchTimer = null
@@ -126,16 +121,6 @@ watch(searchQuery, () => {
 })
 
 watch(currentSort, () => { currentPage.value = 1; hasMore.value = true; loadProducts() })
-
-const handleScroll = () => {
-  if (isLoading.value || isLoadingMore.value || !hasMore.value) return
-  const scrollContainer = document.getElementById('scrollable-page')
-  if (!scrollContainer) return
-  const scrollTop = scrollContainer.scrollTop
-  const windowHeight = scrollContainer.clientHeight
-  const scrollHeight = scrollContainer.scrollHeight
-  if (scrollTop + windowHeight >= scrollHeight - 200) loadMore()
-}
 
 const loadProducts = async (isLoadMore = false) => {
   try {
