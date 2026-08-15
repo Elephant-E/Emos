@@ -1,24 +1,22 @@
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAppStore } from '@/stores/app.js'
-import watchlistApi from '@/api/watchlistApi.js'
-import { showToast } from '@/utils/toast.js'
-import { confirmDialog } from '@/utils/confirm.js'
-import { normalizeList } from '@/utils/format.js'
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import ImageUploader from '@/components/ImageUploader.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 
-const router = useRouter()
-const route = useRoute()
-const appStore = useAppStore()
+import { useWatchlistDetail } from '@/composables/useWatchlistDetail.js'
+import { useAddVideo } from '@/composables/useAddVideo.js'
+import { useWatchlistEdit } from '@/composables/useWatchlistEdit.js'
+import { useVideoEdit } from '@/composables/useVideoEdit.js'
 
 // 组件名称（用于keep-alive）
 defineOptions({
   name: 'WatchlistDetailView'
 })
 
-// ================= 状态管理 =================
+const router = useRouter()
+
+// ================= 共享状态（装配层创建，注入各域）=================
 const detailState = reactive({
   id: null,
   name: '',
@@ -41,17 +39,6 @@ const detailState = reactive({
   maintainers: []
 })
 
-// 加载状态
-const isLoadingInfo = ref(false)
-const isLoadingMore = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(20)
-const hasMoreVideos = ref(true)
-
-// 搜索防抖定时器
-let searchTimeout = null
-let addVideoSearchTimeout = null
-
 // 模态框状态
 const modals = reactive({
   editWatch: false,
@@ -62,602 +49,81 @@ const modals = reactive({
   editVideo: false
 })
 
-// 编辑片单表单
-const editForm = reactive({
-  id: null,
-  name: '',
-  description: '',
-  carrot: 0,
-  tags: [],
-  isPublic: false,
-  isShowEmpty: false,
-  imagePosterUrl: ''  // 新 API：只使用 URL
-})
-
-const tagInput = ref('')
-const addVideoSkeletonCount = 6
 const detailVideoSkeletonCount = 6
 
-// 添加视频搜索
-const addVideoSearch = ref('')
-const searchResults = ref([])
-const selectedVideos = ref([])
-const isLoadingVideos = ref(false)
+// ================= 核心数据域 =================
+const {
+  isLoadingInfo,
+  isLoadingMore,
+  hasMoreVideos,
+  loadWatchlistInfo,
+  loadWatchVideos,
+  backToList,
+  goToVideoDetail,
+  handleDetailSearchInput,
+} = useWatchlistDetail({ detailState })
 
-// 维护者管理
-const maintainerState = reactive({
-  currentMaintainers: [],
-  newUserId: '',
-  isLoading: false
+// ================= 添加视频域 =================
+const {
+  addVideoSearch,
+  searchResults,
+  selectedVideos,
+  isLoadingVideos,
+  addVideoSkeletonCount,
+  closeAddVideoModal,
+  openAddVideoModal,
+  searchVideos,
+  toggleVideoSelection,
+  isVideoSelected,
+  addVideos,
+} = useAddVideo({ detailState, modals, loadWatchVideos })
+
+// ================= 片单编辑域 =================
+const {
+  editForm,
+  tagInput,
+  maintainerState,
+  sortState,
+  closeEditWatchModal,
+  openEditModal,
+  saveWatchlist,
+  addTag,
+  removeTag,
+  closeMaintainerModal,
+  openMaintainerModal,
+  addMaintainer,
+  removeMaintainer,
+  saveMaintainers,
+  closeSortModal,
+  openSortModal,
+  saveSort,
+  closeDynamicModal,
+  openDynamicModal,
+  saveDynamic,
+  toggleSubscriptionVisibility,
+  clearAllVideos,
+  deleteWatchlist,
+  setRouterPushWatchlist,
+} = useWatchlistEdit({
+  detailState,
+  modals,
+  loadWatchlistInfo,
+  loadWatchVideos,
 })
 
-// 片单排序
-const sortState = reactive({
-  currentSort: 80
-})
-
-// 视频编辑表单
-const videoEditForm = reactive({
-  videoId: null,
-  sort: 80,
-  remark: ''
-})
-
-const closeEditWatchModal = () => {
-  modals.editWatch = false
-  editForm.id = null
-  editForm.name = ''
-  editForm.description = ''
-  editForm.carrot = 0
-  editForm.tags = []
-  editForm.isPublic = false
-  editForm.isShowEmpty = false
-  editForm.imagePosterUrl = ''
-  tagInput.value = ''
-}
-
-const closeAddVideoModal = () => {
-  modals.addVideo = false
-  addVideoSearch.value = ''
-  searchResults.value = []
-  selectedVideos.value = []
-}
-
-const closeMaintainerModal = () => {
-  modals.maintainer = false
-  maintainerState.currentMaintainers = []
-  maintainerState.newUserId = ''
-}
-
-const closeSortModal = () => {
-  modals.sort = false
-  sortState.currentSort = 80
-}
-
-const closeDynamicModal = () => {
-  modals.dynamic = false
-}
-
-const closeEditVideoModal = () => {
-  modals.editVideo = false
-  videoEditForm.videoId = null
-  videoEditForm.sort = 80
-  videoEditForm.remark = ''
-}
-
-// ================= 生命周期 =================
-onMounted(() => {
-  const watchId = route.params.id
-  if (watchId) {
-    detailState.id = watchId
-    loadWatchlistInfo(watchId)
-    loadWatchVideos()
-    window.addEventListener('scroll', handleDetailScroll)
-  } else {
-    showToast('无效的片单ID', 'error')
-    // 如果有历史记录，返回上一页；否则跳转到片单列表
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      router.push('/watchlist')
-    }
-  }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleDetailScroll)
-  clearTimeout(searchTimeout)
-  clearTimeout(addVideoSearchTimeout)
-})
-
-// keep-alive 激活时刷新数据
-onActivated(() => {
-  window.addEventListener('scroll', handleDetailScroll)
-  // 如果路由参数变化，重新加载
-  const watchId = route.params.id
-  if (watchId && watchId !== detailState.id) {
-    detailState.id = watchId
-    loadWatchlistInfo(watchId)
-    loadWatchVideos()
-  }
-})
-
-onDeactivated(() => {
-  window.removeEventListener('scroll', handleDetailScroll)
-  clearTimeout(searchTimeout)
-  clearTimeout(addVideoSearchTimeout)
-})
-
-// 监听账号切换，重新加载片单详情
-watch(() => appStore.userInfo, (newUserInfo) => {
-  if (newUserInfo && detailState.id) {
-    // 切换账号后重新加载片单信息和视频列表
-    loadWatchlistInfo(detailState.id)
-    loadWatchVideos(true)
-  }
-}, { immediate: false })
-
-// ================= 方法 =================
-
-const applyWatchlistDetail = (watch = {}) => {
-  detailState.name = watch.name || ''
-  detailState.description = watch.description || ''
-  detailState.carrot = watch.carrot || 0
-  detailState.tags = Array.isArray(watch.tags) ? [...watch.tags] : []
-  detailState.isPublic = Boolean(watch.is_public)
-  detailState.imagePosterUrl = watch.image_poster_url || ''
-  detailState.isSelf = Boolean(watch.is_self)
-  detailState.isEditVideo = Boolean(watch.is_edit_video)
-  detailState.isShowEmpty = Boolean(watch.is_show_empty)
-  detailState.isSubscribe = Boolean(watch.is_subscribe)
-  detailState.userIsShow = watch.user_is_show ?? (watch.is_subscribe ? true : null)
-  detailState.dynamicUrl = watch.dynamic_url || ''
-  detailState.videoCount = watch.video_count || 0
-  detailState.userSort = watch.user_sort ?? 80
-  detailState.maintainers = Array.isArray(watch.maintainers) ? [...watch.maintainers] : []
-}
-
-// 加载片单基本信息
-const loadWatchlistInfo = async (watchId) => {
-  isLoadingInfo.value = true
-  try {
-    const response = await watchlistApi.getList({ watch_id: watchId })
-    const watch = response.items?.[0]
-
-    if (!watch) {
-      throw new Error('片单不存在或无权访问')
-    }
-
-    applyWatchlistDetail(watch)
-  } catch (error) {
-    console.error('加载片单信息失败:', error)
-    showToast(error.message || '加载失败', 'error')
-    // 如果有历史记录，返回上一页；否则跳转到片单列表
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      router.push('/watchlist')
-    }
-  } finally {
-    isLoadingInfo.value = false
-  }
-}
-
-const handleDetailScroll = () => {
-  if (detailState.isLoading || isLoadingMore.value || !hasMoreVideos.value) return
-
-  const scrollTop = window.scrollY || document.documentElement.scrollTop
-  const windowHeight = window.innerHeight
-  const documentHeight = document.documentElement.scrollHeight
-
-  if (scrollTop + windowHeight >= documentHeight - 240) {
-    loadWatchVideos(false)
-  }
-}
-
-// 加载片单视频
-const loadWatchVideos = async (reset = true) => {
-  if (!detailState.id) return
-  
-  if (reset) {
-    detailState.isLoading = true
-    currentPage.value = 1
-    hasMoreVideos.value = true
-  } else {
-    if (!hasMoreVideos.value) return
-    isLoadingMore.value = true
-  }
-
-  try {
-    const response = await watchlistApi.getVideos(detailState.id, {
-      page: currentPage.value,
-      page_size: pageSize.value,
-      video_title: detailState.searchQuery.trim() || undefined
-    })
-    const items = response.items || []
-    const total = response.total ?? items.length
-
-    if (reset) {
-      detailState.videos = items
-    } else {
-      detailState.videos = [...detailState.videos, ...items]
-    }
-
-    detailState.videoCount = total
-    hasMoreVideos.value = detailState.videos.length < total && items.length > 0
-
-    if (hasMoreVideos.value) {
-      currentPage.value += 1
-    }
-  } catch (error) {
-    console.error('加载片单视频失败:', error)
-    showToast(error.message || '加载失败', 'error')
-  } finally {
-    if (reset) {
-      detailState.isLoading = false
-    } else {
-      isLoadingMore.value = false
-    }
-  }
-}
-
-// 返回片单列表
-const backToList = () => {
-  if (window.history.length > 1) {
-    router.back()
-    return
-  }
-
+// 删除片单后跳转
+setRouterPushWatchlist(() => {
   router.push('/watchlist')
-}
+})
 
-// 跳转到视频详情
-const goToVideoDetail = (video) => {
-  router.push(`/media/${video.video_id}`)
-}
-
-// 处理搜索输入（防抖）
-const handleDetailSearchInput = () => {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    loadWatchVideos(true)
-  }, 300)
-}
-
-const loadAvailableVideos = async (title = '') => {
-  isLoadingVideos.value = true
-  try {
-    const response = await watchlistApi.searchVideos(detailState.id, {
-      title: title.trim() || undefined
-    })
-    searchResults.value = normalizeList(response)
-  } catch (error) {
-    console.error('加载可添加视频失败:', error)
-    showToast(error.message || '加载失败', 'error')
-  } finally {
-    isLoadingVideos.value = false
-  }
-}
-
-// 打开添加视频模态框
-const openAddVideoModal = async () => {
-  addVideoSearch.value = ''
-  searchResults.value = []
-  selectedVideos.value = []
-  modals.addVideo = true
-  await loadAvailableVideos()
-}
-
-// 搜索视频
-const searchVideos = () => {
-  clearTimeout(addVideoSearchTimeout)
-  addVideoSearchTimeout = setTimeout(() => {
-    loadAvailableVideos(addVideoSearch.value)
-  }, 300)
-}
-
-// 切换视频选择
-const toggleVideoSelection = (video) => {
-  const index = selectedVideos.value.findIndex(v => v.video_id === video.video_id)
-  if (index > -1) {
-    selectedVideos.value.splice(index, 1)
-  } else {
-    selectedVideos.value.push(video)
-  }
-}
-
-const isVideoSelected = (videoId) => {
-  return selectedVideos.value.some((video) => video.video_id === videoId)
-}
-
-const addVideos = async () => {
-  if (selectedVideos.value.length === 0) {
-    showToast('请至少选择一个视频', 'warning')
-    return
-  }
-
-  let successCount = 0
-  let failCount = 0
-
-  try {
-    for (const video of selectedVideos.value) {
-      try {
-        await watchlistApi.addVideo(detailState.id, video.video_id, {
-          sort: 80
-        })
-        successCount++
-      } catch {
-        failCount++
-      }
-    }
-
-    if (successCount > 0) {
-      showToast(`成功添加 ${successCount} 个视频${failCount > 0 ? `，${failCount} 个失败` : ''}`, successCount > 0 ? 'success' : 'error')
-      modals.addVideo = false
-      await loadWatchVideos(true)
-    } else {
-      showToast('添加失败', 'error')
-    }
-  } catch (error) {
-    console.error('添加视频失败:', error)
-    showToast(error.message || '添加失败', 'error')
-  }
-}
-
-// 打开编辑片单模态框
-const openEditModal = () => {
-  editForm.id = detailState.id
-  editForm.name = detailState.name
-  editForm.description = detailState.description
-  editForm.carrot = detailState.carrot
-  editForm.tags = [...detailState.tags]
-  editForm.isPublic = detailState.isPublic
-  editForm.isShowEmpty = detailState.isShowEmpty
-  editForm.imagePosterUrl = detailState.imagePosterUrl || ''  // 新 API：只使用 URL
-  modals.editWatch = true
-}
-
-// 保存片单编辑
-const saveWatchlist = async () => {
-  if (!editForm.name.trim()) {
-    showToast('请输入片单名称', 'warning')
-    return
-  }
-  
-  try {
-    const payload = {
-      id: editForm.id,
-      name: editForm.name.trim(),
-      description: editForm.description.trim() || null,
-      point: editForm.carrot ?? 0,
-      tags: editForm.tags,
-      is_public: editForm.isPublic,
-      is_show_empty: editForm.isShowEmpty
-    }
-
-    if (editForm.imagePosterUrl) {
-      payload.image_poster_url = editForm.imagePosterUrl  // 新 API：使用 URL
-    }
-
-    await watchlistApi.create(payload)
-    
-    showToast('片单已更新', 'success')
-    modals.editWatch = false
-    await loadWatchlistInfo(detailState.id)
-  } catch (error) {
-    console.error('更新片单失败:', error)
-    showToast(error.message || '更新失败', 'error')
-  }
-}
-
-// 标签管理
-const addTag = (event) => {
-  if (event.key === 'Enter' && tagInput.value.trim()) {
-    const tag = tagInput.value.trim()
-    if (!editForm.tags.includes(tag)) {
-      editForm.tags.push(tag)
-    }
-    tagInput.value = ''
-  }
-}
-
-const removeTag = (tag) => {
-  editForm.tags = editForm.tags.filter(t => t !== tag)
-}
-
-// 打开维护者管理模态框
-const openMaintainerModal = () => {
-  maintainerState.currentMaintainers = detailState.maintainers.map((maintainer) => ({ ...maintainer }))
-  maintainerState.newUserId = ''
-  maintainerState.isLoading = false
-  modals.maintainer = true
-}
-
-// 添加维护者
-const addMaintainer = () => {
-  const userId = maintainerState.newUserId.trim()
-  if (!userId) {
-    showToast('请输入用户ID', 'warning')
-    return
-  }
-  
-  const exists = maintainerState.currentMaintainers.some(m => m.user_id === userId)
-  if (exists) {
-    showToast('该用户已是维护者', 'warning')
-    return
-  }
-  
-  maintainerState.currentMaintainers.push({
-    user_id: userId,
-    username: userId,
-    avatar: null
-  })
-  
-  maintainerState.newUserId = ''
-  showToast('已添加维护者', 'success')
-}
-
-// 移除维护者
-const removeMaintainer = (userId) => {
-  maintainerState.currentMaintainers = maintainerState.currentMaintainers.filter(
-    m => m.user_id !== userId
-  )
-  showToast('已移除维护者', 'success')
-}
-
-// 保存维护者
-const saveMaintainers = async () => {
-  try {
-    const maintainerIds = maintainerState.currentMaintainers.map(m => m.user_id)
-    await watchlistApi.updateMaintainer(detailState.id, maintainerIds)
-    
-    showToast('维护者更新成功', 'success')
-    modals.maintainer = false
-    await loadWatchlistInfo(detailState.id)
-  } catch (error) {
-    console.error('更新维护者失败:', error)
-    showToast(error.message || '更新失败', 'error')
-  }
-}
-
-// 打开片单排序模态框
-const openSortModal = () => {
-  sortState.currentSort = detailState.userSort ?? 80
-  modals.sort = true
-}
-
-// 保存片单排序
-const saveSort = async () => {
-  if (sortState.currentSort < 1 || sortState.currentSort > 100) {
-    showToast('排序值必须在1-100之间', 'warning')
-    return
-  }
-  
-  try {
-    await watchlistApi.updateSort(detailState.id, sortState.currentSort)
-    
-    showToast('片单排序更新成功', 'success')
-    modals.sort = false
-    await loadWatchlistInfo(detailState.id)
-  } catch (error) {
-    console.error('更新片单排序失败:', error)
-    showToast(error.message || '更新失败', 'error')
-  }
-}
-
-// 打开动态片单设置模态框
-const openDynamicModal = () => {
-  modals.dynamic = true
-}
-
-// 保存动态片单设置
-const saveDynamic = async () => {
-  try {
-    await watchlistApi.updateDynamic(detailState.id, detailState.dynamicUrl.trim())
-    
-    showToast(detailState.dynamicUrl ? '动态片单已启用' : '动态片单已关闭', 'success')
-    modals.dynamic = false
-    await loadWatchlistInfo(detailState.id)
-  } catch (error) {
-    console.error('设置动态片单失败:', error)
-    showToast(error.message || '设置失败', 'error')
-  }
-}
-
-// 切换片单可见性
-const toggleSubscriptionVisibility = async () => {
-  if (!detailState.id) return
-  
-  try {
-    const response = await watchlistApi.toggleShow(detailState.id)
-    detailState.userIsShow = response?.is_show ?? !detailState.userIsShow
-    showToast(detailState.userIsShow ? '已显示订阅片单' : '已隐藏订阅片单', 'success')
-    await loadWatchlistInfo(detailState.id)
-  } catch (error) {
-    console.error('切换片单可见性失败:', error)
-    showToast(error.message || '操作失败', 'error')
-  }
-}
-
-// 清空所有视频
-const clearAllVideos = async () => {
-  if (!detailState.id) return
-  if (!(await confirmDialog('确定要清空所有视频吗？', '确认', true))) return
-
-  try {
-    await watchlistApi.emptyVideos(detailState.id)
-    showToast('已清空所有视频', 'success')
-    await loadWatchVideos()
-  } catch (error) {
-    console.error('清空视频失败:', error)
-    showToast(error.message || '清空失败', 'error')
-  }
-}
-
-// 删除片单
-const deleteWatchlist = async () => {
-  if (!detailState.id) return
-  if (!(await confirmDialog('确定要删除该片单吗？此操作不可恢复！', '确认', true))) return
-
-  try {
-    await watchlistApi.delete(detailState.id)
-    showToast('片单已删除', 'success')
-    router.push('/watchlist')
-  } catch (error) {
-    console.error('删除片单失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
-
-// 打开视频编辑模态框
-const openVideoEditModal = (video) => {
-  videoEditForm.videoId = video.video_id
-  videoEditForm.sort = video.sort || 80
-  videoEditForm.remark = video.remark || ''
-  modals.editVideo = true
-}
-
-// 保存视频编辑
-const saveVideoEdit = async () => {
-  if (videoEditForm.sort < 1 || videoEditForm.sort > 100) {
-    showToast('排序值必须在1-100之间', 'warning')
-    return
-  }
-  
-  if (videoEditForm.remark && videoEditForm.remark.length > 100) {
-    showToast('备注不能超过100字', 'warning')
-    return
-  }
-  
-  try {
-    await watchlistApi.addVideo(detailState.id, videoEditForm.videoId, {
-      sort: videoEditForm.sort,
-      remark: videoEditForm.remark.trim() || null
-    })
-    
-    showToast('视频信息已更新', 'success')
-    modals.editVideo = false
-    await loadWatchVideos(true)
-  } catch (error) {
-    console.error('更新视频失败:', error)
-    showToast(error.message || '更新失败', 'error')
-  }
-}
-
-// 删除视频
-const removeVideo = async (videoId) => {
-  if (!detailState.id) return
-  if (!(await confirmDialog('确定要删除该视频吗？', '确认', true))) return
-
-  try {
-    await watchlistApi.deleteVideo(detailState.id, videoId)
-    showToast('视频已删除', 'success')
-    await loadWatchVideos(true)
-  } catch (error) {
-    console.error('删除视频失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
+// ================= 视频编辑/移除域 =================
+const {
+  videoEditForm,
+  closeEditVideoModal,
+  openVideoEditModal,
+  saveVideoEdit,
+  removeVideo,
+} = useVideoEdit({ detailState, modals, loadWatchVideos })
 </script>
 
 <template>
