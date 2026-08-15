@@ -362,7 +362,7 @@ const handleOrderAction = async (action, order) => {
     }
   } catch (error) {
     console.error('操作失败:', error)
-    const errorMessage = error.response?.data?.message || error.message || '操作失败'
+    const errorMessage = error.message || '操作失败'
     showToast(errorMessage, 'error')
   } finally {
     processingKey.value = null
