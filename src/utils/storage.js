@@ -7,7 +7,6 @@ export const STORAGE_KEYS = {
   USER_INFO: 'emos_user_info',
   ACCOUNTS: 'accounts',
   THEME: 'theme',
-  UPLOAD_STATE: 'upload_state',
 };
 
 /**

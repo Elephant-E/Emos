@@ -114,13 +114,6 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
-  // 退出登录
-  function logout() {
-    token.value = null
-    userInfo.value = null
-    Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key))
-  }
-
   // 设置维护状态
   function setMaintenance(status) {
     isMaintenance.value = status
@@ -216,7 +209,6 @@ export const useAppStore = defineStore('app', () => {
     saveAccounts,
     addAccount,
     removeAccount,
-    logout,
     refreshUserInfo,
     checkServerStatus,
     setMaintenance,
