@@ -1,18 +1,17 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const carrotApi = {
-  history(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/carrot/history?${qs}`);
+const carrotApi = createApi({
+  history: {
+    method: 'get',
+    url: (params = {}) => `/api/carrot/history?${buildQuery(params)}`,
   },
-  
-  rank() {
-    return api.get('/api/rank/carrot');
+  rank: { method: 'get', url: '/api/rank/carrot' },
+  transfer: {
+    method: 'put',
+    url: '/api/carrot/transfer',
+    body: (userId, amount) => ({ user_id: userId, carrot: amount }),
   },
-  
-  transfer(userId, amount) {
-    return api.put('/api/carrot/transfer', { user_id: userId, carrot: amount });
-  }
-};
+})
 
-export default carrotApi;
+export default carrotApi

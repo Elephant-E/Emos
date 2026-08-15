@@ -1,35 +1,38 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const liveApi = {
-  getLibrary() {
-    return api.get('/api/live/library');
+const liveApi = createApi({
+  getLibrary: { method: 'get', url: '/api/live/library' },
+  getChannelList: {
+    method: 'get',
+    url: (params = {}) => {
+      const qs = buildQuery(params)
+      return qs ? `/api/live/list?${qs}` : '/api/live/list'
+    },
+    passConfig: true,
   },
-  
-  getChannelList(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(qs ? `/api/live/list?${qs}` : '/api/live/list', config);
+  createOrUpdateChannel: {
+    method: 'post',
+    url: '/api/live/list',
+    body: (data) => data,
   },
-  
-  createOrUpdateChannel(data) {
-    return api.post('/api/live/list', data);
+  getMediaList: {
+    method: 'get',
+    url: (params = {}) => `/api/live/media?${buildQuery(params)}`,
   },
-  
-  getMediaList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/live/media?${qs}`);
+  updateMediaBatch: {
+    method: 'post',
+    url: '/api/live/media/update',
+    body: (data) => data,
   },
-  
-  updateMediaBatch(data) {
-    return api.post('/api/live/media/update', data);
+  deleteMedia: {
+    method: 'delete',
+    url: (mediaId) => `/api/live/media/${mediaId}`,
   },
-  
-  deleteMedia(mediaId) {
-    return api.delete(`/api/live/media/${mediaId}`);
+  deleteChannel: {
+    method: 'delete',
+    url: (channelId) => `/api/live/list/${channelId}`,
   },
-  
-  deleteChannel(channelId) {
-    return api.delete(`/api/live/list/${channelId}`);
-  }
-};
+})
 
-export default liveApi;
+export default liveApi

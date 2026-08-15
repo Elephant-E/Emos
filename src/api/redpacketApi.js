@@ -1,14 +1,17 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const redpacketApi = {
-  create(data) {
-    return api.post('/api/redPacket/create', data);
+const redpacketApi = createApi({
+  create: {
+    method: 'post',
+    url: '/api/redPacket/create',
+    body: (data) => data,
   },
+  receive: {
+    method: 'get',
+    url: (redPacketId, params = {}) =>
+      `/api/redPacket/receive?${buildQuery({ red_packet_id: redPacketId, ...params })}`,
+  },
+})
 
-  receive(redPacketId, params = {}) {
-    const qs = buildQuery({ red_packet_id: redPacketId, ...params });
-    return api.get(`/api/redPacket/receive?${qs}`);
-  }
-};
-
-export default redpacketApi;
+export default redpacketApi

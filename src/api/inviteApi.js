@@ -1,26 +1,27 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const inviteApi = {
-  info() {
-    return api.get('/api/invite/info');
+const inviteApi = createApi({
+  info: { method: 'get', url: '/api/invite/info' },
+  history: {
+    method: 'get',
+    url: (params = {}) => `/api/invite/history?${buildQuery(params)}`,
   },
-  
-  history(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/invite/history?${qs}`);
+  send: {
+    method: 'post',
+    url: '/api/invite',
+    body: (userId) => ({ invite_user_id: userId }),
   },
-  
-  send(userId) {
-    return api.post('/api/invite', { invite_user_id: userId });
+  revoke: {
+    method: 'post',
+    url: '/api/invite/revoke',
+    body: (userId) => ({ user_id: userId }),
   },
-  
-  revoke(userId) {
-    return api.post('/api/invite/revoke', { user_id: userId });
+  updateRemark: {
+    method: 'put',
+    url: '/api/invite/remark',
+    body: (userId, remark) => ({ user_id: userId, remark }),
   },
-  
-  updateRemark(userId, remark) {
-    return api.put('/api/invite/remark', { user_id: userId, remark: remark });
-  }
-};
+})
 
-export default inviteApi;
+export default inviteApi

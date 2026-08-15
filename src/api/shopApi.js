@@ -1,63 +1,67 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const shopApi = {
-  getProductList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/shop/product/list?${qs}`);
+const shopApi = createApi({
+  getProductList: {
+    method: 'get',
+    url: (params = {}) => `/api/shop/product/list?${buildQuery(params)}`,
   },
-  
-  getProductInfo(productId) {
-    return api.get('/api/shop/product/info', { product_id: productId });
+  getProductInfo: {
+    method: 'get',
+    url: '/api/shop/product/info',
+    params: (productId) => ({ product_id: productId }),
   },
-  
-  createOrUpdateProduct(data) {
-    return api.post('/api/shop/product/createOrUpdate', data);
+  createOrUpdateProduct: {
+    method: 'post',
+    url: '/api/shop/product/createOrUpdate',
+    body: (data) => data,
   },
-  
-  deleteProduct(productId) {
-    return api.delete(`/api/shop/product/delete?product_id=${productId}`);
+  deleteProduct: {
+    method: 'delete',
+    url: (productId) => `/api/shop/product/delete?product_id=${productId}`,
   },
-  
-  updateProductStatus(productId, isUp) {
-    return api.put('/api/shop/product/up', { 
-      product_id: productId, 
-      is_up: isUp 
-    });
+  updateProductStatus: {
+    method: 'put',
+    url: '/api/shop/product/up',
+    body: (productId, isUp) => ({ product_id: productId, is_up: isUp }),
   },
-  
-  sortProducts(productIds) {
-    return api.put('/api/shop/product/sort', { product_ids: productIds });
+  sortProducts: {
+    method: 'put',
+    url: '/api/shop/product/sort',
+    body: (productIds) => ({ product_ids: productIds }),
   },
-  
-  getCategoryList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/shop/category/list?${qs}`);
+  getCategoryList: {
+    method: 'get',
+    url: (params = {}) => `/api/shop/category/list?${buildQuery(params)}`,
   },
-  
-  createCategory(data) {
-    return api.post('/api/shop/category/create', data);
+  createCategory: {
+    method: 'post',
+    url: '/api/shop/category/create',
+    body: (data) => data,
   },
-  
-  deleteCategory(categoryId) {
-    return api.delete(`/api/shop/category/delete?category_id=${categoryId}`);
+  deleteCategory: {
+    method: 'delete',
+    url: (categoryId) => `/api/shop/category/delete?category_id=${categoryId}`,
   },
-  
-  sortCategories(categoryIds) {
-    return api.put('/api/shop/category/sort', { category_ids: categoryIds });
+  sortCategories: {
+    method: 'put',
+    url: '/api/shop/category/sort',
+    body: (categoryIds) => ({ category_ids: categoryIds }),
   },
-  
-  getSellerBase(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/shop/seller/base?${qs}`);
+  getSellerBase: {
+    method: 'get',
+    url: (params = {}) => `/api/shop/seller/base?${buildQuery(params)}`,
   },
-  
-  applySeller(data) {
-    return api.post('/api/shop/seller/apply', data);
+  applySeller: {
+    method: 'post',
+    url: '/api/shop/seller/apply',
+    body: (data) => data,
   },
-  
-  updateSeller(data) {
-    return api.post('/api/shop/seller/update', data);
-  }
-};
+  updateSeller: {
+    method: 'post',
+    url: '/api/shop/seller/update',
+    body: (data) => data,
+  },
+})
 
-export default shopApi;
+export default shopApi

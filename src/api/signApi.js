@@ -1,21 +1,12 @@
-import api from './index.js';
+import { createApi } from './factory.js'
 
-const signApi = {
-  // 获取签到状态
-  getStatus() {
-    return api.get('/api/sign/check');
+const signApi = createApi({
+  getStatus: { method: 'get', url: '/api/sign/check' },
+  submit: {
+    method: 'put',
+    url: (content) => content ? `/api/user/sign?content=${encodeURIComponent(content)}` : '/api/user/sign',
   },
-  
-  // 提交签到
-  submit(content) {
-    const url = content ? `/api/user/sign?content=${encodeURIComponent(content)}` : '/api/user/sign';
-    return api.put(url);
-  },
-  
-  // 获取签到排行榜
-  rank() {
-    return api.get('/api/rank/sign');
-  }
-};
+  rank: { method: 'get', url: '/api/rank/sign' },
+})
 
-export default signApi;
+export default signApi

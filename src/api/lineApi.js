@@ -1,18 +1,23 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const lineApi = {
-  list(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/proxy/line${qs ? '?' + qs : ''}`);
+const lineApi = createApi({
+  list: {
+    method: 'get',
+    url: (params = {}) => {
+      const qs = buildQuery(params)
+      return `/api/proxy/line${qs ? '?' + qs : ''}`
+    },
   },
-  
-  add(data) {
-    return api.post('/api/proxy/line', data);
+  add: {
+    method: 'post',
+    url: '/api/proxy/line',
+    body: (data) => data,
   },
-  
-  delete(id) {
-    return api.delete(`/api/proxy/line?id=${encodeURIComponent(id)}`);
-  }
-};
+  delete: {
+    method: 'delete',
+    url: (id) => `/api/proxy/line?id=${encodeURIComponent(id)}`,
+  },
+})
 
-export default lineApi;
+export default lineApi

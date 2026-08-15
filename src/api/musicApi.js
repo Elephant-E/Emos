@@ -1,89 +1,89 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const musicApi = {
-  songList(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/music/song/list?${qs}`, config);
+const musicApi = createApi({
+  songList: {
+    method: 'get',
+    url: (params = {}) => `/api/music/song/list?${buildQuery(params)}`,
+    passConfig: true,
   },
-
-  songSearch(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/music/song/search?${qs}`, config);
+  songSearch: {
+    method: 'get',
+    url: (params = {}) => `/api/music/song/search?${buildQuery(params)}`,
+    passConfig: true,
   },
-
-  personList(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/music/person/list?${qs}`, config);
+  personList: {
+    method: 'get',
+    url: (params = {}) => `/api/music/person/list?${buildQuery(params)}`,
+    passConfig: true,
   },
-
-  albumList(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/music/album/list?${qs}`, config);
+  albumList: {
+    method: 'get',
+    url: (params = {}) => `/api/music/album/list?${buildQuery(params)}`,
+    passConfig: true,
   },
-
-  getLyricList(songId) {
-    return api.get(`/api/music/song/${songId}/lyric/list`);
+  getLyricList: {
+    method: 'get',
+    url: (songId) => `/api/music/song/${songId}/lyric/list`,
   },
-
-  createLyric(songId, data) {
-    return api.post(`/api/music/song/${songId}/lyric/create`, data);
+  createLyric: {
+    method: 'post',
+    url: (songId) => `/api/music/song/${songId}/lyric/create`,
+    body: (songId, data) => data,
   },
-
-  deleteLyric(songId, lyricId) {
-    return api.delete(`/api/music/song/${songId}/lyric/delete?lyric_id=${lyricId}`);
+  deleteLyric: {
+    method: 'delete',
+    url: (songId, lyricId) => `/api/music/song/${songId}/lyric/delete?lyric_id=${lyricId}`,
   },
-
-  getMediaList(songId) {
-    return api.get(`/api/music/song/${songId}/media/list`);
+  getMediaList: {
+    method: 'get',
+    url: (songId) => `/api/music/song/${songId}/media/list`,
   },
-
-  deleteMedia(songId, mediaId) {
-    return api.delete(`/api/music/song/${songId}/media/delete?media_id=${mediaId}`);
+  deleteMedia: {
+    method: 'delete',
+    url: (songId, mediaId) => `/api/music/song/${songId}/media/delete?media_id=${mediaId}`,
   },
-
-  deleteSong(songId) {
-    return api.delete(`/api/music/song/${songId}/delete`);
+  deleteSong: {
+    method: 'delete',
+    url: (songId) => `/api/music/song/${songId}/delete`,
   },
-
-  moveMedia(targetSongId, mediaId) {
-    return api.put(`/api/music/song/${targetSongId}/media/move?media_id=${mediaId}`);
+  moveMedia: {
+    method: 'put',
+    url: (targetSongId, mediaId) => `/api/music/song/${targetSongId}/media/move?media_id=${mediaId}`,
   },
-
-  getPlayUrl(songId, mediaId) {
-    return api.get(`/api/music/song/${songId}/media/playUrl?media_id=${mediaId}`);
+  getPlayUrl: {
+    method: 'get',
+    url: (songId, mediaId) => `/api/music/song/${songId}/media/playUrl?media_id=${mediaId}`,
   },
-
-  updateSongVideoId(songId, videoId) {
-    return api.put(`/api/music/song/${songId}/updateVideoId?video_id=${videoId}`);
+  updateSongVideoId: {
+    method: 'put',
+    url: (songId, videoId) => `/api/music/song/${songId}/updateVideoId?video_id=${videoId}`,
   },
-
-  updateAlbumVideoId(albumId, videoId) {
-    return api.put(`/api/music/album/${albumId}/updateVideoId?video_id=${videoId}`);
+  updateAlbumVideoId: {
+    method: 'put',
+    url: (albumId, videoId) => `/api/music/album/${albumId}/updateVideoId?video_id=${videoId}`,
   },
-
-  favorite(type, value) {
-    const qs = buildQuery({ type, value });
-    return api.put(`/api/music/favorite?${qs}`);
+  favorite: {
+    method: 'put',
+    url: (type, value) => `/api/music/favorite?${buildQuery({ type, value })}`,
   },
-
-  rating(type, value, rating) {
-    const qs = buildQuery({ type, value, rating });
-    return api.put(`/api/music/rating?${qs}`);
+  rating: {
+    method: 'put',
+    url: (type, value, rating) => `/api/music/rating?${buildQuery({ type, value, rating })}`,
   },
-
-  sync(type, value) {
-    const qs = buildQuery({ type, value });
-    return api.patch(`/api/music/sync?${qs}`);
+  sync: {
+    method: 'patch',
+    url: (type, value) => `/api/music/sync?${buildQuery({ type, value })}`,
   },
-
-  syncSpotifyArtist(artistId) {
-    return api.patch('/api/music/syncSpotifyArtist', { artist_id: artistId });
+  syncSpotifyArtist: {
+    method: 'patch',
+    url: '/api/music/syncSpotifyArtist',
+    body: (artistId) => ({ artist_id: artistId }),
   },
+  spotifySearch: {
+    method: 'get',
+    url: (q, type = 'artist', limit = 15) => `/api/spotify/search?${buildQuery({ q, type, limit })}`,
+  },
+})
 
-  spotifySearch(q, type = 'artist', limit = 15) {
-    const qs = buildQuery({ q, type, limit });
-    return api.get(`/api/spotify/search?${qs}`);
-  }
-};
-
-export default musicApi;
+export default musicApi

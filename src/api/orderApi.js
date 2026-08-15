@@ -1,53 +1,53 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const orderApi = {
-  getUserOrderList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/shop/order/user/list?${qs}`);
+const orderApi = createApi({
+  getUserOrderList: {
+    method: 'get',
+    url: (params = {}) => `/api/shop/order/user/list?${buildQuery(params)}`,
   },
-  
-  createOrder(data) {
-    return api.post('/api/shop/order/user/create', data);
+  createOrder: {
+    method: 'post',
+    url: '/api/shop/order/user/create',
+    body: (data) => data,
   },
-  
-  payOrder(orderNo) {
-    return api.post('/api/shop/order/user/pay', { order_no: orderNo });
+  payOrder: {
+    method: 'post',
+    url: '/api/shop/order/user/pay',
+    body: (orderNo) => ({ order_no: orderNo }),
   },
-  
-  closeOrder(orderNo) {
-    return api.post('/api/shop/order/user/close', { order_no: orderNo });
+  closeOrder: {
+    method: 'post',
+    url: '/api/shop/order/user/close',
+    body: (orderNo) => ({ order_no: orderNo }),
   },
-  
-  urgeDelivery(orderNo) {
-    return api.put('/api/shop/order/user/urge', { order_no: orderNo });
+  urgeDelivery: {
+    method: 'put',
+    url: '/api/shop/order/user/urge',
+    body: (orderNo) => ({ order_no: orderNo }),
   },
-  
-  deleteOrder(orderNo) {
-    return api.delete(`/api/shop/order/user/order?order_no=${orderNo}`);
+  deleteOrder: {
+    method: 'delete',
+    url: (orderNo) => `/api/shop/order/user/order?order_no=${orderNo}`,
   },
-  
-  getShopOrderList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/shop/order/shop/order?${qs}`);
+  getShopOrderList: {
+    method: 'get',
+    url: (params = {}) => `/api/shop/order/shop/order?${buildQuery(params)}`,
   },
-  
-  addRemark(orderNo, remark) {
-    return api.post('/api/shop/order/shop/remark', { 
-      order_no: orderNo,
-      remark 
-    });
+  addRemark: {
+    method: 'post',
+    url: '/api/shop/order/shop/remark',
+    body: (orderNo, remark) => ({ order_no: orderNo, remark }),
   },
-  
-  confirmDelivery(orderNo, isDelivery = true) {
-    return api.put('/api/shop/order/shop/delivery', { 
-      order_no: orderNo,
-      is_delivery: isDelivery 
-    });
+  confirmDelivery: {
+    method: 'put',
+    url: '/api/shop/order/shop/delivery',
+    body: (orderNo, isDelivery = true) => ({ order_no: orderNo, is_delivery: isDelivery }),
   },
-  
-  deleteShopOrder(orderNo) {
-    return api.delete(`/api/shop/order/shop/order?order_no=${orderNo}`);
-  }
-};
+  deleteShopOrder: {
+    method: 'delete',
+    url: (orderNo) => `/api/shop/order/shop/order?order_no=${orderNo}`,
+  },
+})
 
-export default orderApi;
+export default orderApi

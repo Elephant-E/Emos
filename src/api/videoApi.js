@@ -1,84 +1,70 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-export const videoApi = {
-  list(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/list?${qs}`, config);
+const videoApi = createApi({
+  list: {
+    method: 'get',
+    url: (params = {}) => `/api/video/list?${buildQuery(params)}`,
+    passConfig: true,
   },
-  
-  detail(id) {
-    return api.get(`/api/video/${id}`);
+  detail: {
+    method: 'get',
+    url: (id) => `/api/video/${id}`,
   },
-  
-  getEpisodes(videoId, params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/${videoId}/episode?${qs}`);
+  getEpisodes: {
+    method: 'get',
+    url: (videoId, params = {}) => `/api/video/${videoId}/episode?${buildQuery(params)}`,
   },
-  
-  getMediaList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/media/list?${qs}`);
+  getMediaList: {
+    method: 'get',
+    url: (params = {}) => `/api/video/media/list?${buildQuery(params)}`,
   },
-  
-  renameMedia(data) {
-    return api.put('/api/video/media/rename', null, {
-      params: {
-        media_id: data.media_id,
-        name: data.name
-      }
-    });
+  renameMedia: {
+    method: 'put',
+    url: '/api/video/media/rename',
+    body: false,
+    params: (data) => ({ media_id: data.media_id, name: data.name }),
   },
-  
-  moveMedia(data) {
-    return api.put('/api/video/media/move', null, {
-      params: {
-        media_id: data.media_id,
-        item_type: data.item_type,
-        item_id: data.item_id
-      }
-    });
+  moveMedia: {
+    method: 'put',
+    url: '/api/video/media/move',
+    body: false,
+    params: (data) => ({ media_id: data.media_id, item_type: data.item_type, item_id: data.item_id }),
   },
-  
-  deleteMedia(data) {
-    const body = { media_id: data.media_id };
-    if (data.reason) body.reason = data.reason;
-    return api.delete('/api/video/media/delete', { data: body });
+  deleteMedia: {
+    method: 'delete',
+    url: '/api/video/media/delete',
+    body: (data) => data,
   },
-  
-  getSubtitleList(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/subtitle/list?${qs}`);
+  getSubtitleList: {
+    method: 'get',
+    url: (params = {}) => `/api/video/subtitle/list?${buildQuery(params)}`,
   },
-  
-  renameSubtitle(data) {
-    return api.put('/api/video/subtitle/rename', null, {
-      params: {
-        subtitle_id: data.subtitle_id,
-        title: data.title
-      }
-    });
+  renameSubtitle: {
+    method: 'put',
+    url: '/api/video/subtitle/rename',
+    body: false,
+    params: (data) => ({ subtitle_id: data.subtitle_id, title: data.title }),
   },
-  
-  deleteSubtitle(data) {
-    const body = { subtitle_id: data.subtitle_id };
-    if (data.reason) body.reason = data.reason;
-    return api.delete('/api/video/subtitle/delete', { data: body });
+  deleteSubtitle: {
+    method: 'delete',
+    url: '/api/video/subtitle/delete',
+    body: (data) => data,
   },
+  sync: {
+    method: 'patch',
+    url: (params = {}) => `/api/video/sync?${buildQuery(params)}`,
+  },
+  search: {
+    method: 'get',
+    url: (params = {}) => `/api/video/search?${buildQuery(params)}`,
+    passConfig: true,
+  },
+  tree: {
+    method: 'get',
+    url: (params = {}) => `/api/video/tree?${buildQuery(params)}`,
+    passConfig: true,
+  },
+})
 
-  sync(params) {
-    const qs = buildQuery(params);
-    return api.patch(`/api/video/sync?${qs}`);
-  },
-
-  search(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/search?${qs}`, config);
-  },
-
-  tree(params = {}, config = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/tree?${qs}`, config);
-  }
-};
-
-export default videoApi;
+export default videoApi

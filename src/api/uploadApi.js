@@ -1,30 +1,33 @@
-import api, { buildQuery } from './index.js'
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const uploadApi = {
-  rank() {
-    return api.get('/api/rank/upload')
+const uploadApi = createApi({
+  rank: { method: 'get', url: '/api/rank/upload' },
+  getUploadToken: {
+    method: 'post',
+    url: '/api/upload/getUploadToken',
+    body: (data) => data,
   },
-
-  getUploadToken(data) {
-    return api.post('/api/upload/getUploadToken', data)
+  getVideoBase: {
+    method: 'get',
+    url: (itemType, itemId) =>
+      `/api/upload/video/base?${buildQuery({ item_type: itemType, item_id: itemId })}`,
   },
-
-  getVideoBase(itemType, itemId) {
-    const qs = buildQuery({ item_type: itemType, item_id: itemId })
-    return api.get(`/api/upload/video/base?${qs}`)
+  videoSave: {
+    method: 'post',
+    url: '/api/upload/video/save',
+    body: (data) => data,
   },
-
-  videoSave(data) {
-    return api.post('/api/upload/video/save', data)
+  subtitleSave: {
+    method: 'post',
+    url: '/api/upload/subtitle/save',
+    body: (data) => data,
   },
-
-  subtitleSave(data) {
-    return api.post('/api/upload/subtitle/save', data)
+  musicSave: {
+    method: 'post',
+    url: '/api/upload/music/save',
+    body: (data) => data,
   },
-
-  musicSave(data) {
-    return api.post('/api/upload/music/save', data)
-  }
-}
+})
 
 export default uploadApi

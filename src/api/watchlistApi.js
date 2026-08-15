@@ -1,65 +1,68 @@
-import api from './index.js';
+import { createApi } from './factory.js'
 
-const watchlistApi = {
-  getList(params = {}) {
-    return api.get('/api/watch', { params });
+const watchlistApi = createApi({
+  getList: {
+    method: 'get',
+    url: '/api/watch',
+    params: (params = {}) => params,
   },
-
-  create(data) {
-    return api.post('/api/watch', data);
+  create: {
+    method: 'post',
+    url: '/api/watch',
+    body: (data) => data,
   },
-
-  delete(watchId) {
-    return api.delete(`/api/watch/${watchId}`);
+  delete: {
+    method: 'delete',
+    url: (watchId) => `/api/watch/${watchId}`,
   },
-
-  getVideos(watchId, params = {}) {
-    return api.get(`/api/watch/${watchId}/video`, params);
+  getVideos: {
+    method: 'get',
+    url: (watchId, params = {}) => `/api/watch/${watchId}/video`,
+    params: (watchId, params = {}) => params,
   },
-
-  searchVideos(watchId, params = {}) {
-    return api.get(`/api/watch/${watchId}/video/search`, params);
+  searchVideos: {
+    method: 'get',
+    url: (watchId, params = {}) => `/api/watch/${watchId}/video/search`,
+    params: (watchId, params = {}) => params,
   },
-
-  addVideo(watchId, videoId, data = {}) {
-    return api.post(`/api/watch/${watchId}/video/${videoId}`, data);
+  addVideo: {
+    method: 'post',
+    url: (watchId, videoId) => `/api/watch/${watchId}/video/${videoId}`,
+    body: (watchId, videoId, data = {}) => data,
   },
-
-  deleteVideo(watchId, videoId) {
-    return api.delete(`/api/watch/${watchId}/video/${videoId}`);
+  deleteVideo: {
+    method: 'delete',
+    url: (watchId, videoId) => `/api/watch/${watchId}/video/${videoId}`,
   },
-
-  emptyVideos(watchId) {
-    return api.delete(`/api/watch/${watchId}/video/empty`);
+  emptyVideos: {
+    method: 'delete',
+    url: (watchId) => `/api/watch/${watchId}/video/empty`,
   },
-
-  updateMaintainer(watchId, maintainers) {
-    return api.put(`/api/watch/${watchId}/maintainer`, { maintainers });
+  updateMaintainer: {
+    method: 'put',
+    url: (watchId) => `/api/watch/${watchId}/maintainer`,
+    body: (watchId, maintainers) => ({ maintainers }),
   },
-
-  updateSort(watchId, sort) {
-    return api.put(`/api/watch/${watchId}/sort`, null, {
-      params: { sort }
-    });
+  updateSort: {
+    method: 'put',
+    url: (watchId) => `/api/watch/${watchId}/sort`,
+    body: false,
+    params: (watchId, sort) => ({ sort }),
   },
-
-  updateDynamic(watchId, url) {
-    return api.put(`/api/watch/${watchId}/dynamic`, {
-      url: url || null
-    });
+  updateDynamic: {
+    method: 'put',
+    url: (watchId) => `/api/watch/${watchId}/dynamic`,
+    body: (watchId, url) => ({ url: url || null }),
   },
-
-  toggleShow(watchId) {
-    return api.put(`/api/watch/${watchId}/show`);
+  toggleShow: {
+    method: 'put',
+    url: (watchId) => `/api/watch/${watchId}/show`,
   },
-
-  toggleSubscribe(watchId) {
-    return api.put(`/api/watch/${watchId}/subscribe`);
+  toggleSubscribe: {
+    method: 'put',
+    url: (watchId) => `/api/watch/${watchId}/subscribe`,
   },
+  exchangeSlot: { method: 'post', url: '/api/watch/slot' },
+})
 
-  exchangeSlot() {
-    return api.post('/api/watch/slot');
-  }
-};
-
-export default watchlistApi;
+export default watchlistApi

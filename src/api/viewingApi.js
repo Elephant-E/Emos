@@ -1,10 +1,11 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-export const viewingApi = {
-  requests(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/video/record/request?${qs}`);
+export const viewingApi = createApi({
+  requests: {
+    method: 'get',
+    url: (params = {}) => `/api/video/record/request?${buildQuery(params)}`,
   },
-};
+})
 
-export default viewingApi;
+export default viewingApi

@@ -1,27 +1,28 @@
-import api, { buildQuery } from './index.js';
+import { createApi } from './factory.js'
+import { buildQuery } from './index.js'
 
-const lotteryApi = {
-  create(data) {
-    return api.post('/api/lottery/create', data);
+const lotteryApi = createApi({
+  create: {
+    method: 'post',
+    url: '/api/lottery/create',
+    body: (data) => data,
   },
-  
-  list(params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/lottery/list?${qs}`);
+  list: {
+    method: 'get',
+    url: (params = {}) => `/api/lottery/list?${buildQuery(params)}`,
   },
-  
-  detail(lotteryId) {
-    return api.get(`/api/lottery/${lotteryId}`);
+  detail: {
+    method: 'get',
+    url: (lotteryId) => `/api/lottery/${lotteryId}`,
   },
-  
-  cancel(lotteryId) {
-    return api.delete(`/api/lottery/${lotteryId}`);
+  cancel: {
+    method: 'delete',
+    url: (lotteryId) => `/api/lottery/${lotteryId}`,
   },
-  
-  winners(lotteryId, params = {}) {
-    const qs = buildQuery(params);
-    return api.get(`/api/lottery/${lotteryId}/winners?${qs}`);
-  }
-};
+  winners: {
+    method: 'get',
+    url: (lotteryId, params = {}) => `/api/lottery/${lotteryId}/winners?${buildQuery(params)}`,
+  },
+})
 
-export default lotteryApi;
+export default lotteryApi
