@@ -1,217 +1,83 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { watch, onMounted } from 'vue'
 import { useUploadStore } from '@/stores/upload.js'
 import { showToast } from '@/utils/toast.js'
-import { formatFileSize } from '@/utils/format.js'
-import { confirmDialog } from '@/utils/confirm.js'
 import BaseModal from '@/components/common/BaseModal.vue'
 import SegmentedControl from '@/components/common/SegmentedControl.vue'
-import videoApi from '@/api/videoApi.js'
-import musicApi from '@/api/musicApi.js'
+
+import { useEditTarget } from '@/composables/useEditTarget.js'
+import { useMusicSelect } from '@/composables/useMusicSelect.js'
+import { useUploadQueue } from '@/composables/useUploadQueue.js'
 
 defineOptions({ name: 'UploadView' })
 
 const uploadStore = useUploadStore()
 
+// ================= 编辑关联目标域 =================
+const {
+  editModalVisible,
+  editItemId,
+  editItemType,
+  editSearchKeyword,
+  editSearchResults,
+  editSearching,
+  editSearched,
+  editSubmitting,
+  editSelectedVideo,
+  editTreeData,
+  editTreeLoading,
+  editExpandedSeasons,
+  editSelectedTarget,
+  closeEditModal,
+  openEditModal,
+  handleEditSearchInput,
+  performEditSearch,
+  selectEditVideo,
+  toggleEditSeason,
+  selectEditEpisode,
+  handleEditSelectMusic,
+  handleEditSelect,
+  canEditItem,
+} = useEditTarget({ uploadStore })
 
-const isDragging = ref(false)
-const fileInput = ref(null)
-const resumeFileInput = ref(null)
-const resumeItem = ref(null)
-const statusFilter = ref('all')
+// ================= 音乐候选选择域 =================
+const {
+  musicSelectVisible,
+  musicSelectCandidates,
+  musicSelectItemId,
+  musicSelectTitle,
+  closeMusicSelectModal,
+  openMusicSelect,
+  handleMusicSelect,
+} = useMusicSelect({ uploadStore })
 
-const musicSelectVisible = ref(false)
-const musicSelectCandidates = ref([])
-const musicSelectItemId = ref(null)
-const musicSelectTitle = ref('')
+// ================= 上传队列操作域 =================
+const {
+  isDragging,
+  fileInput,
+  resumeFileInput,
+  resumeItem,
+  statusFilter,
+  statusOptions,
+  filteredQueue,
+  statusCounts,
+  canStartAll,
+  formatSpeed,
+  handleFileSelect,
+  handleDrop,
+  handleFiles,
+  handleResumeFileSelect,
+  startItem,
+  pauseItem,
+  pauseWaitingItem,
+  deleteItem,
+  startAll,
+  pauseAll,
+  clearAll,
+  adjustConcurrency,
+} = useUploadQueue({ uploadStore })
 
-const closeMusicSelectModal = () => {
-  musicSelectVisible.value = false
-  musicSelectItemId.value = null
-  musicSelectCandidates.value = []
-  musicSelectTitle.value = ''
-}
-
-const handleMusicSelect = (song) => {
-  uploadStore.selectMusicCandidate(musicSelectItemId.value, song.song_id)
-  musicSelectVisible.value = false
-}
-
-const openMusicSelect = (item) => {
-  musicSelectItemId.value = item.id
-  musicSelectCandidates.value = item.musicCandidates
-  musicSelectTitle.value = item.videoInfo?.title || item.name
-  musicSelectVisible.value = true
-}
-
-const editModalVisible = ref(false)
-const editItemId = ref(null)
-const editItemType = ref(null)
-const editSearchKeyword = ref('')
-const editSearchResults = ref([])
-const editSearching = ref(false)
-const editSearched = ref(false)
-const editSubmitting = ref(false)
-const editSelectedVideo = ref(null)
-const editTreeData = ref([])
-const editTreeLoading = ref(false)
-const editExpandedSeasons = ref({})
-const editSelectedTarget = ref(null)
-
-const closeEditModal = () => {
-  editModalVisible.value = false
-  editItemId.value = null
-  editItemType.value = null
-  editSearchKeyword.value = ''
-  editSearchResults.value = []
-  editSearching.value = false
-  editSearched.value = false
-  editSubmitting.value = false
-  editSelectedVideo.value = null
-  editTreeData.value = []
-  editTreeLoading.value = false
-  editExpandedSeasons.value = {}
-  editSelectedTarget.value = null
-}
-
-let editDebounceTimer = null
-
-const handleEditSearchInput = () => {
-  clearTimeout(editDebounceTimer)
-  editDebounceTimer = setTimeout(() => {
-    performEditSearch()
-  }, 500)
-}
-
-const performEditSearch = async () => {
-  const keyword = editSearchKeyword.value.trim()
-  if (!keyword) return
-  
-  editSearching.value = true
-  editSearched.value = false
-  editSearchResults.value = []
-  editSelectedVideo.value = null
-  editTreeData.value = []
-  editSelectedTarget.value = null
-  
-  try {
-    if (editItemType.value === 'video' || editItemType.value === 'subtitle') {
-      const data = await videoApi.search({ title: keyword, page: 1, page_size: 20 })
-      editSearchResults.value = data.items || []
-    } else if (editItemType.value === 'music') {
-      const data = await musicApi.songSearch({ name: keyword, page: 1, page_size: 20 })
-      editSearchResults.value = data.items || []
-    }
-  } catch (error) {
-    showToast('搜索失败: ' + (error.message || '未知错误'), 'error')
-  } finally {
-    editSearching.value = false
-    editSearched.value = true
-  }
-}
-
-const openEditModal = (item) => {
-  editItemId.value = item.id
-  editItemType.value = item.type
-  editSearchKeyword.value = ''
-  editModalVisible.value = true
-}
-
-const selectEditVideo = async (video) => {
-  editSelectedVideo.value = video
-  editTreeData.value = []
-  editSelectedTarget.value = null
-  editExpandedSeasons.value = {}
-  
-  if (video.video_type === 'movie') {
-    editSelectedTarget.value = { 
-      item_type: 'vl', 
-      item_id: video.video_id, 
-      label: video.video_title,
-      video_type: 'movie'
-    }
-  } else {
-    editTreeLoading.value = true
-    try {
-      const tree = await videoApi.tree({ video_id: video.video_id })
-      const videoList = Array.isArray(tree) ? tree : (tree?.items || [])
-      const videoData = videoList[0]
-      editTreeData.value = videoData?.seasons || []
-    } catch (error) {
-      showToast('加载季集信息失败', 'error')
-    } finally {
-      editTreeLoading.value = false
-    }
-  }
-}
-
-const toggleEditSeason = (sIdx) => {
-  editExpandedSeasons.value[sIdx] = !editExpandedSeasons.value[sIdx]
-}
-
-const selectEditEpisode = (episode) => {
-  editSelectedTarget.value = { 
-    item_type: episode.item_type, 
-    item_id: episode.item_id, 
-    label: episode.episode_title,
-    video_type: 'tv'
-  }
-}
-
-const handleEditSelect = async () => {
-  if (!editSelectedTarget.value) return
-  
-  editSubmitting.value = true
-  try {
-    const idx = uploadStore.queue.findIndex(i => i.id === editItemId.value)
-    if (idx === -1) return
-    
-    if (editItemType.value === 'video' || editItemType.value === 'subtitle') {
-      uploadStore.queue[idx].videoInfo = {
-        title: editSelectedVideo.value.video_title,
-        item_type: editSelectedTarget.value.item_type,
-        item_id: editSelectedTarget.value.item_id,
-        video_type: editSelectedTarget.value.video_type
-      }
-    } else if (editItemType.value === 'music') {
-      const result = editSelectedTarget.value
-      uploadStore.queue[idx].videoInfo = {
-        title: result.name,
-        item_type: 'music',
-        item_id: result.song_id,
-        song_id: result.song_id,
-        person_artists: result.person_artists || []
-      }
-    }
-    
-    if (uploadStore.queue[idx].status === 'failed') {
-      uploadStore.queue[idx].status = 'ready'
-      uploadStore.queue[idx].error = null
-    }
-    
-    uploadStore.queue[idx].updatedAt = Date.now()
-    showToast('已更新关联资源', 'success')
-    closeEditModal()
-  } catch (error) {
-    showToast('更新失败: ' + (error.message || '未知错误'), 'error')
-  } finally {
-    editSubmitting.value = false
-  }
-}
-
-const handleEditSelectMusic = (song) => {
-  editSelectedVideo.value = song
-  editSelectedTarget.value = {
-    name: song.name,
-    song_id: song.song_id,
-    person_artists: song.person_artists || []
-  }
-}
-
-const canEditItem = (item) => {
-  return item.status === 'completed' || item.status === 'failed' || item.status === 'ready'
-}
-
+// ================= 视图层：队列状态观察 =================
 watch(() => uploadStore.queue.some(i => i.status === 'selecting'), (hasSelecting) => {
   if (hasSelecting && !musicSelectVisible.value) {
     const item = uploadStore.queue.find(i => i.status === 'selecting')
@@ -219,156 +85,9 @@ watch(() => uploadStore.queue.some(i => i.status === 'selecting'), (hasSelecting
   }
 })
 
-const statusOptions = [
-  { value: 'all', label: '全部', icon: 'fa-layer-group' },
-  { value: 'ready', label: '待上传', icon: 'fa-clock' },
-  { value: 'waiting', label: '等待中', icon: 'fa-hourglass-half' },
-  { value: 'uploading', label: '上传中', icon: 'fa-upload' },
-  { value: 'paused', label: '已暂停', icon: 'fa-pause' },
-  { value: 'completed', label: '已完成', icon: 'fa-check' },
-  { value: 'failed', label: '失败', icon: 'fa-times' }
-]
-
-const filteredQueue = computed(() => {
-  if (statusFilter.value === 'all') return uploadStore.queue
-  return uploadStore.queue.filter(item => item.status === statusFilter.value)
-})
-
-const statusCounts = computed(() => {
-  const counts = { all: uploadStore.queue.length }
-  for (const item of uploadStore.queue) {
-    counts[item.status] = (counts[item.status] || 0) + 1
-  }
-  return counts
-})
-
-const canStartAll = computed(() => {
-  return uploadStore.queue.some(
-    item => item.status === 'ready' || item.status === 'waiting' || item.status === 'paused'
-  )
-})
-
-const formatSpeed = (bytesPerSec) => {
-  if (!bytesPerSec || bytesPerSec <= 0) return '0 B/s'
-  return formatFileSize(bytesPerSec) + '/s'
-}
-
-const handleFileSelect = (e) => {
-  const files = Array.from(e.target.files || [])
-  handleFiles(files)
-  e.target.value = ''
-}
-
-const handleDrop = (e) => {
-  isDragging.value = false
-  const files = Array.from(e.dataTransfer.files || [])
-  handleFiles(files)
-}
-
-const handleFiles = (files) => {
-  const validFiles = []
-  
-  for (const file of files) {
-    const name = file.name.toLowerCase()
-    const type = file.type
-    
-    const isVideo = type.startsWith('video/') || /\.(mp4|mkv|avi|mov|wmv|flv|webm|m4v)$/i.test(name)
-    const isSubtitle = type === 'application/x-subrip' || type === 'text/srt' || /\.(srt|ass|ssa|vtt|sub)$/i.test(name)
-    const isMusic = type.startsWith('audio/') || /\.(mp3|flac|wav|aac|ogg|m4a|wma|ape|alac|dsd|dff|dsf)$/i.test(name)
-    
-    if (!isVideo && !isSubtitle && !isMusic) {
-      showToast(`不支持的文件类型: ${file.name}`, 'error')
-      continue
-    }
-    
-    if (uploadStore.checkDuplicate(file.name)) {
-      showToast(`文件已存在: ${file.name}`, 'error')
-      continue
-    }
-    
-    validFiles.push(file)
-  }
-  
-  if (validFiles.length > 0) {
-    uploadStore.addFiles(validFiles)
-  }
-}
-
-const handleResumeFileSelect = (e) => {
-  const file = e.target.files?.[0]
-  e.target.value = ''
-  
-  if (!file) return
-  if (!resumeItem.value) {
-    handleFiles([file])
-    return
-  }
-  
-  if (file.name.toLowerCase() !== resumeItem.value.name.toLowerCase() || file.size !== resumeItem.value.size) {
-    showToast('文件不匹配，请选择相同的文件', 'error')
-    return
-  }
-  
-  uploadStore.resumeItem(resumeItem.value, file)
-  resumeItem.value = null
-}
-
-const startItem = (item) => {
-  if (item.canResume) {
-    resumeItem.value = item
-    resumeFileInput.value?.click()
-    return
-  }
-  uploadStore.startItem(item)
-}
-
-const pauseItem = (item) => {
-  uploadStore.pauseItem(item)
-}
-
-const pauseWaitingItem = (item) => {
-  uploadStore.pauseWaitingItem(item)
-}
-
-const deleteItem = async (item) => {
-  if (item.status === 'completed') {
-    uploadStore.removeItem(item)
-    return
-  }
-  
-  if (await confirmDialog(`确定删除 "${item.name}"？`, '确认', true)) {
-    uploadStore.removeItem(item)
-  }
-}
-
-
-const startAll = () => {
-  uploadStore.startAll()
-}
-
-const pauseAll = () => {
-  uploadStore.pauseAll()
-}
-
-const clearAll = async () => {
-  const hasCompleted = uploadStore.queue.some(item => item.status === 'completed')
-  
-  if (hasCompleted) {
-    uploadStore.clearCompleted()
-  } else {
-    if (await confirmDialog('确定清空所有任务？', '确认', true)) {
-      uploadStore.clearAll()
-    }
-  }
-}
-
-const adjustConcurrency = (delta) => {
-  uploadStore.setConcurrency(uploadStore.concurrency + delta)
-}
-
 onMounted(() => {
   uploadStore.restoreFromStorage()
-  
+
   if (typeof window.tus === 'undefined') {
     const script = document.createElement('script')
     script.src = 'https://cdn.jsdelivr.net/npm/tus-js-client@3.1.1/dist/tus.min.js'
