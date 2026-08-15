@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import identifyApi from '@/api/identifyApi.js'
-import musicApi from '@/api/musicApi.js'
 import uploadApi from '@/api/uploadApi.js'
 import uploader from '@/utils/uploader.js'
-import { normalizeList } from '@/utils/format.js'
+import { identifyVideoFile as identifyVideoFileLogic, identifyMusicFile as identifyMusicFileLogic } from '@/utils/identify.js'
 
 const UPLOAD_QUEUE_KEY = 'upload_queue'
 const MAX_CONCURRENCY = 10
@@ -180,109 +178,30 @@ export const useUploadStore = defineStore('upload', () => {
     if (index === -1) return
 
     if (item.type === 'music') {
-      await identifyMusicFile(item, index)
+      await identifyMusicFile(item)
     } else {
-      await identifyVideoFile(item, index)
+      await identifyVideoFile(item)
     }
   }
 
-  const identifyVideoFile = async (item, index) => {
-    try {
-      const result = await identifyApi.identify(item.name, 'video')
-      
-      const idx = queue.value.findIndex(i => i.id === item.id)
-      if (idx === -1) return
-      
-      queue.value[idx].videoInfo = {
-        title: result.title,
-        season: result.season,
-        episode: result.episode,
-        video_type: result.season ? 'tv' : 'movie',
-        item_type: result.item_type,
-        item_id: result.item_id
-      }
-      queue.value[idx].updatedAt = Date.now()
+  const identifyVideoFile = async (item) => {
+    const { patches } = await identifyVideoFileLogic(item.name, item.size)
 
-      try {
-        const baseInfo = await uploadApi.getVideoBase(result.item_type, result.item_id)
-        const existingMedias = baseInfo?.video_medias || []
-        const duplicate = existingMedias.find(m => m.media_file_size === item.size)
-        if (duplicate) {
-          queue.value[idx].status = 'failed'
-          queue.value[idx].error = `已存在相同大小的资源 (${duplicate.media_name || duplicate.media_id}${duplicate.is_self_upload ? '，本人上传' : ''})`
-          queue.value[idx].updatedAt = Date.now()
-          return
-        }
-        if (existingMedias.length > 0) {
-          queue.value[idx].existingMedias = existingMedias
-        }
-      } catch {
-        // 获取基本信息失败不影响上传流程
-      }
+    const idx = queue.value.findIndex(i => i.id === item.id)
+    if (idx === -1) return
 
-      queue.value[idx].status = 'ready'
-      queue.value[idx].updatedAt = Date.now()
-    } catch (error) {
-      const idx = queue.value.findIndex(i => i.id === item.id)
-      if (idx !== -1) {
-        queue.value[idx].status = 'failed'
-        queue.value[idx].error = error.message || '识别失败'
-        queue.value[idx].updatedAt = Date.now()
-      }
-    }
+    Object.assign(queue.value[idx], patches)
+    queue.value[idx].updatedAt = Date.now()
   }
 
-  const identifyMusicFile = async (item, index) => {
-    try {
-      const result = await identifyApi.identify(item.name, 'music')
-      const songName = result.title
-      const artistName = result.artist || null
+  const identifyMusicFile = async (item) => {
+    const { patches } = await identifyMusicFileLogic(item.name)
 
-      const searchParams = { name: songName, page: 1, page_size: 10 }
-      if (artistName) searchParams.person_name_artist = artistName
+    const idx = queue.value.findIndex(i => i.id === item.id)
+    if (idx === -1) return
 
-      const searchResult = await musicApi.songSearch(searchParams)
-      const items = normalizeList(searchResult)
-
-      const idx = queue.value.findIndex(i => i.id === item.id)
-      if (idx === -1) return
-
-      if (items.length === 0) {
-        queue.value[idx].status = 'failed'
-        queue.value[idx].error = `音乐搜索无结果: "${songName}${artistName ? ' - ' + artistName : ''}"`
-        queue.value[idx].updatedAt = Date.now()
-        return
-      }
-
-      if (items.length === 1) {
-        const song = items[0]
-        queue.value[idx].videoInfo = {
-          title: song.name,
-          item_type: 'music',
-          item_id: song.song_id,
-          song_id: song.song_id,
-          person_artists: song.person_artists || []
-        }
-        queue.value[idx].status = 'ready'
-        queue.value[idx].updatedAt = Date.now()
-        return
-      }
-
-      queue.value[idx].musicCandidates = items
-      queue.value[idx].videoInfo = {
-        title: songName,
-        item_type: 'music'
-      }
-      queue.value[idx].status = 'selecting'
-      queue.value[idx].updatedAt = Date.now()
-    } catch (error) {
-      const idx = queue.value.findIndex(i => i.id === item.id)
-      if (idx !== -1) {
-        queue.value[idx].status = 'failed'
-        queue.value[idx].error = error.message || '音乐识别失败'
-        queue.value[idx].updatedAt = Date.now()
-      }
-    }
+    Object.assign(queue.value[idx], patches)
+    queue.value[idx].updatedAt = Date.now()
   }
 
   const selectMusicCandidate = (itemId, songId) => {
