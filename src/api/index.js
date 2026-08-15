@@ -11,6 +11,7 @@ class ApiClient {
     this.defaultHeaders = {
       'Content-Type': 'application/json'
     };
+    this._redirecting = false; // 防重入：并发 401 只跳转一次
   }
 
   // 获取 Token
@@ -124,9 +125,12 @@ class ApiClient {
         const response = await fetch(url, config);
 
         if (response.status === 401) {
-          localStorage.removeItem(STORAGE_KEYS.ACTIVE_TOKEN);
-          localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER);
-          window.location.href = '/login';
+          if (!this._redirecting) {
+            this._redirecting = true
+            localStorage.removeItem(STORAGE_KEYS.ACTIVE_TOKEN);
+            localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER);
+            window.location.href = '/login';
+          }
           throw new Error('登录已过期，请重新登录');
         }
 
