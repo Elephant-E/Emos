@@ -7,10 +7,11 @@ compatibility_date = "2024-01-01"
 command = "npm run build && node build-worker.cjs"
 
 # 环境变量
+# 敏感密钥（TMDB_API_KEY / SPOTIFY_ANON_KEY）不入库，部署时用 wrangler secret 注入：
+#   wrangler secret put TMDB_API_KEY
+#   wrangler secret put SPOTIFY_ANON_KEY
+# 非敏感配置保留在 [vars]
 [vars]
-TMDB_API_KEY = "REDACTED_TMDB"
-SPOTIFY_ANON_KEY = "REDACTED_SPOTIFY"
-
 EMOS_PROXY_NAME = "@Elephant"
 EMOS_PROXY_ID = "e7E6K6OE4s"
 
