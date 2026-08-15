@@ -10,8 +10,8 @@
  * 密钥一律从 env 注入，代码内零硬编码。
  */
 
-import { identify } from '../share/identify-core.js';
-import { spotifySearch } from '../share/spotify-core.js';
+import { identify } from './share/identify-core.js';
+import { spotifySearch } from './share/spotify-core.js';
 
 export default {
   async fetch(request, env, ctx) {
