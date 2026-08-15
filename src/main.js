@@ -24,6 +24,21 @@ if (!localStorage.getItem('theme')) {
 const app = createApp(App)
 const pinia = createPinia()
 
+// 全局错误处理：记录未捕获错误，避免静默失败（仅记录，不改变用户可见行为）
+app.config.errorHandler = (err, instance, info) => {
+  console.error('[Vue error]', info || '', err)
+}
+
+// 全局未捕获 Promise 错误：兜底记录（静默，避免噪音）
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled rejection]', event.reason)
+})
+
+// 全局未捕获 Promise 错误：兜底记录（静默，避免噪音）
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Unhandled rejection]', event.reason)
+})
+
 app.use(pinia)
 app.use(router)
 
