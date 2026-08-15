@@ -1,0 +1,256 @@
+/* ================= 上传管理页面专属样式 ================= */
+
+/* 进度条脉冲动画 */
+@keyframes progress-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* 识别中加载动画 */
+.identifying-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--info);
+  animation: spinner-bounce 1.4s infinite ease-in-out both;
+}
+
+.spinner-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.spinner-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.spinner-dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes spinner-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 上传区域拖拽效果 */
+.upload-zone {
+  border: 2px dashed var(--glass-material-border);
+  cursor: pointer;
+  transition: all 0.3s var(--spring);
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.upload-zone:hover {
+  border-color: var(--key-color);
+  background: var(--system-quaternary);
+  transform: translateY(-2px);
+}
+
+.upload-zone.dragover {
+  border-color: var(--key-color);
+  background: color-mix(in srgb, var(--key-color) 8%, transparent);
+  transform: scale(1.02);
+}
+
+/* 状态颜色（用于识别列表） */
+.status-pending i {
+  color: var(--warning);
+}
+
+.status-success i {
+  color: var(--success);
+}
+
+.status-failed i {
+  color: var(--danger);
+}
+
+/* 按钮悬停效果 */
+.btn-continue:hover {
+  background: var(--key-color) !important;
+  border-color: var(--key-color) !important;
+  color: var(--system-primary) !important;
+}
+
+.btn-pause:hover {
+  background: var(--warning) !important;
+  border-color: var(--warning) !important;
+  color: var(--system-primary) !important;
+}
+
+.btn-delete {
+  border-radius: 50%;
+  border: 1px solid var(--glass-material-border);
+  background: var(--system-quaternary);
+  color: var(--system-secondary);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: var(--system-primary) !important;
+}
+
+.btn-start-upload:hover {
+  background: var(--key-color) !important;
+  border-color: var(--key-color) !important;
+  color: var(--system-primary) !important;
+}
+
+#clearAllBtn:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent) !important;
+  border-color: var(--danger) !important;
+}
+
+#startAllBtn:hover {
+  background: color-mix(in srgb, var(--key-color) 10%, transparent) !important;
+  border-color: var(--key-color) !important;
+}
+
+.btn-delete:hover {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: var(--system-primary) !important;
+}
+
+
+/* 简化操作按钮（无容器背景） */
+.action-simple {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0.3rem;
+  transition: transform 0.2s, opacity 0.2s;
+  opacity: 0.7;
+}
+
+.action-simple:hover {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+/* 上传队列头部布局 */
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.queue-header .filter-group {
+  height: 32px;
+}
+
+.queue-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 32px;
+}
+
+.queue-actions .concurrency-control {
+  margin-right: 0.2rem;
+}
+
+.queue-header .concurrency-control {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--system-quaternary);
+  padding: 0 1rem;
+  border-radius: 50px;
+  border: 1px solid var(--glass-material-border);
+  white-space: nowrap;
+  height: 32px;
+}
+
+.queue-header .concurrency-control .action-icon {
+  width: 26px;
+  height: 26px;
+  font-size: 0.75rem;
+}
+
+.queue-header .concurrency-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--system-primary);
+  min-width: 20px;
+  text-align: center;
+}
+
+/* 移动端优化：筛选器和并发控制同行 */
+@media (max-width: 768px) {
+  .queue-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  
+  .queue-header .filter-group {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0.15rem;
+    gap: 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    height: 28px;
+  }
+  
+  .queue-header .filter-group::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .queue-header .filter-chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .queue-header .concurrency-control {
+    flex: 0 0 auto;
+    padding: 0 0.6rem;
+    gap: 0.4rem;
+    height: 28px;
+    white-space: nowrap;
+  }
+  
+  .queue-header .concurrency-control .action-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+  }
+  
+  .queue-header .concurrency-value {
+    font-size: 0.85rem;
+    min-width: 16px;
+  }
+}

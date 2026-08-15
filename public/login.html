@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>EMOS · 欢迎登录</title>
+<link rel="icon" href="https://github.com/somebyteorg/emos_home/raw/refs/heads/main/public/favicon.ico">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+<style>
+/* ================= Apple 26 Dark Design System ================= */
+:root {
+  --bg-body: #000000;
+  --bg-surface: rgba(20, 20, 23, 0.65);
+  --bg-input: rgba(44, 44, 46, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(235, 235, 245, 0.65);
+  --text-tertiary: rgba(235, 235, 245, 0.4);
+  --accent: #0a84ff;
+  --accent-hover: #0071e3;
+  --danger: #ff453a;
+  --success: #30d158;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-focus: rgba(255, 255, 255, 0.25);
+  --blur: blur(30px) saturate(180%);
+  --spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-card: 0 16px 48px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  line-height: 1.45;
+  min-height: 100vh;
+  overflow-y: auto; /* 允许滑动 */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 动态流体背景网格 */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  background: radial-gradient(50% 50% at 15% 25%, rgba(0, 122, 255, 0.15), transparent 65%),
+              radial-gradient(45% 45% at 85% 15%, rgba(10, 132, 255, 0.1), transparent 65%),
+              radial-gradient(40% 40% at 50% 85%, rgba(170, 140, 255, 0.1), transparent 65%),
+              var(--bg-body);
+}
+.bg-mesh::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, var(--bg-body) 100%);
+}
+.blob {
+  position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; will-change: transform;
+  animation: float 20s ease-in-out infinite alternate;
+}
+.blob-1 { width: 40vw; height: 40vw; background: var(--accent); top: -10%; left: -10%; animation-delay: 0s; opacity: 0.25; }
+.blob-2 { width: 30vw; height: 30vw; background: #5ac8fa; bottom: -5%; right: -5%; animation-delay: -5s; opacity: 0.2; }
+.blob-3 { width: 20vw; height: 20vw; background: #af8cff; top: 40%; left: 50%; animation-delay: -10s; opacity: 0.15; }
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(15%, 20%) scale(1.1); }
+}
+
+/* 主容器 */
+.main-wrapper {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 2rem 1rem;
+}
+
+/* 玻璃卡片 */
+.glass-card {
+  width: 100%; max-width: 420px;
+  background: var(--bg-surface);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 0.5px solid var(--border); border-radius: 32px;
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  animation: entry 0.8s var(--spring) forwards;
+  opacity: 0; transform: translateY(16px) scale(0.98);
+}
+@keyframes entry { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* 品牌区 */
+.brand-logo {
+  width: 72px; height: 72px; margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, #fff 30%));
+  border-radius: 20px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 2rem;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  animation: logoPulse 6s ease-in-out infinite alternate;
+}
+@keyframes logoPulse { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
+.brand-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+.brand-subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 2rem; }
+
+/* 登录区域与 Tabs */
+.login-section { margin-bottom: 2rem; }
+.tab-container {
+  display: flex; gap: 0.5rem; background: var(--bg-input);
+  padding: 0.25rem; border-radius: 40px; margin-bottom: 1.5rem;
+}
+.tab-btn {
+  flex: 1; background: transparent; border: none;
+  padding: 0.6rem; border-radius: 36px;
+  color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; transition: all 0.25s var(--spring);
+}
+.tab-btn.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.tab-btn:hover:not(.active) { color: var(--text-primary); }
+
+/* Tab 内容区 */
+.tab-content { display: none; animation: fadeUp 0.3s var(--ease) forwards; }
+.tab-content.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.tab-desc { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+/* 输入框样式 */
+.input-group { position: relative; margin-bottom: 1.5rem; }
+.glass-input {
+  width: 100%; background: var(--bg-input); border: 0.5px solid var(--border);
+  border-radius: 18px; padding: 1rem 1rem 1rem 2.8rem;
+  color: var(--text-primary); font-size: 1rem; outline: none;
+  transition: all 0.25s var(--spring);
+}
+.glass-input:focus { border-color: var(--accent); background: rgba(44, 44, 46, 0.85); box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2); }
+.glass-input::placeholder { color: var(--text-tertiary); }
+.input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); transition: color 0.2s; }
+.glass-input:focus ~ .input-icon { color: var(--accent); }
+
+/* 按钮样式 */
+.cta-btn {
+  width: 100%; background: var(--accent); color: #fff; border: none;
+  padding: 0.9rem; border-radius: 18px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: all 0.25s var(--spring);
+  display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+  box-shadow: 0 4px 16px rgba(10, 132, 255, 0.35);
+}
+.cta-btn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(10, 132, 255, 0.45); }
+.cta-btn:active { transform: scale(0.98); }
+.cta-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.cta-btn i { font-size: 0.9rem; transition: transform 0.2s; }
+.cta-btn:hover i { transform: translateX(3px); }
+
+/* Toast 提示 */
+.toast-msg {
+  margin-top: 1rem; padding: 0.7rem; border-radius: 14px; font-size: 0.85rem;
+  display: none; text-align: center; animation: fadeUp 0.2s var(--ease);
+}
+.toast-msg.show { display: block; }
+.toast-msg.error { background: rgba(255, 69, 58, 0.15); color: var(--danger); border: 0.5px solid rgba(255, 69, 58, 0.3); }
+.toast-msg.success { background: rgba(48, 209, 88, 0.15); color: var(--success); border: 0.5px solid rgba(48, 209, 88, 0.3); }
+
+/* 底部链接 */
+.footer-links {
+  display: flex; align-items: center; justify-content: center; gap: 0.8rem;
+  font-size: 0.85rem; color: var(--text-tertiary);
+}
+.footer-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--accent); }
+.footer-links span { opacity: 0.5; }
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .glass-card { padding: 2rem 1.5rem; border-radius: 24px; }
+  .brand-logo { width: 60px; height: 60px; font-size: 1.5rem; margin-bottom: 1.2rem; }
+  .brand-title { font-size: 1.6rem; margin-bottom: 0.4rem; }
+  .brand-subtitle { font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .glass-input { padding: 0.9rem 0.9rem 0.9rem 2.5rem; font-size: 0.95rem; }
+  .cta-btn { padding: 0.8rem; font-size: 0.95rem; }
+  .footer-links { font-size: 0.8rem; gap: 0.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="main-wrapper">
+  <div class="glass-card">
+    <div class="brand-logo"><i class="fas fa-play-circle"></i></div>
+    <h1 class="brand-title">探索无界</h1>
+    <p class="brand-subtitle">欢迎来到 EMOS，请选择登录方式</p>
+
+    <div class="login-section">
+      <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('redirect')">快速登录</button>
+        <button class="tab-btn" onclick="switchTab('token')">Token 登录</button>
+      </div>
+
+      <!-- 快速登录区 -->
+      <div id="tab-redirect" class="tab-content active">
+        <p class="tab-desc">点击后将跳转至授权页面完成登录。</p>
+        <button class="cta-btn" id="jumpLoginBtn">
+          <span>前往登录</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Token 登录区 -->
+      <div id="tab-token" class="tab-content">
+        <div class="input-group">
+          <input type="text" class="glass-input" id="tokenInput" placeholder="输入您的访问 Token">
+          <i class="fas fa-shield-alt input-icon"></i>
+        </div>
+        <button class="cta-btn" id="tokenLoginBtn">
+          <span>验证并进入</span>
+          <i class="fas fa-check"></i>
+        </button>
+        <div class="toast-msg" id="tokenToast"></div>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <a href="https://t.me/emospg" target="_blank">Telegram</a>
+      <span>·</span>
+      <a href="https://wiki.emos.best" target="_blank">WIKI</a>
+      <span>·</span>
+      <a href="https://emos.best" target="_blank">官网</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= 登录逻辑 =================
+const STORAGE_KEYS = { ACTIVE_TOKEN: 'activeToken' };
+const API_BASE = ''; // 同源 Worker 代理
+
+// 初始化 Tab 切换
+window.switchTab = function(type) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  if (type === 'redirect') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-redirect').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-token').classList.add('active');
+    document.getElementById('tokenInput').focus();
+  }
+};
+
+// 通用 API 请求函数（自动携带 token）
+async function apiRequest(endpoint, options = {}) {
+  const token = localStorage.getItem(STORAGE_KEYS.ACTIVE_TOKEN);
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers
+  });
+  
+  if (!response.ok) {
+    if (response.status === 401) {
+      // Token 失效，清除本地存储
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER);
+      throw new Error('登录已过期，请重新登录');
+    }
+    throw new Error(`请求失败: ${response.status}`);
+  }
+  
+  return response;
+}
+
+// 检查登录状态
+async function checkLoginStatus(token) {
+  try {
+    const response = await fetch(`${API_BASE}/api/sign/check`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) return false;
+    
+    const data = await response.json();
+    return data.is_sign === true;
+  } catch (err) {
+    console.error('检查登录状态失败:', err);
+    return false;
+  }
+}
+
+// 获取用户信息
+async function getUserInfo(token) {
+  try {
+    const response = await fetch(`${API_BASE}/api/user`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) throw new Error('获取用户信息失败');
+    
+    return await response.json();
+  } catch (err) {
+    console.error('获取用户信息失败:', err);
+    throw err;
+  }
+}
+
+// 检查已登录状态并处理回调
+(async function checkAuth() {
+  const existingToken = localStorage.getItem(STORAGE_KEYS.ACTIVE_TOKEN);
+  
+  // 如果已有 token，验证其有效性
+  if (existingToken) {
+    try {
+      const isValid = await checkLoginStatus(existingToken);
+      if (isValid) {
+        // Token 有效，跳转到首页
+        window.location.href = '/';
+        return;
+      } else {
+        // Token 无效，清除
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_TOKEN);
+      }
+    } catch (err) {
+      // API 不可用（530等错误），保留 token，让用户手动登录
+      console.warn('API 验证失败，保留现有 token:', err);
+    }
+  }
+  
+  // 处理 URL 回调参数（快速登录返回）
+  const params = new URLSearchParams(window.location.search);
+  const callbackToken = params.get('token');
+  
+  if (callbackToken) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TOKEN, callbackToken);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      window.location.href = '/';
+    } catch (err) {
+      console.error('登录失败:', err);
+      alert('登录失败: ' + err.message);
+      window.location.href = '/login';
+    }
+  }
+})();
+
+// 快速登录跳转
+document.getElementById('jumpLoginBtn').addEventListener('click', () => {
+  const uuid = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+  
+  const returnUrl = encodeURIComponent(window.location.href.split('?')[0]);
+  
+  // 直接跳转到后端授权接口（不经过 Worker 代理）
+  window.location.href = `https://emos.best/link?uuid=${uuid}&name=EMOS&url=${returnUrl}`;
+});
+
+// Token 登录逻辑
+const tokenInput = document.getElementById('tokenInput');
+const tokenBtn = document.getElementById('tokenLoginBtn');
+const toast = document.getElementById('tokenToast');
+
+function showToast(msg, type) {
+  toast.textContent = msg;
+  toast.className = `toast-msg show ${type}`;
+  if (type === 'success') {
+    setTimeout(() => { toast.className = 'toast-msg'; }, 2000);
+  }
+}
+
+async function validateToken() {
+  const token = tokenInput.value.trim();
+  
+  if (!token) {
+    showToast('请输入 Token', 'error');
+    return;
+  }
+  
+  tokenBtn.disabled = true;
+  tokenBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+  
+  try {
+    // 1. 先检查 token 是否有效
+    const isValid = await checkLoginStatus(token);
+    
+    if (!isValid) {
+      throw new Error('Token 无效或已过期');
+    }
+    
+    // 2. 只保存 token，不获取用户信息
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_TOKEN, token);
+    
+    showToast('登录成功，正在跳转...', 'success');
+    setTimeout(() => window.location.href = '/', 600);
+    
+  } catch (err) {
+    console.error('Token 验证失败:', err);
+    showToast(err.message || 'Token 验证失败', 'error');
+    tokenBtn.disabled = false;
+    tokenBtn.innerHTML = '<span>验证并进入</span><i class="fas fa-check"></i>';
+  }
+}
+
+tokenBtn.addEventListener('click', validateToken);
+tokenInput.addEventListener('keypress', e => { if (e.key === 'Enter') validateToken(); });
+
+// 导出 API 请求函数供其他页面使用
+window.apiRequest = apiRequest;
+</script>
+</body>
+</html>
