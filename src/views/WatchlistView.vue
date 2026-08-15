@@ -39,6 +39,7 @@ const isLoadingMore = ref(false)
 
 // 搜索防抖定时器
 let searchTimeout = null
+let loadSeq = 0 // 竞态保护：只接受最新一次请求的响应
 
 // 模态框状态
 const modals = reactive({
@@ -74,6 +75,7 @@ const toggleSearchType = () => {
 
 // 加载片单列表
 const loadWatchlists = async (isLoadMore = false) => {
+  const seq = ++loadSeq
   // 如果是加载更多，设置loading状态
   if (isLoadMore) {
     isLoadingMore.value = true
@@ -110,6 +112,7 @@ const loadWatchlists = async (isLoadMore = false) => {
     }
     
     const response = await watchlistApi.getList(params)
+    if (seq !== loadSeq) return // 有更新的请求，丢弃本次过期响应
     const items = response.items || []
     totalItems.value = response.total || 0
     
@@ -123,14 +126,17 @@ const loadWatchlists = async (isLoadMore = false) => {
     // 判断是否还有更多数据
     hasMore.value = items.length > 0 && watchlists.value.length < totalItems.value
   } catch (error) {
+    if (seq !== loadSeq) return
     console.error('加载片单失败:', error)
     showToast(error.message || '加载失败', 'error')
     if (!isLoadMore) {
       watchlists.value = []
     }
   } finally {
-    isLoading.value = false
-    isLoadingMore.value = false
+    if (seq === loadSeq) {
+      isLoading.value = false
+      isLoadingMore.value = false
+    }
   }
 }
 

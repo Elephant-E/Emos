@@ -105,6 +105,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const totalItems = ref(0)
 const hasMore = ref(true)
+let loadSeq = 0 // 竞态保护：只接受最新一次请求的响应
 
 onMounted(() => loadProducts())
 
@@ -123,6 +124,7 @@ watch(searchQuery, () => {
 watch(currentSort, () => { currentPage.value = 1; hasMore.value = true; loadProducts() })
 
 const loadProducts = async (isLoadMore = false) => {
+  const seq = ++loadSeq
   try {
     if (isLoadMore) { isLoadingMore.value = true }
     else { isLoading.value = true; currentPage.value = 1; products.value = [] }
@@ -139,16 +141,19 @@ const loadProducts = async (isLoadMore = false) => {
     params.sort_by = sortConfig.sort_by
     params.sort_order = sortConfig.sort_order
     const res = await shopApi.getProductList(params)
+    if (seq !== loadSeq) return // 有更新的请求，丢弃本次过期响应
     if (res?.items) {
       products.value = isLoadMore ? [...products.value, ...res.items] : res.items
       totalItems.value = res.total || 0
       hasMore.value = products.value.length < totalItems.value
     }
   } catch (error) {
-    showToast('加载商品失败', 'error')
+    if (seq === loadSeq) showToast('加载商品失败', 'error')
   } finally {
-    isLoading.value = false
-    isLoadingMore.value = false
+    if (seq === loadSeq) {
+      isLoading.value = false
+      isLoadingMore.value = false
+    }
   }
 }
 

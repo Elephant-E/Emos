@@ -251,6 +251,7 @@ const showFilterMenu = ref(false)
 const overflowBtnRef = ref(null)
 const filterMenuStyle = ref({})
 let searchTimeout = null
+let loadSeq = 0 // 竞态保护：只接受最新一次请求的响应
 
 const onOverflow = (overflow) => {
   isOverflow.value = overflow
@@ -287,6 +288,7 @@ const setFilter = (filter) => {
 }
 
 const loadOrders = async () => {
+  const seq = ++loadSeq
   if (searchTimeout) {
     clearTimeout(searchTimeout)
   }
@@ -304,12 +306,14 @@ const loadOrders = async () => {
     }
 
     const res = await orderApi.getUserOrderList(params)
+    if (seq !== loadSeq) return // 有更新的请求，丢弃本次过期响应
     orders.value = res?.items || []
   } catch (error) {
+    if (seq !== loadSeq) return
     console.error('加载订单失败:', error)
     showToast('加载订单失败', 'error')
   } finally {
-    isLoading.value = false
+    if (seq === loadSeq) isLoading.value = false
   }
 }
 
