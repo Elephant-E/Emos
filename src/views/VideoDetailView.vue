@@ -1,724 +1,138 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import videoApi from '@/api/videoApi.js'
-import seekApi from '@/api/seekApi.js'
-import { formatDate, escapeHtml, formatFileSize, extractYear, formatDuration, normalizeList } from '@/utils/format.js'
-import { showToast } from '@/utils/toast.js'
-import { confirmDialog } from '@/utils/confirm.js'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { formatDate, escapeHtml, formatFileSize, extractYear, formatDuration } from '@/utils/format.js'
 import BaseModal from '@/components/common/BaseModal.vue'
 
+import { useVideoDetail } from '@/composables/useVideoDetail.js'
+import { useResourceActions } from '@/composables/useResourceActions.js'
+import { useSubtitleManager } from '@/composables/useSubtitleManager.js'
+import { useMoveTarget } from '@/composables/useMoveTarget.js'
 
-const route = useRoute()
-const router = useRouter()
+// ================= 核心数据域 =================
+const {
+  videoData,
+  videoId,
+  isLoading,
+  isSyncing,
+  isLoadingResources,
+  seasons,
+  episodes,
+  resources,
+  expandedSeasons,
+  selectedEpisode,
+  allEpisodesData,
+  getNumericId,
+  formatVideoType,
+  formatGenres,
+  loadResourcesForEpisode,
+  loadResourcesForMovie,
+  loadSeasonsAndEpisodes,
+  toggleSeason,
+  getSeasonResourceStatus,
+  selectEpisode,
+  loadVideoDetail,
+  goBack,
+  handleSyncData,
+  handleEpisodeSeekRequest,
+} = useVideoDetail()
 
-// 状态
-const videoData = ref(null)
-const videoId = ref(route.params.id)
+// ================= 资源操作域 =================
+const {
+  showResourcesModal,
+  currentResource,
+  showActionDropdown,
+  dropdownPosition,
+  showRenameModal,
+  renameForm,
+  isRenaming,
+  showDeleteModal,
+  deleteForm,
+  showDropdown,
+  closeActionDropdown,
+  handleGlobalClick,
+  openResourcesModal,
+  closeResourcesModal,
+  openRenameModal,
+  closeRenameModal,
+  submitRename,
+  deleteResource,
+  closeDeleteModal,
+  confirmDelete,
+  submitDelete,
+} = useResourceActions({
+  selectedEpisode,
+  loadResourcesForEpisode,
+  loadResourcesForMovie,
+})
 
-// 解析视频ID，提取纯数字部分
-const getNumericId = (id) => {
-  if (!id) return null
-  // 如果是以 vl- 开头的片单ID，提取后面的数字
-  if (typeof id === 'string' && id.startsWith('vl-')) {
-    return parseInt(id.replace('vl-', ''))
-  }
-  // 否则直接返回数字
-  return typeof id === 'number' ? id : parseInt(id)
-}
-const isLoading = ref(true)
+// ================= 字幕管理域 =================
+const {
+  showSubtitleModal,
+  subtitles,
+  isLoadingSubtitles,
+  showEditSubtitleModal,
+  currentSubtitle,
+  editSubtitleForm,
+  isEditingSubtitle,
+  showDeleteSubtitleModal,
+  deleteSubtitleForm,
+  manageSubtitles,
+  loadSubtitles,
+  closeSubtitleModal,
+  closeEditSubtitleModal,
+  editSubtitle,
+  submitEditSubtitle,
+  closeDeleteSubtitleModal,
+  confirmDeleteSubtitle,
+  submitDeleteSubtitle,
+  deleteSubtitle,
+} = useSubtitleManager({
+  getNumericId,
+  videoId,
+  selectedEpisode,
+  currentResource,
+  showActionDropdown,
+})
+
+// ================= 移动目标域 =================
+const {
+  showMoveModal,
+  moveForm,
+  isMoving,
+  moveSearchQuery,
+  moveSearchResults,
+  moveSearching,
+  moveSearched,
+  selectedMoveVideo,
+  moveTreeData,
+  moveTreeLoading,
+  expandedMoveSeasons,
+  selectedMoveTarget,
+  handleMoveSearchInput,
+  searchMoveTarget,
+  selectMoveVideo,
+  selectMoveEpisode,
+  toggleMoveSeason,
+  moveResource,
+  closeMoveModal,
+  submitMove,
+} = useMoveTarget({
+  currentResource,
+  showActionDropdown,
+  loadResourcesForEpisode,
+  selectedEpisode,
+})
+
+// ================= 视图层：更多详情模态框 =================
 const showOverviewModal = ref(false)
-const showResourcesModal = ref(false) // 资源列表模态框
-const isLoadingResources = ref(false) // 资源加载状态
-const showRenameModal = ref(false) // 重命名模态框
-const renameForm = ref({ media_id: '', name: '' }) // 重命名表单
-const isRenaming = ref(false)
-const showActionDropdown = ref(false) // 操作下拉菜单
-const dropdownPosition = ref({ top: 0, left: 0 }) // 下拉菜单位置
-const currentResource = ref(null) // 当前操作的资源
-const showSubtitleModal = ref(false) // 字幕列表模态框
-const subtitles = ref([]) // 字幕列表
-const isLoadingSubtitles = ref(false) // 字幕加载状态
-const showEditSubtitleModal = ref(false) // 编辑字幕模态框
-const currentSubtitle = ref(null) // 当前编辑的字幕
-const editSubtitleForm = ref({ subtitle_id: '', subtitle_title: '' }) // 编辑字幕表单
-const isEditingSubtitle = ref(false)
-const showDeleteSubtitleModal = ref(false) // 删除字幕模态框
-const deleteSubtitleForm = ref({ subtitle_id: '', reason: '' }) // 删除字幕表单
-const showMoveModal = ref(false)
-const moveForm = ref({ media_id: '', item_type: 've', item_id: '' })
-const isMoving = ref(false)
-const moveSearchQuery = ref('')
-const moveSearchResults = ref([])
-const moveSearching = ref(false)
-const moveSearched = ref(false)
-const selectedMoveVideo = ref(null)
-const moveTreeData = ref([])
-const moveTreeLoading = ref(false)
-const expandedMoveSeasons = ref({})
-const selectedMoveTarget = ref(null)
-let moveDebounceTimer = null
-
-const handleMoveSearchInput = () => {
-  clearTimeout(moveDebounceTimer)
-  moveDebounceTimer = setTimeout(() => {
-    searchMoveTarget()
-  }, 500)
-}
-
-const searchMoveTarget = async () => {
-  if (!moveSearchQuery.value.trim()) return
-  moveSearching.value = true
-  moveSearched.value = false
-  moveSearchResults.value = []
-  selectedMoveVideo.value = null
-  moveTreeData.value = []
-  selectedMoveTarget.value = null
-  try {
-    const res = await videoApi.search({ title: moveSearchQuery.value.trim(), page_size: 20 })
-    moveSearchResults.value = normalizeList(res)
-  } catch (error) {
-    showToast('搜索失败', 'error')
-  } finally {
-    moveSearching.value = false
-    moveSearched.value = true
-  }
-}
-
-const selectMoveVideo = async (video) => {
-  selectedMoveVideo.value = video
-  moveTreeData.value = []
-  selectedMoveTarget.value = null
-  expandedMoveSeasons.value = {}
-  if (video.video_type === 'movie') {
-    selectedMoveTarget.value = { item_type: 'vl', item_id: video.video_id, label: video.video_title }
-  } else {
-    moveTreeLoading.value = true
-    try {
-      const tree = await videoApi.tree({ video_id: video.video_id })
-      const videoList = Array.isArray(tree) ? tree : (tree?.items || [])
-      const videoData = videoList[0]
-      moveTreeData.value = videoData?.seasons || []
-    } catch (error) {
-      showToast('加载季集信息失败', 'error')
-    } finally {
-      moveTreeLoading.value = false
-    }
-  }
-}
-
-const selectMoveEpisode = (episode) => {
-  selectedMoveTarget.value = { item_type: episode.item_type, item_id: episode.item_id, label: `${episode.episode_title}` }
-}
-
-const toggleMoveSeason = (seasonIdx) => {
-  expandedMoveSeasons.value[seasonIdx] = !expandedMoveSeasons.value[seasonIdx]
-}
-const showDeleteModal = ref(false) // 删除资源模态框
-const deleteForm = ref({ media_id: '', reason: '' }) // 删除表单
-
-// 季列表、集列表、资源列表
-const seasons = ref([])
-const episodes = ref({}) // { season_id: [episodes] }
-
-const resources = ref([]) // 当前选中的集的资源列表
-const expandedSeasons = ref({}) // { season_id: boolean } 跟踪哪些季被展开
-const selectedEpisode = ref(null) // 当前选中的集
-const allEpisodesData = ref([]) // 存储所有集的原始数据
-
-
-// 格式化类型
-const formatVideoType = (type) => {
-  return type === 'movie' ? '电影' : '电视剧'
-}
-
-// 格式化分类
-const formatGenres = (genres) => {
-  if (!genres || genres.length === 0) return ''
-  
-  if (typeof genres[0] === 'object') {
-    return genres.slice(0, 2).map(g => g.name).join(' · ')
-  }
-
-  return genres.slice(0, 2).join(' · ')
-}
-
-
-// 加载指定集的资源列表
-const loadResourcesForEpisode = async (seasonId, episodeId) => {
-  isLoadingResources.value = true
-  try {
-    const params = {
-      video_list_id: getNumericId(videoId.value)
-    }
-    
-    if (seasonId != null) {
-      params.video_season_id = seasonId
-    }
-    if (episodeId != null) {
-      params.video_episode_id = episodeId
-    }
-    
-    const result = await videoApi.getMediaList(params)
-    resources.value = result || []
-  } catch (error) {
-    console.error('加载资源列表失败:', error)
-    showToast('加载资源列表失败', 'error')
-    resources.value = []
-  } finally {
-    isLoadingResources.value = false
-  }
-}
-
-// 加载季和集列表
-const loadSeasonsAndEpisodes = async () => {
-  try {
-    // 获取所有集的列表（包含季信息）
-    const result = await videoApi.getEpisodes(getNumericId(videoId.value), {
-      with_seek_is_request: 1
-    })
-    
-    allEpisodesData.value = result || []
-    
-    // 从集数据中提取季信息
-    const seasonMap = new Map()
-    allEpisodesData.value.forEach(episode => {
-      if (!seasonMap.has(episode.season_id)) {
-        seasonMap.set(episode.season_id, {
-          season_id: episode.season_id,
-          season_number: episode.season_number,
-          episodes_count: 0
-        })
-      }
-      seasonMap.get(episode.season_id).episodes_count++
-    })
-    
-    // 转换为数组并排序
-    seasons.value = Array.from(seasonMap.values())
-      .sort((a, b) => a.season_number - b.season_number)
-    
-    // 按season_id分组集数据
-    allEpisodesData.value.forEach(episode => {
-      if (!episodes.value[episode.season_id]) {
-        episodes.value[episode.season_id] = []
-      }
-      episodes.value[episode.season_id].push(episode)
-    })
-    
-    // 默认不展开任何季
-    // if (seasons.value.length > 0) {
-    //   expandedSeasons.value[seasons.value[0].season_id] = true
-    // }
-  } catch (error) {
-    console.error('加载季和集列表失败:', error)
-    showToast('加载季和集列表失败', 'error')
-  }
-}
-
-// 切换季的展开/折叠状态
-const toggleSeason = (season) => {
-  const seasonId = season.season_id
-  
-  if (expandedSeasons.value[seasonId]) {
-    // 折叠
-    expandedSeasons.value[seasonId] = false
-  } else {
-    // 展开
-    expandedSeasons.value[seasonId] = true
-    // 数据已预先加载，无需再次请求
-  }
-}
-
-// 判断季的资源状态
-// 返回：'complete' - 所有集都有资源，'incomplete' - 有集没有资源
-const getSeasonResourceStatus = (seasonId) => {
-  const seasonEpisodes = episodes.value[seasonId]
-  if (!seasonEpisodes || seasonEpisodes.length === 0) {
-    return 'incomplete'
-  }
-  
-  // 检查是否所有集都有资源
-  const allHaveResources = seasonEpisodes.every(episode => episode.medias_count > 0)
-  return allHaveResources ? 'complete' : 'incomplete'
-}
-
-// 选择集并加载资源列表
-const selectEpisode = async (episode) => {
-  selectedEpisode.value = episode
-  await loadResourcesForEpisode(episode.video_season_id, episode.video_episode_id)
-}
-
-// 加载视频详情
-const loadVideoDetail = async () => {
-  try {
-    const response = await videoApi.list({
-      video_id: getNumericId(videoId.value)
-    })
-
-    if (!response || !response.items || response.items.length === 0) {
-      showToast('视频不存在', 'error')
-      return
-    }
-
-    const apiData = response.items[0]
-    
-    // 合并 API 数据
-    videoData.value = {
-      video_id: apiData.video_id,
-      video_title: apiData.video_title,
-      video_title_original: apiData.video_origin_title || apiData.video_title,
-      video_date_air: apiData.video_date_air,
-      video_type: apiData.video_type,
-      video_image_poster: apiData.video_image_poster,
-      video_image_backdrop: apiData.video_image_backdrop,
-      video_image_logo: apiData.video_image_logo || null,
-      genres: apiData.genres || [],
-      overview: apiData.video_description || '',
-      tmdb_id: apiData.tmdb_id,
-      tmdb_url: apiData.tmdb_url || null,
-      todb_id: apiData.todb_id,
-      medias_count: apiData.medias_count || 0,
-      request_count: apiData.request_count || 0,
-      seek_is_request: apiData.seek_is_request || false
-    }
-
-    // 如果是电视剧，加载季列表
-    if (apiData.video_type === 'tv') {
-      await loadSeasonsAndEpisodes()
-    } else {
-      // 电影直接加载资源列表
-      await loadResourcesForEpisode(null, null)
-    }
-  } catch (error) {
-    console.error('加载视频详情失败:', error)
-    showToast('加载视频详情失败', 'error')
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// 返回上一页
-const goBack = () => {
-  // 使用 nextTick 确保 UI 先响应点击
-  nextTick(() => {
-    // 如果有历史记录，返回上一页
-    if (window.history.length > 1) {
-      router.back()
-    } else {
-      // 否则跳转到媒体页面
-      router.push('/media')
-    }
-  })
-}
-
-
-// 同步资料功能
-const isSyncing = ref(false)
-const handleSyncData = async () => {
-  if (isSyncing.value) return
-  
-  if (!videoData.value?.tmdb_id) {
-    showToast('缺少 TMDB ID', 'error')
-    return
-  }
-  
-  isSyncing.value = true
-  try {
-    const result = await videoApi.sync({
-      tmdb_id: videoData.value.tmdb_id
-    })
-    
-    if (result && result.length > 0) {
-      showToast(`已开始同步 ${result.length} 个资源`, 'success')
-    } else {
-      showToast('同步请求已发送，请稍后刷新查看', 'success')
-    }
-  } catch (error) {
-    console.error('同步失败:', error)
-    showToast(error.message || '同步失败', 'error')
-  } finally {
-    isSyncing.value = false
-  }
-}
-
-// 集列表求片功能
-const handleEpisodeSeekRequest = async (episode) => {
-  try {
-    const response = await seekApi.apply('ve', episode.episode_id)
-    
-    // 更新本地状态
-    episode.with_seek_is_request = !episode.with_seek_is_request
-    
-    if (episode.with_seek_is_request) {
-      showToast('求片成功', 'success')
-    } else {
-      showToast('已取消求片', 'info')
-    }
-  } catch (error) {
-    console.error('求片操作失败:', error)
-    showToast('求片操作失败', 'error')
-  }
-}
-
-// 显示更多详情
 const showMoreOverview = () => {
   showOverviewModal.value = true
 }
-
-
-// 关闭模态框
 const closeOverviewModal = () => {
   showOverviewModal.value = false
 }
 
-// 打开资源列表模态框
-const openResourcesModal = async (episode) => {
-  selectedEpisode.value = episode
-  showResourcesModal.value = true // 先显示模态框（带骨架屏）
-  
-  // 根据是否有season_id判断是剧集还是电影
-  if (episode.season_id && episode.episode_id) {
-    // 剧集：使用season_id和episode_id加载
-    await loadResourcesForEpisode(episode.season_id, episode.episode_id)
-  } else if (episode.media_id) {
-    // 电影：直接加载资源列表
-    await loadResourcesForMovie()
-  }
-}
-
-// 加载电影资源列表
-const loadResourcesForMovie = async () => {
-  isLoadingResources.value = true
-  try {
-    const response = await videoApi.getMediaList({
-      video_list_id: getNumericId(videoId.value),
-      video_episode_id: '',
-      video_part_id: ''
-    })
-    // API 返回的是数组，直接使用
-    resources.value = Array.isArray(response) ? response : (response.data || [])
-  } catch (error) {
-    console.error('加载电影资源失败:', error)
-    showToast('加载资源失败', 'error')
-  } finally {
-    isLoadingResources.value = false
-  }
-}
-
-// 关闭资源列表模态框
-const closeResourcesModal = () => {
-  showResourcesModal.value = false
-  showActionDropdown.value = false // 关闭下拉菜单
-}
-
-// 打开重命名模态框
-const openRenameModal = (resource) => {
-  currentResource.value = resource
-  renameForm.value = {
-    media_id: resource.media_id,
-    name: resource.media_name || ''
-  }
-  showRenameModal.value = true
-  showActionDropdown.value = false // 关闭下拉菜单
-}
-
-// 关闭重命名模态框
-const closeRenameModal = () => {
-  showRenameModal.value = false
-  renameForm.value = { media_id: '', name: '' }
-  currentResource.value = null
-}
-
-// 提交重命名
-const submitRename = async () => {
-  if (isRenaming.value) return
-  
-  if (!renameForm.value.name.trim()) {
-    showToast('请输入资源名称', 'warning')
-    return
-  }
-  
-  isRenaming.value = true
-  
-  try {
-    await videoApi.renameMedia({
-      media_id: renameForm.value.media_id,
-      name: renameForm.value.name.trim()
-    })
-    showToast('重命名成功', 'success')
-    closeRenameModal()
-    // 重新加载资源列表
-    await loadResourcesForEpisode(selectedEpisode.value?.season_id || null, selectedEpisode.value?.episode_id || null)
-  } catch (error) {
-    showToast('重命名失败: ' + error.message, 'error')
-  } finally {
-    isRenaming.value = false
-  }
-}
-
-// 显示操作下拉菜单
-const showDropdown = (event, resource) => {
-  event.stopPropagation()
-  event.preventDefault()
-  
-  currentResource.value = resource
-  
-  // 获取图标位置（getBoundingClientRect 返回相对于视口的位置）
-  const rect = event.target.getBoundingClientRect()
-  
-  // 下拉菜单位置：图标正下方，右对齐
-  // rect.right 是图标的右边缘
-  // 160 是下拉菜单的宽度（min-width: 160px + padding）
-  dropdownPosition.value = {
-    top: rect.bottom + 8,      // 图标下方 8px
-    left: rect.right - 160     // 右对齐图标
-  }
-  
-  showActionDropdown.value = true
-}
-
-// 管理字幕
-const manageSubtitles = async (resource) => {
-  currentResource.value = resource
-  showSubtitleModal.value = true
-  showActionDropdown.value = false
-  await loadSubtitles(resource.media_id)
-}
-
-// 加载字幕列表
-const loadSubtitles = async (mediaId) => {
-  isLoadingSubtitles.value = true
-  try {
-    const response = await videoApi.getSubtitleList({
-      video_list_id: getNumericId(videoId.value),
-      video_episode_id: selectedEpisode.value?.episode_id || '',
-      video_part_id: '',
-      video_media_id: mediaId
-    })
-    // API 返回的是数组，直接使用
-    subtitles.value = Array.isArray(response) ? response : (response.data || [])
-  } catch (error) {
-    console.error('加载字幕失败:', error)
-    showToast('加载字幕失败', 'error')
-  } finally {
-    isLoadingSubtitles.value = false
-  }
-}
-
-// 关闭编辑字幕模态框
-const closeEditSubtitleModal = () => {
-  showEditSubtitleModal.value = false
-  currentSubtitle.value = null
-  editSubtitleForm.value = { subtitle_id: '', subtitle_title: '' }
-}
-
-// 编辑字幕
-const editSubtitle = (subtitle) => {
-  currentSubtitle.value = subtitle
-  editSubtitleForm.value = {
-    subtitle_id: subtitle.subtitle_id,
-    subtitle_title: subtitle.subtitle_title || ''
-  }
-  showEditSubtitleModal.value = true
-}
-
-// 提交编辑字幕
-const submitEditSubtitle = async () => {
-  if (isEditingSubtitle.value) return
-  
-  if (!editSubtitleForm.value.subtitle_title.trim()) {
-    showToast('请输入字幕标题', 'warning')
-    return
-  }
-  
-  isEditingSubtitle.value = true
-  
-  try {
-    await videoApi.renameSubtitle({
-      subtitle_id: editSubtitleForm.value.subtitle_id,
-      title: editSubtitleForm.value.subtitle_title
-    })
-    showToast('重命名成功', 'success')
-    closeEditSubtitleModal()
-    // 重新加载字幕列表
-    await loadSubtitles(currentResource.value?.media_id)
-  } catch (error) {
-    showToast('重命名失败: ' + error.message, 'error')
-  } finally {
-    isEditingSubtitle.value = false
-  }
-}
-
-// 关闭删除字幕模态框
-const closeDeleteSubtitleModal = () => {
-  showDeleteSubtitleModal.value = false
-  deleteSubtitleForm.value = { subtitle_id: '', reason: '' }
-}
-
-// 确认删除字幕
-const confirmDeleteSubtitle = async (subtitleId, reason) => {
-  try {
-    await videoApi.deleteSubtitle({
-      subtitle_id: subtitleId,
-      reason: reason
-    })
-    showToast('删除成功', 'success')
-    closeDeleteSubtitleModal()
-    // 重新加载字幕列表
-    if (currentResource.value) {
-      await loadSubtitles(currentResource.value.media_id)
-    }
-  } catch (error) {
-    console.error('删除字幕失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
-
-// 提交删除字幕（带原因）
-const submitDeleteSubtitle = async () => {
-  if (!deleteSubtitleForm.value.reason.trim()) {
-    showToast('请输入删除原因', 'warning')
-    return
-  }
-  
-  if (deleteSubtitleForm.value.reason.length > 50) {
-    showToast('删除原因不能超过50字', 'warning')
-    return
-  }
-  
-  await confirmDeleteSubtitle(deleteSubtitleForm.value.subtitle_id, deleteSubtitleForm.value.reason.trim())
-}
-
-// 删除字幕
-const deleteSubtitle = async (subtitle) => {
-  // 判断是否是自己上传的字幕
-  if (subtitle.is_self_upload) {
-    // 自己上传的字幕，二次确认
-    if (await confirmDialog('确定要删除这个字幕吗？', '确认', true)) {
-      await confirmDeleteSubtitle(subtitle.subtitle_id, '')
-    }
-  } else {
-    // 他人上传的字幕，显示模态框填写原因
-    deleteSubtitleForm.value = {
-      subtitle_id: subtitle.subtitle_id,
-      reason: ''
-    }
-    showDeleteSubtitleModal.value = true
-  }
-}
-
-// 关闭字幕模态框
-const closeSubtitleModal = () => {
-  showSubtitleModal.value = false
-  subtitles.value = []
-}
-
- const moveResource = async (resource) => {
-  currentResource.value = resource
-  moveForm.value = { media_id: resource.media_id, item_type: 've', item_id: '' }
-  moveSearchQuery.value = ''
-  moveSearchResults.value = []
-  selectedMoveVideo.value = null
-  moveTreeData.value = []
-  selectedMoveTarget.value = null
-  moveSearched.value = false
-  showMoveModal.value = true
-  showActionDropdown.value = false
-}
-
- const closeMoveModal = () => {
-  showMoveModal.value = false
-  moveForm.value = { media_id: '', item_type: 've', item_id: '' }
-  moveSearchQuery.value = ''
-  moveSearchResults.value = []
-  selectedMoveVideo.value = null
-  moveTreeData.value = []
-  selectedMoveTarget.value = null
-  moveSearched.value = false
-}
-
- const submitMove = async () => {
-  if (isMoving.value || !selectedMoveTarget.value) return
-  isMoving.value = true
-  try {
-    await videoApi.moveMedia({
-      media_id: moveForm.value.media_id,
-      item_type: selectedMoveTarget.value.item_type,
-      item_id: selectedMoveTarget.value.item_id
-    })
-    showToast('移动成功', 'success')
-    closeMoveModal()
-    await loadResourcesForEpisode(selectedEpisode.value?.season_id || null, selectedEpisode.value?.episode_id || null)
-  } catch (error) {
-    showToast('移动失败: ' + error.message, 'error')
-  } finally {
-    isMoving.value = false
-  }
-}
-
-// 删除资源
-const deleteResource = async (resource) => {
-  currentResource.value = resource
-  
-  // 判断是否是自己上传的资源
-  if (resource.is_self_upload) {
-    // 自己上传的资源，二次确认
-    if (await confirmDialog('确定要删除这个资源吗？', '确认', true)) {
-      await confirmDelete(resource.media_id, '')
-    }
-  } else {
-    // 他人上传的资源，显示模态框填写原因
-    deleteForm.value = {
-      media_id: resource.media_id,
-      reason: ''
-    }
-    showDeleteModal.value = true
-  }
-  
-  showActionDropdown.value = false
-}
-
-// 关闭删除模态框
-const closeDeleteModal = () => {
-  showDeleteModal.value = false
-  deleteForm.value = { media_id: '', reason: '' }
-}
-
-// 确认删除
-const confirmDelete = async (mediaId, reason) => {
-  try {
-    await videoApi.deleteMedia({
-      media_id: mediaId,
-      reason: reason
-    })
-    showToast('删除成功', 'success')
-    closeDeleteModal()
-    // 重新加载资源列表
-    if (selectedEpisode.value) {
-      await loadResourcesForEpisode(selectedEpisode.value.season_id, selectedEpisode.value.episode_id)
-    }
-  } catch (error) {
-    console.error('删除失败:', error)
-    showToast(error.message || '删除失败', 'error')
-  }
-}
-
-// 提交删除（带原因）
-const submitDelete = async () => {
-  if (!deleteForm.value.reason.trim()) {
-    showToast('请输入删除原因', 'warning')
-    return
-  }
-  
-  if (deleteForm.value.reason.length > 50) {
-    showToast('删除原因不能超过50字', 'warning')
-    return
-  }
-  
-  await confirmDelete(deleteForm.value.media_id, deleteForm.value.reason.trim())
-}
-
-// 生命周期
+// ================= 生命周期 =================
 onMounted(() => {
   // 激活详情页样式
   document.body.classList.add('detail-page-active')
@@ -733,15 +147,6 @@ onUnmounted(() => {
   // 移除全局点击事件监听
   document.removeEventListener('click', handleGlobalClick)
 })
-
-// 全局点击关闭下拉菜单
-const handleGlobalClick = (event) => {
-  // 如果点击的是下拉菜单内部，不关闭
-  if (event.target.closest('.resource-action-dropdown')) {
-    return
-  }
-  showActionDropdown.value = false
-}
 </script>
 
 <template>
