@@ -9,6 +9,7 @@ command = "npm run build && node build-worker.cjs"
 # 环境变量
 [vars]
 TMDB_API_KEY = "REDACTED_TMDB"
+SPOTIFY_ANON_KEY = "REDACTED_SPOTIFY"
 
 EMOS_PROXY_NAME = "@Elephant"
 EMOS_PROXY_ID = "e7E6K6OE4s"

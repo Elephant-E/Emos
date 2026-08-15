@@ -30,3 +30,8 @@ dist-ssr
 
 # Wrangler
 .wrangler
+worker-with-assets.js
+worker.js.timestamp-*.mjs
+
+# Cloudflare local env (keys live here, never commit)
+.dev.vars
