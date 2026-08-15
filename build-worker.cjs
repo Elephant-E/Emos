@@ -86,8 +86,9 @@ function getContentType(filename) {
 `;
 
 // 修改 fetch 函数以使用嵌入的资源
+// 注意：结尾正则需匹配 catch 块真正的结束（独立行的 }），避免吞掉内联对象如 { status: 500 } 的 }}
 const modifiedWorker = workerTemplate.replace(
-  /\/\/ 静态文件服务.*?\n.*?try \{[\s\S]*?\n.*?\} catch \(error\) \{[\s\S]*?\n.*?\}/m,
+  /\/\/ 静态文件服务.*?\n.*?try \{[\s\S]*?\n.*?\} catch \(error\) \{[\s\S]*?\n\s*\}/m,
   `// 静态文件服务（嵌入式）
     try {
       let assetPath = pathname;
