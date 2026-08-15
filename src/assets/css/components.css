@@ -1679,21 +1679,6 @@ input:checked + .slider:before {
   color: var(--system-tertiary);
 }
 
-.order-status.warning {
-  background: rgba(255, 69, 58, 0.15);
-  color: #FF453A;
-}
-
-.order-status.caution {
-  background: rgba(255, 159, 10, 0.15);
-  color: var(--warning);
-}
-
-.order-status.info {
-  background: rgba(10, 132, 255, 0.15);
-  color: var(--key-color);
-}
-
 .order-action-btn {
   width: 32px;
   height: 32px;
