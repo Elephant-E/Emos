@@ -107,7 +107,11 @@ onMounted(() => {
   <div class="upload-page">
     <div class="page-header">
       <h1 class="page-title">上传管理</h1>
+    </div>
 
+    <div class="storage-guide">
+      <span class="storage-guide__item"><strong>Zn 存档服 (R2)</strong>：默认存储，国内可用，稳定直传</span>
+      <span class="storage-guide__item"><strong>谷歌盘</strong>：不支持国内直传，且存在 CORS 限制，失败时请改用默认</span>
     </div>
     
     <div 
@@ -220,7 +224,7 @@ onMounted(() => {
                   <span v-if="item.canResume" class="resume-hint">· 可断点续传</span>
                   <select
                     v-if="canChangeStorage(item)"
-                    class="upload-item-storage-select"
+                    class="sort-select upload-item-storage-select"
                     :value="item.storage || DEFAULT_UPLOAD_STORAGE"
                     @change="uploadStore.setItemStorage(item, $event.target.value)"
                     title="存储位置"
@@ -228,6 +232,7 @@ onMounted(() => {
                     <option v-for="opt in UPLOAD_STORAGES" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                   </select>
                   <span v-else class="upload-item-storage-hint">· {{ uploadStore.getStorageLabel(item.storage) }}</span>
+                  <span v-if="item.storage === 'google_drive' && item.status !== 'uploading' && item.status !== 'saving'" class="upload-item-storage-warn" title="谷歌盘不支持国内直传，且存在 CORS 限制，失败时请改用 Zn 存档服">⚠</span>
                 </div>
               </div>
               
@@ -397,6 +402,17 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.storage-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0.6rem 0.25rem 1rem;
+  color: var(--system-secondary);
+  font: var(--footnote);
+}
+
+.storage-guide__item strong { color: var(--system-primary); }
+
 .image-uploader-preview {
   margin-bottom: 1.5rem;
   background: var(--opaque-shelf-bg);
@@ -522,6 +538,19 @@ onMounted(() => {
 
 .error-text { color: var(--danger); }
 .resume-hint { color: var(--key-color); font: var(--callout-emphasized); }
+
+.upload-item-storage-select {
+  min-width: 0;
+  max-width: 190px;
+  height: 30px;
+  padding: 0 1.4rem 0 0.5rem;
+  background-position: right 8px center;
+  font: var(--footnote-emphasized);
+  vertical-align: middle;
+}
+
+.upload-item-storage-hint { color: var(--system-secondary); font: var(--footnote); }
+.upload-item-storage-warn { color: var(--warning); font-size: 0.85rem; margin-left: 2px; cursor: help; }
 
 .upload-item-actions {
   margin-left: auto;
