@@ -55,11 +55,11 @@ class Uploader {
   }
 
   /**
-   * 通用上传（支持视频、字幕、图片）
+   * 通用上传（支持视频、字幕、图片、音乐）
    * @param {File} file - 文件对象
    * @param {Object} options - 选项
-   * @param {string} options.type - 资源类型：video | subtitle | image
-   * @param {string} options.storage - 存储位置：global | internal | default
+   * @param {string} options.type - 资源类型：video | subtitle | image | music
+   * @param {string} options.storage - 存储位置：zn_r2_upload | google_drive 等
    * @param {Function} options.onProgress - 进度回调
    * @param {Object} options.xhr - XHR 引用（用于取消）
    * @param {number} options.resumeFrom - 断点续传起始位置
@@ -71,7 +71,7 @@ class Uploader {
   async upload(file, options = {}) {
     const { 
       type = 'image', 
-      storage = 'default', 
+      storage = 'zn_r2_upload', 
       onProgress, 
       xhr,
       resumeFrom = 0,
@@ -84,9 +84,10 @@ class Uploader {
     let fileId = existingFileId
     let uploadType = null
     let userId = null
+    let tokenData = null
 
     if (!uploadUrl || !fileId) {
-      const tokenData = await uploadApi.getUploadToken({
+      tokenData = await uploadApi.getUploadToken({
         type,
         file_type: file.type || 'application/octet-stream',
         file_name: file.name,
@@ -108,7 +109,7 @@ class Uploader {
         })
       }
     } else {
-      const tokenData = await uploadApi.getUploadToken({
+      tokenData = await uploadApi.getUploadToken({
         type,
         file_type: file.type || 'application/octet-stream',
         file_name: file.name,
@@ -119,7 +120,17 @@ class Uploader {
       userId = tokenData.user_id || this.getUserId()
     }
 
-    if (uploadType === 'onedrive' || uploadType === 'google_drive') {
+    if (uploadType === 'multipart') {
+      // 生产默认：服务端 multipart 分片（R2 S3 预签名）
+      // presign -> 逐片 PUT（拿 ETag）-> complete；失败 abort
+      const result = await this.uploadMultipart(file, {
+        fileId,
+        tokenData,
+        onProgress,
+        xhr,
+      })
+      return { file_id: result.file_id || fileId, url: result.url || '' }
+    } else if (uploadType === 'onedrive' || uploadType === 'google_drive') {
       await this.uploadToOneDriveXHR(file, uploadUrl, { 
         onProgress, 
         xhr,
@@ -144,6 +155,134 @@ class Uploader {
     } else {
       throw new Error(`不支持的存储类型: ${uploadType}`)
     }
+  }
+
+  /**
+   * multipart 分片上传（对齐 emos.best 生产契约）：
+   * 1. POST /api/upload/multipart/{file_id}/presign {number} -> [{number, upload_url}]
+   * 2. 逐片 PUT upload_url（body=切片），响应头拿 ETag
+   * 3. POST /api/upload/multipart/{file_id}/complete {parts:[{number,etag}]}
+   * 4. 失败 DELETE /api/upload/multipart/{file_id}/abort 放弃会话
+   * 分片大小：token 的 multipart_size 约束，默认 100MB，超过 1000 片自动调大
+   * @param {File} file
+   * @param {Object} options
+   */
+  async uploadMultipart(file, options = {}) {
+    const { fileId, tokenData, onProgress, xhr } = options
+    const totalSize = file.size
+
+    // 分片大小：token.multipart_size 的 min/max 约束；默认 100MB
+    const ms = (tokenData && tokenData.data && tokenData.data.multipart_size) || {}
+    const minPart = ms.min || 5 * 1024 * 1024
+    const maxPart = ms.max || 5 * 1024 * 1024 * 1024
+    let partSize = 100 * 1024 * 1024
+    if (partSize < minPart) partSize = minPart
+    if (partSize > maxPart) partSize = maxPart
+    let number = Math.max(1, Math.ceil(totalSize / partSize))
+    if (number > 1000) {
+      partSize = Math.max(minPart, Math.ceil(totalSize / 1000))
+      number = Math.max(1, Math.ceil(totalSize / partSize))
+    }
+
+    const doAbort = async () => {
+      try {
+        await uploadApi.multipartAbort(fileId)
+      } catch (e) {
+        console.warn('[uploadMultipart] abort 失败:', e.message)
+      }
+    }
+
+    try {
+      // 1. 分片凭证（1-1000 片）
+      const presigns = await uploadApi.multipartPresign(fileId, { number })
+      if (!Array.isArray(presigns)) {
+        throw new Error(`presign 返回异常: ${JSON.stringify(presigns)}`)
+      }
+      const urlByNumber = {}
+      for (const p of presigns) {
+        if (p && p.number != null && p.upload_url) {
+          urlByNumber[p.number] = p.upload_url
+        }
+      }
+      if (Object.keys(urlByNumber).length !== presigns.length) {
+        throw new Error(`presign 缺少 upload_url: ${JSON.stringify(presigns)}`)
+      }
+
+      // 2. 逐片上传，收集 ETag
+      const parts = []
+      for (let i = 1; i <= number; i++) {
+        const start = (i - 1) * partSize
+        const end = Math.min(i * partSize, totalSize)
+        const chunk = file.slice(start, end)
+
+        const etag = await this.putMultipartPart(urlByNumber[i], chunk, xhr)
+        parts.push({ number: i, etag })
+
+        if (onProgress) {
+          onProgress(Math.min(i * partSize, totalSize), totalSize)
+        }
+      }
+
+      // 3. 合并分片
+      const result = await uploadApi.multipartComplete(fileId, { parts })
+      return result || { file_id: fileId }
+    } catch (error) {
+      // 4. 失败放弃会话，避免残留
+      await doAbort()
+      throw error
+    }
+  }
+
+  /**
+   * 单分片 PUT 上传，从响应头取 ETag（R2 S3 预签名）
+   * @param {string} uploadUrl - 预签名 URL
+   * @param {Blob} chunk - 分片数据
+   * @param {Object} xhr - 外部引用（取消）
+   * @returns {Promise<string>} ETag（去掉引号）
+   */
+  async putMultipartPart(uploadUrl, chunk, xhr) {
+    const maxRetries = 3
+    let lastError = null
+
+    for (let retry = 0; retry < maxRetries; retry++) {
+      try {
+        return await new Promise((resolve, reject) => {
+          const xhrInstance = new XMLHttpRequest()
+
+          xhrInstance.onload = () => {
+            if (xhrInstance.status >= 200 && xhrInstance.status < 300) {
+              const etag = (xhrInstance.getResponseHeader('ETag') || '').replace(/^"|"$/g, '')
+              if (!etag) {
+                reject(new Error(`分片上传响应无 ETag: ${xhrInstance.status}`))
+              } else {
+                resolve(etag)
+              }
+            } else {
+              reject(new Error(`分片上传失败: ${xhrInstance.status}`))
+            }
+          }
+
+          xhrInstance.onerror = () => reject(new Error('网络错误'))
+          xhrInstance.onabort = () => reject(new Error('上传已取消'))
+
+          xhrInstance.open('PUT', uploadUrl)
+          xhrInstance.setRequestHeader('Content-Type', 'application/octet-stream')
+          xhrInstance.send(chunk)
+
+          if (xhr) xhr.ref = xhrInstance
+        })
+      } catch (error) {
+        lastError = error
+        if (error.message === '上传已取消') {
+          throw error
+        }
+        if (retry < maxRetries - 1) {
+          await new Promise(r => setTimeout(r, 1000 * (retry + 1)))
+        }
+      }
+    }
+
+    throw lastError || new Error('分片上传失败')
   }
 
   /**

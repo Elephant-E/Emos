@@ -13,6 +13,22 @@ const uploadApi = createApi({
     url: (itemType, itemId) =>
       `/api/upload/video/base?${buildQuery({ item_type: itemType, item_id: itemId })}`,
   },
+  // multipart 分片上传（token 返回 type=multipart 时使用）：
+  // presign -> 逐片 PUT（拿 ETag）-> complete；失败 abort
+  multipartPresign: {
+    method: 'post',
+    url: (fileId) => `/api/upload/multipart/${fileId}/presign`,
+    body: (data) => data,
+  },
+  multipartComplete: {
+    method: 'post',
+    url: (fileId) => `/api/upload/multipart/${fileId}/complete`,
+    body: (data) => data,
+  },
+  multipartAbort: {
+    method: 'delete',
+    url: (fileId) => `/api/upload/multipart/${fileId}/abort`,
+  },
   videoSave: {
     method: 'post',
     url: '/api/upload/video/save',
