@@ -8,10 +8,16 @@ import SegmentedControl from '@/components/common/SegmentedControl.vue'
 import { useEditTarget } from '@/composables/useEditTarget.js'
 import { useMusicSelect } from '@/composables/useMusicSelect.js'
 import { useUploadQueue } from '@/composables/useUploadQueue.js'
+import { UPLOAD_STORAGES, DEFAULT_UPLOAD_STORAGE } from '@/utils/uploadStorage.js'
 
 defineOptions({ name: 'UploadView' })
 
 const uploadStore = useUploadStore()
+
+// 存储位置：仅对用户暴露当前可用的（zn_r2_upload / google_drive）
+const canChangeStorage = (item) => {
+  return item.status === 'ready' || item.status === 'failed' || item.status === 'paused'
+}
 
 // ================= 编辑关联目标域 =================
 const {
@@ -212,6 +218,16 @@ onMounted(() => {
                     <span>{{ formatFileSize(item.size) }}</span>
                   </template>
                   <span v-if="item.canResume" class="resume-hint">· 可断点续传</span>
+                  <select
+                    v-if="canChangeStorage(item)"
+                    class="upload-item-storage-select"
+                    :value="item.storage || DEFAULT_UPLOAD_STORAGE"
+                    @change="uploadStore.setItemStorage(item, $event.target.value)"
+                    title="存储位置"
+                  >
+                    <option v-for="opt in UPLOAD_STORAGES" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                  </select>
+                  <span v-else class="upload-item-storage-hint">· {{ uploadStore.getStorageLabel(item.storage) }}</span>
                 </div>
               </div>
               

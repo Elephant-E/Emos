@@ -119,7 +119,7 @@ class Uploader {
       userId = tokenData.user_id || this.getUserId()
     }
 
-    if (uploadType === 'onedrive') {
+    if (uploadType === 'onedrive' || uploadType === 'google_drive') {
       await this.uploadToOneDriveXHR(file, uploadUrl, { 
         onProgress, 
         xhr,

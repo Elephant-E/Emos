@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import uploadApi from '@/api/uploadApi.js'
 import uploader from '@/utils/uploader.js'
 import { identifyVideoFile as identifyVideoFileLogic, identifyMusicFile as identifyMusicFileLogic } from '@/utils/identify.js'
+import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES } from '@/utils/uploadStorage.js'
 
 const UPLOAD_QUEUE_KEY = 'upload_queue'
 const MAX_CONCURRENCY = 10
@@ -79,6 +80,7 @@ export const useUploadStore = defineStore('upload', () => {
         name: item.name,
         size: item.size,
         type: item.type,
+        storage: item.storage || DEFAULT_UPLOAD_STORAGE,
         progress: item.progress,
         uploadedSize: item.uploadedSize,
         videoInfo: item.videoInfo,
@@ -119,6 +121,7 @@ export const useUploadStore = defineStore('upload', () => {
         error: null,
         canResume: true,
         _active: false,
+        storage: item.storage || DEFAULT_UPLOAD_STORAGE,
         progress: item.progress || 0,
         uploadedSize: item.uploadedSize || 0
       }))
@@ -164,6 +167,7 @@ export const useUploadStore = defineStore('upload', () => {
         fileId: null,
         userId: null,
         canResume: false,
+        storage: DEFAULT_UPLOAD_STORAGE,
         createdAt: Date.now(),
         updatedAt: Date.now()
       }
@@ -293,7 +297,7 @@ export const useUploadStore = defineStore('upload', () => {
     try {
       const result = await uploader.upload(currentItem.file, {
         type: currentItem.type,
-        storage: 'default',
+        storage: currentItem.storage || DEFAULT_UPLOAD_STORAGE,
         onProgress,
         onUploadInfo,
         xhr: queue.value[index].xhr,
@@ -475,6 +479,22 @@ export const useUploadStore = defineStore('upload', () => {
     }
   }
   
+  const getStorageLabel = (value) => {
+    return UPLOAD_STORAGES.find(s => s.value === value)?.label || value || DEFAULT_UPLOAD_STORAGE
+  }
+
+  /**
+   * 修改队列项的存储位置（仅未开始上传时可改）
+   */
+  const setItemStorage = (item, storage) => {
+    const index = queue.value.findIndex(i => i.id === item.id)
+    if (index === -1) return
+    if (item.status !== 'ready' && item.status !== 'failed' && item.status !== 'paused') return
+    queue.value[index].storage = storage
+    queue.value[index].updatedAt = Date.now()
+    saveToStorage()
+  }
+
   const removeItem = (item) => {
     const index = queue.value.findIndex(i => i.id === item.id)
     if (index === -1) return
@@ -619,6 +639,8 @@ export const useUploadStore = defineStore('upload', () => {
     pauseWaitingItem,
     pauseAll,
     removeItem,
+    setItemStorage,
+    getStorageLabel,
     clearCompleted,
     clearAll,
     retryItem,
