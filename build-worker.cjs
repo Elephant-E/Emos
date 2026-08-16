@@ -94,11 +94,11 @@ const modifiedWorker = workerTemplate.replace(
       let assetPath = pathname;
       const isAssetRequest = pathname.includes('.');
       
-      // 特殊路径处理：SPA 路由回退
-      if (pathname === '/' || (!pathname.includes('.') && !pathname.startsWith('/assets/'))) {
-        assetPath = '/index.html';
-      } else if (pathname === '/login' || pathname === '/login.html') {
+      // 特殊路径处理：登录页优先（独立 HTML，不经过 SPA 回退）
+      if (pathname === '/login' || pathname === '/login.html') {
         assetPath = '/login.html';
+      } else if (pathname === '/' || (!pathname.includes('.') && !pathname.startsWith('/assets/'))) {
+        assetPath = '/index.html';
       }
       
       // 获取资源内容
