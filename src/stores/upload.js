@@ -6,12 +6,34 @@ import { identifyVideoFile as identifyVideoFileLogic, identifyMusicFile as ident
 import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES } from '@/utils/uploadStorage.js'
 
 const UPLOAD_QUEUE_KEY = 'upload_queue'
+const DEFAULT_STORAGE_KEY = 'upload_default_storage'
 const MAX_CONCURRENCY = 10
 const DEFAULT_CONCURRENCY = 3
 
 export const useUploadStore = defineStore('upload', () => {
   const queue = ref([])
   const concurrency = ref(DEFAULT_CONCURRENCY)
+
+  // 默认存储位置：仅影响新加入队列的任务；已入队项在 addFiles 时已固化，不受后续切换影响
+  const defaultStorage = ref(DEFAULT_UPLOAD_STORAGE)
+  try {
+    const saved = localStorage.getItem(DEFAULT_STORAGE_KEY)
+    if (saved && UPLOAD_STORAGES.some(s => s.value === saved)) {
+      defaultStorage.value = saved
+    }
+  } catch (e) {
+    // localStorage 不可用时保持默认
+  }
+
+  const setDefaultStorage = (storage) => {
+    if (!UPLOAD_STORAGES.some(s => s.value === storage)) return
+    defaultStorage.value = storage
+    try {
+      localStorage.setItem(DEFAULT_STORAGE_KEY, storage)
+    } catch (e) {
+      // 忽略持久化失败
+    }
+  }
   
   const activeCount = computed(() => 
     queue.value.filter(item => 
@@ -167,7 +189,8 @@ export const useUploadStore = defineStore('upload', () => {
         fileId: null,
         userId: null,
         canResume: false,
-        storage: DEFAULT_UPLOAD_STORAGE,
+        // 入队时固化默认存储，此后该任务不受顶部选择器变更影响
+        storage: defaultStorage.value,
         createdAt: Date.now(),
         updatedAt: Date.now()
       }
@@ -479,22 +502,6 @@ export const useUploadStore = defineStore('upload', () => {
     }
   }
   
-  const getStorageLabel = (value) => {
-    return UPLOAD_STORAGES.find(s => s.value === value)?.label || value || DEFAULT_UPLOAD_STORAGE
-  }
-
-  /**
-   * 修改队列项的存储位置（仅未开始上传时可改）
-   */
-  const setItemStorage = (item, storage) => {
-    const index = queue.value.findIndex(i => i.id === item.id)
-    if (index === -1) return
-    if (item.status !== 'ready' && item.status !== 'failed' && item.status !== 'paused') return
-    queue.value[index].storage = storage
-    queue.value[index].updatedAt = Date.now()
-    saveToStorage()
-  }
-
   const removeItem = (item) => {
     const index = queue.value.findIndex(i => i.id === item.id)
     if (index === -1) return
@@ -639,8 +646,6 @@ export const useUploadStore = defineStore('upload', () => {
     pauseWaitingItem,
     pauseAll,
     removeItem,
-    setItemStorage,
-    getStorageLabel,
     clearCompleted,
     clearAll,
     retryItem,
@@ -649,5 +654,7 @@ export const useUploadStore = defineStore('upload', () => {
     restoreFromStorage,
     saveToStorage,
     checkDuplicate,
+    defaultStorage,
+    setDefaultStorage,
   }
 })

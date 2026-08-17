@@ -9,16 +9,11 @@ import SegmentedControl from '@/components/common/SegmentedControl.vue'
 import { useEditTarget } from '@/composables/useEditTarget.js'
 import { useMusicSelect } from '@/composables/useMusicSelect.js'
 import { useUploadQueue } from '@/composables/useUploadQueue.js'
-import { UPLOAD_STORAGES, DEFAULT_UPLOAD_STORAGE } from '@/utils/uploadStorage.js'
+import { UPLOAD_STORAGES } from '@/utils/uploadStorage.js'
 
 defineOptions({ name: 'UploadView' })
 
 const uploadStore = useUploadStore()
-
-// 存储位置：仅对用户暴露当前可用的（zn_r2_upload / google_drive）
-const canChangeStorage = (item) => {
-  return item.status === 'ready' || item.status === 'failed' || item.status === 'paused'
-}
 
 // ================= 编辑关联目标域 =================
 const {
@@ -114,9 +109,8 @@ onMounted(() => {
       <span class="storage-guide__item"><strong>Zn 存档服 (R2)</strong>：默认存储，国内可用，稳定直传</span>
       <span class="storage-guide__item"><strong>谷歌盘</strong>：不支持国内直传，且存在 CORS 限制，失败时请改用默认</span>
     </div>
-    
-    <div 
-      class="image-uploader-preview"
+
+    <div class="image-uploader-preview"
       :class="{ dragover: isDragging }"
       @click="fileInput?.click()"
       @dragover.prevent="isDragging = true"
@@ -147,6 +141,17 @@ onMounted(() => {
     <div v-if="uploadStore.queue.length > 0" class="upload-queue">
       <div class="queue-header">
         <SegmentedControl :tabs="statusOptions.map(o => ({ value: o.value, label: o.label }))" v-model="statusFilter" />
+        
+        <div class="queue-storage">
+          <select
+            class="sort-select queue-storage__select"
+            :value="uploadStore.defaultStorage"
+            @change="uploadStore.setDefaultStorage($event.target.value)"
+            title="选择上传位置（仅影响新加入的上传任务）"
+          >
+            <option v-for="opt in UPLOAD_STORAGES" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+          </select>
+        </div>
         
         <div class="queue-actions">
           <div class="concurrency-control">
@@ -183,12 +188,13 @@ onMounted(() => {
         </div>
       </div>
       
-      <div v-if="filteredQueue.length === 0" class="list-empty">
-        <i class="fas fa-inbox"></i>
-        <p>暂无{{ statusOptions.find(o => o.value === statusFilter)?.label || '' }}任务</p>
-      </div>
-      
-      <div v-else class="upload-list list-group">
+      <div class="queue-body">
+        <div v-if="filteredQueue.length === 0" class="list-empty">
+          <i class="fas fa-inbox"></i>
+          <p>暂无{{ statusOptions.find(o => o.value === statusFilter)?.label || '' }}任务</p>
+        </div>
+        
+        <div v-else class="upload-list list-group">
         <div 
           v-for="(item, index) in filteredQueue" 
           :key="item.id"
@@ -223,17 +229,6 @@ onMounted(() => {
                     <span>{{ formatFileSize(item.size) }}</span>
                   </template>
                   <span v-if="item.canResume" class="resume-hint">· 可断点续传</span>
-                  <select
-                    v-if="canChangeStorage(item)"
-                    class="sort-select upload-item-storage-select"
-                    :value="item.storage || DEFAULT_UPLOAD_STORAGE"
-                    @change="uploadStore.setItemStorage(item, $event.target.value)"
-                    title="存储位置"
-                  >
-                    <option v-for="opt in UPLOAD_STORAGES" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-                  </select>
-                  <span v-else class="upload-item-storage-hint">· {{ uploadStore.getStorageLabel(item.storage) }}</span>
-                  <span v-if="item.storage === 'google_drive' && item.status !== 'uploading' && item.status !== 'saving'" class="upload-item-storage-warn" title="谷歌盘不支持国内直传，且存在 CORS 限制，失败时请改用 Zn 存档服">⚠</span>
                 </div>
               </div>
               
@@ -318,6 +313,7 @@ onMounted(() => {
 
           </div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -414,6 +410,20 @@ onMounted(() => {
 
 .storage-guide__item strong { color: var(--system-primary); }
 
+.queue-storage {
+  display: inline-flex;
+  align-items: center;
+}
+
+.queue-storage__select {
+  min-width: 150px;
+  max-width: 200px;
+  height: 32px;
+  padding: 0 1.8rem 0 0.8rem;
+  font: var(--footnote-emphasized);
+  vertical-align: middle;
+}
+
 .image-uploader-preview {
   margin-bottom: 1.5rem;
   background: var(--opaque-shelf-bg);
@@ -431,7 +441,7 @@ onMounted(() => {
 
 .queue-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -442,6 +452,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: auto;
 }
 
 .concurrency-control {
@@ -539,19 +550,6 @@ onMounted(() => {
 
 .error-text { color: var(--danger); }
 .resume-hint { color: var(--key-color); font: var(--callout-emphasized); }
-
-.upload-item-storage-select {
-  min-width: 0;
-  max-width: 190px;
-  height: 30px;
-  padding: 0 1.4rem 0 0.5rem;
-  background-position: right 8px center;
-  font: var(--footnote-emphasized);
-  vertical-align: middle;
-}
-
-.upload-item-storage-hint { color: var(--system-secondary); font: var(--footnote); }
-.upload-item-storage-warn { color: var(--warning); font-size: 0.85rem; margin-left: 2px; cursor: help; }
 
 .upload-item-actions {
   margin-left: auto;
