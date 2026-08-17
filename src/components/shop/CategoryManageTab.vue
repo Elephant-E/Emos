@@ -259,10 +259,7 @@ const handleCategorySort = async (evt) => {
       const newSort = (index + 1) * 10
       if (category.sort !== newSort) {
         updates.push(
-          shopApi.sortCategories({
-            category_id: category.category_id,
-            sort: newSort
-          })
+          shopApi.sortCategories(category.category_id, newSort)
         )
       }
     })

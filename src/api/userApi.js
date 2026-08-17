@@ -10,7 +10,7 @@ export const userApi = createApi({
   setShowEmpty: {
     method: 'put',
     url: '/api/user/showEmpty',
-    body: (showEmpty) => ({ show_empty: showEmpty }),
+    body: (showEmpty) => ({ is_show_empty: showEmpty }),
   },
   getLoginPassword: { method: 'get', url: '/api/user/passwordTemporary' },
   resetPassword: {

@@ -603,7 +603,7 @@ const deleteProduct = async (product) => {
 
 const toggleProductStatus = async (product) => {
   try {
-    await shopApi.updateProductStatus(null, { params: { product_id: product.product_id } })
+    await shopApi.updateProductStatus(product.product_id)
     showToast(product.is_up ? '已下架' : '已上架', 'success')
     await loadProducts()
   } catch (error) {
@@ -652,12 +652,7 @@ const handleProductSort = async (evt) => {
       const newSort = (index + 1) * 10
       if (product.sort !== newSort) {
         updates.push(
-          shopApi.sortProducts(null, {
-            params: {
-              product_id: product.product_id,
-              sort: newSort
-            }
-          })
+          shopApi.sortProducts(product.product_id, newSort)
         )
       }
     })

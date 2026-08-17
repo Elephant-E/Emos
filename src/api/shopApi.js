@@ -23,12 +23,13 @@ const shopApi = createApi({
   updateProductStatus: {
     method: 'put',
     url: '/api/shop/product/up',
-    body: (productId, isUp) => ({ product_id: productId, is_up: isUp }),
+    body: false,
+    params: (productId) => ({ product_id: productId }),
   },
   sortProducts: {
     method: 'put',
     url: '/api/shop/product/sort',
-    body: (productIds) => ({ product_ids: productIds }),
+    body: (productId, sort) => ({ product_id: productId, sort }),
   },
   getCategoryList: {
     method: 'get',
@@ -46,7 +47,7 @@ const shopApi = createApi({
   sortCategories: {
     method: 'put',
     url: '/api/shop/category/sort',
-    body: (categoryIds) => ({ category_ids: categoryIds }),
+    body: (categoryId, sort) => ({ category_id: categoryId, sort }),
   },
   getSellerBase: {
     method: 'get',

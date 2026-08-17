@@ -53,8 +53,8 @@ export function useSeekList() {
 
   const sortList = [
     { field: 'updated_at', label: '最近更新', icon: 'fa-clock' },
-    { field: 'created_at', label: '发布时间', icon: 'fa-calendar' },
-    { field: 'carrot', label: '胡萝卜数', icon: 'fa-carrot' }
+    { field: 'count_request', label: '求片最多', icon: 'fa-fire' },
+    { field: 'seek_carrot', label: '胡萝卜数', icon: 'fa-carrot' }
   ]
 
   let debounceTimer = null
