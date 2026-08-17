@@ -2,6 +2,7 @@
 import { watch, onMounted } from 'vue'
 import { useUploadStore } from '@/stores/upload.js'
 import { showToast } from '@/utils/toast.js'
+import { formatFileSize } from '@/utils/format.js'
 import BaseModal from '@/components/common/BaseModal.vue'
 import SegmentedControl from '@/components/common/SegmentedControl.vue'
 
