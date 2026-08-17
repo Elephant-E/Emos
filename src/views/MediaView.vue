@@ -284,7 +284,6 @@ const dispatchLoadMore = () => {
 
 useInfiniteScroll({
   loadMore: dispatchLoadMore,
-  getContainer: () => document.getElementById('scrollable-page'),
   threshold: 200,
 })
 

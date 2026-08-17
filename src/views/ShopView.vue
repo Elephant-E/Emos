@@ -112,7 +112,6 @@ onMounted(() => loadProducts())
 useInfiniteScroll({
   loadMore: () => loadMore(),
   shouldLoad: () => !isLoading.value && !isLoadingMore.value && hasMore.value,
-  getContainer: () => document.getElementById('scrollable-page'),
 })
 
 let searchTimer = null
