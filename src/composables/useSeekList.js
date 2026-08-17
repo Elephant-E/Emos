@@ -31,7 +31,7 @@ export function useSeekList() {
   const statusTabs = computed(() => [
     { value: 'default', label: '待认领' },
     { value: 'upload', label: '已认领' },
-    { value: 'done', label: '已完结' }
+    { value: 'complete', label: '已完结' }
   ])
 
   // ================= 排序菜单 =================
@@ -70,7 +70,7 @@ export function useSeekList() {
     const map = {
       default: '待认领',
       upload: '已认领',
-      done: '已完结'
+      complete: '已完结'
     }
     return map[status] || status || '未知'
   }
@@ -112,7 +112,7 @@ export function useSeekList() {
     const base = {
       default: '暂时没有待认领的求片',
       upload: '还没有认领的求片',
-      done: '还没有已完结的求片'
+      complete: '还没有已完结的求片'
     }
     return base[selectedStatus.value] || '暂无求片'
   }
