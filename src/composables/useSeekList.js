@@ -97,7 +97,15 @@ export function useSeekList() {
   }
 
   const goToDetail = (item) => {
-    router.push(`/media/${item.video_id}`)
+    // 求片接口的 item 没有视频表 id（video_id），视频可能尚未入库；
+    // 锚点是 video_list_id（vl- 域 id，即 todb_id），
+    // 剧集求片的 video_list_id 始终为整剧 id，统一跳整剧详情页。
+    // 详情页 getNumericId 原生支持 vl- 前缀解析，无需转换。
+    if (!item.video_list_id) {
+      showToast('该求片暂无视频信息', 'info')
+      return
+    }
+    router.push(`/media/vl-${item.video_list_id}`)
   }
 
   const getEmptyMessage = () => {
