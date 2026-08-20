@@ -18,12 +18,12 @@ const uploadApi = createApi({
   multipartPresign: {
     method: 'post',
     url: (fileId) => `/api/upload/multipart/${fileId}/presign`,
-    body: (data) => data,
+    body: (fileId, data) => data,
   },
   multipartComplete: {
     method: 'post',
     url: (fileId) => `/api/upload/multipart/${fileId}/complete`,
-    body: (data) => data,
+    body: (fileId, data) => data,
   },
   multipartAbort: {
     method: 'delete',
