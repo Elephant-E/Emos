@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
+import { useCapabilities } from '@/api/queries'
 import { USE_MOCK } from '@/api/client'
 import {
   IconBag,
@@ -21,7 +22,7 @@ import {
   IconUser,
 } from './icons'
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean; admin?: boolean }
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean; need?: 'merchant' | 'admin' | 'upload' }
 
 const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
@@ -37,17 +38,17 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '运营',
     items: [
-      { to: '/upload', label: '上传', icon: IconUpload },
-      { to: '/live', label: '直播', icon: IconLive, admin: true },
-      { to: '/shop', label: '商城', icon: IconBag, admin: true },
-      { to: '/orders', label: '订单', icon: IconReceipt, admin: true },
+      { to: '/upload', label: '上传', icon: IconUpload, need: 'upload' },
+      { to: '/live', label: '直播', icon: IconLive },
+      { to: '/shop', label: '商城', icon: IconBag, need: 'merchant' },
+      { to: '/orders', label: '订单', icon: IconReceipt, need: 'merchant' },
     ],
   },
   {
     label: '系统',
     items: [
-      { to: '/lines', label: '线路', icon: IconRoute, admin: true },
-      { to: '/pay', label: '支付', icon: IconWallet, admin: true },
+      { to: '/lines', label: '线路', icon: IconRoute },
+      { to: '/pay', label: '支付', icon: IconWallet, need: 'admin' },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],
   },
@@ -59,7 +60,15 @@ const ZONES = [
 ]
 
 export function Sidebar({ user }: { user?: UserInfo }) {
-  const isAdmin = Boolean(user?.roles?.includes('admin'))
+  const caps = useCapabilities()
+  const isAdmin = caps.isAdmin
+  const allowed = (need?: NavItem['need']) => {
+    if (!need) return true
+    if (need === 'admin') return caps.isAdmin
+    if (need === 'merchant') return caps.isMerchant
+    if (need === 'upload') return caps.canUpload || caps.isAdmin
+    return true
+  }
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const initial = (user?.pseudonym || user?.username || '?').slice(0, 1)
   const navigate = useNavigate()
@@ -108,7 +117,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
             {!isAdmin ? (group.label === '系统' ? '个人' : group.label === '运营' ? '我的' : group.label) : group.label}
           </p>
           <nav className="rail__nav">
-            {group.items.filter((item) => !item.admin || isAdmin).map((item) => {
+            {group.items.filter((item) => allowed(item.need)).map((item) => {
               const Icon = item.icon
               const active = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
               return (

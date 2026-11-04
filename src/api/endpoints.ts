@@ -18,6 +18,7 @@ export const userApi = {
   showEmpty: (isShowEmpty: boolean) => request<{ is_show_empty: boolean }>('/api/user/showEmpty', { method: 'PUT', body: { is_show_empty: isShowEmpty } }),
   pseudonym: (name: string) => request<{ pseudonym: string }>('/api/user/pseudonym', { method: 'PUT', query: { name } }),
   agreeUpload: () => request<unknown>('/api/user/agreeUploadAgreement', { method: 'PUT' }),
+  agreeDown: () => request<unknown>('/api/user/agreeDownAgreement', { method: 'PUT' }),
   sign: (content?: string) => request<{ sign_index: number; earn_point: number; continuous_days: number }>('/api/user/sign', { method: 'PUT', query: { content } }),
   passwordTemporary: () => request<{ password: number; second: number }>('/api/user/passwordTemporary'),
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),

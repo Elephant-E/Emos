@@ -2,20 +2,19 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
-import { useCarrot, useContinueWatching, useIsAdmin, useMyWatchlists, usePlayingNow, useRankUpload, useSeekOpen, useSession, useTodos, useZoneCounts } from '@/api/queries'
+import { useCapabilities, useCarrot, useContinueWatching, useIsAdmin, usePlayingNow, useRankUpload, useSeekOpen, useSession, useTodos, useZoneCounts } from '@/api/queries'
 import { formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 function UserOverview() {
-  const session = useSession()
+  const caps = useCapabilities()
   const carrot = useCarrot()
-  const mine = useMyWatchlists()
   const watching = useContinueWatching()
-  const sign = session.data?.sign
 
   const now = new Date()
   const monthName = `${now.getMonth() + 1} 月`
   const year = String(now.getFullYear())
-  const signedToday = sign?.sign_at ? sign.sign_at.slice(0, 10) === now.toISOString().slice(0, 10) : false
+  const signedToday = caps.signedToday
+  const sign = useSession().data?.sign
 
   return (
     <>
@@ -23,13 +22,13 @@ function UserOverview() {
 
       <section className="cards">
         <article className="card">
-          <p className="stat__label">连续签到</p>
+          <p className="stat__label">签到</p>
           <p className="stat__value">
-            {sign ? sign.continuous_days : '—'}
-            <small>天</small>
+            {signedToday ? (sign?.continuous_days ?? 0) : '—'}
+            <small>{signedToday ? '天' : '今天未签'}</small>
           </p>
           <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
-            {signedToday ? '今天已签到' : '今天还没签到'}
+            {signedToday ? `今天已签到，+${sign?.earn_point ?? 0} 胡萝卜` : '签到可得胡萝卜'}
           </p>
         </article>
         <article className="card">
@@ -43,15 +42,42 @@ function UserOverview() {
           </p>
         </article>
         <Link className="card todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
-          <p className="stat__label">我的片单</p>
+          <p className="stat__label">片单槽位</p>
           <p className="stat__value">
-            {mine.data === undefined ? '—' : formatThousand(mine.data)}
-            <small>个</small>
+            {caps.slotRemaining}
+            <small>个可用</small>
           </p>
           <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
-            进入片单
+            可用胡萝卜兑换
           </p>
         </Link>
+      </section>
+
+      <section className="cards cards--wide">
+        <article className="card">
+          <p className="stat__label">我的权限</p>
+          <div className="detail-stats" style={{ marginTop: 12 }}>
+            {[
+              { label: '观影', ok: caps.canView },
+              { label: '上传', ok: caps.canUpload },
+              { label: '下载', ok: caps.canDown },
+            ].map((item) => (
+              <div key={item.label} className="detail-stat">
+                <b>{item.ok ? '已开通' : '未开通'}</b>
+                <span>{item.label}</span>
+              </div>
+            ))}
+            <div className="detail-stat">
+              <b>{caps.sizeUpload > 0 ? formatSize(caps.sizeUpload) : '0 B'}</b>
+              <span>已上传</span>
+            </div>
+          </div>
+          {!caps.canUpload || !caps.canDown ? (
+            <p className="state__hint" style={{ textAlign: 'left', marginTop: 14 }}>
+              上传与下载需要在「账号 → 权限」里同意对应协议后开启。
+            </p>
+          ) : null}
+        </article>
       </section>
 
       <section className="cards cards--wide">

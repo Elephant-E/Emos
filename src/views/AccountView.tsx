@@ -5,6 +5,7 @@ import { Modal } from '@/components/Modal'
 import { IconChevron, IconLeft, IconRight } from '@/components/icons'
 import {
   useAccountMutations,
+  useCapabilities,
   useBanList,
   useCarrot,
   useCarrotHistory,
@@ -14,6 +15,7 @@ import {
   useSession,
 } from '@/api/queries'
 import { toast } from '@/ui/toast'
+import { watchApi } from '@/api/endpoints'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatThousand } from '@/lib/format'
 
@@ -32,6 +34,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const info = useInviteInfo()
   const bans = useBanList()
   const actions = useAccountMutations()
+  const caps = useCapabilities()
 
   const [pseudonym, setPseudonym] = useState('')
   const [password, setPassword] = useState<{ password: number; second: number } | null>(null)
@@ -163,7 +166,58 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   显示空媒体库
                 </label>
 
+                <div className="detail-stats" style={{ marginTop: 4 }}>
+                  <div className="detail-stat">
+                    <b>{caps.canView ? '已开通' : '未开通'}</b>
+                    <span>观影权限</span>
+                  </div>
+                  <div className="detail-stat">
+                    <b>{caps.canUpload ? '已开通' : '未开通'}</b>
+                    <span>上传权限</span>
+                  </div>
+                  <div className="detail-stat">
+                    <b>{caps.canDown ? '已开通' : '未开通'}</b>
+                    <span>下载权限</span>
+                  </div>
+                  <div className="detail-stat">
+                    <b>{caps.slotRemaining}</b>
+                    <span>片单槽位</span>
+                  </div>
+                </div>
+
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {!caps.canUpload ? (
+                    <button
+                      className="btn btn--ghost"
+                      onClick={() =>
+                        actions.agreeUpload.mutate(undefined, { onSuccess: () => toast('已开启上传权限', 'success') })
+                      }
+                    >
+                      同意上传协议并开通
+                    </button>
+                  ) : null}
+                  {!caps.canDown ? (
+                    <button
+                      className="btn btn--ghost"
+                      onClick={() => actions.agreeDown.mutate(undefined, { onSuccess: () => toast('已开启下载权限', 'success') })}
+                    >
+                      同意下载协议并开通
+                    </button>
+                  ) : null}
+                  <button
+                    className="btn btn--ghost"
+                    onClick={() =>
+                      watchApi.slot().then(
+                        (res) => {
+                          toast(`已兑换，剩余槽位 ${res.slot_remaining}`, 'success')
+                          void session.refetch()
+                        },
+                        () => toast('兑换失败，胡萝卜可能不足', 'error'),
+                      )
+                    }
+                  >
+                    用胡萝卜兑换片单槽位
+                  </button>
                   <button
                     className="btn btn--ghost"
                     onClick={() =>

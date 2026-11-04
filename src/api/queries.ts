@@ -41,9 +41,43 @@ export function useSession() {
   })
 }
 
-export function useIsAdmin(): boolean {
+export interface Capabilities {
+  isAdmin: boolean
+  canView: boolean
+  canUpload: boolean
+  canDown: boolean
+  slotRemaining: number
+  inviteRemaining: number | null
+  sizeUpload: number
+  signedToday: boolean
+  isMerchant: boolean
+}
+
+export function useCapabilities(): Capabilities {
   const { data } = useSession()
-  return Boolean(data?.roles?.includes('admin'))
+  const seller = useQuery({
+    queryKey: ['shop', 'seller'] as const,
+    queryFn: () => shopApi.sellerBase(),
+    staleTime: 5 * 60_000,
+    retry: false,
+  })
+
+  const isAdmin = Boolean(data?.roles?.includes('admin'))
+  return {
+    isAdmin,
+    canView: Boolean(data?.is_viewing),
+    canUpload: Boolean(data?.is_can_upload),
+    canDown: Boolean(data?.is_can_down),
+    slotRemaining: data?.slot_remaining ?? 0,
+    inviteRemaining: isAdmin ? null : (data?.invite_remaining ?? 0),
+    sizeUpload: data?.size_upload ?? 0,
+    signedToday: Boolean(data?.sign),
+    isMerchant: Boolean(seller.data?.is_self) || isAdmin,
+  }
+}
+
+export function useIsAdmin(): boolean {
+  return useCapabilities().isAdmin
 }
 
 export function useMyWatchlists() {
@@ -281,6 +315,8 @@ export function useAccountMutations() {
   return {
     setPseudonym: useMutation({ mutationFn: (name: string) => userApi.pseudonym(name), onSuccess: invalidate }),
     setShowEmpty: useMutation({ mutationFn: (value: boolean) => userApi.showEmpty(value), onSuccess: invalidate }),
+    agreeUpload: useMutation({ mutationFn: () => userApi.agreeUpload(), onSuccess: invalidate }),
+    agreeDown: useMutation({ mutationFn: () => userApi.agreeDown(), onSuccess: invalidate }),
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
     sign: useMutation({ mutationFn: () => userApi.sign(), onSuccess: invalidate }),
