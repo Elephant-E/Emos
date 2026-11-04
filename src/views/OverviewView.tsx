@@ -223,13 +223,11 @@ export function OverviewView() {
             })}
           </div>
 
-          <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
-            {stats.data && stats.data.activeDays > 0
-              ? `本周 ${stats.data.activeDays} 天有观看，共 ${Math.round(stats.data.totalSeconds / 60)} 分钟`
-              : stats.data
-                ? '本周还没有观看记录'
-                : '正在读取本周记录'}
-          </p>
+          {stats.data && stats.data.activeDays > 0 ? (
+            <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+              本周 {stats.data.activeDays} 天有观看，共 {Math.round(stats.data.totalSeconds / 60)} 分钟
+            </p>
+          ) : null}
 
           {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
             <ul style={{ display: 'grid', gap: 8, marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>

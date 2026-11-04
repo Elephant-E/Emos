@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import { readFile } from 'node:fs/promises'
 
-const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.best'
+const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.club'
 
 function fixturesPlugin() {
   return {
