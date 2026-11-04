@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
 import { USE_MOCK } from '@/api/client'
@@ -13,7 +13,6 @@ import {
   IconLogo,
   IconMusic,
   IconWallet,
-  IconPanel,
   IconReceipt,
   IconRoute,
   IconSearch,
@@ -62,6 +61,8 @@ const ZONES = [
 export function Sidebar({ user }: { user?: UserInfo }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const initial = (user?.pseudonym || user?.username || '?').slice(0, 1)
+  const navigate = useNavigate()
+  const [term, setTerm] = useState('')
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -78,14 +79,22 @@ export function Sidebar({ user }: { user?: UserInfo }) {
           <span>EMOS</span>
           {USE_MOCK ? <span className="rail__badge">MOCK</span> : null}
         </div>
-        <button className="btn btn--icon" aria-label="收起侧栏">
-          <IconPanel />
-        </button>
+
       </div>
 
       <label className="rail__search">
         <IconSearch size={15} />
-        <input type="search" placeholder="搜索片名、用户名或编码" aria-label="搜索" />
+        <input
+          type="search"
+          value={term}
+          placeholder="搜索片名"
+          aria-label="搜索片名"
+          onChange={(e) => setTerm(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return
+            navigate({ to: '/library', search: { page: 1, page_size: 20, q: term.trim(), type: '' } })
+          }}
+        />
         <span className="rail__keys">
           <kbd>⌘</kbd>
           <kbd>K</kbd>

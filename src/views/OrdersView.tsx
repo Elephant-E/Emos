@@ -6,7 +6,7 @@ import { Pager } from '@/components/Pager'
 import { useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime, formatRelative } from '@/lib/format'
+import { formatDateTime } from '@/lib/format'
 
 export interface OrdersSearch {
   page: number
@@ -198,9 +198,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
             <span>备注（200 字内）</span>
             <textarea className="input" maxLength={200} value={remarking.remark} onChange={(e) => setRemarking({ ...remarking, remark: e.target.value })} autoFocus />
           </label>
-          <p className="state__hint" style={{ textAlign: 'left' }}>
-            上次更新 {formatRelative(new Date().toISOString())}
-          </p>
         </Modal>
       ) : null}
     </>

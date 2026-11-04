@@ -174,7 +174,7 @@ export function UploadView() {
                       <b title={item.file.name}>{item.file.name}</b>
                       {item.status === 'uploading' ? (
                         <div className="progress-line">
-                          <i style={{ width: `${Math.round(item.progress * 100)}%` }} />
+                          <i style={{ transform: `scaleX(${item.progress.toFixed(3)})` }} />
                         </div>
                       ) : (
                         <span>{item.message ?? `${item.file.type || '未知类型'}`}</span>

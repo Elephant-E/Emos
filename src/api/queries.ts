@@ -90,6 +90,7 @@ export function useSeekPage(params: { page: number; page_size: number; status: S
     queryKey: qk.seeks(params),
     queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
     placeholderData: (prev) => prev,
+    refetchInterval: 30_000,
   })
 }
 

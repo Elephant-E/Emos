@@ -15,6 +15,7 @@ export function LinesView() {
   const [creating, setCreating] = useState(false)
   const [term, setTerm] = useState('')
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
 
   const rows = (lines.data ?? []).filter((line) => {
@@ -22,7 +23,6 @@ export function LinesView() {
     if (!q) return true
     return line.name.toLowerCase().includes(q) || line.url.toLowerCase().includes(q) || (line.tagline ?? '').toLowerCase().includes(q)
   })
-  const pageSize = 20
   const paged = rows.slice((page - 1) * pageSize, page * pageSize)
 
   return (
@@ -120,7 +120,7 @@ export function LinesView() {
             pageSize={pageSize}
             sizes={[20, 50]}
             onPage={setPage}
-            onPageSize={() => setPage(1)}
+            onPageSize={(size) => { setPageSize(size); setPage(1) }}
           />
         </div>
       ) : null}

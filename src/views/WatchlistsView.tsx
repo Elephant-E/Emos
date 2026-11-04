@@ -6,7 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
-import { useWatchPage } from '@/api/queries'
+import { useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { formatRelative, formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
@@ -30,6 +30,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({ name: '', description: '', is_public: true, point: 0, tags: '' })
 
+  const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
     page_size: search.page_size,
@@ -67,7 +68,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         tools={
           <span className="stamp">
             <i />
-            片单槽位剩余 {data ? Math.max(0, 2) : '—'}
+            片单槽位剩余 {session.data ? session.data.slot_remaining : '—'}
           </span>
         }
       />

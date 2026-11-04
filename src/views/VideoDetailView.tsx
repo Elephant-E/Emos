@@ -88,7 +88,7 @@ export function VideoDetailView({
                 const ok = await confirmDialog({
                   title: '删除这部影片？',
                   message: `《${video?.video_title}》会被标记为已删除，从列表里移除。`,
-                  hint: '可从回收处恢复；已上传的资源和字幕不会被立即清除。',
+                  hint: '已上传的资源与字幕不会立即清除，但影片会从所有列表消失。',
                   confirmText: '删除',
                   danger: true,
                 })
@@ -391,7 +391,7 @@ export function VideoDetailView({
                 const ok = await confirmDialog({
                   title: '删除这个资源？',
                   message: '删除后播放端立刻不可用。',
-                  hint: '会扣除相应胡萝卜，可从回收处恢复。',
+                  hint: '会扣除相应胡萝卜；删除后无法在后台恢复。',
                   danger: true,
                   confirmText: '删除',
                 })

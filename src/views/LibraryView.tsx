@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { IconArrowDown, IconDots, IconFilter, IconPlus, IconSort } from '@/components/icons'
+import { IconDots, IconFilter, IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { Pager } from '@/components/Pager'
@@ -25,6 +25,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const navigate = useNavigate()
   const [query, setQuery] = useState(search.q)
   useEffect(() => setQuery(search.q), [search.q])
+
+  const openDetail = (videoId: number) =>
+    navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
   const { data, isLoading, error, refetch, isFetching } = useVideoPage({
     page: search.page,
@@ -75,7 +78,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           <IconFilter />
           重置
         </button>
-        <button className="btn btn--primary">
+        <button className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
           <IconPlus />
           新增入库
         </button>
@@ -102,24 +105,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 </th>
                 <th style={{ width: '34%' }}>片名</th>
                 <th style={{ width: '12%' }}>类型</th>
-                <th className="num" style={{ width: '14%' }}>
-                  <button className="th-sort" aria-sort="none">
-                    资源
-                    <IconSort />
-                  </button>
-                </th>
-                <th className="num" style={{ width: '14%' }}>
-                  <button className="th-sort" aria-sort="descending">
-                    求片
-                    <IconArrowDown />
-                  </button>
-                </th>
-                <th className="num" style={{ width: '14%' }}>
-                  <button className="th-sort" aria-sort="none">
-                    上映
-                    <IconSort />
-                  </button>
-                </th>
+                <th className="num" style={{ width: '14%' }}>资源</th>
+                <th className="num" style={{ width: '14%' }}>求片</th>
+                <th className="num" style={{ width: '14%' }}>上映</th>
                 <th style={{ width: 44 }} />
               </tr>
             </thead>
@@ -127,13 +115,15 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               {data.items.map((video) => (
                 <tr
                   key={video.video_id}
-                  onClick={() =>
-                    navigate({
-                      to: '/media/$videoId',
-                      params: { videoId: String(video.video_id) },
-                      search: { season: 1, episode: 1 },
-                    })
-                  }
+                  tabIndex={0}
+                  role="link"
+                  onClick={() => openDetail(video.video_id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      openDetail(video.video_id)
+                    }
+                  }}
                   style={{ cursor: 'pointer' }}
                 >
                   <td>
@@ -175,8 +165,8 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                     )}
                   </td>
                   <td className="num muted">{video.video_date_air ?? '—'}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <button className="row-menu" aria-label={`《${video.video_title}》的更多操作`}>
+                  <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                    <button className="row-menu" aria-label={`打开《${video.video_title}》详情`} onClick={() => openDetail(video.video_id)}>
                       <IconDots />
                     </button>
                   </td>

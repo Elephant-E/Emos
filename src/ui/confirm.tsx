@@ -45,8 +45,12 @@ export function ConfirmHost() {
   useEffect(() => {
     if (!pending) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') settle(false)
-      if (e.key === 'Enter') settle(true)
+      if (e.key === 'Escape') return settle(false)
+      if (e.key !== 'Enter') return
+      const active = document.activeElement as HTMLElement | null
+      if (active?.dataset.confirmAction === 'cancel') return
+      e.preventDefault()
+      settle(true)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -69,7 +73,7 @@ export function ConfirmHost() {
         {pending.hint ? <p className="confirm__hint">{pending.hint}</p> : null}
 
         <div className="confirm__foot">
-          <button className="btn btn--ghost" onClick={() => settle(false)}>
+          <button className="btn btn--ghost" data-confirm-action="cancel" onClick={() => settle(false)}>
             {pending.cancelText ?? '取消'}
           </button>
           <button

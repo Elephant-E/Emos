@@ -511,8 +511,15 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!transferTo.trim() || transferAmount < 2}
-                onClick={() =>
+                disabled={!transferTo.trim() || transferAmount < 2 || actions.transfer.isPending}
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: `转赠 ${transferAmount} 个胡萝卜？`,
+                    message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
+                    hint: '如果填错用户 ID，胡萝卜无法追回。',
+                    confirmText: '转赠',
+                  })
+                  if (!ok) return
                   actions.transfer.mutate(
                     { userId: transferTo.trim(), carrot: transferAmount },
                     {
@@ -523,7 +530,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       onError: () => toast('转赠失败', 'error'),
                     },
                   )
-                }
+                }}
               >
                 转赠
               </button>
