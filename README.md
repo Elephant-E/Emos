@@ -31,4 +31,8 @@ src/styles/     tokens → base → components
 worker/         API 反代
 ```
 
-已迁移：概览、媒体库、求片。其余模块（片单/上传/直播/商城/订单/线路/账号）为占位页，路由与导航已就位。
+已迁移：概览、媒体库、影片详情、片单（含详情）、求片、上传。
+其余模块（直播/商城/订单/线路/账号/音乐）为占位页，路由与导航已就位。
+
+API 覆盖：`src/api/endpoints.ts` 24 个域 / 190 个端点全部类型化；`docs/api-inventory.md`
+与 `docs/api-shapes.md` 由 Postman 集合自动生成，改接口后重跑即可。

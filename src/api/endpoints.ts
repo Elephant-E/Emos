@@ -1,7 +1,7 @@
 import { request } from './client'
 import type {
   BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia,
-  MessageResult, MusicSong, PlayingNow, RankCarrot, RankUpload, SeekItem, SeekStatus, ShopOrder,
+  MessageResult, MusicSong, PlayingNow, RankCarrot, RankUpload, SeekItem, SeekStatus, ShopOrder, VideoPerson,
   ShopProduct, SignCheck, UserBase, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason,
   VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
@@ -84,7 +84,7 @@ export const videoApi = {
   episodes: (videoId: number, seasonNumber?: number) =>
     request<VideoEpisode[]>(`/api/video/${videoId}/episode`, { query: { season_number: seasonNumber } }),
   persons: (params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) =>
-    request<ListResult<Record<string, unknown>>>('/api/video/persons', { query: params }),
+    request<ListResult<VideoPerson>>('/api/video/persons', { query: params }),
 }
 
 export const mediaApi = {

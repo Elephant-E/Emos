@@ -156,6 +156,12 @@ const rankUpload = [
   { index: 5, size: 48, username: 'kai', avatar: null },
 ]
 
+function hash(input: string): number {
+  let h = 0
+  for (let i = 0; i < input.length; i += 1) h = (h * 31 + input.charCodeAt(i)) | 0
+  return h
+}
+
 function paginate<T>(items: T[], page = 1, pageSize = 20): ListResult<T> {
   const start = (page - 1) * pageSize
   return { page, page_size: pageSize, total: items.length, items: items.slice(start, start + pageSize) }
@@ -183,6 +189,7 @@ export async function mockRequest<T>(
     const title = String(query.title ?? '').trim()
     if (title) rows = rows.filter((v) => v.video_title.includes(title))
     if (query.type) rows = rows.filter((v) => v.video_type === query.type)
+    if (query.video_id) rows = rows.filter((v) => v.video_id === Number(query.video_id))
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
@@ -199,6 +206,81 @@ export async function mockRequest<T>(
     if (query.is_subscribe) rows = rows.filter((w) => w.is_subscribe)
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
+
+  const seasonMatch = clean.match(/^\/api\/video\/(\d+)\/season$/)
+  if (seasonMatch) {
+    const video = videos.find((v) => v.video_id === Number(seasonMatch[1]))
+    const count = video?.video_type === 'movie' ? 1 : 2
+    return Array.from({ length: count }, (_, i) => ({
+      item_id: `vs-${i + 1}`,
+      season_id: 100 + i,
+      season_title: video?.video_type === 'movie' ? '正片' : `第 ${i + 1} 季`,
+      season_number: video?.video_type === 'movie' ? 0 : i + 1,
+      season_description: null,
+      video_image_poster: video?.video_image_poster ?? null,
+      date_air: video?.video_date_air ?? null,
+      has_media: true,
+      episodes_count: video?.video_type === 'movie' ? 1 : 4,
+    })) as T
+  }
+
+  const episodeMatch = clean.match(/^\/api\/video\/(\d+)\/episode$/)
+  if (episodeMatch) {
+    const video = videos.find((v) => v.video_id === Number(episodeMatch[1]))
+    const seasonNumber = Number(query.season_number ?? 1)
+    const count = video?.video_type === 'movie' ? 1 : 4
+    return Array.from({ length: count }, (_, i) => ({
+      item_id: `ve-${seasonNumber}-${i + 1}`,
+      season_id: 100 + Math.max(0, seasonNumber - 1),
+      season_number: seasonNumber,
+      episode_id: 500 + i,
+      episode_title: video?.video_type === 'movie' ? '正片' : `第 ${i + 1} 集`,
+      episode_number: i + 1,
+      episode_description: null,
+      video_image_poster: video?.video_image_poster ?? null,
+      date_air: video?.video_date_air ?? null,
+      runtime: 45 + i * 3,
+      parts_count: 0,
+      medias_count: 2,
+      subtitles_count: 1,
+    })) as T
+  }
+
+  if (clean === '/api/video/media/list') {
+    const seed = String(query.video_episode_id ?? '') + String(query.video_season_id ?? '')
+    return [
+      { media_id: `md_${Math.abs(hash(seed)) % 9999}a`, media_name: '4K HDR · h265 · 中字', media_file_size: 8_589_934_592, media_file_second: 2760, media_status: 'ready', user_pseudonym: 'sorakand', is_self_upload: true, created_at: '2026-11-01T10:00:00Z', media_file_metadata: {} },
+      { media_id: `md_${Math.abs(hash(seed)) % 9999}b`, media_name: '1080p · h264', media_file_size: 2_147_483_648, media_file_second: 2760, media_status: 'ready', user_pseudonym: 'lin', is_self_upload: false, created_at: '2026-10-20T10:00:00Z', media_file_metadata: {} },
+    ] as T
+  }
+
+  if (clean === '/api/video/subtitle/list') {
+    return [
+      { subtitle_id: 'sub_1', subtitle_title: '简中 - sorakand 上传', subtitle_codec: 'srt', user_pseudonym: 'sorakand', is_self_upload: true, created_at: '2026-11-01T10:05:00Z' },
+      { subtitle_id: 'sub_2', subtitle_title: '繁中', subtitle_codec: 'ass', user_pseudonym: 'lin', is_self_upload: false, created_at: '2026-10-22T12:00:00Z' },
+    ] as T
+  }
+
+  if (clean === '/api/video/persons') {
+    return {
+      page: 1,
+      page_size: 20,
+      total: 4,
+      items: [
+        { id: 1, person_id: 101, name: '沈亦舟', original_name: 'Shen Yizhou', image_profile: poster('cast1'), job: 'Director', title: null, tagline: null, birthday: null, gender: 2, birthplace: null, biography: null, is_adult: false },
+        { id: 2, person_id: 102, name: '周砚', original_name: null, image_profile: poster('cast2'), job: 'Actor', title: '机长', tagline: null, birthday: null, gender: 1, birthplace: null, biography: null, is_adult: false },
+        { id: 3, person_id: 103, name: '程未', original_name: null, image_profile: poster('cast3'), job: 'Actor', title: '乘客', tagline: null, birthday: null, gender: 2, birthplace: null, biography: null, is_adult: false },
+      ],
+    } as T
+  }
+
+  if (clean === '/api/video/media/playUrl') return { url: 'http://emos.local/play/mock' } as T
+  if (clean === '/api/video/media/rename') return { carrot: 1 } as T
+  if (clean === '/api/video/media/delete') return { carrot: 3 } as T
+  if (clean === '/api/video/subtitle/rename') return { carrot: 1 } as T
+  if (clean === '/api/video/subtitle/delete') return { carrot: 1 } as T
+  if (clean === '/api/video/sync') return [] as T
+  if (/^\/api\/video\/\d+\/delete$/.test(clean)) return { carrot: 1, is_delete: true } as T
 
   const watchVideoMatch = clean.match(/^\/api\/watch\/(\d+)\/video$/)
   if (watchVideoMatch) {

@@ -112,6 +112,22 @@ export interface VideoEpisode {
   subtitles_count: number
 }
 
+export interface VideoPerson {
+  id: number
+  person_id: number
+  name: string
+  original_name: string | null
+  image_profile: string | null
+  job: string | null
+  title: string | null
+  tagline: string | null
+  birthday: string | null
+  gender: number | null
+  birthplace: string | null
+  biography: string | null
+  is_adult: boolean
+}
+
 export interface VideoMedia {
   media_id: string
   media_name: string

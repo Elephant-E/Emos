@@ -7,6 +7,7 @@ import { WatchlistsView } from '@/views/WatchlistsView'
 import { WatchlistDetailView } from '@/views/WatchlistDetailView'
 import { PlaceholderView, LoginView } from '@/views/PlaceholderView'
 import { UploadView } from '@/views/UploadView'
+import { VideoDetailView } from '@/views/VideoDetailView'
 import { getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -59,6 +60,29 @@ function LibraryRoute() {
   const search = libraryRoute.useSearch()
   const navigate = libraryRoute.useNavigate()
   return <LibraryView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const videoDetailRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/media/$videoId',
+  validateSearch: (s: Record<string, unknown>): { season: number; episode: number } => ({
+    season: Number(s.season ?? 1),
+    episode: Number(s.episode ?? 1),
+  }),
+  component: VideoDetailRoute,
+})
+
+function VideoDetailRoute() {
+  const { videoId } = videoDetailRoute.useParams()
+  const search = videoDetailRoute.useSearch()
+  const navigate = videoDetailRoute.useNavigate()
+  return (
+    <VideoDetailView
+      videoId={Number(videoId)}
+      search={search}
+      onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true })}
+    />
+  )
 }
 
 const seekRoute = createRoute({
@@ -143,6 +167,7 @@ const routeTree = rootRoute.addChildren([
     overviewRoute,
     uploadRoute,
     libraryRoute,
+    videoDetailRoute,
     seekRoute,
     watchlistsRoute,
     watchlistDetailRoute,

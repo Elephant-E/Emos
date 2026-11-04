@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { carrotApi, rankApi, seekApi, sessionApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { mediaApi, rankApi, seekApi, sessionApi, subtitleApi, videoApi, watchApi, carrotApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -97,6 +97,79 @@ export function useWatchSearch(watchId: number, title: string) {
     queryFn: () => watchApi.searchVideos(watchId, { title }),
     enabled: title.trim().length > 0,
   })
+}
+
+export function useVideoDetail(videoId: number) {
+  return useQuery({
+    queryKey: ['video', videoId, 'detail'] as const,
+    queryFn: async () => {
+      const res = await videoApi.list({ video_id: videoId, page: 1, page_size: 1 })
+      return res.items[0] ?? null
+    },
+    enabled: videoId > 0,
+  })
+}
+
+export function useSeasons(videoId: number) {
+  return useQuery({ queryKey: ['video', videoId, 'seasons'] as const, queryFn: () => videoApi.seasons(videoId), enabled: videoId > 0 })
+}
+
+export function useEpisodes(videoId: number, seasonNumber: number) {
+  return useQuery({
+    queryKey: ['video', videoId, 'episodes', seasonNumber] as const,
+    queryFn: () => videoApi.episodes(videoId, seasonNumber),
+    enabled: videoId > 0 && seasonNumber >= 0,
+  })
+}
+
+export function useMediaList(params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) {
+  return useQuery({
+    queryKey: ['media', params] as const,
+    queryFn: async () => {
+      const res = (await mediaApi.list(params)) as unknown
+      if (Array.isArray(res)) return res as Array<Record<string, unknown>>
+      const obj = res as { data?: unknown; items?: unknown }
+      if (Array.isArray(obj.items)) return obj.items as Array<Record<string, unknown>>
+      if (Array.isArray(obj.data)) return obj.data as Array<Record<string, unknown>>
+      return []
+    },
+  })
+}
+
+export function useSubtitles(params: { video_list_id: number; video_episode_id?: number }) {
+  return useQuery({
+    queryKey: ['subtitles', params] as const,
+    queryFn: () => subtitleApi.list(params),
+    enabled: params.video_list_id > 0,
+  })
+}
+
+export function usePersons(videoId: number) {
+  return useQuery({
+    queryKey: ['video', videoId, 'persons'] as const,
+    queryFn: () => videoApi.persons({ video_list_id: videoId }),
+    enabled: videoId > 0,
+  })
+}
+
+export function useVideoMutations(videoId: number) {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['video', videoId] })
+    qc.invalidateQueries({ queryKey: ['media'] })
+    qc.invalidateQueries({ queryKey: ['subtitles'] })
+  }
+
+  return {
+    syncVideo: useMutation({ mutationFn: () => videoApi.sync({ todb_id: videoId }), onSuccess: invalidate }),
+    removeVideo: useMutation({ mutationFn: () => videoApi.remove(videoId), onSuccess: invalidate }),
+    playUrl: useMutation({ mutationFn: (mediaId: string) => mediaApi.playUrl(mediaId) }),
+    renameMedia: useMutation({ mutationFn: (p: { mediaId: string; name: string }) => mediaApi.rename(p.mediaId, p.name), onSuccess: invalidate }),
+    removeMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.remove(mediaId), onSuccess: invalidate }),
+    syncMetadata: useMutation({ mutationFn: (mediaId: string) => mediaApi.syncMetadata(mediaId), onSuccess: invalidate }),
+    renameSubtitle: useMutation({ mutationFn: (p: { id: string; title: string }) => subtitleApi.rename(p.id, p.title), onSuccess: invalidate }),
+    removeSubtitle: useMutation({ mutationFn: (id: string) => subtitleApi.remove(id), onSuccess: invalidate }),
+  }
 }
 
 export function useWatchMutations(watchId: number) {

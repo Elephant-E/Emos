@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconArrowDown, IconDots, IconFilter, IconLeft, IconPlus, IconRight, IconSort } from '@/components/icons'
+import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
@@ -20,6 +21,7 @@ const TABS: Array<{ key: '' | VideoType; label: string }> = [
 ]
 
 export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSearch: (patch: Partial<LibrarySearch>) => void }) {
+  const navigate = useNavigate()
   const [query, setQuery] = useState(search.q)
   useEffect(() => setQuery(search.q), [search.q])
 
@@ -123,7 +125,17 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             </thead>
             <tbody>
               {data.items.map((video) => (
-                <tr key={video.video_id}>
+                <tr
+                  key={video.video_id}
+                  onClick={() =>
+                    navigate({
+                      to: '/media/$videoId',
+                      params: { videoId: String(video.video_id) },
+                      search: { season: 1, episode: 1 },
+                    })
+                  }
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>
                     <input className="cbx" type="checkbox" aria-label={`选择《${video.video_title}》`} />
                   </td>
