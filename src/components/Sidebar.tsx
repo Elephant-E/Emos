@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
+import { USE_MOCK } from '@/api/client'
 import {
   IconBag,
   IconChevron,
@@ -71,6 +72,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
         <div className="rail__brand-name">
           <IconLogo />
           <span>EMOS</span>
+          {USE_MOCK ? <span className="rail__badge">MOCK</span> : null}
         </div>
         <button className="btn btn--icon" aria-label="收起侧栏">
           <IconPanel />
