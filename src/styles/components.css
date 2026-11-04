@@ -1168,3 +1168,16 @@ th.num .th-sort { flex-direction: row-reverse; }
 }
 
 .card-body > .card-note + * { margin-top: var(--stack); }
+
+/* 尾部动作对齐：墨迹对齐内容边缘，而不是盒子对齐 */
+.table .btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-3);
+}
+.table .btn:hover { color: var(--fg); background: transparent; }
+.table .row-menu { margin-right: -6px; }
+.modal__head .btn--icon { margin-right: -6px; }
+.table td:last-child,
+.table th:last-child { padding-right: 20px; }
