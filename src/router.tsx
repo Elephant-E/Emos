@@ -11,6 +11,8 @@ import { VideoDetailView } from '@/views/VideoDetailView'
 import { AccountView } from '@/views/AccountView'
 import { ShopView } from '@/views/ShopView'
 import { OrdersView } from '@/views/OrdersView'
+import { LiveView } from '@/views/LiveView'
+import { LinesView } from '@/views/LinesView'
 import { getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -135,6 +137,25 @@ function OrdersRoute() {
   return <OrdersView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
 }
 
+const liveRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/live',
+  validateSearch: (s: Record<string, unknown>): { page: number; library: number; channel: number } => ({
+    page: Math.max(1, Number(s.page) || 1),
+    library: Number(s.library) || 0,
+    channel: Number(s.channel) || 0,
+  }),
+  component: LiveRoute,
+})
+
+function LiveRoute() {
+  const search = liveRoute.useSearch()
+  const navigate = liveRoute.useNavigate()
+  return <LiveView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const linesRoute = createRoute({ getParentRoute: () => appLayout, path: '/lines', component: LinesView })
+
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
@@ -195,9 +216,7 @@ function WatchDetailRoute() {
 }
 
 const placeholders: Array<{ path: string; title: string; note: string }> = [
-  { path: '/live', title: '直播', note: '直播列表、源管理与媒体库，接 /api/live 系列。' },
   { path: '/music', title: '音乐', note: '歌曲、专辑、歌手、歌词与资源，接 /api/music 系列。' },
-  { path: '/lines', title: '线路', note: '反代线路增删，接 /api/proxy/line。' },
 ]
 
 const placeholderRoutes = placeholders.map((item) =>
@@ -219,6 +238,8 @@ const routeTree = rootRoute.addChildren([
     accountRoute,
     shopRoute,
     ordersRoute,
+    liveRoute,
+    linesRoute,
     watchlistsRoute,
     watchlistDetailRoute,
     ...placeholderRoutes,

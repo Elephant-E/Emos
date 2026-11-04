@@ -307,6 +307,44 @@ export async function mockRequest<T>(
     return rows as T
   }
 
+  if (clean === '/api/live/library') {
+    return [
+      { id: 100, title: '央视', image_poster_url: null },
+      { id: 101, title: '卫视', image_poster_url: null },
+    ] as T
+  }
+  if (clean === '/api/live/list') {
+    const rows = [
+      { id: 1, live_library_id: 100, code: 'cctv1', title: 'CCTV-1 综合', description: '央视综合频道', tagline: '三网直达', image_poster_url: poster('live1'), sort: 80, is_can_edit: true, media_count: 3, updated_at: '2026-11-03T10:00:00Z' },
+      { id: 2, live_library_id: 100, code: 'cctv5', title: 'CCTV-5 体育', description: null, tagline: null, image_poster_url: poster('live2'), sort: 70, is_can_edit: true, media_count: 2, updated_at: '2026-11-02T18:00:00Z' },
+      { id: 3, live_library_id: 101, code: 'hunan', title: '湖南卫视', description: null, tagline: null, image_poster_url: poster('live3'), sort: 60, is_can_edit: false, media_count: 1, updated_at: '2026-10-28T09:00:00Z' },
+    ]
+    const filtered = query.library_id ? rows.filter((r) => r.live_library_id === Number(query.library_id)) : rows
+    return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
+  if (clean === '/api/live/media') {
+    return paginate(
+      [
+        { media_id: 'lgqjrvnnwzxd', name: '三网直达 1080p', path_type: 'm3u8', path_url: 'http://live.local/cctv1.m3u8', status: 'ok', pseudonym: 'sorakand', is_can_edit: true, created_at: '2026-11-01T10:00:00Z' },
+        { media_id: 'mgqjrvnnwzxe', name: '电信线路', path_type: 'flv', path_url: 'http://live.local/cctv1.flv', status: 'ok', pseudonym: 'lin', is_can_edit: false, created_at: '2026-10-30T10:00:00Z' },
+      ],
+      1,
+      50,
+    ) as T
+  }
+  if (/^\/api\/live\/list\/\d+$/.test(clean)) return {} as T
+  if (/^\/api\/live\/media\/.+$/.test(clean)) return { carrot: 1 } as T
+  if (clean === '/api/live/list') return { count: 1 } as T
+  if (clean === '/api/live/media/update') return { delete_count: 0 } as T
+  if (clean === '/api/proxy/line') {
+    if (opts.method === 'DELETE') return {} as T
+    if (opts.method === 'POST') return { id: 1001 } as T
+    return [
+      { id: 1000, name: '@proxy', url: 'http://proxy.local', tagline: '三网绕路', is_self: true, created_at: '2026-09-20T18:00:24.000000Z' },
+      { id: 1001, name: '@hk', url: 'http://hk.local', tagline: '香港直连', is_self: true, created_at: '2026-10-05T09:00:00.000000Z' },
+    ] as T
+  }
+
   if (clean === '/api/shop/seller/base') {
     return { seller_id: 1000, name: '幕间小店', description: '周边与兑换码，工作日当天发货。', cover_url: null, status: 'normal', is_self: true } as T
   }

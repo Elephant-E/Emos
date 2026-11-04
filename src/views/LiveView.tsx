@@ -1,0 +1,337 @@
+import { useState } from 'react'
+import { PageHeader } from '@/components/PageHeader'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { Modal } from '@/components/Modal'
+import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/api/queries'
+import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
+import { formatRelative } from '@/lib/format'
+
+export interface LiveSearch {
+  page: number
+  library: number
+  channel: number
+}
+
+export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
+  const library = useLiveLibrary()
+  const list = useLiveList(search.page, search.library)
+  const media = useLiveMedia(search.channel)
+  const actions = useLiveMutations()
+
+  const [creating, setCreating] = useState(false)
+  const [form, setForm] = useState({ title: '', code: '', library: 100, description: '' })
+  const [addingSource, setAddingSource] = useState(false)
+  const [source, setSource] = useState({ name: '', path_type: 'm3u8', path_url: '' })
+
+  const totalPages = list.data ? Math.max(1, Math.ceil(list.data.total / list.data.page_size)) : 1
+  const channel = list.data?.items.find((item) => item.id === search.channel)
+
+  return (
+    <>
+      <PageHeader
+        crumb={['直播', channel?.title ?? '频道']}
+        title="直播"
+        hint={list.data ? `${list.data.total} 个频道` : undefined}
+        tools={
+          <span className="stamp">
+            <i />
+            {list.isFetching ? '拉取中' : '已同步'}
+          </span>
+        }
+      />
+
+      <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="媒体库">
+          <button className="tab" role="tab" aria-selected={search.library === 0} onClick={() => onSearch({ library: 0, channel: 0, page: 1 })}>
+            全部
+          </button>
+          {(library.data ?? []).map((item) => (
+            <button
+              key={item.id}
+              className="tab"
+              role="tab"
+              aria-selected={search.library === item.id}
+              onClick={() => onSearch({ library: item.id, channel: 0, page: 1 })}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+        <span className="spacer" />
+        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+          <IconPlus />
+          新增频道
+        </button>
+      </div>
+
+      {list.error ? <ErrorBlock error={list.error as Error & { status?: number }} onRetry={() => list.refetch()} /> : null}
+      {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
+      {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" hint="点右上角新增频道。" /> : null}
+
+      {list.data && list.data.items.length > 0 ? (
+        <div className="table-card">
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '34%' }}>频道</th>
+                <th style={{ width: '12%' }}>媒体库</th>
+                <th className="num" style={{ width: '10%' }}>源</th>
+                <th className="num" style={{ width: '12%' }}>排序</th>
+                <th className="num" style={{ width: '16%' }}>更新</th>
+                <th style={{ width: '16%', textAlign: 'right' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.data.items.map((item) => {
+                const selected = item.id === search.channel
+                return (
+                  <tr key={item.id} onClick={() => onSearch({ channel: selected ? 0 : item.id })} style={{ cursor: 'pointer' }}>
+                    <td>
+                      <div className="cell-title">
+                        {item.image_poster_url ? <img className="poster-img" src={item.image_poster_url} alt="" /> : <span className="thumb">{item.title.slice(0, 1)}</span>}
+                        <span>
+                          <span className="cell-title__name">
+                            {item.title}
+                            {selected ? <span className="muted" style={{ fontSize: 11.5 }}> · 展开中</span> : null}
+                          </span>
+                          <span className="cell-title__code">
+                            {item.code}
+                            {item.tagline ? ` · ${item.tagline}` : ''}
+                          </span>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="muted">{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</td>
+                    <td className="num">{item.media_count}</td>
+                    <td className="num">{item.sort}</td>
+                    <td className="num muted">{formatRelative(item.updated_at)}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {item.is_can_edit ? (
+                        <button
+                          className="btn btn--quiet"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            const ok = await confirmDialog({
+                              title: `删除频道「${item.title}」？`,
+                              message: '该频道下的所有直播源会一并删除。',
+                              hint: '观看端会立即不可用。',
+                              confirmText: '删除',
+                              danger: true,
+                            })
+                            if (!ok) return
+                            actions.removeChannel.mutate(item.id, { onSuccess: () => toast('已删除', 'success') })
+                          }}
+                        >
+                          删除
+                        </button>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <div className="table-foot">
+            <span>
+              共 {list.data.total} 个 · 第 {search.page} / {totalPages} 页
+            </span>
+            <div className="pager">
+              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
+                <IconLeft />
+              </button>
+              <button aria-current="page">{search.page}</button>
+              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
+                <IconRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {channel ? (
+        <section className="cards cards--wide">
+          <article className="card">
+            <div className="chart-head">
+              <div>
+                <p className="stat__label">直播源</p>
+                <p className="stat__value">
+                  {media.data?.total ?? 0}
+                  <small>个源</small>
+                </p>
+              </div>
+              {channel.is_can_edit ? (
+                <button className="btn btn--ghost" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
+                  新增源
+                </button>
+              ) : null}
+            </div>
+
+            {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="新增一个 m3u8 或 flv 地址即可播放。" /> : null}
+
+            {media.data && media.data.items.length > 0 ? (
+              <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
+                {media.data.items.map((row) => (
+                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                    <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
+                    <span className="muted" style={{ fontSize: 11.5 }}>{row.path_type.toUpperCase()}</span>
+                    <span className="muted" style={{ fontSize: 11.5, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {row.path_url}
+                    </span>
+                    <span className={`badge ${row.status === 'ok' ? 'badge--ok' : 'badge--warn'}`}>
+                      <i />
+                      {row.status === 'ok' ? '正常' : row.status}
+                    </span>
+                    {row.is_can_edit ? (
+                      <button
+                        className="btn btn--quiet"
+                        onClick={async () => {
+                          const ok = await confirmDialog({
+                            title: '删除这个源？',
+                            message: `「${row.name}」会从频道移除。`,
+                            hint: '若这是最后一个源，频道将无内容可播。',
+                            confirmText: '删除',
+                            danger: true,
+                          })
+                          if (!ok) return
+                          actions.removeMedia.mutate(row.media_id, { onSuccess: () => toast('已删除', 'success') })
+                        }}
+                      >
+                        删除
+                      </button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </article>
+        </section>
+      ) : null}
+
+      {creating ? (
+        <Modal
+          title="新增频道"
+          hint="频道归属媒体库后，用户端才会出现在对应分类里。"
+          onClose={() => setCreating(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={!form.title.trim() || !form.code.trim()}
+                onClick={() =>
+                  actions.saveChannel.mutate(
+                    {
+                      live_library_id: form.library,
+                      title: form.title.trim(),
+                      code: form.code.trim(),
+                      description: form.description.trim() || null,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast('频道已创建', 'success')
+                        setCreating(false)
+                        setForm({ title: '', code: '', library: search.library || 100, description: '' })
+                      },
+                      onError: () => toast('创建失败', 'error'),
+                    },
+                  )
+                }
+              >
+                创建
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>频道名称</span>
+            <input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <label className="field">
+              <span>代号</span>
+              <input className="input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="cctv1" />
+            </label>
+            <label className="field">
+              <span>媒体库</span>
+              <select className="input" value={form.library} onChange={(e) => setForm({ ...form, library: Number(e.target.value) })}>
+                {(library.data ?? []).map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className="field">
+            <span>简介</span>
+            <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </label>
+        </Modal>
+      ) : null}
+
+      {addingSource && channel ? (
+        <Modal
+          title={`新增源 · ${channel.title}`}
+          hint="同一个频道可以有多个源，播放端会按顺序回退。"
+          onClose={() => setAddingSource(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setAddingSource(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={!source.name.trim() || !source.path_url.trim()}
+                onClick={() =>
+                  actions.addMedia.mutate(
+                    {
+                      live_list_id: channel.id,
+                      name: source.name.trim(),
+                      path_type: source.path_type,
+                      path_url: source.path_url.trim(),
+                    },
+                    {
+                      onSuccess: () => {
+                        toast('源已添加', 'success')
+                        setAddingSource(false)
+                      },
+                      onError: () => toast('添加失败', 'error'),
+                    },
+                  )
+                }
+              >
+                添加
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>源名称</span>
+            <input className="input" value={source.name} onChange={(e) => setSource({ ...source, name: e.target.value })} placeholder="三网直达 1080p" autoFocus />
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12 }}>
+            <label className="field">
+              <span>类型</span>
+              <select className="input" value={source.path_type} onChange={(e) => setSource({ ...source, path_type: e.target.value })}>
+                <option value="m3u8">m3u8</option>
+                <option value="flv">flv</option>
+                <option value="mp4">mp4</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>地址</span>
+              <input className="input" value={source.path_url} onChange={(e) => setSource({ ...source, path_url: e.target.value })} placeholder="http://…" />
+            </label>
+          </div>
+        </Modal>
+      ) : null}
+    </>
+  )
+}

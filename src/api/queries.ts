@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, mediaApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -265,6 +265,51 @@ export function useShopMutations() {
     deliver: useMutation({ mutationFn: (orderNo: string) => shopApi.delivery(orderNo, true), onSuccess: invalidate }),
     remark: useMutation({ mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark), onSuccess: invalidate }),
     removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
+  }
+}
+
+export function useLiveList(page: number, libraryId: number, pageSize = 10) {
+  return useQuery({
+    queryKey: ['live', 'list', page, libraryId] as const,
+    queryFn: () => liveApi.list({ page, page_size: pageSize, library_id: libraryId || undefined }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useLiveLibrary() {
+  return useQuery({ queryKey: ['live', 'library'] as const, queryFn: () => liveApi.library(), staleTime: 5 * 60_000 })
+}
+
+export function useLiveMedia(liveListId: number) {
+  return useQuery({
+    queryKey: ['live', 'media', liveListId] as const,
+    queryFn: () => liveApi.media(liveListId, { page: 1, page_size: 50 }),
+    enabled: liveListId > 0,
+  })
+}
+
+export function useLineList() {
+  return useQuery({ queryKey: ['line', 'list'] as const, queryFn: () => lineApi.list() })
+}
+
+export function useLiveMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['live'] })
+  return {
+    saveChannel: useMutation({ mutationFn: (payload: Record<string, unknown>) => liveApi.save(payload), onSuccess: invalidate }),
+    removeChannel: useMutation({ mutationFn: (id: number) => liveApi.remove(id), onSuccess: invalidate }),
+    addMedia: useMutation({ mutationFn: (payload: Record<string, unknown>) => liveApi.addMedia(payload), onSuccess: invalidate }),
+    removeMedia: useMutation({ mutationFn: (id: string) => liveApi.removeMedia(id), onSuccess: invalidate }),
+    updateMedia: useMutation({ mutationFn: (payload: { live_list_id: number; medias: unknown[] }) => liveApi.updateMedia(payload), onSuccess: invalidate }),
+  }
+}
+
+export function useLineMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['line'] })
+  return {
+    create: useMutation({ mutationFn: (payload: { name: string; url: string; tagline?: string }) => lineApi.create(payload), onSuccess: invalidate }),
+    remove: useMutation({ mutationFn: (id: number) => lineApi.remove(id), onSuccess: invalidate }),
   }
 }
 
