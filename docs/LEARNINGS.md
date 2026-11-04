@@ -39,3 +39,9 @@
 | keep-alive 保列表位置 | 筛选/分页进 URL，返回即恢复 |
 | 28 个按页面切的 composable | 按域切的 `queries.ts` + `views/*` |
 | 2710 行 components.css（Apple HIG） | tokens → base → components 三层 |
+
+## 视觉约束（写进代码前先读这三条）
+
+1. **hover 不改变表面亮度**，只改变前景对比度。铺底色等于凭空造一层。
+2. **状态块不是容器**：`LoadingBlock / EmptyBlock / ErrorBlock` 传 `bare` 放进卡片，容器由调用方决定。
+3. **表格 thead 默认透明**，只有页面级 `.table-card` 的粘性表头保留底色。

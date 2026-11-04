@@ -307,6 +307,51 @@ export async function mockRequest<T>(
     return rows as T
   }
 
+  if (clean === '/api/shop/seller/base') {
+    return { seller_id: 1000, name: '幕间小店', description: '周边与兑换码，工作日当天发货。', cover_url: null, status: 'normal', is_self: true } as T
+  }
+  if (clean === '/api/shop/category/list') {
+    return [
+      { category_id: 1000, name: '周边', sort: 80 },
+      { category_id: 1001, name: '兑换码', sort: 70 },
+      { category_id: 1002, name: '会员', sort: 60 },
+    ] as T
+  }
+  if (clean === '/api/shop/product/list') {
+    const rows = [
+      { product_id: 1000, category_id: 1000, cover_url: poster('shop1'), name: '限量海报 A3', price: 68, price_origin: 98, stock: 24, sales: 132, is_up: true, up_time: '2026-10-20 10:00:00', time_start: null, time_end: null, user_buy_max: 2, sort: 80, updated_at: '2026-11-01T10:00:00Z' },
+      { product_id: 1001, category_id: 1001, cover_url: poster('shop2'), name: '一年会员兑换码', price: 198, price_origin: 268, stock: 500, sales: 61, is_up: true, up_time: '2026-10-18 09:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-10-28T09:00:00Z' },
+      { product_id: 1002, category_id: 1000, cover_url: poster('shop3'), name: '亚克力立牌', price: 39, price_origin: 59, stock: 0, sales: 240, is_up: false, up_time: null, time_start: null, time_end: null, user_buy_max: 3, sort: 60, updated_at: '2026-09-30T09:00:00Z' },
+    ]
+    const filtered = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
+  }
+  if (clean === '/api/shop/product/up') return { is_up: true } as T
+  if (clean === '/api/shop/product/sort') return { sort: Number(body.sort ?? 80) } as T
+  if (clean === '/api/shop/product/createOrUpdate') return { product_id: 1000 } as T
+  if (clean === '/api/shop/product/delete') return {} as T
+  if (clean === '/api/shop/category/create') return { category_id: 1003 } as T
+  if (clean === '/api/shop/category/delete') return {} as T
+  if (clean === '/api/shop/category/sort') return { sort: 80 } as T
+  if (clean === '/api/shop/seller/update' || clean === '/api/shop/seller/apply') {
+    return { name: String(body.name ?? ''), description: String(body.description ?? ''), cover: '', cover_url: '' } as T
+  }
+  if (clean === '/api/shop/order/shop/order') {
+    const rows = [
+      { user: { username: 'lin' }, order_no: '20261101093012shopA1', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'pay', urge_number: 0, buy_number: 1, time_pay: '2026-11-01 09:31:00', time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-11-01T09:30:12Z' },
+      { user: { username: 'zhou' }, order_no: '20261030201455shopB2', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'pay', urge_number: 2, buy_number: 1, time_pay: '2026-10-30 20:15:00', time_delivery: '2026-10-31 09:00:00', time_urge: '2026-10-31 08:00:00', remark_shop: '已发邮箱', remark_user: null, created_at: '2026-10-30T20:14:55Z' },
+      { user: { username: 'chen' }, order_no: '20261028113300shopC3', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 2, time_pay: null, time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-10-28T11:33:00Z' },
+    ]
+    let filtered = rows
+    if (query.is_pay === 'true') filtered = filtered.filter((r) => r.status_pay === 'pay')
+    if (query.is_pay === 'false') filtered = filtered.filter((r) => r.status_pay !== 'pay')
+    if (query.is_delivery === 'true') filtered = filtered.filter((r) => Boolean(r.time_delivery))
+    if (query.is_delivery === 'false') filtered = filtered.filter((r) => !r.time_delivery)
+    return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
+  if (clean === '/api/shop/order/shop/delivery') return { time_delivery: new Date().toISOString() } as T
+  if (clean === '/api/shop/order/shop/remark') return {} as T
+
   if (clean === '/api/invite/info') return { invite_at: '2026-01-16 09:06:31', invite_remaining: 3, invite_count: 12, parent: { pseudonym: null } } as T
   if (clean === '/api/invite/history') {
     const rows = Array.from({ length: 6 }, (_, i) => ({

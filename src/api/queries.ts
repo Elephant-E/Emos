@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, mediaApi, rankApi, seekApi, sessionApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, mediaApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -219,6 +219,52 @@ export function useAccountMutations() {
     revoke: useMutation({ mutationFn: (userId: string) => inviteApi.revoke(userId), onSuccess: invalidate }),
     transfer: useMutation({ mutationFn: (payload: { userId: string; carrot: number }) => carrotApi.transfer(payload.userId, payload.carrot), onSuccess: invalidate }),
     banChange: useMutation({ mutationFn: (payload: { type: string; userId: string; reason?: string }) => banApi.change(payload.type, payload.userId, payload.reason), onSuccess: invalidate }),
+  }
+}
+
+export function useShopSeller() {
+  return useQuery({ queryKey: ['shop', 'seller'] as const, queryFn: () => shopApi.sellerBase() })
+}
+
+export function useShopCategories() {
+  return useQuery({ queryKey: ['shop', 'categories'] as const, queryFn: () => shopApi.categories() })
+}
+
+export function useShopProducts(page: number, categoryId: number, pageSize = 12) {
+  return useQuery({
+    queryKey: ['shop', 'products', page, categoryId] as const,
+    queryFn: () => shopApi.products({ page, page_size: pageSize, category_id: categoryId || undefined, sort_by: 'sort', sort_order: 'asc' }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useShopOrders(page: number, filter: { is_pay?: string; is_delivery?: string }, pageSize = 10) {
+  return useQuery({
+    queryKey: ['shop', 'orders', page, filter] as const,
+    queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useShopMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['shop'] })
+    qc.invalidateQueries({ queryKey: ['session'] })
+  }
+  return {
+    toggleUp: useMutation({ mutationFn: (productId: number) => shopApi.productUp(productId), onSuccess: invalidate }),
+    setSort: useMutation({ mutationFn: (p: { productId: number; sort: number }) => shopApi.productSort(p.productId, p.sort), onSuccess: invalidate }),
+    setCategory: useMutation({ mutationFn: (p: { productId: number; categoryId: number }) => shopApi.productCategory(p.productId, p.categoryId), onSuccess: invalidate }),
+    removeProduct: useMutation({ mutationFn: (productId: number) => shopApi.deleteProduct(productId), onSuccess: invalidate }),
+    saveProduct: useMutation({ mutationFn: (payload: Record<string, unknown>) => shopApi.saveProduct(payload), onSuccess: invalidate }),
+    createCategory: useMutation({ mutationFn: (p: { name: string; sort: number }) => shopApi.createCategory(p.name, p.sort), onSuccess: invalidate }),
+    removeCategory: useMutation({ mutationFn: (categoryId: number) => shopApi.deleteCategory(categoryId), onSuccess: invalidate }),
+    saveSeller: useMutation({ mutationFn: (payload: { name: string; description: string }) => shopApi.sellerUpdate(payload), onSuccess: invalidate }),
+    applySeller: useMutation({ mutationFn: (p: { name: string; description: string }) => shopApi.sellerApply(p.name, p.description), onSuccess: invalidate }),
+    deliver: useMutation({ mutationFn: (orderNo: string) => shopApi.delivery(orderNo, true), onSuccess: invalidate }),
+    remark: useMutation({ mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark), onSuccess: invalidate }),
+    removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
   }
 }
 

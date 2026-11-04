@@ -9,6 +9,8 @@ import { PlaceholderView, LoginView } from '@/views/PlaceholderView'
 import { UploadView } from '@/views/UploadView'
 import { VideoDetailView } from '@/views/VideoDetailView'
 import { AccountView } from '@/views/AccountView'
+import { ShopView } from '@/views/ShopView'
+import { OrdersView } from '@/views/OrdersView'
 import { getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -101,6 +103,38 @@ function AccountRoute() {
   return <AccountView tab={search.tab} onTab={(tab) => navigate({ search: { tab } })} />
 }
 
+const shopRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/shop',
+  validateSearch: (s: Record<string, unknown>): { tab: 'products' | 'categories' | 'seller' } => ({
+    tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
+  }),
+  component: ShopRoute,
+})
+
+function ShopRoute() {
+  const search = shopRoute.useSearch()
+  const navigate = shopRoute.useNavigate()
+  return <ShopView tab={search.tab} onTab={(tab) => navigate({ search: { tab } })} />
+}
+
+const ordersRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/orders',
+  validateSearch: (s: Record<string, unknown>): { page: number; pay: 'all' | 'paid' | 'unpaid'; delivery: 'all' | 'sent' | 'pending' } => ({
+    page: Math.max(1, Number(s.page) || 1),
+    pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
+    delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
+  }),
+  component: OrdersRoute,
+})
+
+function OrdersRoute() {
+  const search = ordersRoute.useSearch()
+  const navigate = ordersRoute.useNavigate()
+  return <OrdersView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
@@ -162,8 +196,6 @@ function WatchDetailRoute() {
 
 const placeholders: Array<{ path: string; title: string; note: string }> = [
   { path: '/live', title: '直播', note: '直播列表、源管理与媒体库，接 /api/live 系列。' },
-  { path: '/shop', title: '商城', note: '店铺、分类、商品、订单与发货，接 /api/shop 系列。' },
-  { path: '/orders', title: '订单', note: '商户订单、发货与备注，接 /api/shop/order/shop。' },
   { path: '/music', title: '音乐', note: '歌曲、专辑、歌手、歌词与资源，接 /api/music 系列。' },
   { path: '/lines', title: '线路', note: '反代线路增删，接 /api/proxy/line。' },
 ]
@@ -185,6 +217,8 @@ const routeTree = rootRoute.addChildren([
     videoDetailRoute,
     seekRoute,
     accountRoute,
+    shopRoute,
+    ordersRoute,
     watchlistsRoute,
     watchlistDetailRoute,
     ...placeholderRoutes,

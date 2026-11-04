@@ -319,6 +319,21 @@ export interface ShopProduct {
   updated_at: string
 }
 
+export interface ShopSeller {
+  seller_id: number
+  name: string
+  description: string | null
+  cover_url: string | null
+  status: string
+  is_self: boolean
+}
+
+export interface ShopCategory {
+  category_id: number
+  name: string
+  sort: number
+}
+
 export interface ShopOrder {
   user?: WatchAuthor
   seller?: unknown

@@ -2,7 +2,7 @@ import { request } from './client'
 import type {
   BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia,
   MessageResult, MusicSong, PlayingNow, RankCarrot, RankUpload, SeekItem, SeekStatus, ShopOrder, VideoPerson,
-  ShopProduct, SignCheck, UserBase, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason,
+  ShopCategory, ShopProduct, ShopSeller, SignCheck, UserBase, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason,
   VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
 
@@ -227,18 +227,18 @@ export const payApi = {
 }
 
 export const shopApi = {
-  sellerBase: (sellerId?: number) => request<Record<string, unknown>>('/api/shop/seller/base', { query: { seller_id: sellerId } }),
+  sellerBase: (sellerId?: number) => request<ShopSeller>('/api/shop/seller/base', { query: { seller_id: sellerId } }),
   sellerApply: (name: string, description: string) => request<unknown>('/api/shop/seller/apply', { method: 'POST', body: { name, description } }),
   sellerUpdate: (payload: Record<string, unknown>) => request<{ name: string; description: string; cover: string; cover_url: string }>('/api/shop/seller/update', { method: 'POST', body: payload }),
 
-  categories: (sellerId?: number) => request<Array<{ category_id: number; name: string; sort: number }>>('/api/shop/category/list', { query: { seller_id: sellerId } }),
+  categories: (sellerId?: number) => request<ShopCategory[]>('/api/shop/category/list', { query: { seller_id: sellerId } }),
   createCategory: (name: string, sort: number) => request<{ category_id: number }>('/api/shop/category/create', { method: 'POST', body: { name, sort } }),
   deleteCategory: (categoryId: number) => request<unknown>('/api/shop/category/delete', { method: 'DELETE', query: { category_id: categoryId } }),
   sortCategory: (categoryId: number, sort: number) => request<{ sort: number }>('/api/shop/category/sort', { method: 'PUT', body: { category_id: categoryId, sort } }),
 
   products: (params: { seller_id?: number; category_id?: number; name?: string; sort_by?: string; sort_order?: 'asc' | 'desc'; is_up?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<ShopProduct>>('/api/shop/product/list', { query: params }),
-  product: (productId: number) => request<Record<string, unknown>>('/api/shop/product/info', { query: { product_id: productId } }),
+  product: (productId: number) => request<ShopProduct & { category_name?: string; description?: string; exchange_way?: string }>('/api/shop/product/info', { query: { product_id: productId } }),
   saveProduct: (payload: Record<string, unknown>) => request<{ product_id: number }>('/api/shop/product/createOrUpdate', { method: 'POST', body: payload }),
   deleteProduct: (productId: number) => request<unknown>('/api/shop/product/delete', { method: 'DELETE', query: { product_id: productId } }),
   productCategory: (productId: number, categoryId: number) => request<{ category_id: number }>('/api/shop/product/category', { method: 'PUT', query: { product_id: productId, category_id: categoryId } }),
