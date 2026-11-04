@@ -43,6 +43,7 @@
   --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
   --t-fast: 140ms;
   --t-base: 220ms;
+  --t-enter: 160ms;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: "SF Mono", ui-monospace, "Menlo", "Consolas", monospace;

@@ -15,7 +15,7 @@ export function UserDetailView({ userId }: { userId: string }) {
   const info = pay.data ?? null
   const invited = invite.data ?? null
   const banned = (bans.data ?? []).find((row) => row.user_id === userId) ?? null
-  const limited = !pay.isLoading && !info
+  const limited = pay.isSuccess && !info
   const name = info?.username ?? banned?.username ?? String(invited?.username ?? '') ?? ''
 
   return (

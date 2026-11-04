@@ -19,6 +19,7 @@ export function toast(message: string, type: ToastType = 'info') {
 
 export function ToastHost() {
   const [items, setItems] = useState<ToastItem[]>([])
+  const [leaving, setLeaving] = useState<number[]>([])
   const seq = useRef(0)
 
   useEffect(() => {
@@ -29,7 +30,13 @@ export function ToastHost() {
         const next = [...prev, { id, message, type }]
         return next.length > MAX ? next.slice(next.length - MAX) : next
       })
-      window.setTimeout(() => setItems((prev) => prev.filter((t) => t.id !== id)), DURATION)
+      window.setTimeout(() => {
+        setLeaving((prev) => [...prev, id])
+        window.setTimeout(() => {
+          setItems((prev) => prev.filter((t) => t.id !== id))
+          setLeaving((prev) => prev.filter((x) => x !== id))
+        }, 180)
+      }, DURATION)
     }
     return () => {
       push = null
@@ -41,7 +48,7 @@ export function ToastHost() {
   return (
     <div className="toast-stack" role="status" aria-live="polite">
       {items.map((item) => (
-        <div key={item.id} className={`toast toast--${item.type}`}>
+        <div key={item.id} className={`toast toast--${item.type}${leaving.includes(item.id) ? ' is-leaving' : ''}`}>
           <i />
           <span>{item.message}</span>
         </div>

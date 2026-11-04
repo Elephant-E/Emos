@@ -167,7 +167,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
                     {watch.is_self ? (
                       <button
-                        className="btn btn--quiet"
+                        className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: `删除片单「${watch.name}」？`,

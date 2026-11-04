@@ -110,6 +110,12 @@ export function WatchlistDetailView({
         </section>
       ) : null}
 
+      {item && !item.is_edit_video ? (
+        <p className="card-note" style={{ marginTop: 12 }}>
+          你不是这个片单的维护者，只能查看和搜索，不能增删影片。
+        </p>
+      ) : null}
+
       <div className="toolbar">
         <input
           className="input"

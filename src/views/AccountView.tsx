@@ -16,7 +16,6 @@ import {
   useSession,
 } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { watchApi } from '@/api/endpoints'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatThousand } from '@/lib/format'
 
@@ -207,17 +206,24 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   ) : null}
                   <button
                     className="btn btn--ghost"
-                    onClick={() =>
-                      watchApi.slot().then(
-                        (res) => {
+                    disabled={actions.exchangeSlot.isPending}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: '用胡萝卜兑换一个片单槽位？',
+                        message: '兑换会扣除胡萝卜，并立刻增加 1 个可用槽位。',
+                        hint: '余额不足时会失败，不会扣款。',
+                        confirmText: '兑换',
+                      })
+                      if (!ok) return
+                      actions.exchangeSlot.mutate(undefined, {
+                        onSuccess: (res) => {
                           toast(`已兑换，剩余槽位 ${res.slot_remaining}`, 'success')
                           void session.refetch()
                         },
-                        () => toast('兑换失败，胡萝卜可能不足', 'error'),
-                      )
-                    }
+                      })
+                    }}
                   >
-                    用胡萝卜兑换片单槽位
+                    {actions.exchangeSlot.isPending ? '兑换中…' : '用胡萝卜兑换片单槽位'}
                   </button>
                   <button
                     className="btn btn--ghost"

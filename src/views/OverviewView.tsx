@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useWatchStats } from '@/api/queries'
+import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useTodos, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand } from '@/lib/format'
@@ -39,6 +39,12 @@ export function OverviewView() {
   const stats = useWatchStats(1)
   const carrotHistory = useCarrotHistory(1, 3)
   const myWatches = useMyWatchlistRecent(3)
+  const todos = useTodos()
+  const todoItems = [
+    { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page: 1, page_size: 20, tab: 'default' as const } },
+    { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
+    { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/account' as const, search: { tab: 'ban' as const } },
+  ].filter((item) => (item.value ?? 0) > 0)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
 
@@ -78,6 +84,21 @@ export function OverviewView() {
         <span>{todayText}</span>
       </p>
 
+      {todoItems.length > 0 ? (
+        <section className="cards" style={{ gridTemplateColumns: `repeat(${Math.min(todoItems.length, 4)}, minmax(0, 1fr))`, marginTop: 16 }}>
+          {todoItems.map((item) => (
+            <Link key={item.label} className="card todo" to={item.to} search={item.search}>
+              <p className="stat__label">{item.label}</p>
+              <p className="stat__value" style={{ fontSize: 30 }}>
+                {item.value === null ? '—' : formatThousand(item.value ?? 0)}
+                <small>{item.unit}</small>
+              </p>
+              <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>去处理</p>
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
       <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
         <article className="card card--stat">
           <p className="stat__label" style={{ margin: 0 }}>
@@ -102,7 +123,9 @@ export function OverviewView() {
         <article className="card card--stat">
           <p className="stat__label">我的胡萝卜</p>
           <p className="stat__value">
-            {formatThousand(carrot.data?.carrot ?? session.data?.carrot ?? 0)}
+            {carrot.data?.carrot ?? session.data?.carrot ?? null
+              ? formatThousand(carrot.data?.carrot ?? session.data?.carrot ?? 0)
+              : '—'}
             <small>个</small>
           </p>
           <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
@@ -157,7 +180,13 @@ export function OverviewView() {
               const total = Number(row.media_seconds ?? 0)
               const ratio = total > 0 ? Math.min(1, played / total) : 0
               return (
-                <li key={index} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <li key={index}>
+                  <Link
+                    to="/media/$videoId"
+                    params={{ videoId: String(row.video_id ?? 0) }}
+                    search={{ season: Number(row.season_number ?? 1), episode: Number(row.episode_number ?? 1) }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12 }}
+                  >
                   {row.video_image_poster ? (
                     <img className="poster-img" src={String(row.video_image_poster)} alt="" loading="lazy" />
                   ) : (
@@ -176,6 +205,7 @@ export function OverviewView() {
                   <span className="muted tnum" style={{ fontSize: 12 }}>
                     {Math.round(ratio * 100)}%
                   </span>
+                  </Link>
                 </li>
               )
             })}
@@ -190,7 +220,9 @@ export function OverviewView() {
 
           <div className="card-body">
 
-          {!stats.data ? (
+          {stats.error ? <p className="card-note">本周记录取不到，稍后再看～</p> : null}
+
+          {!stats.data && !stats.error ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div className="skeleton" style={{ height: 40 }} />
               <div className="skeleton" style={{ height: 12, width: '60%' }} />

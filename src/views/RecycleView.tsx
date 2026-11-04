@@ -91,7 +91,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize }: 
       {active.error ? <ErrorBlock error={active.error as Error & { status?: number }} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
-      {!active.isLoading && rows.length === 0 ? (
+      {!active.error && !active.isLoading && rows.length === 0 ? (
         <EmptyBlock
           title="回收站是空的"
           hint={tab === 'media' ? '删除的资源会先落在这里。' : '删除的影片会先落在这里。'}

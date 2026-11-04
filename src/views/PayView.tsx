@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder } from '@/api/queries'
+import { payApi } from '@/api/endpoints'
 import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatThousand } from '@/lib/format'
@@ -44,6 +45,19 @@ export function PayView() {
         <EmptyBlock
           title="这个实例没有开通支付服务商"
           hint="/api/pay/base 返回 404，说明后端没有部署支付模块。转账与查单在这里不可用。"
+          action={
+            <button
+              className="btn btn--primary"
+              onClick={() =>
+                payApi
+                  .apply('我的支付服务', '由后台发起申请')
+                  .then(() => toast('已提交申请，等待审核', 'success'))
+                  .catch(() => toast('提交失败，可能已申请过', 'error'))
+              }
+            >
+              申请成为服务商
+            </button>
+          }
         />
       ) : null}
       {base.error && (base.error as { status?: number }).status !== 404 ? (

@@ -42,8 +42,8 @@
   margin: 16px 0 4px;
   padding: 9px 10px 9px 11px;
   border-radius: var(--r-field);
-  background: var(--field);
-  border: 1px solid transparent;
+  background: #201f1c;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .rail__search:hover { border-color: var(--line); }
@@ -461,13 +461,12 @@
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
   box-shadow: var(--shadow-card);
-  overflow: auto;
+  /* clip 不建立滚动容器，粘性表头才能相对 .page 吸顶；窄屏才换成横向滚动 */
+  overflow: clip;
   max-width: var(--page-max);
 }
 .table { width: 100%; border-collapse: collapse; }
 .table thead th {
-  position: sticky;
-  top: 0;
   z-index: 2;
   padding: 13px 20px;
   text-align: left;
@@ -680,9 +679,9 @@ th.num .th-sort { flex-direction: row-reverse; }
   .page__head { flex-direction: column; gap: 14px; }
   .head-tools { justify-content: flex-start; }
   .page-title { font-size: 30px; }
-  .cards { grid-template-columns: minmax(0, 1fr); }
+  .cards { grid-template-columns: minmax(0, 1fr) !important; }
   
-  .table-card { overflow-x: auto; }
+  .table-card { overflow-x: auto; overflow-y: clip; }
   .table { min-width: 820px; }
   .toolbar .spacer { flex-basis: 100%; height: 0; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
@@ -1048,7 +1047,16 @@ th.num .th-sort { flex-direction: row-reverse; }
 }
 
 .page-body {
-  animation: page-in 180ms var(--ease);
+  animation: page-in var(--t-enter) var(--ease);
+}
+
+.modal-overlay {
+  animation: overlay-in var(--t-enter) var(--ease);
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes page-in {
@@ -1058,8 +1066,31 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .modal,
 .confirm {
-  animation: modal-in 160ms var(--ease);
+  animation: modal-in var(--t-enter) var(--ease);
 }
+
+.rail__menu {
+  animation: overlay-in 140ms var(--ease);
+}
+
+.rail__account-caret {
+  transition: transform var(--t-fast) var(--ease);
+}
+.rail__account[aria-expanded='true'] .rail__account-caret {
+  transform: rotate(180deg);
+}
+
+.badge,
+.com-zone,
+.zone { transition: color var(--t-fast) var(--ease); }
+
+.btn[aria-busy='true'] { opacity: 0.6; }
+
+@keyframes toast-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(4px); }
+}
+.toast.is-leaving { animation: toast-out 180ms var(--ease) forwards; }
 
 @keyframes modal-in {
   from { opacity: 0; transform: translateY(6px) scale(0.995); }
@@ -1178,6 +1209,10 @@ th.num .th-sort { flex-direction: row-reverse; }
   color: var(--fg-3);
 }
 .table .btn:hover { color: var(--fg); background: transparent; }
+.table .btn--danger-text { color: var(--fg-3); }
+.table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
+.table td.action-cell { white-space: nowrap; }
+.table .action-group { display: inline-flex; gap: 12px; }
 .table .row-menu { margin-right: -6px; }
 .modal__head .btn--icon { margin-right: -6px; }
 .table td:last-child,
@@ -1195,3 +1230,13 @@ th.num .th-sort { flex-direction: row-reverse; }
 .kv > div:last-child { border-bottom: 0; }
 .kv dt { margin: 0; font-size: 12.5px; color: var(--fg-3); }
 .kv dd { margin: 0; font-size: 13px; color: var(--fg-2); text-align: right; }
+
+.btn--danger-text {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  height: 20px;
+  color: var(--fg-3);
+  font-size: 12.5px;
+}
+.btn--danger-text:hover { color: var(--c-red); background: transparent; }

@@ -389,6 +389,7 @@ export function useAccountMutations() {
     setShowEmpty: useMutation({ mutationFn: (value: boolean) => userApi.showEmpty(value), onSuccess: invalidate }),
     agreeUpload: useMutation({ mutationFn: () => userApi.agreeUpload(), onSuccess: invalidate }),
     agreeDown: useMutation({ mutationFn: () => userApi.agreeDown(), onSuccess: invalidate }),
+    exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
     sign: useMutation({ mutationFn: () => userApi.sign(), onSuccess: invalidate }),

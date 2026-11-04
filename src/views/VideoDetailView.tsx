@@ -80,14 +80,17 @@ export function VideoDetailView({
             <Link className="btn btn--ghost" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               返回列表
             </Link>
+            {video ? (
+              <button
+                className="btn btn--ghost"
+                onClick={() => actions.syncVideo.mutate(undefined, { onSuccess: () => toast('已触发同步', 'success') })}
+              >
+                同步
+              </button>
+            ) : null}
+            {video ? (
             <button
-              className="btn btn--ghost"
-              onClick={() => actions.syncVideo.mutate(undefined, { onSuccess: () => toast('已触发同步', 'success') })}
-            >
-              同步
-            </button>
-            <button
-              className="btn btn--ghost"
+              className="btn btn--danger-text"
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '删除这部影片？',
@@ -101,12 +104,25 @@ export function VideoDetailView({
             >
               删除
             </button>
+            ) : null}
           </>
         }
       />
 
       {detail.error ? <ErrorBlock error={detail.error as Error & { status?: number }} onRetry={() => detail.refetch()} /> : null}
       {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+
+      {!detail.isLoading && !detail.error && !video ? (
+        <EmptyBlock
+          title="找不到这部影片"
+          hint="它可能已被删除（去回收站看看），或这个 ID 不存在。"
+          action={
+            <Link className="btn btn--ghost" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
+              回到媒体库
+            </Link>
+          }
+        />
+      ) : null}
 
       {video ? (
         <section className="detail-head">
@@ -160,6 +176,7 @@ export function VideoDetailView({
         </section>
       ) : null}
 
+      {video ? (
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 0.85fr) minmax(0, 1.15fr)', gap: 18, marginTop: 18 }}>
         <article className="card" style={{ padding: '18px 20px' }}>
           <p className="stat__label">季与集</p>
@@ -317,7 +334,9 @@ export function VideoDetailView({
         </div>
       </div>
 
-      {persons.data && persons.data.items.length > 0 ? (
+      ) : null}
+
+      {video && persons.data && persons.data.items.length > 0 ? (
         <article className="card" style={{ marginTop: 18, padding: '18px 20px' }}>
           <p className="stat__label">演职员</p>
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 10 }}>

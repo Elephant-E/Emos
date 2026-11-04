@@ -131,7 +131,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     </td>
                     <td className="num muted">{formatDateTime(order.created_at)}</td>
                     <td style={{ textAlign: 'right' }}>
-                      <span style={{ display: 'inline-flex', gap: 4 }}>
+                      <span className="action-group">
                         {!sent && paid ? (
                           <button
                             className="btn btn--quiet"
@@ -148,7 +148,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           备注
                         </button>
                         <button
-                          className="btn btn--quiet"
+                          className="btn btn--danger-text"
                           onClick={async () => {
                             const ok = await confirmDialog({
                               title: '删除这个订单？',

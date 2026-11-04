@@ -32,9 +32,20 @@
 规则：
 
 - 卡片里**不许再套卡片**。状态块（Loading/Empty/Error）放进卡片时传 `bare`。
-- 表格放进卡片时不会有额外底色；`thead` 默认透明，只有页面级 `.table-card` 的粘性表头有底色。
+- 表格放进卡片时不会有额外底色；`thead` 默认透明。
+- **表头不吸顶**：`.table-card` 是 `overflow: clip`，不产生纵向滚动容器，`position: sticky` 实际不生效。要吸顶必须先给它 `max-height`，那是另一种交互（表内滚动），不要默认加。
 
-## 3. 尾部动作对齐（墨迹，不是盒子）
+## 3. 危险动作分档
+
+表格里的动作只有两档，不允许再平铺：
+
+- 常规动作：`.btn--quiet` → `--fg-3`，hover `--fg`
+- 危险动作：`.btn--danger-text` → 常态同灰，hover `--c-red`
+- 一组动作之间 `gap: 12px`（不是 4px）
+
+原因：`.table .btn` 的特异性 (0,2,0) 高于 `.btn--danger` (0,1,0)，所以必须显式写 `.table .btn--danger-text`，否则红色不生效。
+
+## 4. 尾部动作对齐（墨迹，不是盒子）
 
 行内动作要和标题**墨迹对齐**，不是盒子对齐。否则按钮自身的 padding 会叠在卡片 padding 上，右侧比左侧多缩 13px。
 
@@ -79,7 +90,8 @@
 | 路由切换 | `page-in` 180ms 淡入 + 滚动复位 |
 | 弹窗出现 | `modal-in` 160ms，`translateY(6px)` + 轻微缩放 |
 | 进度 | `transform: scaleX()`，不要动 `width` |
-| toast | 140ms 淡入上移 |
+| toast | 进入 220ms、出场 180ms（`is-leaving` 标记） |
+| 遮罩 | 与面板同时进入，140–160ms 透明度 |
 
 禁止：回弹/弹性曲线、逐行错峰淡入、卡片 hover 位移、数字滚动。全部尊重 `prefers-reduced-motion`。
 

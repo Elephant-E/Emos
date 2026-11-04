@@ -145,7 +145,7 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         {isSeller ? (
-                          <span style={{ display: 'inline-flex', gap: 4 }}>
+                          <span className="action-group">
                             <button
                               className="btn btn--quiet"
                               onClick={() =>
@@ -160,7 +160,7 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                               编辑
                             </button>
                             <button
-                              className="btn btn--quiet"
+                              className="btn btn--danger-text"
                               onClick={async () => {
                                 const ok = await confirmDialog({
                                   title: `删除商品「${product.name}」？`,

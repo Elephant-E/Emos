@@ -127,7 +127,12 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                           去上传
                         </a>
                       ) : item.is_can_claim && item.status === 'default' ? (
-                        <button className="btn btn--ghost" onClick={() => claim.mutate(item.id)} disabled={claim.isPending}>
+                        <button
+                          className="btn btn--ghost"
+                          aria-busy={claim.isPending && claim.variables === item.id}
+                          onClick={() => claim.mutate(item.id)}
+                          disabled={claim.isPending && claim.variables === item.id}
+                        >
                           认领
                         </button>
                       ) : (
