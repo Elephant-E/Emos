@@ -95,8 +95,8 @@
   font-size: 14px;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.rail__item:hover { background: rgba(255, 255, 255, 0.035); color: var(--fg); }
-.rail__item:hover .rail__ico { color: var(--fg-3); }
+.rail__item:hover { color: var(--fg); }
+.rail__item:hover .rail__ico { color: var(--fg-2); }
 .rail__item.is-active {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.045));
   color: var(--fg);
@@ -225,7 +225,7 @@
   color: var(--fg-2);
 }
 .btn--ghost:hover { border-color: var(--line-hot); color: var(--fg); }
-.btn--ghost:active { background: rgba(255, 255, 255, 0.05); }
+.btn--ghost:active { border-color: var(--fg-3); }
 .btn--primary {
   background: #f2f1ee;
   border-color: #f2f1ee;
@@ -235,7 +235,7 @@
 .btn--primary:hover { background: #fff; border-color: #fff; }
 .btn--primary:active { background: #e4e2dc; }
 .btn--quiet { color: var(--fg-3); }
-.btn--quiet:hover { background: rgba(255, 255, 255, 0.05); color: var(--fg); }
+.btn--quiet:hover { color: var(--fg); }
 .btn:disabled,
 .btn[aria-disabled='true'] {
   opacity: 0.45;
@@ -267,7 +267,7 @@
   font-size: 12.5px;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.seg button:hover { color: var(--fg); }
+.seg button:hover { color: var(--fg-2); }
 .seg button[aria-pressed='true'] {
   background: rgba(255, 255, 255, 0.09);
   color: var(--fg);
@@ -445,7 +445,7 @@
   font-size: 13.5px;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.tab:hover { color: var(--fg-2); background: rgba(255, 255, 255, 0.035); }
+.tab:hover { color: var(--fg-2); }
 .tab[aria-selected='true'] {
   background: rgba(255, 255, 255, 0.08);
   color: var(--fg);
@@ -473,10 +473,12 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--fg-3);
-  background: #141311;
+  background: transparent;
   border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
+
+.table-card .table thead th { background: #141311; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
 .th-sort {
   display: inline-flex;
@@ -504,9 +506,6 @@ th.num .th-sort { flex-direction: row-reverse; }
   white-space: nowrap;
 }
 .table tbody tr:last-child td { border-bottom: 0; }
-.table tbody tr { transition: background var(--t-fast) var(--ease); }
-.table tbody tr:hover td { background: rgba(255, 255, 255, 0.025); }
-.table tbody tr:focus-within td { background: rgba(255, 255, 255, 0.03); }
 .cell-title { display: flex; align-items: center; gap: 13px; }
 .thumb {
   width: 34px;
@@ -560,9 +559,8 @@ th.num .th-sort { flex-direction: row-reverse; }
   transition: opacity var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
     color var(--t-fast) var(--ease);
 }
-tr:hover .row-menu,
 .row-menu:focus-visible { opacity: 1; }
-.row-menu:hover { background: rgba(255, 255, 255, 0.07); color: var(--fg-2); }
+.row-menu:hover { color: var(--fg-2); }
 .table-foot {
   display: flex;
   align-items: center;
@@ -965,7 +963,7 @@ tr:hover .row-menu,
   text-align: left;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.rail__account:hover { background: rgba(255, 255, 255, 0.045); color: var(--fg-2); }
+.rail__account:hover { color: var(--fg-2); }
 .rail__account-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rail__account-caret { color: var(--fg-4); font-size: 12px; line-height: 1; }
 
@@ -999,7 +997,7 @@ tr:hover .row-menu,
   text-align: left;
   cursor: pointer;
 }
-.rail__menu-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--fg); }
+.rail__menu-item:hover { color: var(--fg); }
 
 .rail__menu-flag { margin-left: auto; font-size: 11px; color: var(--fg-4); }
 

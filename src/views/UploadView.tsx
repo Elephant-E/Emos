@@ -234,9 +234,9 @@ export function UploadView() {
             </span>
           </div>
 
-          {storeFiles.error ? <ErrorBlock error={storeFiles.error as Error & { status?: number }} /> : null}
+          {storeFiles.error ? <ErrorBlock bare error={storeFiles.error as Error & { status?: number }} /> : null}
           {!storeFiles.error && storeFiles.data && storeFiles.data.length === 0 ? (
-            <EmptyBlock title="暂存区是空的" hint="上传完成的文件会先落在这里，再入库到具体影片。" />
+            <EmptyBlock bare title="暂存区是空的" hint="上传完成的文件会先落在这里，再入库到具体影片。" />
           ) : null}
           {storeFiles.data && storeFiles.data.length > 0 ? (
             <table className="table" style={{ marginTop: 12 }}>

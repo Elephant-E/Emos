@@ -100,7 +100,7 @@ export function VideoDetailView({
       />
 
       {detail.error ? <ErrorBlock error={detail.error as Error & { status?: number }} onRetry={() => detail.refetch()} /> : null}
-      {detail.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+      {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
 
       {video ? (
         <section className="detail-head">
@@ -170,7 +170,7 @@ export function VideoDetailView({
           ) : null}
 
           {episodes.isLoading ? <div className="skeleton" style={{ height: 160 }} /> : null}
-          {episodes.data && episodes.data.length === 0 ? <EmptyBlock title="这一季还没有集" /> : null}
+          {episodes.data && episodes.data.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
           {episodes.data && episodes.data.length > 0 ? (
             <ul style={{ display: 'grid', gap: 2 }}>
               {episodes.data.map((ep) => {
@@ -221,9 +221,9 @@ export function VideoDetailView({
               </span>
             </div>
 
-            {media.error ? <ErrorBlock error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
-            {media.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock title="这一集还没有资源" hint="去上传页把文件入库到这里。" /> : null}
+            {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
+            {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title="这一集还没有资源" hint="去上传页把文件入库到这里。" /> : null}
 
             {media.data && media.data.length > 0 ? (
               <table className="table" style={{ marginTop: 10 }}>
@@ -267,7 +267,7 @@ export function VideoDetailView({
 
           <article className="card" style={{ padding: '18px 20px' }}>
             <p className="stat__label">字幕</p>
-            {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock title="还没有字幕" /> : null}
+            {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
               <table className="table" style={{ marginTop: 10 }}>
                 <thead>

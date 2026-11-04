@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 import { IconAlert, IconEmpty } from './icons'
-export function LoadingBlock({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
+export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: number; columns?: number; bare?: boolean }) {
   return (
-    <div className="table-card" aria-busy="true" aria-live="polite">
+    <div className={bare ? undefined : 'table-card'} aria-busy="true" aria-live="polite">
       <div style={{ padding: 16 }}>
         <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 18 }} />
         {Array.from({ length: rows }).map((_, r) => (
@@ -25,10 +25,11 @@ interface EmptyBlockProps {
   title: string
   hint?: string
   action?: ReactNode
+  bare?: boolean
 }
-export function EmptyBlock({ title, hint, action }: EmptyBlockProps) {
+export function EmptyBlock({ title, hint, action, bare = false }: EmptyBlockProps) {
   return (
-    <div className="table-card">
+    <div className={bare ? undefined : 'table-card'}>
       <div className="state">
         <span className="state__icon">
           <IconEmpty />
@@ -43,11 +44,12 @@ export function EmptyBlock({ title, hint, action }: EmptyBlockProps) {
 interface ErrorBlockProps {
   error: Error & { status?: number }
   onRetry?: () => void
+  bare?: boolean
 }
-export function ErrorBlock({ error, onRetry }: ErrorBlockProps) {
+export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
   const timedOut = error.status === 0
   return (
-    <div className="table-card">
+    <div className={bare ? undefined : 'table-card'}>
       <div className="state">
         <span className="state__icon" style={{ color: 'var(--c-red)' }}>
           <IconAlert />

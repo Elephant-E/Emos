@@ -223,8 +223,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           <section className="cards cards--wide" style={{ marginTop: 18 }}>
             <article className="card">
               <p className="stat__label">邀请记录</p>
-              {inviteHistory.isLoading ? <LoadingBlock rows={5} columns={4} /> : null}
-              {inviteHistory.data && inviteHistory.data.items.length === 0 ? <EmptyBlock title="还没有邀请过别人" /> : null}
+              {inviteHistory.isLoading ? <LoadingBlock bare rows={5} columns={4} /> : null}
+              {inviteHistory.data && inviteHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有邀请过别人" /> : null}
               {inviteHistory.data && inviteHistory.data.items.length > 0 ? (
                 <>
                   <table className="table" style={{ marginTop: 10 }}>
@@ -321,8 +321,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           <section className="cards cards--wide" style={{ marginTop: 18 }}>
             <article className="card">
               <p className="stat__label">变化记录</p>
-              {carrotHistory.isLoading ? <LoadingBlock rows={5} columns={3} /> : null}
-              {carrotHistory.data && carrotHistory.data.items.length === 0 ? <EmptyBlock title="还没有记录" /> : null}
+              {carrotHistory.isLoading ? <LoadingBlock bare rows={5} columns={3} /> : null}
+              {carrotHistory.data && carrotHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有记录" /> : null}
               {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
                 <>
                   <table className="table" style={{ marginTop: 10 }}>
@@ -369,8 +369,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         <section className="cards cards--wide">
           <article className="card">
             <p className="stat__label">封禁列表</p>
-            {bans.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
-            {bans.data && bans.data.length === 0 ? <EmptyBlock title="没有被封禁的用户" /> : null}
+            {bans.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {bans.data && bans.data.length === 0 ? <EmptyBlock bare title="没有被封禁的用户" /> : null}
             {bans.data && bans.data.length > 0 ? (
               <table className="table" style={{ marginTop: 10 }}>
                 <thead>
