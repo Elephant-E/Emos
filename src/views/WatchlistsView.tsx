@@ -8,6 +8,7 @@ import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatRelative, formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
 
@@ -116,8 +117,9 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 <th style={{ width: '12%' }}>可见性</th>
                 <th className="num" style={{ width: '12%' }}>影片</th>
                 <th className="num" style={{ width: '12%' }}>订阅</th>
-                <th className="num" style={{ width: '14%' }}>更新</th>
-                <th style={{ width: '12%' }}>作者</th>
+                <th className="num" style={{ width: '12%' }}>更新</th>
+                <th style={{ width: '10%' }}>作者</th>
+                <th style={{ width: '88px', textAlign: 'right' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -158,6 +160,34 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                         <i />
                         已订阅
                       </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
+                  <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                    {watch.is_self ? (
+                      <button
+                        className="btn btn--quiet"
+                        onClick={async () => {
+                          const ok = await confirmDialog({
+                            title: `删除片单「${watch.name}」？`,
+                            message: `${watch.video_count} 部影片会一起从片单移除，影片本身不受影响。`,
+                            hint: '片单删除后无法恢复，槽位会释放。',
+                            confirmText: '删除',
+                            danger: true,
+                          })
+                          if (!ok) return
+                          try {
+                            await watchApi.remove(watch.id)
+                            toast('片单已删除', 'success')
+                            void refetch()
+                          } catch {
+                            toast('删除失败', 'error')
+                          }
+                        }}
+                      >
+                        删除
+                      </button>
                     ) : (
                       <span className="muted">—</span>
                     )}

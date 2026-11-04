@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
+import { mediaApi } from '@/api/endpoints'
 import { useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -56,6 +57,9 @@ export function VideoDetailView({
 
   const [renaming, setRenaming] = useState<{ mediaId: string; name: string } | null>(null)
   const [renamingSub, setRenamingSub] = useState<{ id: string; title: string } | null>(null)
+  const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
+  const [moveSeason, setMoveSeason] = useState<number>(season)
+  const moveEpisodes = useEpisodes(videoId, moveSeason)
 
   const video = detail.data
 
@@ -384,6 +388,16 @@ export function VideoDetailView({
               同步元数据
             </button>
             <button
+              className="btn btn--ghost"
+              onClick={() => {
+                setMoveSeason(season)
+                setMoving({ mediaId: renaming.mediaId, name: renaming.name })
+                setRenaming(null)
+              }}
+            >
+              移到其他集
+            </button>
+            <button
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
@@ -406,6 +420,57 @@ export function VideoDetailView({
             >
               删除
             </button>
+          </div>
+        </Modal>
+      ) : null}
+
+      {moving ? (
+        <Modal
+          title={`移动资源 · ${moving.name}`}
+          hint="传错集会扣两次胡萝卜，用这个把它挪到正确的位置。"
+          width={520}
+          onClose={() => setMoving(null)}
+        >
+          <div className="tabs" style={{ overflowX: 'auto', flexWrap: 'nowrap' }}>
+            {(seasons.data ?? []).map((s) => (
+              <button
+                key={s.season_id}
+                className="tab"
+                role="tab"
+                aria-selected={s.season_number === moveSeason}
+                style={{ flex: 'none' }}
+                onClick={() => setMoveSeason(s.season_number)}
+              >
+                {s.season_title || `第 ${s.season_number} 季`}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'grid', gap: 4, maxHeight: 320, overflowY: 'auto' }}>
+            {(moveEpisodes.data ?? []).map((ep) => (
+              <div key={ep.episode_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 2px' }}>
+                <span className="tnum muted" style={{ width: 26 }}>{String(ep.episode_number).padStart(2, '0')}</span>
+                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {ep.episode_title}
+                </span>
+                <button
+                  className="btn btn--quiet"
+                  disabled={ep.episode_id === currentEpisode?.episode_id}
+                  onClick={() =>
+                    mediaApi
+                      .move(moving.mediaId, 've', ep.episode_id)
+                      .then(() => {
+                        toast('已移动', 'success')
+                        setMoving(null)
+                        void media.refetch()
+                      })
+                      .catch(() => toast('移动失败', 'error'))
+                  }
+                >
+                  {ep.episode_id === currentEpisode?.episode_id ? '当前位置' : '移到这里'}
+                </button>
+              </div>
+            ))}
           </div>
         </Modal>
       ) : null}

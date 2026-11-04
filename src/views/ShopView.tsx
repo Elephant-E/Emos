@@ -159,6 +159,24 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                             <button className="btn btn--quiet" onClick={() => setEditing(product)}>
                               编辑
                             </button>
+                            <button
+                              className="btn btn--quiet"
+                              onClick={async () => {
+                                const ok = await confirmDialog({
+                                  title: `删除商品「${product.name}」？`,
+                                  message: '商品会从商城下架并删除，已产生的订单不受影响。',
+                                  hint: '删除后无法恢复。',
+                                  confirmText: '删除',
+                                  danger: true,
+                                })
+                                if (!ok) return
+                                actions.removeProduct.mutate(product.product_id, {
+                                  onSuccess: () => toast('商品已删除', 'success'),
+                                })
+                              }}
+                            >
+                              删除
+                            </button>
                           </span>
                         ) : (
                           <span className="muted">—</span>
