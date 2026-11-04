@@ -1,47 +1,55 @@
+import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { IconLeft, IconPlus, IconRight } from '@/components/icons'
-import { useSeeks } from '@/api/queries'
-import { formatRelative, ZONE_COLOR, ZONE_LABEL } from '@/lib/format'
+import { Modal } from '@/components/Modal'
+import { IconLeft, IconRight } from '@/components/icons'
+import { seekApi } from '@/api/endpoints'
+import { useSeekPage } from '@/api/queries'
+import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
   page: number
   page_size: number
-  status: string
+  tab: 'all' | 'default' | 'upload' | 'complete'
 }
 
-const TABS = [
-  { key: 'all', label: '全部' },
-  { key: 'open', label: '待认领' },
-  { key: 'claimed', label: '已认领' },
-  { key: 'done', label: '已完成' },
+const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[] }> = [
+  { key: 'all', label: '全部', statuses: ['default', 'upload', 'complete'] },
+  { key: 'default', label: '求片中', statuses: ['default'] },
+  { key: 'upload', label: '已认领', statuses: ['upload'] },
+  { key: 'complete', label: '已完成', statuses: ['complete'] },
 ]
 
-const STATUS: Record<string, { label: string; cls: string }> = {
-  open: { label: '待认领', cls: 'badge--wait' },
-  claimed: { label: '已认领', cls: 'badge--run' },
-  done: { label: '已完成', cls: 'badge--ok' },
-  closed: { label: '已关闭', cls: 'badge--off' },
-}
-
 export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (patch: Partial<SeekSearch>) => void }) {
-  const { data, isLoading, error, refetch, isFetching } = useSeeks({
+  const qc = useQueryClient()
+  const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
+  const [carrot, setCarrot] = useState(10)
+  const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
+
+  const { data, isLoading, error, refetch, isFetching } = useSeekPage({
     page: search.page,
     page_size: search.page_size,
-    status: search.status,
+    status: statuses,
   })
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
+  const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: invalidate })
+  const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: invalidate })
+
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
 
   return (
     <>
       <PageHeader
-        crumb={['求片', TABS.find((t) => t.key === search.status)?.label ?? '全部']}
+        crumb={['求片', TABS.find((t) => t.key === search.tab)?.label ?? '全部']}
         title="求片"
-        hint={data ? `${data.total} 条` : undefined}
+        hint={data ? `${formatThousand(data.total)} 条` : undefined}
         tools={
           <span className="stamp">
             <i />
-            {isFetching ? '拉取中' : '每 30 秒自动刷新'}
+            {isFetching ? '拉取中' : '每 30 秒刷新'}
           </span>
         }
       />
@@ -49,73 +57,59 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       <div className="toolbar">
         <div className="tabs" role="tablist" aria-label="状态">
           {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              className="tab"
-              role="tab"
-              aria-selected={search.status === tab.key}
-              onClick={() => onSearch({ status: tab.key, page: 1 })}
-            >
+            <button key={tab.key} className="tab" role="tab" aria-selected={search.tab === tab.key} onClick={() => onSearch({ tab: tab.key, page: 1 })}>
               {tab.label}
             </button>
           ))}
         </div>
-        <span className="spacer" />
-        <button className="btn btn--primary">
-          <IconPlus />
-          发起求片
-        </button>
       </div>
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
+      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
-      {!error && !isLoading && data && data.data.length === 0 ? (
-        <EmptyBlock title="这个状态下没有求片" hint="换个状态看看，或者发起一条新的求片。" />
+      {!error && !isLoading && data && data.items.length === 0 ? (
+        <EmptyBlock title="这个状态下没有求片" hint="换个状态看看，或者等用户发起新的求片。" />
       ) : null}
 
-      {!error && !isLoading && data && data.data.length > 0 ? (
+      {!error && !isLoading && data && data.items.length > 0 ? (
         <div className="table-card">
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '34%' }}>求片</th>
-                <th style={{ width: '14%' }}>类型</th>
-                <th style={{ width: '14%' }}>状态</th>
-                <th className="num" style={{ width: '12%' }}>
-                  胡萝卜
-                </th>
-                <th className="num" style={{ width: '12%' }}>
-                  催片
-                </th>
-                <th className="num" style={{ width: '14%' }}>
-                  提交时间
-                </th>
+                <th style={{ width: '32%' }}>求片</th>
+                <th style={{ width: '10%' }}>类型</th>
+                <th style={{ width: '12%' }}>状态</th>
+                <th className="num" style={{ width: '10%' }}>求片数</th>
+                <th className="num" style={{ width: '10%' }}>悬赏</th>
+                <th className="num" style={{ width: '14%' }}>更新</th>
+                <th style={{ width: '12%', textAlign: 'right' }}>操作</th>
               </tr>
             </thead>
             <tbody>
-              {data.data.map((item) => {
-                const st = STATUS[item.status] ?? STATUS.open
+              {data.items.map((item) => {
+                const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
                 return (
-                  <tr key={item.seek_id}>
+                  <tr key={item.id}>
                     <td>
                       <div className="cell-title">
-                        <span className="thumb" aria-hidden="true">
-                          {item.title.slice(0, 1)}
-                        </span>
+                        {item.video_image_poster ? (
+                          <img className="poster-img" src={item.video_image_poster} alt="" loading="lazy" />
+                        ) : (
+                          <span className="thumb">{item.video_title_display.slice(0, 1)}</span>
+                        )}
                         <span>
-                          <span className="cell-title__name">{item.title}</span>
+                          <span className="cell-title__name">{item.video_title_display}</span>
                           <span className="cell-title__code">
-                            {item.seek_id}
-                            {item.claim_user ? ` · 认领人 ${item.claim_user.username}` : ''}
+                            {item.item_id} · todb {item.todb_id}
+                            {item.upload_username ? ` · 认领 ${item.upload_username}` : ''}
                           </span>
                         </span>
                       </div>
                     </td>
                     <td>
                       <span className="zone">
-                        <span className="rail__dot" style={{ color: ZONE_COLOR[item.type ?? 'movie'] }} />
-                        {ZONE_LABEL[item.type ?? 'movie']}
+                        <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[item.video_type] }} />
+                        {VIDEO_TYPE_LABEL[item.video_type]}
                       </span>
                     </td>
                     <td>
@@ -124,9 +118,20 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         {st.label}
                       </span>
                     </td>
-                    <td className="num">{item.carrot ?? 0}</td>
-                    <td className="num">{item.urge_count ?? 0}</td>
-                    <td className="num muted">{formatRelative(item.created_at)}</td>
+                    <td className="num">{item.count_request}</td>
+                    <td className="num">{item.seek_carrot || '—'}</td>
+                    <td className="num muted">{formatRelative(item.updated_at)}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {item.is_can_claim && item.status === 'default' ? (
+                        <button className="btn btn--ghost" onClick={() => claim.mutate(item.id)} disabled={claim.isPending}>
+                          认领
+                        </button>
+                      ) : (
+                        <button className="btn btn--quiet" onClick={() => { setUrgeTarget(item); setCarrot(10) }}>
+                          催片
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
@@ -134,7 +139,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           </table>
           <div className="table-foot">
             <span>
-              共 {data.total} 条 · 第 {search.page} / {totalPages} 页
+              共 {formatThousand(data.total)} 条 · 第 {search.page} / {totalPages} 页
             </span>
             <div className="pager">
               <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
@@ -147,6 +152,39 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </div>
           </div>
         </div>
+      ) : null}
+
+      {urgeTarget ? (
+        <Modal
+          title={`催片 · ${urgeTarget.video_title_display}`}
+          onClose={() => setUrgeTarget(null)}
+          width={400}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setUrgeTarget(null)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={urge.isPending}
+                onClick={() => {
+                  urge.mutate({ id: urgeTarget.id, carrot })
+                  setUrgeTarget(null)
+                }}
+              >
+                催片
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>悬赏胡萝卜（1 – 5000）</span>
+            <input className="input" type="number" min={1} max={5000} value={carrot} onChange={(e) => setCarrot(Number(e.target.value))} />
+          </label>
+          <p className="state__hint" style={{ textAlign: 'left' }}>
+            催片会从你的余额里扣除对应胡萝卜，上传者完成后按规则结算。
+          </p>
+        </Modal>
       ) : null}
     </>
   )

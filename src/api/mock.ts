@@ -1,126 +1,235 @@
-import type { Overview, Paginated, SeekItem, UserProfile, Video } from './types'
+import type { ListResult, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
+
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))
-const MONTHS = ['6 月', '7 月', '8 月', '9 月', '10 月', '11 月']
-const overview: Overview = {
-  months: MONTHS,
-  series: [
-    { key: 'movie', label: '电影', color: '#ffc53d', values: [38, 44, 61, 74, 92, 68] },
-    { key: 'series', label: '剧集', color: '#34d399', values: [26, 31, 42, 51, 63, 47] },
-    { key: 'documentary', label: '纪录片', color: '#5aa2ff', values: [11, 14, 19, 24, 30, 22] },
-    { key: 'variety', label: '综艺', color: '#ff7ab0', values: [7, 9, 12, 15, 19, 14] },
-    { key: 'short', label: '短片', color: '#b394fa', values: [3, 4, 5, 7, 9, 6] },
-  ],
-  kpis: {
-    play_total: 124300000,
-    play_delta: 4.2,
-    media_total: 4820,
-    media_delta: 12,
-    seek_open: 12,
-    seek_delta: -18,
-    carrot_total: 186420,
-  },
-  updated_at: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
-}
-const ZONES: Video['type'][] = ['movie', 'series', 'documentary', 'variety', 'short']
-const titles = [
-  '夜航西飞', '雾港', '静默频率', '白色跑道', '第九个乘客', '山海之间', '漫长的告别',
-  '冬泳', '玻璃动物园', '无人区来信', '昼颜', '沙丘之外', '雨中的便利店', '旧城故事',
-  '极夜', '候鸟', '第三封信', '南方以南',
-]
-const ZONE_BY_TITLE: Record<string, Video['type']> = {
-  夜航西飞: 'movie', 雾港: 'series', 静默频率: 'movie', 白色跑道: 'movie',
-  第九个乘客: 'movie', 山海之间: 'documentary', 漫长的告别: 'movie', 冬泳: 'movie',
-  玻璃动物园: 'series', 无人区来信: 'documentary', 昼颜: 'series', 沙丘之外: 'movie',
-  雨中的便利店: 'movie', 旧城故事: 'documentary', 极夜: 'short', 候鸟: 'short',
-  第三封信: 'short', 南方以南: 'variety',
+
+const user: UserInfo = {
+  user_id: 'eXD3VD3Y1s',
+  username: 'sorakand',
+  avatar: null,
+  pseudonym: '陈曦',
+  is_show_empty: true,
+  is_can_upload: true,
+  is_can_down: true,
+  is_original_image: false,
+  roles: [],
+  must_otp: false,
+  is_viewing: false,
+  invite_remaining: 3,
+  is_have_emps: false,
+  slot_remaining: 2,
+  size_upload: 0,
+  carrot: 4210,
+  server_video: 'https://video.emos.best',
+  server_live: null,
+  server_music: null,
+  telegram_group_url: 'https://t.me/emospg',
+  telegram_bind_url: null,
+  telegram_user_id: null,
 }
 
-const videos: Video[] = titles.map((title, i) => ({
-  video_id: `vl_${1000 + i}`,
-  title,
-  type: ZONE_BY_TITLE[title] ?? ZONES[i % ZONES.length],
-  year: 2026 - (i % 6),
-  tmdb_id: String(63247 + i),
-  season_count: i % 4 === 1 ? 2 : i % 5 === 2 ? 3 : 1,
-  episode_count: 8 + (i % 5) * 4,
-  media_count: 3 + (i % 7),
-  play_count: 182400 - i * 7300,
-  is_delete: i === 16,
-  created_at: new Date(Date.now() - i * 86400000).toISOString(),
-  updated_at: new Date(Date.now() - i * 3600000).toISOString(),
-}))
-const seeks: SeekItem[] = [
-  { seek_id: 'sk_01', title: '沙丘 第二部', type: 'movie', status: 'open', carrot: 120, urge_count: 8, created_at: '2026-11-04T09:12:00Z' },
-  { seek_id: 'sk_02', title: '城市之光 第四季', type: 'series', status: 'claimed', carrot: 80, urge_count: 3, claim_user: { id: 'u_12', username: 'lin' }, created_at: '2026-11-03T22:40:00Z' },
-  { seek_id: 'sk_03', title: '极地航线', type: 'documentary', status: 'open', carrot: 60, urge_count: 5, created_at: '2026-11-03T18:05:00Z' },
-  { seek_id: 'sk_04', title: '海边的曼彻斯特 修复版', type: 'movie', status: 'done', carrot: 200, urge_count: 12, claim_user: { id: 'u_08', username: 'zhou' }, created_at: '2026-11-02T11:30:00Z' },
-  { seek_id: 'sk_05', title: '深夜食堂 第十季', type: 'series', status: 'open', carrot: 40, urge_count: 2, created_at: '2026-11-02T08:20:00Z' },
-  { seek_id: 'sk_06', title: '雨林纪事', type: 'documentary', status: 'claimed', carrot: 90, urge_count: 6, claim_user: { id: 'u_20', username: 'chen' }, created_at: '2026-11-01T16:44:00Z' },
-  { seek_id: 'sk_07', title: '边境线', type: 'movie', status: 'open', carrot: 150, urge_count: 9, created_at: '2026-10-31T10:02:00Z' },
-  { seek_id: 'sk_08', title: '综艺 · 一桌好菜', type: 'variety', status: 'closed', carrot: 20, urge_count: 1, created_at: '2026-10-30T19:15:00Z' },
+const poster = (seed: string) => `https://picsum.photos/seed/${seed}/200/300`
+
+const TITLES: Array<[string, string, VideoItem['video_type']]> = [
+  ['夜航西飞', 'Night Flight West', 'movie'],
+  ['雾港', 'Fog Harbor', 'tv'],
+  ['静默频率', 'Silent Frequency', 'movie'],
+  ['白色跑道', 'White Runway', 'movie'],
+  ['山海之间', 'Between Mountains', 'tv'],
+  ['漫长的告别', 'The Long Goodbye', 'movie'],
+  ['冬泳', 'Winter Swim', 'movie'],
+  ['玻璃动物园', 'Glass Menagerie', 'tv'],
+  ['无人区来信', 'Letters from No Man Land', 'movie'],
+  ['昼颜', 'Hirugao', 'tv'],
 ]
-const user: UserProfile = {
-  id: 'u_001',
-  username: 'chenxi',
-  pseudonym: '陈曦',
-  is_admin: true,
-  carrot: 4210,
-}
-function paginate<T>(rows: T[], page = 1, pageSize = 20): Paginated<T> {
+
+const videos: VideoItem[] = TITLES.map(([title, origin, type], i) => ({
+  item_id: `vl-${i + 1}`,
+  todb_id: 1000 + i,
+  tmdb_id: 63247 + i,
+  tmdb_url: `https://www.themoviedb.org/${type}/${63247 + i}`,
+  video_id: i + 1,
+  video_type: type,
+  video_title: title,
+  video_origin_title: origin,
+  video_description: null,
+  video_tagline: null,
+  video_image_logo: null,
+  video_image_poster: poster(`emos${i}`),
+  video_image_backdrop: null,
+  video_date_air: `${2026 - (i % 5)}-0${(i % 9) + 1}-15`,
+  video_is_adult: false,
+  seek_is_request: i % 4 === 0,
+  seek_id: null,
+  request_count: (i * 3) % 7,
+  parts_count: 0,
+  medias_count: 2 + (i % 5),
+  subtitles_count: 1 + (i % 3),
+  titles: [],
+  genres: [{ id: i + 1, name: ['剧情', '悬疑', '纪录片', '科幻'][i % 4] }],
+  is_delete: false,
+}))
+
+const watches: WatchItem[] = [
+  {
+    subscribe_id: null, id: 1000, name: '本周新片', description: '每周更新的院线新片合集',
+    is_public: true, carrot: 0, tags: ['院线', '追新'], image_poster: null, image_poster_url: poster('watch1'),
+    is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: true,
+    user_sort: 80, subscribe_count: 128, video_count: 24, maintainers: [], author: { username: 'sorakand' },
+    updated_at: '2026-11-04T09:12:00Z',
+  },
+  {
+    subscribe_id: 77, id: 1001, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
+    is_public: true, carrot: 10, tags: ['修复', '4K'], image_poster: null, image_poster_url: poster('watch2'),
+    is_show_empty: false, is_self: true, is_edit_video: true, is_subscribe: true, user_is_show: true,
+    user_sort: 70, subscribe_count: 42, video_count: 12, maintainers: [{ username: 'lin' }], author: { username: 'sorakand' },
+    updated_at: '2026-11-02T12:40:00Z',
+  },
+  {
+    subscribe_id: null, id: 1002, name: '纪录片精选', description: null,
+    is_public: false, carrot: 0, tags: ['纪录片'], image_poster: null, image_poster_url: poster('watch3'),
+    is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: false,
+    user_sort: 80, subscribe_count: 6, video_count: 31, maintainers: [], author: { username: 'zhou' },
+    updated_at: '2026-10-28T18:20:00Z',
+  },
+]
+
+const watchVideos: WatchVideo[] = videos.slice(0, 6).map((v, i) => ({
+  video_id: v.video_id,
+  todb_id: v.todb_id,
+  tmdb_id: v.tmdb_id,
+  video_type: v.video_type,
+  video_title: v.video_title,
+  video_origin_title: v.video_origin_title,
+  video_image_poster: v.video_image_poster,
+  video_date_air: v.video_date_air,
+  video_is_adult: false,
+  genres: v.genres,
+  video_is_delete: false,
+  sort: 80 + i * 10,
+  remark: i === 0 ? '首推' : null,
+  user_id: user.user_id,
+  user_username: user.username,
+  user_avatar: null,
+  updated_at: v.video_date_air,
+}))
+
+const seekStatuses: SeekItem['status'][] = ['default', 'upload', 'complete', 'default', 'default', 'upload', 'complete', 'cancel']
+
+const seeks: SeekItem[] = videos.map((v, i) => ({
+  id: i + 1,
+  video_type: v.video_type,
+  todb_id: v.todb_id,
+  tmdb_id: v.tmdb_id,
+  video_title_display: v.video_title,
+  video_list_id: v.video_id,
+  video_season_id: null,
+  video_season_number: null,
+  video_episode_id: null,
+  video_episode_number: null,
+  count_request: [1, 3, 8, 12, 2, 5, 1, 4, 9, 2][i],
+  status: seekStatuses[i],
+  upload_expired_at: null,
+  updated_at: new Date(Date.now() - i * 5400000).toISOString(),
+  video_title: v.video_title,
+  video_date_air: v.video_date_air,
+  video_image_logo: null,
+  video_image_poster: v.video_image_poster,
+  video_image_backdrop: null,
+  tmdb_url: v.tmdb_url,
+  upload_username: i % 3 === 1 ? 'lin' : null,
+  is_can_claim: i % 3 !== 2,
+  item_id: `vl-${i + 1}`,
+  seek_carrot: [120, 80, 60, 200, 40, 90, 150, 20][i] ?? 0,
+}))
+
+const playing = [
+  { video_title: '雾港', video_type: 'tv' as const, todb_id: 1001, tmdb_id: 63248, season_number: 2, episode_number: 4, play_speed: 10, upload_pseudonym: 'lin', ua: 'SenPlayer/5.7.4', video_image_logo: null, video_image_poster: poster('play1'), video_image_backdrop: null },
+  { video_title: '冬泳', video_type: 'movie' as const, todb_id: 1006, tmdb_id: 63253, season_number: null, episode_number: null, play_speed: 10, upload_pseudonym: 'zhou', ua: 'Hills/1.4.7', video_image_logo: null, video_image_poster: poster('play2'), video_image_backdrop: null },
+  { video_title: '山海之间', video_type: 'tv' as const, todb_id: 1004, tmdb_id: 63251, season_number: 1, episode_number: 2, play_speed: 20, upload_pseudonym: 'chen', ua: 'Infuse/7.8', video_image_logo: null, video_image_poster: poster('play3'), video_image_backdrop: null },
+]
+
+const rankUpload = [
+  { index: 1, size: 182, username: 'lin', avatar: null },
+  { index: 2, size: 140, username: 'zhou', avatar: null },
+  { index: 3, size: 96, username: 'sorakand', avatar: null },
+  { index: 4, size: 61, username: 'chen', avatar: null },
+  { index: 5, size: 48, username: 'kai', avatar: null },
+]
+
+function paginate<T>(items: T[], page = 1, pageSize = 20): ListResult<T> {
   const start = (page - 1) * pageSize
-  return { data: rows.slice(start, start + pageSize), total: rows.length, page, page_size: pageSize }
+  return { page, page_size: pageSize, total: items.length, items: items.slice(start, start + pageSize) }
 }
+
 export async function mockRequest<T>(
   path: string,
   opts: { method?: string; query?: Record<string, unknown>; body?: unknown },
 ): Promise<T> {
-  await delay(90 + Math.random() * 140)
-  const q = (opts.query ?? {}) as Record<string, string | number | undefined>
+  await delay(80 + Math.random() * 120)
   const [clean] = path.split('?')
-  if (clean === '/api/sign/check') return { is_login: true } as T
-  if (clean === '/api/user/base' || clean === '/api/user') return user as T
-  if (clean === '/api/stats/overview') {
-    return { ...overview, updated_at: new Date(Date.now() - 180000).toISOString() } as T
+  const query = (opts.query ?? {}) as Record<string, string | number | boolean | undefined>
+  const body = (opts.body ?? {}) as Record<string, unknown>
+
+  if (clean === '/api/sign/check') return { is_sign: true, user_id: user.user_id } as T
+  if (clean === '/api/user/base') return { user_id: user.user_id, username: user.username, avatar: null } as T
+  if (clean === '/api/user') return user as T
+  if (clean === '/api/carrot/current') return { carrot: user.carrot } as T
+  if (clean === '/api/rank/upload') return rankUpload as T
+  if (clean === '/api/rank/carrot') return rankUpload.map((r) => ({ index: r.index, carrot: r.size * 40, username: r.username, avatar: null })) as T
+  if (clean === '/api/rank/userVideoRecordPlaying') return playing as T
+
+  if (clean === '/api/video/list') {
+    let rows = videos.filter((v) => !v.is_delete)
+    const title = String(query.title ?? '').trim()
+    if (title) rows = rows.filter((v) => v.video_title.includes(title))
+    if (query.type) rows = rows.filter((v) => v.video_type === query.type)
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
-  if (clean === '/api/video/list' || clean === '/api/video/search') {
-    let rows = videos
-    const title = String(q.title ?? '').trim()
-    if (title) rows = rows.filter((v) => v.title.includes(title))
-    if (q.type) rows = rows.filter((v) => v.type === q.type)
-    if (String(q.only_delete ?? '') === 'true') rows = rows.filter((v) => v.is_delete)
-    else rows = rows.filter((v) => !v.is_delete)
-    return paginate(rows, Number(q.page ?? 1), Number(q.page_size ?? 20)) as T
-  }
+
   if (clean === '/api/seek') {
-    const body = (opts.body ?? {}) as { page?: number; page_size?: number; status?: string }
-    let rows = seeks
-    if (body.status && body.status !== 'all') rows = rows.filter((s) => s.status === body.status)
-    return paginate(rows, body.page ?? 1, body.page_size ?? 20) as T
+    const statuses = (body.status as string[] | undefined) ?? ['default', 'upload', 'complete']
+    const rows = seeks.filter((s) => statuses.includes(s.status))
+    return paginate(rows, Number(body.page ?? 1), Number(body.page_size ?? 20)) as T
   }
+
   if (clean === '/api/watch') {
-    const rows = [
-      { watch_id: 'w_1', name: '本周新片', type: 'video', video_count: 12, is_public: true, is_self: true, updated_at: '2026-11-04T08:00:00Z' },
-      { watch_id: 'w_2', name: '纪录片片单', type: 'video', video_count: 34, is_public: true, is_self: true, updated_at: '2026-11-02T12:00:00Z' },
-      { watch_id: 'w_3', name: '4K 修复', type: 'video', video_count: 8, is_public: false, is_self: true, updated_at: '2026-10-28T09:00:00Z' },
-    ]
-    return paginate(rows, Number(q.page ?? 1), Number(q.page_size ?? 20)) as T
+    let rows = watches
+    if (query.watch_id) rows = rows.filter((w) => w.id === Number(query.watch_id))
+    if (query.is_self) rows = rows.filter((w) => w.is_self)
+    if (query.is_subscribe) rows = rows.filter((w) => w.is_subscribe)
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
-  if (clean === '/api/rank/upload') {
-    return {
-      data: [
-        { user_id: 'u_12', username: 'lin', upload_count: 182 },
-        { user_id: 'u_08', username: 'zhou', upload_count: 140 },
-        { user_id: 'u_001', username: 'chenxi', upload_count: 96 },
-      ],
-    } as T
+
+  const watchVideoMatch = clean.match(/^\/api\/watch\/(\d+)\/video$/)
+  if (watchVideoMatch) {
+    const title = String(query.video_title ?? '').trim()
+    const rows = title ? watchVideos.filter((v) => v.video_title.includes(title)) : watchVideos
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
-  if (clean === '/api/rank/carrot') {
-    return {
-      data: [
-        { user_id: 'u_08', username: 'zhou', carrot: 12800 },
-        { user_id: 'u_001', username: 'chenxi', carrot: 4210 },
-      ],
-    } as T
+
+  const watchSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/video\/search$/)
+  if (watchSearchMatch) {
+    const title = String(query.title ?? '').trim()
+    const rows: WatchVideoCandidate[] = videos
+      .filter((v) => !title || v.video_title.includes(title))
+      .map((v) => ({
+        video_id: v.video_id,
+        todbv_id: v.todb_id,
+        video_type: v.video_type,
+        video_title: v.video_title,
+        video_origin_title: v.video_origin_title,
+        video_date_air: v.video_date_air,
+        video_is_adult: false,
+        video_image_poster: v.video_image_poster,
+      }))
+    return rows as T
   }
+
+  if (/^\/api\/watch\/\d+\/video\/\d+$/.test(clean)) return { count: 1 } as T
+  if (/^\/api\/watch\/\d+\/subscribe$/.test(clean)) return { is_subscribe: true } as T
+  if (/^\/api\/watch\/\d+\/show$/.test(clean)) return { is_show: true } as T
+  if (/^\/api\/watch\/\d+\/dynamic$/.test(clean)) return { url: (body.url as string | null) ?? null } as T
+  if (/^\/api\/watch\/\d+\/sort$/.test(clean)) return {} as T
+
   throw Object.assign(new Error(`未模拟的接口：${clean}`), { status: 404 })
 }

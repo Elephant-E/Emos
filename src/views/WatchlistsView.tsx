@@ -1,0 +1,216 @@
+import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { PageHeader } from '@/components/PageHeader'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { Modal } from '@/components/Modal'
+import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { watchApi } from '@/api/endpoints'
+import { useWatchPage } from '@/api/queries'
+import { formatRelative, formatThousand } from '@/lib/format'
+
+export interface WatchSearch {
+  page: number
+  page_size: number
+  scope: 'all' | 'self' | 'subscribed'
+  type: 'video' | 'music'
+}
+
+const TABS: Array<{ key: WatchSearch['scope']; label: string }> = [
+  { key: 'all', label: '全部' },
+  { key: 'self', label: '我创建的' },
+  { key: 'subscribed', label: '我订阅的' },
+]
+
+export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSearch: (patch: Partial<WatchSearch>) => void }) {
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+  const [creating, setCreating] = useState(false)
+  const [form, setForm] = useState({ name: '', description: '', is_public: true, point: 0, tags: '' })
+
+  const { data, isLoading, error, refetch } = useWatchPage({
+    page: search.page,
+    page_size: search.page_size,
+    ...(search.scope === 'self' ? { is_self: true } : {}),
+    ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
+  })
+
+  const create = useMutation({
+    mutationFn: () =>
+      watchApi.createOrUpdate({
+        type: search.type,
+        name: form.name.trim(),
+        description: form.description.trim() || undefined,
+        is_public: form.is_public,
+        point: form.point,
+        tags: form.tags.split(/[,，\s]+/).filter(Boolean),
+      }),
+    onSuccess: () => {
+      setCreating(false)
+      setForm({ name: '', description: '', is_public: true, point: 0, tags: '' })
+      qc.invalidateQueries({ queryKey: ['watches'] })
+    },
+  })
+
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
+
+  return (
+    <>
+      <PageHeader
+        crumb={['片单', TABS.find((t) => t.key === search.scope)?.label ?? '全部']}
+        title="片单"
+        hint={data ? `${formatThousand(data.total)} 个` : undefined}
+        tools={
+          <span className="stamp">
+            <i />
+            片单槽位剩余 {data ? Math.max(0, 2) : '—'}
+          </span>
+        }
+      />
+
+      <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="范围">
+          {TABS.map((tab) => (
+            <button key={tab.key} className="tab" role="tab" aria-selected={search.scope === tab.key} onClick={() => onSearch({ scope: tab.key, page: 1 })}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <span className="spacer" />
+        <div className="seg" role="group" aria-label="片单类型">
+          <button aria-pressed={search.type === 'video'} onClick={() => onSearch({ type: 'video', page: 1 })}>
+            影视
+          </button>
+          <button aria-pressed={search.type === 'music'} onClick={() => onSearch({ type: 'music', page: 1 })}>
+            音乐
+          </button>
+        </div>
+        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+          <IconPlus />
+          新建片单
+        </button>
+      </div>
+
+      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
+      {!error && isLoading ? <LoadingBlock rows={5} columns={4} /> : null}
+
+      {!error && !isLoading && data && data.items.length === 0 ? (
+        <EmptyBlock
+          title="还没有片单"
+          hint="片单是给别人看的内容合集，创建后可以公开分享，也能让别人订阅。"
+          action={<button className="btn btn--primary" onClick={() => setCreating(true)}>新建片单</button>}
+        />
+      ) : null}
+
+      {!error && !isLoading && data && data.items.length > 0 ? (
+        <div className="table-card">
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '38%' }}>片单</th>
+                <th style={{ width: '12%' }}>可见性</th>
+                <th className="num" style={{ width: '12%' }}>影片</th>
+                <th className="num" style={{ width: '12%' }}>订阅</th>
+                <th className="num" style={{ width: '14%' }}>更新</th>
+                <th style={{ width: '12%' }}>作者</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.map((watch) => (
+                <tr
+                  key={watch.id}
+                  onClick={() => navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } })}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>
+                    <div className="cell-title">
+                      {watch.image_poster_url ? (
+                        <img className="poster-img" src={watch.image_poster_url} alt="" loading="lazy" />
+                      ) : (
+                        <span className="thumb">{watch.name.slice(0, 1)}</span>
+                      )}
+                      <span>
+                        <span className="cell-title__name">{watch.name}</span>
+                        <span className="cell-title__code">
+                          {watch.is_self ? '我创建的' : watch.author?.username ?? '—'}
+                          {watch.tags.length ? ` · ${watch.tags.join(' / ')}` : ''}
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`badge ${watch.is_public ? 'badge--ok' : 'badge--off'}`}>
+                      <i />
+                      {watch.is_public ? '公开' : '私密'}
+                    </span>
+                  </td>
+                  <td className="num">{formatThousand(watch.video_count)}</td>
+                  <td className="num">{formatThousand(watch.subscribe_count)}</td>
+                  <td className="num muted">{formatRelative(watch.updated_at)}</td>
+                  <td>
+                    {watch.is_subscribe ? (
+                      <span className="badge badge--run">
+                        <i />
+                        已订阅
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="table-foot">
+            <span>
+              共 {formatThousand(data.total)} 个 · 第 {search.page} / {totalPages} 页
+            </span>
+            <div className="pager">
+              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
+                <IconLeft />
+              </button>
+              <button aria-current="page">{search.page}</button>
+              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
+                <IconRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {creating ? (
+        <Modal
+          title="新建片单"
+          onClose={() => setCreating(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
+                取消
+              </button>
+              <button className="btn btn--primary" disabled={!form.name.trim() || create.isPending} onClick={() => create.mutate()}>
+                创建
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>名称</span>
+            <input className="input" value={form.name} maxLength={100} onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
+          </label>
+          <label className="field">
+            <span>简介</span>
+            <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </label>
+          <label className="field">
+            <span>标签（逗号或空格分隔）</span>
+            <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+          </label>
+          <label className="switch">
+            <input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} />
+            公开片单
+          </label>
+        </Modal>
+      ) : null}
+    </>
+  )
+}

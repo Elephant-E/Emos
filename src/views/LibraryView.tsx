@@ -2,40 +2,32 @@ import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconArrowDown, IconDots, IconFilter, IconLeft, IconPlus, IconRight, IconSort } from '@/components/icons'
-import { useVideos } from '@/api/queries'
-import { formatCount, formatRelative, ZONE_COLOR, ZONE_LABEL } from '@/lib/format'
+import { useVideoPage } from '@/api/queries'
+import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
   page: number
   page_size: number
   q: string
-  type: string
+  type: '' | VideoType
 }
 
-const TABS = [
+const TABS: Array<{ key: '' | VideoType; label: string }> = [
   { key: '', label: '全部' },
   { key: 'movie', label: '电影' },
-  { key: 'series', label: '剧集' },
-  { key: 'documentary', label: '纪录片' },
-  { key: 'variety', label: '综艺' },
-  { key: 'short', label: '短片' },
+  { key: 'tv', label: '剧集' },
 ]
 
-export function LibraryView({
-  search,
-  onSearch,
-}: {
-  search: LibrarySearch
-  onSearch: (patch: Partial<LibrarySearch>) => void
-}) {
+export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSearch: (patch: Partial<LibrarySearch>) => void }) {
   const [query, setQuery] = useState(search.q)
   useEffect(() => setQuery(search.q), [search.q])
 
-  const { data, isLoading, error, refetch, isFetching } = useVideos({
+  const { data, isLoading, error, refetch, isFetching } = useVideoPage({
     page: search.page,
     page_size: search.page_size,
     title: search.q || undefined,
-    type: search.type || undefined,
+    type: (search.type || undefined) as VideoType | undefined,
   })
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
@@ -43,19 +35,19 @@ export function LibraryView({
   return (
     <>
       <PageHeader
-        crumb={['媒体库', search.type ? ZONE_LABEL[search.type] : '全部']}
+        crumb={['媒体库', search.type ? VIDEO_TYPE_LABEL[search.type] : '全部']}
         title="媒体库"
-        hint={data ? `${data.total.toLocaleString('zh-CN')} 部` : undefined}
+        hint={data ? `${formatThousand(data.total)} 部` : undefined}
         tools={
           <span className="stamp">
             <i />
-            {isFetching ? '同步中' : '数据已同步'}
+            {isFetching ? '同步中' : '已同步'}
           </span>
         }
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="分区">
+        <div className="tabs" role="tablist" aria-label="类型">
           {TABS.map((tab) => (
             <button
               key={tab.key || 'all'}
@@ -75,13 +67,11 @@ export function LibraryView({
           value={query}
           placeholder="搜索片名"
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') onSearch({ q: query.trim(), page: 1 })
-          }}
+          onKeyDown={(e) => e.key === 'Enter' && onSearch({ q: query.trim(), page: 1 })}
         />
-        <button className="btn btn--ghost" onClick={() => onSearch({ q: query.trim(), page: 1 })}>
+        <button className="btn btn--ghost" onClick={() => onSearch({ q: query.trim(), type: '', page: 1 })}>
           <IconFilter />
-          筛选
+          重置
         </button>
         <button className="btn btn--primary">
           <IconPlus />
@@ -89,28 +79,18 @@ export function LibraryView({
         </button>
       </div>
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
-
+      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
-      {!error && !isLoading && data && data.data.length === 0 ? (
+      {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
           title="没有匹配的影片"
-          hint={search.q ? `「${search.q}」在${search.type ? ZONE_LABEL[search.type] : '全部分区'}里没有结果，换个关键词或清空筛选。` : '这个分区还是空的。可以先上传，或从 TMDB 检索入库。'}
-          action={
-            <>
-              {search.q || search.type ? (
-                <button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>
-                  清空筛选
-                </button>
-              ) : null}
-              <button className="btn btn--primary">新增入库</button>
-            </>
-          }
+          hint={search.q ? `「${search.q}」没有结果，换个关键词或清空筛选。` : '片库还是空的，先上传或从 TMDB 检索入库。'}
+          action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
         />
       ) : null}
 
-      {!error && !isLoading && data && data.data.length > 0 ? (
+      {!error && !isLoading && data && data.items.length > 0 ? (
         <div className="table-card">
           <table className="table">
             <thead>
@@ -118,23 +98,23 @@ export function LibraryView({
                 <th style={{ width: 40 }}>
                   <input className="cbx" type="checkbox" aria-label="全选本页" />
                 </th>
-                <th style={{ width: '30%' }}>片名</th>
-                <th style={{ width: '14%' }}>分区</th>
-                <th className="num" style={{ width: '15%' }}>
+                <th style={{ width: '34%' }}>片名</th>
+                <th style={{ width: '12%' }}>类型</th>
+                <th className="num" style={{ width: '14%' }}>
                   <button className="th-sort" aria-sort="none">
-                    集 / 资源
+                    资源
                     <IconSort />
                   </button>
                 </th>
                 <th className="num" style={{ width: '14%' }}>
                   <button className="th-sort" aria-sort="descending">
-                    播放
+                    求片
                     <IconArrowDown />
                   </button>
                 </th>
                 <th className="num" style={{ width: '14%' }}>
                   <button className="th-sort" aria-sort="none">
-                    更新时间
+                    上映
                     <IconSort />
                   </button>
                 </th>
@@ -142,53 +122,59 @@ export function LibraryView({
               </tr>
             </thead>
             <tbody>
-              {data.data.map((video) => {
-                const plays = formatCount(video.play_count)
-                return (
-                  <tr key={video.video_id}>
-                    <td>
-                      <input className="cbx" type="checkbox" aria-label={`选择《${video.title}》`} />
-                    </td>
-                    <td>
-                      <div className="cell-title">
-                        <span className="thumb" aria-hidden="true">
-                          {video.poster ? <img src={video.poster} alt="" /> : video.title.slice(0, 1)}
+              {data.items.map((video) => (
+                <tr key={video.video_id}>
+                  <td>
+                    <input className="cbx" type="checkbox" aria-label={`选择《${video.video_title}》`} />
+                  </td>
+                  <td>
+                    <div className="cell-title">
+                      {video.video_image_poster ? (
+                        <img className="poster-img" src={video.video_image_poster} alt="" loading="lazy" />
+                      ) : (
+                        <span className="thumb">{video.video_title.slice(0, 1)}</span>
+                      )}
+                      <span>
+                        <span className="cell-title__name">{video.video_title}</span>
+                        <span className="cell-title__code">
+                          #{video.video_id} · todb {video.todb_id}
+                          {video.video_origin_title ? ` · ${video.video_origin_title}` : ''}
                         </span>
-                        <span>
-                          <span className="cell-title__name">{video.title}</span>
-                          <span className="cell-title__code">
-                            {video.video_id}
-                            {video.year ? ` · ${video.year}` : ''}
-                          </span>
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="zone">
-                        <span className="rail__dot" style={{ color: ZONE_COLOR[video.type ?? 'movie'] }} />
-                        {ZONE_LABEL[video.type ?? 'movie']}
                       </span>
-                    </td>
-                    <td className="num">
-                      {video.episode_count ?? 0} 集 · {video.media_count ?? 0} 资源
-                    </td>
-                    <td className="num">
-                      {plays.unit ? `${plays.value} ${plays.unit}` : plays.value}
-                    </td>
-                    <td className="num muted">{formatRelative(video.updated_at)}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button className="row-menu" aria-label={`《${video.title}》的更多操作`}>
-                        <IconDots />
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
+                    </div>
+                  </td>
+                  <td>
+                    <span className="zone">
+                      <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
+                      {VIDEO_TYPE_LABEL[video.video_type]}
+                    </span>
+                  </td>
+                  <td className="num">
+                    {video.medias_count} 个 · 字幕 {video.subtitles_count}
+                  </td>
+                  <td className="num">
+                    {video.seek_is_request ? (
+                      <span className="badge badge--wait">
+                        <i />
+                        {video.request_count} 人求
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
+                  <td className="num muted">{video.video_date_air ?? '—'}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button className="row-menu" aria-label={`《${video.video_title}》的更多操作`}>
+                      <IconDots />
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
           <div className="table-foot">
             <span>
-              共 {data.total.toLocaleString('zh-CN')} 部 · 第 {search.page} / {totalPages} 页
+              共 {formatThousand(data.total)} 部 · 第 {search.page} / {totalPages} 页
             </span>
             <div className="pager">
               <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
@@ -201,6 +187,12 @@ export function LibraryView({
             </div>
           </div>
         </div>
+      ) : null}
+
+      {data && data.items.length > 0 ? (
+        <p className="muted" style={{ marginTop: 14, fontSize: 12 }}>
+          最近更新 {formatRelative(data.items[0]?.video_date_air)}
+        </p>
       ) : null}
     </>
   )

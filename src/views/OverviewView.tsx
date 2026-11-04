@@ -1,24 +1,24 @@
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
-import { GlowChart } from '@/components/GlowChart'
-import { ErrorBlock } from '@/components/StateBlock'
-import { useOverview } from '@/api/queries'
-import { formatCount, formatRelative, formatThousand } from '@/lib/format'
+import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
+import { useCarrot, usePlayingNow, useRankUpload, useSeekOpen, useSession, useZoneCounts } from '@/api/queries'
+import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 
-const RANGE = [
-  { key: '6m' as const, label: '近 6 个月' },
-  { key: '12m' as const, label: '近 12 个月' },
-]
-
-export function OverviewView({ range, onRangeChange }: { range: '6m' | '12m'; onRangeChange: (r: '6m' | '12m') => void }) {
-  const { data, isLoading, error, refetch } = useOverview(range)
+export function OverviewView() {
+  const session = useSession()
+  const carrot = useCarrot()
+  const zones = useZoneCounts()
+  const rank = useRankUpload()
+  const seekOpen = useSeekOpen()
+  const playing = usePlayingNow()
 
   const now = new Date()
   const monthName = `${now.getMonth() + 1} 月`
   const year = String(now.getFullYear())
-  const play = formatCount(data?.kpis.play_total)
-  const media = formatThousand(data?.kpis.media_total)
-  const newThisMonth = data?.series.reduce((sum, s) => sum + (s.values.at(-1) ?? 0), 0) ?? 0
+  const total = zones.data?.total ?? 0
+  const moviePct = total ? Math.round(((zones.data?.movie ?? 0) / total) * 100) : 0
+
+  const error = zones.error ?? rank.error
 
   return (
     <>
@@ -28,50 +28,44 @@ export function OverviewView({ range, onRangeChange }: { range: '6m' | '12m'; on
         hint={year}
         tools={
           <>
-            {data ? (
-              <span className="stamp">
-                <i />
-                数据更新于 {formatRelative(data.updated_at)}
-              </span>
-            ) : null}
-            <div className="seg" role="group" aria-label="时间范围">
-              {RANGE.map((r) => (
-                <button key={r.key} aria-pressed={range === r.key} onClick={() => onRangeChange(r.key)}>
-                  {r.label}
-                </button>
-              ))}
-            </div>
-            <button className="btn btn--ghost">导出报表</button>
+            <span className="stamp">
+              <i />
+              {playing.isFetching ? '同步中' : `正在播放 ${playing.data?.length ?? 0} 路`}
+            </span>
+            <button className="btn btn--ghost" onClick={() => playing.refetch()}>
+              刷新
+            </button>
           </>
         }
       />
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
+      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => zones.refetch()} /> : null}
 
       {!error ? (
         <>
           <section className="cards">
             <StatCard
-              label="本期播放量"
-              value={isLoading ? '—' : play.value}
-              unit={isLoading ? undefined : `${play.unit}次`}
-              delta={isLoading ? undefined : `${data!.kpis.play_delta > 0 ? '+' : ''}${data!.kpis.play_delta}%`}
-              deltaSuffix="环比上期"
-            />
-            <StatCard
               label="片库总量"
-              value={isLoading ? '—' : media}
-              unit={isLoading ? undefined : '部'}
-              delta={isLoading ? undefined : `+${data!.kpis.media_delta}%`}
-              deltaSuffix="较上月"
+              value={zones.isLoading ? '—' : formatThousand(total)}
+              unit={zones.isLoading ? undefined : '部'}
+              delta={zones.isLoading ? undefined : `电影 ${formatThousand(zones.data?.movie)}`}
+              deltaSuffix={` · 剧集 ${formatThousand(zones.data?.tv)}`}
             />
             <StatCard
               label="待处理求片"
-              value={isLoading ? '—' : String(data!.kpis.seek_open)}
-              unit={isLoading ? undefined : '条'}
-              delta={isLoading ? undefined : `${data!.kpis.seek_delta}%`}
-              deltaSuffix="较上周"
-              tone={data && data.kpis.seek_delta > 0 ? 'amber' : 'up'}
+              value={seekOpen.isLoading ? '—' : formatThousand(seekOpen.data ?? 0)}
+              unit="条"
+              delta="状态为求片中"
+              deltaSuffix=""
+              tone="quiet"
+            />
+            <StatCard
+              label="我的胡萝卜"
+              value={carrot.isLoading ? '—' : formatThousand(carrot.data?.carrot ?? session.data?.carrot)}
+              unit="个"
+              delta={session.data?.is_can_upload ? '可上传' : '无上传权限'}
+              deltaSuffix={session.data ? ` · 剩余片单槽位 ${session.data.slot_remaining}` : ''}
+              tone="amber"
             />
           </section>
 
@@ -79,39 +73,110 @@ export function OverviewView({ range, onRangeChange }: { range: '6m' | '12m'; on
             <article className="card">
               <div className="chart-head">
                 <div>
-                  <p className="stat__label">各分区片量</p>
+                  <p className="stat__label">分区构成</p>
                   <p className="stat__value">
-                    {isLoading ? '—' : newThisMonth}
-                    <small>本月新增</small>
-                  </p>
-                  <p className="stat__delta">
-                    {isLoading ? '—' : `+${data!.kpis.media_delta}%`}
-                    <span>较上月</span>
+                    {zones.isLoading ? '—' : moviePct}
+                    <small>% 电影占比</small>
                   </p>
                 </div>
                 <div className="legend">
-                  {(data?.series ?? []).map((s) => (
-                    <span key={s.key} style={{ color: s.color }}>
-                      <i />
-                      {s.label}
-                    </span>
-                  ))}
+                  <span style={{ color: 'var(--c-yellow)' }}>
+                    <i />
+                    电影 {formatThousand(zones.data?.movie)}
+                  </span>
+                  <span style={{ color: 'var(--c-green)' }}>
+                    <i />
+                    剧集 {formatThousand(zones.data?.tv)}
+                  </span>
                 </div>
               </div>
 
-              {isLoading ? (
-                <div className="skeleton" style={{ height: 300, marginTop: 18 }} />
-              ) : data && data.series.length > 0 ? (
-                <GlowChart months={data.months} series={data.series} />
+              <div style={{ marginTop: 22, display: 'grid', gap: 14 }}>
+                {['movie', 'tv'].map((type) => {
+                  const value = type === 'movie' ? zones.data?.movie ?? 0 : zones.data?.tv ?? 0
+                  const pct = total ? (value / total) * 100 : 0
+                  const color = type === 'movie' ? 'var(--c-yellow)' : 'var(--c-green)'
+                  return (
+                    <div key={type} style={{ display: 'grid', gap: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                        <span style={{ color: 'var(--fg-2)' }}>{VIDEO_TYPE_LABEL[type]}</span>
+                        <span className="tnum" style={{ color: 'var(--fg-3)' }}>
+                          {formatThousand(value)} 部 · {pct.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div style={{ height: 8, borderRadius: 999, background: 'rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+                        <div
+                          style={{
+                            width: `${pct}%`,
+                            height: '100%',
+                            borderRadius: 999,
+                            background: color,
+                            boxShadow: `0 0 18px -6px ${color}`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </article>
+          </section>
+
+          <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+            <article className="card">
+              <p className="stat__label">上传榜</p>
+              {rank.isLoading ? (
+                <div className="skeleton" style={{ height: 160 }} />
               ) : (
-                <p className="state__hint" style={{ padding: '48px 0', textAlign: 'center' }}>
-                  后端未提供趋势数据（需要 /api/stats/overview）
-                </p>
+                <ol style={{ display: 'grid', gap: 12, marginTop: 8 }}>
+                  {(rank.data ?? []).slice(0, 5).map((row) => (
+                    <li key={row.username} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5 }}>
+                      <span className="tnum" style={{ width: 18, color: 'var(--fg-4)' }}>
+                        {row.index}
+                      </span>
+                      <span className="avatar" style={{ width: 22, height: 22, fontSize: 10.5 }}>
+                        {row.username.slice(0, 1)}
+                      </span>
+                      <span style={{ color: 'var(--fg-2)' }}>{row.username}</span>
+                      <span className="tnum" style={{ marginLeft: 'auto', color: 'var(--fg)' }}>
+                        {formatThousand(row.size)}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </article>
+
+            <article className="card">
+              <p className="stat__label">正在播放</p>
+              {playing.isLoading ? (
+                <div className="skeleton" style={{ height: 160 }} />
+              ) : playing.data && playing.data.length > 0 ? (
+                <ul style={{ display: 'grid', gap: 14, marginTop: 8 }}>
+                  {playing.data.slice(0, 3).map((item, i) => (
+                    <li key={`${item.video_title}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+                      <img className="poster-img" src={item.video_image_poster ?? ''} alt="" loading="lazy" />
+                      <span style={{ display: 'grid', gap: 2 }}>
+                        <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>
+                          {item.video_title}
+                          {item.season_number ? ` S${item.season_number}` : ''}
+                          {item.episode_number ? `E${item.episode_number}` : ''}
+                        </span>
+                        <span style={{ fontSize: 11.5, color: 'var(--fg-4)' }}>
+                          {item.upload_pseudonym ?? '—'} · {item.ua}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <EmptyBlock title="当前没有播放" hint="有设备开始播放时会出现在这里。" />
               )}
             </article>
           </section>
         </>
       ) : null}
+
     </>
   )
 }

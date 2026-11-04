@@ -291,6 +291,111 @@
           ]
         },
         {
+          "name": "统计",
+          "item": [
+            {
+              "name": "视频类",
+              "item": [
+                {
+                  "name": "观影记录",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/user/stats/video/history?dates[]=2026-08-02",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "user",
+                        "stats",
+                        "video",
+                        "history"
+                      ],
+                      "query": [
+                        {
+                          "key": "dates[]",
+                          "value": "2026-08-02",
+                          "description": "包含的日期",
+                          "type": "text"
+                        }
+                      ]
+                    },
+                    "description": "只可查今天之前的数据"
+                  },
+                  "response": [
+                    {
+                      "name": "观影记录",
+                      "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                          "raw": "{{url}}/api/user/stats/video/history?dates[]=2026-08-02",
+                          "host": [
+                            "{{url}}"
+                          ],
+                          "path": [
+                            "api",
+                            "user",
+                            "stats",
+                            "video",
+                            "history"
+                          ],
+                          "query": [
+                            {
+                              "key": "dates[]",
+                              "value": "2026-08-02",
+                              "description": "包含的日期"
+                            }
+                          ]
+                        }
+                      },
+                      "status": "OK",
+                      "code": 200,
+                      "_postman_previewlanguage": null,
+                      "header": [
+                        {
+                          "key": "Host",
+                          "value": "127.0.0.1:8000"
+                        },
+                        {
+                          "key": "Connection",
+                          "value": "close"
+                        },
+                        {
+                          "key": "X-Powered-By",
+                          "value": "PHP/8.5.9"
+                        },
+                        {
+                          "key": "Cache-Control",
+                          "value": "no-cache, private"
+                        },
+                        {
+                          "key": "Date",
+                          "value": "Mon, 24 Aug 2026 12:55:46 GMT"
+                        },
+                        {
+                          "key": "Content-Type",
+                          "value": "application/json"
+                        },
+                        {
+                          "key": "Access-Control-Allow-Origin",
+                          "value": "*"
+                        }
+                      ],
+                      "cookie": [],
+                      "body": "[\n    {\n        \"date\": \"2026-08-02\",\n        \"time_start\": \"11:20:50\",\n        \"time_end\": \"11:47:50\",\n        \"video_watch_second_real\": 1622,\n        \"video_watch_second_content\": 2257,\n        \"video_id\": 106399,\n        \"todbv_id\": 94316,\n        \"video_type\": \"tv\",\n        \"video_title\": \"九门\",\n        \"season_number\": 1,\n        \"episode_number\": 7,\n        \"media_name\": \"4K - h265 - 60fps - HDR - 掉色人🔥 上传\",\n        \"media_file_size\": 1179524097,\n        \"media_file_second\": 2668\n    },\n    {\n        \"date\": \"2026-08-02\",\n        \"time_start\": \"11:48:08\",\n        \"time_end\": \"12:17:04\",\n        \"video_watch_second_real\": 1554,\n        \"video_watch_second_content\": 3150,\n        \"video_id\": 106399,\n        \"todbv_id\": 94316,\n        \"video_type\": \"tv\",\n        \"video_title\": \"九门\",\n        \"season_number\": 1,\n        \"episode_number\": 8,\n        \"media_name\": \"4K - h265 - HDR - 掉色人🔥 上传\",\n        \"media_file_size\": 960290316,\n        \"media_file_second\": 2639\n    },\n    {\n        \"date\": \"2026-08-02\",\n        \"time_start\": \"15:58:45\",\n        \"time_end\": \"16:30:47\",\n        \"video_watch_second_real\": 1923,\n        \"video_watch_second_content\": 2554,\n        \"video_id\": 106399,\n        \"todbv_id\": 94316,\n        \"video_type\": \"tv\",\n        \"video_title\": \"九门\",\n        \"season_number\": 1,\n        \"episode_number\": 9,\n        \"media_name\": \"4K - h265 - 60fps - DV - 掉色人🔥 上传\",\n        \"media_file_size\": 6282744070,\n        \"media_file_second\": 2673\n    }\n]"
+                    }
+                  ]
+                }
+              ],
+              "description": "数据从 `2026-08-17` 开始"
+            }
+          ],
+          "description": "此部分接口可能改动较为频繁\n有相关问题 可在群中反馈"
+        },
+        {
           "name": "简单的信息",
           "request": {
             "method": "GET",
@@ -1460,6 +1565,76 @@
           ]
         },
         {
+          "name": "退出邀请",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/invite/exit",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "invite",
+                "exit"
+              ]
+            },
+            "description": "退出后需要重新找人邀请"
+          },
+          "response": [
+            {
+              "name": "退出邀请",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/invite/exit",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "invite",
+                    "exit"
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.5.10"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 06 Sep 2026 03:33:57 GMT"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
           "name": "邀请用户进入emps",
           "request": {
             "method": "POST",
@@ -1723,6 +1898,219 @@
           "name": "视频",
           "item": [
             {
+              "name": "通过文件名识别视频",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/upload/video/recognize?file_name=长风渡.2023.S01E02.第2集.2160p.WEB-DL.EDR.H.265.mp4&provider=binary",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "upload",
+                    "video",
+                    "recognize"
+                  ],
+                  "query": [
+                    {
+                      "key": "file_name",
+                      "value": "长风渡.2023.S01E02.第2集.2160p.WEB-DL.EDR.H.265.mp4",
+                      "description": "文件名"
+                    },
+                    {
+                      "key": "provider",
+                      "value": "binary",
+                      "description": "识别服务提供者"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "识别错误",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/upload/video/recognize?file_name=&provider",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "video",
+                        "recognize"
+                      ],
+                      "query": [
+                        {
+                          "key": "file_name",
+                          "value": "",
+                          "description": "文件名"
+                        },
+                        {
+                          "key": "provider",
+                          "value": null,
+                          "description": "识别服务提供者"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "Unprocessable Content",
+                  "code": 422,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 17:02:16 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"message\": \"未找到对应的视频, 请先同步后使用.\"\n}"
+                },
+                {
+                  "name": "识别正确 tv",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/upload/video/recognize?file_name=&provider",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "video",
+                        "recognize"
+                      ],
+                      "query": [
+                        {
+                          "key": "file_name",
+                          "value": "",
+                          "description": "文件名"
+                        },
+                        {
+                          "key": "provider",
+                          "value": null,
+                          "description": "识别服务提供者"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 17:02:33 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"file_type\": \"video\",\n    \"video_id\": 1002,\n    \"video_title\": \"21世纪大君夫人\",\n    \"video_type\": \"tv\",\n    \"date_air\": \"2026-04-10\",\n    \"video_season_id\": 1001,\n    \"video_season_title\": \"第 1 季\",\n    \"video_season_number\": 1,\n    \"video_episode_id\": 1034,\n    \"video_episode_title\": \"你要为了一个虚名而嫁给我？\",\n    \"video_episode_number\": 2,\n    \"item_type\": \"ve\",\n    \"item_id\": 1034\n}"
+                },
+                {
+                  "name": "识别正确 movie",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/upload/video/recognize?file_name=",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "video",
+                        "recognize"
+                      ],
+                      "query": [
+                        {
+                          "key": "file_name",
+                          "value": ""
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 17:03:08 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"file_type\": \"video\",\n    \"video_id\": 1001,\n    \"video_title\": \"穿普拉达的女王\",\n    \"video_type\": \"movie\",\n    \"date_air\": \"2006-06-29\",\n    \"item_type\": \"vl\",\n    \"item_id\": 1001\n}"
+                }
+              ]
+            },
+            {
               "name": "获取基本信息",
               "request": {
                 "method": "GET",
@@ -1936,7 +2324,7 @@
                     "saveInternal"
                   ]
                 },
-                "description": "需申请使用"
+                "description": "需申请使用 接口于 261018 因麻佬服务到期废弃"
               },
               "response": [
                 {
@@ -2839,6 +3227,261 @@
           "description": "针对于 获取上传凭证返回的是 `multipart` 时使用\n\n先基于上传凭凭证中的分片大小 本地判断要生成的分片数量\n再获取上传凭证\n客户都切片上传\n最后调用合并分片\n\n\n\n\n\n"
         },
         {
+          "name": "储存",
+          "item": [
+            {
+              "name": "可用储存列表",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/upload/store/disk",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "upload",
+                    "store",
+                    "disk"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "可用储存列表",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/upload/store/disk",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "store",
+                        "disk"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 14:06:37 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "[\n    \"local_emos_1\",\n    \"local_emos_2\",\n    \"local_laizer_1\"\n]"
+                }
+              ]
+            },
+            {
+              "name": "暂存区文件",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/upload/store/file?path_type=local_emos_1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "upload",
+                    "store",
+                    "file"
+                  ],
+                  "query": [
+                    {
+                      "key": "path_type",
+                      "value": "local_emos_1"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "暂存区文件",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{url}}/api/upload/store/file?path_type=local_emos_2",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "store",
+                        "file"
+                      ],
+                      "query": [
+                        {
+                          "key": "path_type",
+                          "value": "local_emos_2"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "",
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 15:18:38 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "[\n    {\n        \"file_name\": \"长风渡.2023.S01E02.第2集.2160p.WEB-DL.EDR.H.265.mp4\",\n        \"file_size\": 0,\n        \"mime_type\": \"video/mp4\"\n    },\n    {\n        \"file_name\": \"长风渡.2023.S01E03.第2集.2160p.WEB-DL.EDR.H.265.mp4\",\n        \"file_size\": 0,\n        \"mime_type\": \"video/mp4\"\n    },\n    {\n        \"file_name\": \"长风渡.2023.S01E01.第2集.2160p.WEB-DL.EDR.H.265.mp4.aria2\",\n        \"file_size\": 0,\n        \"mime_type\": \"text/plain; charset=utf-8\"\n    },\n    {\n        \"file_name\": \"长风渡.2023.S01E02.第1集.2160p.WEB-DL.EDR.H.265.mp4\",\n        \"file_size\": 123120,\n        \"mime_type\": \"video/mp4\"\n    },\n    {\n        \"file_name\": \"长风渡.2023.S01E02.第3集.2160p.WEB-DL.EDR.H.265.错误文件.mkv\",\n        \"file_size\": 0,\n        \"mime_type\": \"text/plain; charset=utf-8\"\n    }\n]"
+                }
+              ]
+            },
+            {
+              "name": "暂存区文件入库",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"item_type\": \"ve\",\n    \"item_id\": 1349,\n    \"path_type\": \"local_emos_1\",\n    // \"file_name\": \"长风渡.2023.S01E02.第2集.2160p.WEB-DL.EDR.H.265.mp4\",\n    \"file_name\": \"Smoking.Behind.the.Supermarket.With.You.2026.S01E03.1080p.NF.WEB-DL.x264.AAC-ADWeb.mkv\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/upload/store/archive",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "upload",
+                    "store",
+                    "archive"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "暂存区文件入库",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"item_type\": \"ve\",\n    \"item_id\": 1349,\n    \"path_type\": \"local_emos_1\",\n    // \"file_name\": \"长风渡.2023.S01E02.第2集.2160p.WEB-DL.EDR.H.265.mp4\",\n    \"file_name\": \"Smoking.Behind.the.Supermarket.With.You.2026.S01E03.1080p.NF.WEB-DL.x264.AAC-ADWeb.mkv\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/upload/store/archive",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "upload",
+                        "store",
+                        "archive"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 18 Oct 2026 16:33:53 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"media_id\": \"34o70vj78pq7\",\n    \"carrot\": 2\n}"
+                }
+              ]
+            }
+          ],
+          "description": "此处为内部入库使用"
+        },
+        {
           "name": "获取上传token",
           "event": [
             {
@@ -2858,7 +3501,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n\t// 资源类型 video 视频 subtitle 字幕 image 图片 audio 音频 music 音乐\n\t\"type\": \"video\",\n\t// 文件格式\n\t\"file_type\": \"video/mp4\",\n\t// 文件名称\n\t\"file_name\": \"dem1o2.mp4\",\n\t// 文件大小 字节\n\t\"file_size\": 250817,\n\t// 储存位置 和资源类型挂钩 如果当前资源没有对应储存 将储存于默认位置\n\t// default 默认\n\t// zn_r2_upload Zn存档服R2\n    // google_drive 谷歌盘\n\t\"file_storage\": \"google_drive\"\n}",
+              "raw": "{\n\t// 资源类型 video 视频 subtitle 字幕 image 图片 audio 音频 music 音乐\n\t\"type\": \"image\",\n\t// 文件格式\n\t\"file_type\": \"image/png\",\n\t// 文件名称\n\t\"file_name\": \"dem1o2.mp4\",\n\t// 文件大小 字节\n\t\"file_size\": 250817,\n\t// 储存位置 和资源类型挂钩 如果当前资源没有对应储存 将储存于默认位置\n\t// default 默认\n\t// zn_r2_upload Zn存档服R2\n    // google_drive 谷歌盘\n\t\"file_storage\": \"google_drive\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3139,7 +3782,7 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{url}}/api/video/media/list?video_list_id=1000&video_season_id=&video_episode_id=&video_part_id&include_metadata=",
+                  "raw": "{{url}}/api/video/media/list?video_list_id=1000&video_season_id=&video_episode_id=&video_part_id&include_metadata=&include_delete",
                   "host": [
                     "{{url}}"
                   ],
@@ -3174,6 +3817,12 @@
                       "key": "include_metadata",
                       "value": "",
                       "description": "包含元数据"
+                    },
+                    {
+                      "key": "include_delete",
+                      "value": null,
+                      "description": "包含已删除的资源",
+                      "type": "text"
                     }
                   ]
                 },
@@ -3254,7 +3903,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "[\n    {\n        \"season_id\": 1000,\n        \"episode_id\": 1001,\n        \"part_id\": null,\n        \"user_id\": \"eXD3VD3Y1s\",\n        \"media_id\": \"YLgw45W2Jk1V\",\n        \"media_name\": \" 上传\",\n        \"media_status\": \"complete\",\n        \"media_file_size\": 250817,\n        \"media_file_second\": null,\n        \"user_pseudonym\": \"张三\",\n        \"subtitle_count\": 0,\n        \"is_self_upload\": true,\n        \"created_at\": \"2026-01-18T15:42:34.000000Z\"\n    }\n]"
+                  "body": "[\n    {\n        \"season_id\": 1000,\n        \"episode_id\": 1001,\n        \"part_id\": null,\n        \"user_id\": \"eXD3VD3Y1s\",\n        \"media_id\": \"YLgw45W2Jk1V\",\n        \"media_name\": \" 上传\",\n        \"media_status\": \"complete\",\n        \"media_file_size\": 250817,\n        \"media_file_second\": null,\n        \"media_file_metadata\": null,\n        \"user_pseudonym\": \"张三\",\n        \"subtitle_count\": 0,\n        \"is_self_upload\": true,\n        \"created_at\": \"2026-01-18T15:42:34.000000Z\"\n        \"deleted_at\": null,\n        \"is_can_restore\": false\n    }\n]"
                 }
               ]
             },
@@ -3548,6 +4197,96 @@
                   ],
                   "cookie": [],
                   "body": "{\n    \"carrot\": 3\n}"
+                }
+              ]
+            },
+            {
+              "name": "恢复资源",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"media_id\": \"2xeowrq1nv49\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/video/media/restore",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "video",
+                    "media",
+                    "restore"
+                  ]
+                },
+                "description": "只可恢复 `is_can_restore` 为 `true` 的"
+              },
+              "response": [
+                {
+                  "name": "恢复资源",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"media_id\": \"2xeowrq1nv49\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/video/media/restore",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "video",
+                        "media",
+                        "restore"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Sun, 06 Sep 2026 08:38:02 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"carrot\": -10\n}"
                 }
               ]
             },
@@ -4401,7 +5140,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n    \"page\": 1,\n    \"page_size\": 10,\n    \"total\": 2,\n    \"items\": [\n        {\n            \"video_id\": 1007,\n            \"video_title\": \"教父\",\n            \"video_type\": \"movie\",\n            \"todb_id\": 1002,\n            \"tmdb_id\": 238,\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/4m3XGKBbmXjKPpyQ\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/VqemkNz8JjKDr6Xd\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/xkd23zZ5qaPW1gPN\",\n            \"season_number\": null,\n            \"episode_number\": null,\n            \"episode_image_poster\": null,\n            \"media_id\": \"deqped9rnmx8\",\n            \"media_name\": \"4K - hevc - sx66 上传\",\n            \"media_seconds\": 1385,\n            \"play_seconds\": 0,\n            \"play_ua\": \"Yamby/2.0.2.2(Android\",\n            \"is_complete\": false,\n            \"time\": \"2026-04-19 06:04:11\"\n        },\n        {\n            \"video_id\": 1000,\n            \"video_title\": \"沧元图\",\n            \"video_type\": \"tv\",\n            \"todb_id\": 2632,\n            \"tmdb_id\": 229192,\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/Ld4J6WEwyjMR0pY5\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/rDGwpKMvXPWVMyb4\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/JQo56WNjrpWX9Nvg\",\n            \"season_number\": 1,\n            \"episode_number\": 1,\n            \"episode_image_poster\": \"https://image.theotherdb.org/w185/dw47oRxjdlWZMVmG\",\n            \"media_id\": \"deqped9rnmx8\",\n            \"media_name\": \"4K - hevc - sx66 上传\",\n            \"media_seconds\": 1385,\n            \"play_seconds\": 81,\n            \"play_ua\": \"Yamby/2.0.2.2(Android\",\n            \"is_complete\": false,\n            \"time\": \"2026-04-19 06:03:55\"\n        }\n    ]\n}"
+                  "body": "{\n    \"page\": 1,\n    \"page_size\": 10,\n    \"total\": 2,\n    \"items\": [\n        {\n            \"video_id\": 1007,\n            \"video_title\": \"教父\",\n            \"video_type\": \"movie\",\n            \"todb_id\": 1002,\n            \"tmdb_id\": 238,\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/4m3XGKBbmXjKPpyQ\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/VqemkNz8JjKDr6Xd\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/xkd23zZ5qaPW1gPN\",\n            \"video_season_id\": null,\n            \"season_number\": null,\n            \"video_episode_id\": null,\n            \"episode_number\": null,\n            \"episode_image_poster\": null,\n            \"media_id\": \"deqped9rnmx8\",\n            \"media_name\": \"4K - hevc - sx66 上传\",\n            \"media_seconds\": 1385,\n            \"play_seconds\": 0,\n            \"play_ua\": \"Yamby/2.0.2.2(Android\",\n            \"is_complete\": false,\n            \"time\": \"2026-04-19 06:04:11\"\n        },\n        {\n            \"video_id\": 1000,\n            \"video_title\": \"沧元图\",\n            \"video_type\": \"tv\",\n            \"todb_id\": 2632,\n            \"tmdb_id\": 229192,\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/Ld4J6WEwyjMR0pY5\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/rDGwpKMvXPWVMyb4\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/JQo56WNjrpWX9Nvg\",\n            \"video_season_id\": 1,\n            \"season_number\": 1,\n            \"video_episode_id\": 1,\n            \"episode_number\": 1,\n            \"episode_image_poster\": \"https://image.theotherdb.org/w185/dw47oRxjdlWZMVmG\",\n            \"media_id\": \"deqped9rnmx8\",\n            \"media_name\": \"4K - hevc - sx66 上传\",\n            \"media_seconds\": 1385,\n            \"play_seconds\": 81,\n            \"play_ua\": \"Yamby/2.0.2.2(Android\",\n            \"is_complete\": false,\n            \"time\": \"2026-04-19 06:03:55\"\n        }\n    ]\n}"
                 }
               ]
             },
@@ -4438,7 +5177,8 @@
                       "description": "对应的类ID"
                     }
                   ]
-                }
+                },
+                "description": "这个视频的 就是 vl 用 video_id \n如果是某季 就是 vs 用 video_season_id\n如果是某集 就是 ve 用 video_episode_id"
               },
               "response": [
                 {
@@ -4734,7 +5474,7 @@
                 }
               ],
               "cookie": [],
-              "body": "[\n    {\n        \"video_type\": \"tv\",\n        \"item_type\": \"vl\",\n        \"item_id\": 1,\n        \"tmdb_id\": 63247,\n        \"todb_id\": 1000,\n        \"title\": \"西部世界\",\n        \"date_air\": \"2016-10-02\",\n        \"seasons\": [\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 1,\n                \"season_title\": \"特别篇\",\n                \"season_number\": 0,\n                \"date_air\": \"2017-11-07\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 5,\n                        \"episode_title\": \"第 1 集\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2017-11-07\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 10,\n                        \"episode_title\": \"第 2 集\",\n                        \"episode_number\": 2,\n                        \"date_air\": \"2016-12-26\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 15,\n                        \"episode_title\": \"第 3 集\",\n                        \"episode_number\": 3,\n                        \"date_air\": \"2017-11-07\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 20,\n                        \"episode_title\": \"第 4 集\",\n                        \"episode_number\": 4,\n                        \"date_air\": \"2016-12-26\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 25,\n                        \"episode_title\": \"第 5 集\",\n                        \"episode_number\": 5,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 30,\n                        \"episode_title\": \"第 6 集\",\n                        \"episode_number\": 6,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 35,\n                        \"episode_title\": \"第 7 集\",\n                        \"episode_number\": 7,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 40,\n                        \"episode_title\": \"第 8 集\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 43,\n                        \"episode_title\": \"第 9 集\",\n                        \"episode_number\": 9,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 46,\n                        \"episode_title\": \"第 10 集\",\n                        \"episode_number\": 10,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 47,\n                        \"episode_title\": \"第 11 集\",\n                        \"episode_number\": 11,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 48,\n                        \"episode_title\": \"第 12 集\",\n                        \"episode_number\": 12,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 49,\n                        \"episode_title\": \"第 13 集\",\n                        \"episode_number\": 13,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 50,\n                        \"episode_title\": \"第 14 集\",\n                        \"episode_number\": 14,\n                        \"date_air\": \"2018-06-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 51,\n                        \"episode_title\": \"第 15 集\",\n                        \"episode_number\": 15,\n                        \"date_air\": \"2018-06-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 52,\n                        \"episode_title\": \"第 16 集\",\n                        \"episode_number\": 16,\n                        \"date_air\": \"2018-06-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 53,\n                        \"episode_title\": \"第 17 集\",\n                        \"episode_number\": 17,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 54,\n                        \"episode_title\": \"第 18 集\",\n                        \"episode_number\": 18,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 55,\n                        \"episode_title\": \"第 19 集\",\n                        \"episode_number\": 19,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 56,\n                        \"episode_title\": \"第 20 集\",\n                        \"episode_number\": 20,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 57,\n                        \"episode_title\": \"第 21 集\",\n                        \"episode_number\": 21,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 58,\n                        \"episode_title\": \"第 22 集\",\n                        \"episode_number\": 22,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 59,\n                        \"episode_title\": \"第 23 集\",\n                        \"episode_number\": 23,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 60,\n                        \"episode_title\": \"第 24 集\",\n                        \"episode_number\": 24,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 61,\n                        \"episode_title\": \"第 25 集\",\n                        \"episode_number\": 25,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 62,\n                        \"episode_title\": \"第 26 集\",\n                        \"episode_number\": 26,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 63,\n                        \"episode_title\": \"第 27 集\",\n                        \"episode_number\": 27,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 64,\n                        \"episode_title\": \"第 28 集\",\n                        \"episode_number\": 28,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 65,\n                        \"episode_title\": \"第 29 集\",\n                        \"episode_number\": 29,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 66,\n                        \"episode_title\": \"第 30 集\",\n                        \"episode_number\": 30,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 67,\n                        \"episode_title\": \"第 31 集\",\n                        \"episode_number\": 31,\n                        \"date_air\": \"2017-03-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 68,\n                        \"episode_title\": \"第 32 集\",\n                        \"episode_number\": 32,\n                        \"date_air\": \"2018-06-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 69,\n                        \"episode_title\": \"第 33 集\",\n                        \"episode_number\": 33,\n                        \"date_air\": \"2018-06-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 70,\n                        \"episode_title\": \"第 34 集\",\n                        \"episode_number\": 34,\n                        \"date_air\": \"2018-07-02\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 71,\n                        \"episode_title\": \"第 35 集\",\n                        \"episode_number\": 35,\n                        \"date_air\": \"2018-07-09\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 72,\n                        \"episode_title\": \"第 36 集\",\n                        \"episode_number\": 36,\n                        \"date_air\": \"2018-07-16\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 73,\n                        \"episode_title\": \"第 37 集\",\n                        \"episode_number\": 37,\n                        \"date_air\": \"2018-07-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 74,\n                        \"episode_title\": \"第 38 集\",\n                        \"episode_number\": 38,\n                        \"date_air\": \"2018-07-30\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 75,\n                        \"episode_title\": \"第 39 集\",\n                        \"episode_number\": 39,\n                        \"date_air\": \"2018-08-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 76,\n                        \"episode_title\": \"第 40 集\",\n                        \"episode_number\": 40,\n                        \"date_air\": \"2018-08-13\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 77,\n                        \"episode_title\": \"第 41 集\",\n                        \"episode_number\": 41,\n                        \"date_air\": \"2018-08-20\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 78,\n                        \"episode_title\": \"第 42 集\",\n                        \"episode_number\": 42,\n                        \"date_air\": \"2020-03-14\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 79,\n                        \"episode_title\": \"第 43 集\",\n                        \"episode_number\": 43,\n                        \"date_air\": \"2018-08-27\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 80,\n                        \"episode_title\": \"第 44 集\",\n                        \"episode_number\": 44,\n                        \"date_air\": \"2018-09-03\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 81,\n                        \"episode_title\": \"第 45 集\",\n                        \"episode_number\": 45,\n                        \"date_air\": \"2018-09-10\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 82,\n                        \"episode_title\": \"第 46 集\",\n                        \"episode_number\": 46,\n                        \"date_air\": \"2018-09-17\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 83,\n                        \"episode_title\": \"第 47 集\",\n                        \"episode_number\": 47,\n                        \"date_air\": \"2018-09-24\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 84,\n                        \"episode_title\": \"第 48 集\",\n                        \"episode_number\": 48,\n                        \"date_air\": \"2018-10-01\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 85,\n                        \"episode_title\": \"第 49 集\",\n                        \"episode_number\": 49,\n                        \"date_air\": \"2018-10-08\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 86,\n                        \"episode_title\": \"第 50 集\",\n                        \"episode_number\": 50,\n                        \"date_air\": \"2020-03-10\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 87,\n                        \"episode_title\": \"第 51 集\",\n                        \"episode_number\": 51,\n                        \"date_air\": \"2020-03-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 88,\n                        \"episode_title\": \"第 52 集\",\n                        \"episode_number\": 52,\n                        \"date_air\": \"2020-03-30\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 89,\n                        \"episode_title\": \"第 53 集\",\n                        \"episode_number\": 53,\n                        \"date_air\": \"2020-04-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 90,\n                        \"episode_title\": \"第 54 集\",\n                        \"episode_number\": 54,\n                        \"date_air\": \"2020-04-13\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 91,\n                        \"episode_title\": \"第 55 集\",\n                        \"episode_number\": 55,\n                        \"date_air\": \"2020-04-20\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 92,\n                        \"episode_title\": \"第 56 集\",\n                        \"episode_number\": 56,\n                        \"date_air\": \"2020-04-27\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 93,\n                        \"episode_title\": \"第 57 集\",\n                        \"episode_number\": 57,\n                        \"date_air\": \"2020-05-04\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 94,\n                        \"episode_title\": \"第 58 集\",\n                        \"episode_number\": 58,\n                        \"date_air\": \"2020-05-11\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 95,\n                        \"episode_title\": \"第 59 集\",\n                        \"episode_number\": 59,\n                        \"date_air\": \"2020-05-18\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 96,\n                        \"episode_title\": \"第 60 集\",\n                        \"episode_number\": 60,\n                        \"date_air\": \"2020-05-25\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 97,\n                        \"episode_title\": \"第 61 集\",\n                        \"episode_number\": 61,\n                        \"date_air\": \"2020-06-01\"\n                    }\n                ]\n            },\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 2,\n                \"season_title\": \"迷宫\",\n                \"season_number\": 1,\n                \"date_air\": \"2016-10-02\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 1,\n                        \"episode_title\": \"起源\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2016-10-02\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 6,\n                        \"episode_title\": \"火中取栗\",\n                        \"episode_number\": 2,\n                        \"date_air\": \"2016-10-09\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 11,\n                        \"episode_title\": \"歧途\",\n                        \"episode_number\": 3,\n                        \"date_air\": \"2016-10-16\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 16,\n                        \"episode_title\": \"失衡理论\",\n                        \"episode_number\": 4,\n                        \"date_air\": \"2016-10-23\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 21,\n                        \"episode_title\": \"报复\",\n                        \"episode_number\": 5,\n                        \"date_air\": \"2016-10-30\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 26,\n                        \"episode_title\": \"对手\",\n                        \"episode_number\": 6,\n                        \"date_air\": \"2016-11-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 31,\n                        \"episode_title\": \"错觉\",\n                        \"episode_number\": 7,\n                        \"date_air\": \"2016-11-13\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 36,\n                        \"episode_title\": \"隐没\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2016-11-20\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 41,\n                        \"episode_title\": \"平均律钢琴曲\",\n                        \"episode_number\": 9,\n                        \"date_air\": \"2016-11-27\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 44,\n                        \"episode_title\": \"二分心智\",\n                        \"episode_number\": 10,\n                        \"date_air\": \"2016-12-04\"\n                    }\n                ]\n            },\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 3,\n                \"season_title\": \"门\",\n                \"season_number\": 2,\n                \"date_air\": \"2018-04-22\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 2,\n                        \"episode_title\": \"入夜之旅\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2018-04-22\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 7,\n                        \"episode_title\": \"团圆\",\n                        \"episode_number\": 2,\n                        \"date_air\": \"2018-04-29\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 12,\n                        \"episode_title\": \"品德与命运\",\n                        \"episode_number\": 3,\n                        \"date_air\": \"2018-05-06\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 17,\n                        \"episode_title\": \"斯芬克斯之谜\",\n                        \"episode_number\": 4,\n                        \"date_air\": \"2018-05-13\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 22,\n                        \"episode_title\": \"茜之舞\",\n                        \"episode_number\": 5,\n                        \"date_air\": \"2018-05-20\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 27,\n                        \"episode_title\": \"相空间\",\n                        \"episode_number\": 6,\n                        \"date_air\": \"2018-05-27\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 32,\n                        \"episode_title\": \"解剖模型\",\n                        \"episode_number\": 7,\n                        \"date_air\": \"2018-06-03\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 37,\n                        \"episode_title\": \"记忆\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2018-06-10\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 42,\n                        \"episode_title\": \"消失点\",\n                        \"episode_number\": 9,\n                        \"date_air\": \"2018-06-17\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 45,\n                        \"episode_title\": \"乘客\",\n                        \"episode_number\": 10,\n                        \"date_air\": \"2018-06-24\"\n                    }\n                ]\n            },\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 4,\n                \"season_title\": \"新世界\",\n                \"season_number\": 3,\n                \"date_air\": \"2020-03-15\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 3,\n                        \"episode_title\": \"求主顾惜\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2020-03-15\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 8,\n                        \"episode_title\": \"冬季防线\",\n                        \"episode_number\": 2,\n                        \"date_air\": \"2020-03-22\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 13,\n                        \"episode_title\": \"田野之缺\",\n                        \"episode_number\": 3,\n                        \"date_air\": \"2020-03-29\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 18,\n                        \"episode_title\": \"流亡者之母\",\n                        \"episode_number\": 4,\n                        \"date_air\": \"2020-04-05\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 23,\n                        \"episode_title\": \"浮世绘\",\n                        \"episode_number\": 5,\n                        \"date_air\": \"2020-04-12\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 28,\n                        \"episode_title\": \"退相干\",\n                        \"episode_number\": 6,\n                        \"date_air\": \"2020-04-19\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 33,\n                        \"episode_title\": \"通路兵\",\n                        \"episode_number\": 7,\n                        \"date_air\": \"2020-04-26\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 38,\n                        \"episode_title\": \"危机理论\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2020-05-03\"\n                    }\n                ]\n            },\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 5,\n                \"season_title\": \"选择\",\n                \"season_number\": 4,\n                \"date_air\": \"2022-06-26\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 4,\n                        \"episode_title\": \"预兆\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2022-06-26\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 9,\n                        \"episode_title\": \"自在\",\n                        \"episode_number\": 2,\n                        \"date_air\": \"2022-07-03\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 14,\n                        \"episode_title\": \"疯狂年代\",\n                        \"episode_number\": 3,\n                        \"date_air\": \"2022-07-10\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 19,\n                        \"episode_title\": \"换代\",\n                        \"episode_number\": 4,\n                        \"date_air\": \"2022-07-17\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 24,\n                        \"episode_title\": \"庄子\",\n                        \"episode_number\": 5,\n                        \"date_air\": \"2022-07-24\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 29,\n                        \"episode_title\": \"忠诚\",\n                        \"episode_number\": 6,\n                        \"date_air\": \"2022-07-31\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 34,\n                        \"episode_title\": \"悔改\",\n                        \"episode_number\": 7,\n                        \"date_air\": \"2022-08-07\"\n                    },\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 39,\n                        \"episode_title\": \"将会\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2022-08-14\"\n                    }\n                ]\n            }\n        ]\n    }\n]"
+              "body": "[\n    {\n        \"video_type\": \"tv\",\n        \"item_type\": \"vl\",\n        \"item_id\": 1,\n        \"tmdb_id\": 63247,\n        \"todb_id\": 1000,\n        \"title\": \"西部世界\",\n        \"date_air\": \"2016-10-02\",\n        \"seasons\": [\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 4,\n                \"season_title\": \"新世界\",\n                \"season_number\": 3,\n                \"date_air\": \"2020-03-15\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 3,\n                        \"episode_title\": \"求主顾惜\",\n                        \"episode_number\": 1,\n                        \"date_air\": \"2020-03-15\"\n                    }\n                ]\n            },\n            {\n                \"item_type\": \"vs\",\n                \"item_id\": 5,\n                \"season_title\": \"选择\",\n                \"season_number\": 4,\n                \"date_air\": \"2022-06-26\",\n                \"episodes\": [\n                    {\n                        \"item_type\": \"ve\",\n                        \"item_id\": 39,\n                        \"episode_title\": \"将会\",\n                        \"episode_number\": 8,\n                        \"date_air\": \"2022-08-14\"\n                    }\n                ]\n            }\n        ]\n    }\n]"
             }
           ]
         },
@@ -6131,7 +6871,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "[\n    {\n        \"video_id\": 1001,\n        \"video_type\": \"tv\",\n        \"video_title\": \"权力的游戏\",\n        \"video_origin_title\": \"Game of Thrones\",\n        \"video_date_air\": null,\n        \"video_is_adult\": false,\n        \"video_image_poster\": \"https://image.theotherdb.org/w185/6N5ZAPKyG2zLwlgx\"\n    }\n]"
+                  "body": "[\n    {\n        \"video_id\": 1001,\n        \"todbv_id\": 1038,\n        \"video_type\": \"tv\",\n        \"video_title\": \"权力的游戏\",\n        \"video_origin_title\": \"Game of Thrones\",\n        \"video_date_air\": \"2026-06-26\",\n        \"video_is_adult\": false,\n        \"video_image_poster\": \"https://image.theotherdb.org/w185/6N5ZAPKyG2zLwlgx\"\n    }\n]"
                 }
               ]
             },
@@ -8293,7 +9033,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total\": 3,\n    \"items\": [\n        {\n            \"id\": 1,\n            \"video_type\": \"movie\",\n            \"todb_id\": 7819,\n            \"tmdb_id\": 508935,\n            \"video_title_display\": \"八佰\",\n            \"video_list_id\": 7819,\n            \"video_season_id\": null,\n            \"video_season_number\": null,\n            \"video_episode_id\": null,\n            \"video_episode_number\": null,\n            \"count_request\": 1,\n            \"status\": \"default\",\n            \"upload_expired_at\": null,\n            \"updated_at\": \"2026-01-22T07:05:06.000000Z\",\n            \"video_title\": \"八佰\",\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/x4YQvW1DwLVKXa0O\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/N5ZAPKyMeeDKLwlg\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/gVAvkR7800VKjOJq\",\n            \"tmdb_url\": \"https://www.themoviedb.org/movie/508935\",\n            \"upload_username\": null,\n            \"is_can_claim\": true,\n            \"item_id\": \"vl-7819\",\n            \"seek_carrot\": 0\n        },\n        {\n            \"id\": 4,\n            \"video_type\": \"tv\",\n            \"todb_id\": 1009,\n            \"tmdb_id\": 124003,\n            \"video_title_display\": \"完美世界 # S00E02\",\n            \"video_list_id\": 1009,\n            \"video_season_id\": 1026,\n            \"video_season_number\": 0,\n            \"video_episode_id\": 1986,\n            \"video_episode_number\": 2,\n            \"count_request\": 1,\n            \"status\": \"default\",\n            \"upload_expired_at\": null,\n            \"updated_at\": \"2026-01-22T06:19:16.000000Z\",\n            \"video_title\": \"完美世界\",\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/oBl1NKJoGqWjJDwa\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/Oo3gmkRDNnWV15GA\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/O8pkdJz5obKMQyqx\",\n            \"tmdb_url\": \"https://www.themoviedb.org/tv/124003\",\n            \"upload_username\": null,\n            \"is_can_claim\": true,\n            \"item_id\": \"ve-1986\",\n            \"seek_carrot\": 0\n        },\n        {\n            \"id\": 3,\n            \"video_type\": \"movie\",\n            \"todb_id\": 7858,\n            \"tmdb_id\": 1093215,\n            \"video_title_display\": \"不亲密朋友\",\n            \"video_list_id\": 7858,\n            \"video_season_id\": null,\n            \"video_season_number\": null,\n            \"video_episode_id\": null,\n            \"video_episode_number\": null,\n            \"count_request\": 1,\n            \"status\": \"upload\",\n            \"upload_expired_at\": \"2026-01-23 14:18:38\",\n            \"updated_at\": \"2026-01-22T06:09:57.000000Z\",\n            \"video_title\": \"不亲密朋友\",\n            \"video_image_logo\": null,\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/1XaJpKvBL8MK3lx9\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/NxmMPWjDrQpR964Q\",\n            \"tmdb_url\": \"https://www.themoviedb.org/movie/1093215\",\n            \"upload_username\": \"soa\",\n            \"is_can_claim\": true,\n            \"item_id\": \"vl-7858\",\n            \"seek_carrot\": 0\n        }\n    ]\n}"
+              "body": "{\n    \"page\": 1,\n    \"page_size\": 20,\n    \"total\": 3,\n    \"items\": [\n        {\n            \"id\": 1,\n            \"video_type\": \"movie\",\n            \"todb_id\": 7819,\n            \"tmdb_id\": 508935,\n            \"video_title_display\": \"八佰\",\n            \"video_list_id\": 7819,\n            \"video_season_id\": null,\n            \"video_season_number\": null,\n            \"video_episode_id\": null,\n            \"video_episode_number\": null,\n            \"count_request\": 1,\n            \"status\": \"default\",\n            \"upload_expired_at\": null,\n            \"updated_at\": \"2026-01-22T07:05:06.000000Z\",\n            \"video_title\": \"八佰\",\n            \"video_date_air\": \"2026-07-14\",\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/x4YQvW1DwLVKXa0O\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/N5ZAPKyMeeDKLwlg\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/gVAvkR7800VKjOJq\",\n            \"tmdb_url\": \"https://www.themoviedb.org/movie/508935\",\n            \"upload_username\": null,\n            \"is_can_claim\": true,\n            \"item_id\": \"vl-7819\",\n            \"seek_carrot\": 0\n        },\n        {\n            \"id\": 4,\n            \"video_type\": \"tv\",\n            \"todb_id\": 1009,\n            \"tmdb_id\": 124003,\n            \"video_title_display\": \"完美世界 # S00E02\",\n            \"video_list_id\": 1009,\n            \"video_season_id\": 1026,\n            \"video_season_number\": 0,\n            \"video_episode_id\": 1986,\n            \"video_episode_number\": 2,\n            \"count_request\": 1,\n            \"status\": \"default\",\n            \"upload_expired_at\": null,\n            \"updated_at\": \"2026-01-22T06:19:16.000000Z\",\n            \"video_title\": \"完美世界\",\n            \"video_date_air\": \"2026-07-14\",\n            \"video_image_logo\": \"https://image.theotherdb.org/w154/oBl1NKJoGqWjJDwa\",\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/Oo3gmkRDNnWV15GA\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/O8pkdJz5obKMQyqx\",\n            \"tmdb_url\": \"https://www.themoviedb.org/tv/124003\",\n            \"upload_username\": null,\n            \"is_can_claim\": true,\n            \"item_id\": \"ve-1986\",\n            \"seek_carrot\": 0\n        },\n        {\n            \"id\": 3,\n            \"video_type\": \"movie\",\n            \"todb_id\": 7858,\n            \"tmdb_id\": 1093215,\n            \"video_title_display\": \"不亲密朋友\",\n            \"video_list_id\": 7858,\n            \"video_season_id\": null,\n            \"video_season_number\": null,\n            \"video_episode_id\": null,\n            \"video_episode_number\": null,\n            \"count_request\": 1,\n            \"status\": \"upload\",\n            \"upload_expired_at\": \"2026-01-23 14:18:38\",\n            \"updated_at\": \"2026-01-22T06:09:57.000000Z\",\n            \"video_title\": \"不亲密朋友\",\n            \"video_date_air\": \"2026-07-14\",\n            \"video_image_logo\": null,\n            \"video_image_poster\": \"https://image.theotherdb.org/w185/1XaJpKvBL8MK3lx9\",\n            \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/NxmMPWjDrQpR964Q\",\n            \"tmdb_url\": \"https://www.themoviedb.org/movie/1093215\",\n            \"upload_username\": \"soa\",\n            \"is_can_claim\": true,\n            \"item_id\": \"vl-7858\",\n            \"seek_carrot\": 0\n        }\n    ]\n}"
             },
             {
               "name": "包含用户求片历史",
@@ -9382,7 +10122,7 @@
                   "path": ""
                 }
               ],
-              "body": "[\n    {\n        \"video_title\": \"权力的游戏\",\n        \"video_type\": \"tv\",\n        \"todb_id\": 1001,\n        \"tmdb_id\": 1399,\n        \"season_number\": 1,\n        \"episode_number\": 2,\n        \"play_speed\": 20,\n        \"upload_pseudonym\": \"emos\",\n        \"ua\": \"SenPlayer/5.7.4\"\n    },\n    {\n        \"video_title\": \"智取威虎山\",\n        \"video_type\": \"movie\",\n        \"todb_id\": 7862,\n        \"tmdb_id\": 294992,\n        \"season_number\": null,\n        \"episode_number\": null,\n        \"play_speed\": 10,\n        \"upload_pseudonym\": \"emos\",\n        \"ua\": \"VidHub/1.4.2\"\n    }\n]"
+              "body": "[\n    {\n        \"video_title\": \"权力的游戏\",\n        \"video_type\": \"tv\",\n        \"todb_id\": 1001,\n        \"tmdb_id\": 1399,\n        \"season_number\": 1,\n        \"episode_number\": 2,\n        \"play_speed\": 20,\n        \"upload_pseudonym\": \"emos\",\n        \"ua\": \"SenPlayer/5.7.4\",\n        \"video_image_logo\": \"https://image.theotherdb.org/w154/gZy7LWQBNDJz2Ppn\",\n        \"video_image_poster\": \"https://image.theotherdb.org/w185/QZ94MERbYDzp2Jeg\",\n        \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/dOmDowzLALRBkQAL\"\n    },\n    {\n        \"video_title\": \"智取威虎山\",\n        \"video_type\": \"movie\",\n        \"todb_id\": 7862,\n        \"tmdb_id\": 294992,\n        \"season_number\": null,\n        \"episode_number\": null,\n        \"play_speed\": 10,\n        \"upload_pseudonym\": \"emos\",\n        \"ua\": \"VidHub/1.4.2\",\n        \"video_image_logo\": \"https://image.theotherdb.org/w154/gZy7LWQBNDJz2Ppn\",\n        \"video_image_poster\": \"https://image.theotherdb.org/w185/QZ94MERbYDzp2Jeg\",\n        \"video_image_backdrop\": \"https://image.theotherdb.org/w1280/dOmDowzLALRBkQAL\"\n    }\n]"
             }
           ]
         },
@@ -11595,6 +12335,142 @@
                 }
               ],
               "body": "{\n    \"carrot\": -10\n}"
+            }
+          ]
+        },
+        {
+          "name": "查询用户签到信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/pay/getUserSign?user_id=eXD3VD3Y1s",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "pay",
+                "getUserSign"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "eXD3VD3Y1s"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "有过签到",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/pay/getUserSign?user_id=eXD3VD3Y1s",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pay",
+                    "getUserSign"
+                  ],
+                  "query": [
+                    {
+                      "key": "user_id",
+                      "value": "eXD3VD3Y1s"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 13 Oct 2026 06:58:50 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"sign_index\": 2,\n    \"sign_at\": \"2026-09-19 14:11:37\",\n    \"earn_point\": 4,\n    \"continuous_days\": 1,\n    \"content\": null\n}"
+            },
+            {
+              "name": "从未签到",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/pay/getUserSign?user_id=eXD3VD3Y1s",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "pay",
+                    "getUserSign"
+                  ],
+                  "query": [
+                    {
+                      "key": "user_id",
+                      "value": "eXD3VD3Y1s"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 13 Oct 2026 07:00:12 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "text/html; charset=utf-8"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": null
             }
           ]
         }
@@ -13994,7 +14870,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n\t// 红包类型 必填\n\t// default 普通\n\t// password 口令\n\t\"type\": \"password\",\n\t// 领取类型 必填\n\t// average 均分模式 红包总金额 / 可领人数\n\t// random 随机模式 每人至少可以领取1\n\t\"receive\": \"average\",\n\t// 红包总金额 1 - 60000 萝卜 必填\n\t\"carrot\": 2,\n\t// 可领人数 1 - 10000 人 必填\n\t\"number\": 2,\n\t// 寄语 50子内 必填\n\t\"blessing\": \"新年快乐\",\n\t// 字符串 区分大小写 1-50字符内 口令或专属时必填\n\t\"text\": null,\n\t// 文件访问url 图片类型建议小于1m\n\t\"file_url\": \"https://image.tmdb.org/t/p/w500/hew9LSQW4wk63aN1Z7cEBTISL9B.jpg\",\n\t// 文件类型 如果存在 file_id 或 file_url 则必填 决定了红包的类型 支持 image audio\n\t\"file_type\": \"image\",\n\t// 独占模式 存在file_url并且为true时bot只会显示文件内容 默认为 false\n\t\"is_exclusive\": true,\n\t// 过期时间 60秒 - 48小时 默认为24小时 单位秒\n\t\"seconds\": 120\n}",
+              "raw": "{\n\t// 红包类型 必填\n\t// default 普通\n\t// password 口令\n\t\"type\": \"default\",\n\t// 领取类型 必填\n\t// average 均分模式 红包总金额 / 可领人数\n\t// random 随机模式 每人至少可以领取1\n\t\"receive\": \"average\",\n\t// 红包总金额 1 - 60000 萝卜 必填\n\t\"carrot\": 2,\n\t// 可领人数 1 - 10000 人 必填\n\t\"number\": 2,\n\t// 寄语 50子内 必填\n\t\"blessing\": \"新年快乐\",\n\t// 字符串 区分大小写 1-50字符内 口令或专属时必填\n\t\"text\": null,\n\t// 文件访问url 图片类型建议小于1m\n\t// \"file_url\": \"https://image.tmdb.org/t/p/w500/hew9LSQW4wk63aN1Z7cEBTISL9B.jpg\",\n\t// 文件类型 如果存在 file_id 或 file_url 则必填 决定了红包的类型 支持 image audio\n\t// \"file_type\": \"image\",\n\t// 独占模式 存在file_url并且为true时bot只会显示文件内容 默认为 false\n\t\"is_exclusive\": true,\n\t// 过期时间 60秒 - 48小时 默认为24小时 单位秒\n\t\"seconds\": 120\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -14085,7 +14961,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/api/redPacket/receive?red_packet_id=K21DY2yxLj6e",
+              "raw": "{{url}}/api/redPacket/receive?red_packet_id=BLJg3EDpYAno",
               "host": [
                 "{{url}}"
               ],
@@ -14097,7 +14973,7 @@
               "query": [
                 {
                   "key": "red_packet_id",
-                  "value": "K21DY2yxLj6e"
+                  "value": "BLJg3EDpYAno"
                 }
               ]
             }
@@ -14161,6 +15037,98 @@
               ],
               "cookie": [],
               "body": "{\n    \"page\": 1,\n    \"page_size\": 15,\n    \"total\": 1,\n    \"items\": [\n        {\n            \"user_id\": \"eQP312ER4s\",\n            \"username\": \"user_i\",\n            \"avatar\": null,\n            \"carrot\": 12,\n            \"receive_at\": \"2026-02-16T21:01:31.000000Z\"\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "在 telegram 发 html 格式红包",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    // 红包类型 必填\n    \"type\": \"default\",\n    // 领取类型 必填\n    \"receive\": \"average\",\n    // 红包总金额 1 - 60000 萝卜 必填\n    \"carrot\": 2,\n    // 可领人数 1 - 10000 人 必填\n    \"number\": 2,\n    // 字符串 区分大小写 1-50字符内 口令或专属时必填\n    \"password\": null,\n    // 过期时间 60秒 - 48小时 默认为24小时 单位秒\n    \"seconds\": 120,\n    // html 内容 6000字符内\n    \"html\": \"啦啦啦啦<br><h1>asdf</h1><img src=\\\"https://telegram.org/example/photo.jpg\\\"></img><hr /><audio src=\\\"https://telegram.org/example/audio.ogg\\\"></audio><video src=\\\"https://telegram.org/example/video.mp4\\\" tg-spoiler></video>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/api/redPacket/createTelegramHtml",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "redPacket",
+                "createTelegramHtml"
+              ]
+            },
+            "description": "telegram 可用 html 标签列表\n\nhttps://core.telegram.org/bots/api#rich-html-style\n\n图片视频等 均采用外链 https 类型地址 端口不支持自定义\n\n如果发送失败 会吞红包 等待有效期结束会自动退款\n\n其余参数和 发红包相同 \n\n\n"
+          },
+          "response": [
+            {
+              "name": "在 telegram 发 html 格式红包",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    // 红包类型 必填\n    \"type\": \"default\",\n    // 领取类型 必填\n    \"receive\": \"average\",\n    // 红包总金额 1 - 60000 萝卜 必填\n    \"carrot\": 2,\n    // 可领人数 1 - 10000 人 必填\n    \"number\": 2,\n    // 字符串 区分大小写 1-50字符内 口令或专属时必填\n    \"password\": null,\n    // 过期时间 60秒 - 48小时 默认为24小时 单位秒\n    \"seconds\": 120,\n    // html 内容 6000字符内\n    \"html\": \"啦啦啦啦<br><h1>asdf</h1><img src=\\\"https://telegram.org/example/photo.jpg\\\"></img><hr /><audio src=\\\"https://telegram.org/example/audio.ogg\\\"></audio><video src=\\\"https://telegram.org/example/video.mp4\\\" tg-spoiler></video>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/redPacket/createTelegramHtml",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "redPacket",
+                    "createTelegramHtml"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "X-Powered-By",
+                  "value": "PHP/8.5.10"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Sun, 06 Sep 2026 02:38:59 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"red_packet_id\": \"vkQN8d6jYJqD\"\n}"
             }
           ]
         }
@@ -17402,7 +18370,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n\t\"order_no\": \"\",\n\t\"footprint_post_id\": \"\",\n\t\"images\": [],\n\t\"remark\": \"\"\n}",
+                  "raw": "{\n\t\"order_no\": \"20260815145709funduWCLH\",\n\t\"images\": [],\n\t\"remark\": \"\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -17422,7 +18390,384 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "提交报销凭证",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n\t\"order_no\": \"20260815145709funduWCLH\",\n\t\"images\": [],\n\t\"remark\": \"\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/fund/order/evidence",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "fund",
+                        "order",
+                        "evidence"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": null,
+                  "header": [
+                    {
+                      "key": "Host",
+                      "value": "127.0.0.1:8000"
+                    },
+                    {
+                      "key": "Connection",
+                      "value": "close"
+                    },
+                    {
+                      "key": "Cache-Control",
+                      "value": "no-cache, private"
+                    },
+                    {
+                      "key": "Date",
+                      "value": "Tue, 22 Sep 2026 02:38:10 GMT"
+                    },
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    },
+                    {
+                      "key": "Access-Control-Allow-Origin",
+                      "value": "*"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n    \"payout_status\": \"reviewing\"\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "悄悄话",
+      "item": [
+        {
+          "name": "发送",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"receiver_user_id\": \"eXD3VPZ3Ys\",\n    // 最多5k\n    \"content\": \"内容\",\n    \"is_anonymous\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/api/whisper/create",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "whisper",
+                "create"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "发送",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"receiver_user_id\": \"eXD3VPZ3Ys\",\n    \"content\": \"内容\",\n    \"is_anonymous\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/whisper/create",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "whisper",
+                    "create"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 23 Sep 2026 03:34:44 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"whisper_id\": 1001\n}"
+            }
+          ]
+        },
+        {
+          "name": "发出的",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/whisper/sender",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "whisper",
+                "sender"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "发出的",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/whisper/sender",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "whisper",
+                    "sender"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 23 Sep 2026 03:54:59 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n    {\n        \"whisper_id\": 1001,\n        \"sender_content\": \"内容\",\n        \"sender_is_anonymous\": false,\n        \"sender_at\": \"2026-09-23 11:34:44\",\n        \"receiver_user\": {\n            \"id\": \"eXD3VPZ3Ys\",\n            \"username\": \"emos\",\n            \"avatar\": null\n        },\n        \"receiver_content\": null,\n        \"receiver_at\": null\n    },\n    {\n        \"whisper_id\": 1000,\n        \"sender_content\": \"内容\",\n        \"sender_is_anonymous\": true,\n        \"sender_at\": \"2026-09-23 11:33:34\",\n        \"receiver_user\": {\n            \"id\": \"eXD3VD3Y1s\",\n            \"username\": \"soa\",\n            \"avatar\": null\n        },\n        \"receiver_content\": \"内容\",\n        \"receiver_at\": \"2026-09-23 11:53:43\"\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "收到的",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/whisper/receiver",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "whisper",
+                "receiver"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "收到的",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/whisper/receiver",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "whisper",
+                    "receiver"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 23 Sep 2026 03:56:29 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n    {\n        \"whisper_id\": 1002,\n        \"sender_content\": \"内容\",\n        \"sender_at\": \"2026-09-23 11:55:51\",\n        \"sender_user\": {\n            \"id\": \"eXD3VD3Y1s\",\n            \"username\": \"soa\",\n            \"avatar\": null\n        },\n        \"receiver_content\": null,\n        \"receiver_at\": null\n    },\n    {\n        \"whisper_id\": 1000,\n        \"sender_content\": \"内容\",\n        \"sender_at\": \"2026-09-23 11:33:34\",\n        \"sender_user\": null,\n        \"receiver_content\": \"内容\",\n        \"receiver_at\": \"2026-09-23 11:53:43\"\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "回复",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"whisper_id\": 1000,\n\t\"content\": \"内容\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/api/whisper/reply",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "whisper",
+                "reply"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "回复",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\t\"whisper_id\": 1000,\n\t\"content\": \"内容\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/whisper/reply",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "whisper",
+                    "reply"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": null,
+              "header": [
+                {
+                  "key": "Host",
+                  "value": "127.0.0.1:8000"
+                },
+                {
+                  "key": "Connection",
+                  "value": "close"
+                },
+                {
+                  "key": "Cache-Control",
+                  "value": "no-cache, private"
+                },
+                {
+                  "key": "Date",
+                  "value": "Wed, 23 Sep 2026 03:52:35 GMT"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"whisper_id\": 1000\n}"
             }
           ]
         }

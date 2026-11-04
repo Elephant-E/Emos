@@ -3,8 +3,11 @@ import { AdminLayout } from '@/layouts/AdminLayout'
 import { OverviewView } from '@/views/OverviewView'
 import { LibraryView } from '@/views/LibraryView'
 import { SeekView } from '@/views/SeekView'
+import { WatchlistsView } from '@/views/WatchlistsView'
+import { WatchlistDetailView } from '@/views/WatchlistDetailView'
 import { PlaceholderView, LoginView } from '@/views/PlaceholderView'
 import { getToken } from '@/api/client'
+import type { VideoType } from '@/api/types'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -35,34 +38,16 @@ const appLayout = createRoute({
   },
 })
 
-const overviewRoute = createRoute({
-  getParentRoute: () => appLayout,
-  path: '/',
-  validateSearch: (s: Record<string, unknown>): { range: '6m' | '12m' } => ({
-    range: s.range === '12m' ? '12m' : '6m',
-  }),
-  component: OverviewRoute,
-})
-
-function OverviewRoute() {
-  const { range } = overviewRoute.useSearch()
-  const navigate = overviewRoute.useNavigate()
-  return (
-    <OverviewView
-      range={range}
-      onRangeChange={(next) => navigate({ search: { range: next }, replace: true })}
-    />
-  )
-}
+const overviewRoute = createRoute({ getParentRoute: () => appLayout, path: '/', component: OverviewView })
 
 const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/library',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: string } => ({
+  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: '' | VideoType } => ({
     page: Math.max(1, Number(s.page) || 1),
     page_size: 20,
     q: typeof s.q === 'string' ? s.q : '',
-    type: typeof s.type === 'string' ? s.type : '',
+    type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
   }),
   component: LibraryRoute,
 })
@@ -70,18 +55,16 @@ const libraryRoute = createRoute({
 function LibraryRoute() {
   const search = libraryRoute.useSearch()
   const navigate = libraryRoute.useNavigate()
-  return (
-    <LibraryView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
-  )
+  return <LibraryView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
 }
 
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; status: string } => ({
+  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; tab: 'all' | 'default' | 'upload' | 'complete' } => ({
     page: Math.max(1, Number(s.page) || 1),
     page_size: 20,
-    status: typeof s.status === 'string' ? s.status : 'all',
+    tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
   }),
   component: SeekRoute,
 })
@@ -92,14 +75,56 @@ function SeekRoute() {
   return <SeekView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
 }
 
+const watchlistsRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/watchlists',
+  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; scope: 'all' | 'self' | 'subscribed'; type: 'video' | 'music' } => ({
+    page: Math.max(1, Number(s.page) || 1),
+    page_size: 20,
+    scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
+    type: s.type === 'music' ? 'music' : 'video',
+  }),
+  component: WatchlistsRoute,
+})
+
+function WatchlistsRoute() {
+  const search = watchlistsRoute.useSearch()
+  const navigate = watchlistsRoute.useNavigate()
+  return <WatchlistsView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const watchlistDetailRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/watchlists/$watchId',
+  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
+    page: Math.max(1, Number(s.page) || 1),
+    page_size: 20,
+    q: typeof s.q === 'string' ? s.q : '',
+  }),
+  component: WatchDetailRoute,
+})
+
+function WatchDetailRoute() {
+  const { watchId } = watchlistDetailRoute.useParams()
+  const search = watchlistDetailRoute.useSearch()
+  const navigate = watchlistDetailRoute.useNavigate()
+  return (
+    <WatchlistDetailView
+      watchId={Number(watchId)}
+      search={search}
+      onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })}
+    />
+  )
+}
+
 const placeholders: Array<{ path: string; title: string; note: string }> = [
-  { path: '/watchlists', title: '片单', note: '片单增删改、订阅排序、动态抓取，接 /api/watch 系列。' },
-  { path: '/upload', title: '上传', note: '分片上传、识别、入库与暂存区，接 /api/upload 系列。' },
-  { path: '/live', title: '直播', note: '直播源与媒体库，接 /api/live 系列。' },
-  { path: '/shop', title: '商城', note: '商品、分类与店铺，接 /api/shop 系列。' },
-  { path: '/orders', title: '订单', note: '订单列表与发货，接 /api/shop/order 系列。' },
+  { path: '/upload', title: '上传', note: '分片上传 / 识别 / 入库 / 暂存区搬运，接 /api/upload 与 /api/upload/multipart。' },
+  { path: '/live', title: '直播', note: '直播列表、源管理与媒体库，接 /api/live 系列。' },
+  { path: '/shop', title: '商城', note: '店铺、分类、商品、订单与发货，接 /api/shop 系列。' },
+  { path: '/orders', title: '订单', note: '商户订单、发货与备注，接 /api/shop/order/shop。' },
+  { path: '/music', title: '音乐', note: '歌曲、专辑、歌手、歌词与资源，接 /api/music 系列。' },
   { path: '/lines', title: '线路', note: '反代线路增删，接 /api/proxy/line。' },
-  { path: '/account', title: '账号', note: '账号设置、邀请与封禁，接 /api/user 与 /api/ban。' },
+  { path: '/account', title: '账号', note: '账号设置、邀请树、胡萝卜、封禁，接 /api/user 与 /api/invite。' },
 ]
 
 const placeholderRoutes = placeholders.map((item) =>
@@ -112,7 +137,14 @@ const placeholderRoutes = placeholders.map((item) =>
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  appLayout.addChildren([overviewRoute, libraryRoute, seekRoute, ...placeholderRoutes]),
+  appLayout.addChildren([
+    overviewRoute,
+    libraryRoute,
+    seekRoute,
+    watchlistsRoute,
+    watchlistDetailRoute,
+    ...placeholderRoutes,
+  ]),
 ])
 
 export const router = createRouter({ routeTree, defaultPreload: 'intent' })

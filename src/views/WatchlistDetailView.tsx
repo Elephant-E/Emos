@@ -1,0 +1,273 @@
+import { useState } from 'react'
+import { PageHeader } from '@/components/PageHeader'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { Modal } from '@/components/Modal'
+import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { useWatch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+
+export interface WatchDetailSearch {
+  page: number
+  page_size: number
+  q: string
+}
+
+export function WatchlistDetailView({
+  watchId,
+  search,
+  onSearch,
+}: {
+  watchId: number
+  search: WatchDetailSearch
+  onSearch: (patch: Partial<WatchDetailSearch>) => void
+}) {
+  const id = watchId
+
+  const [term, setTerm] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [dynamicOpen, setDynamicOpen] = useState(false)
+  const [dynamicUrl, setDynamicUrl] = useState('')
+
+  const watch = useWatch(id)
+  const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
+  const candidates = useWatchSearch(id, term)
+  const { addVideo, removeVideo, subscribe, toggleShow, setDynamic } = useWatchMutations(id)
+
+  const item = watch.data?.items[0]
+  const totalPages = videos.data ? Math.max(1, Math.ceil(videos.data.total / videos.data.page_size)) : 1
+
+  const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
+
+  return (
+    <>
+      <PageHeader
+        crumb={['片单', item?.name ?? '详情']}
+        title={item?.name ?? '片单'}
+        hint={item ? `${formatThousand(item.video_count)} 部` : undefined}
+        tools={
+          item ? (
+            <>
+              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate()} disabled={subscribe.isPending}>
+                {item.is_subscribe ? '取消订阅' : '订阅'}
+              </button>
+              {item.is_self ? (
+                <>
+                  <button className="btn btn--ghost" onClick={() => toggleShow.mutate()} disabled={toggleShow.isPending}>
+                    {item.user_is_show ? '隐藏' : '显示'}
+                  </button>
+                  <button className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
+                    动态抓取
+                  </button>
+                </>
+              ) : null}
+            </>
+          ) : null
+        }
+      />
+
+      {watch.error ? <ErrorBlock error={watch.error as Error & { status?: number }} onRetry={() => watch.refetch()} /> : null}
+
+      {item ? (
+        <section className="detail-head">
+          <div className="detail-head__row">
+            {item.image_poster_url ? <img className="poster-img" style={{ width: 56, height: 76 }} src={item.image_poster_url} alt="" /> : null}
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
+                  <i />
+                  {item.is_public ? '公开' : '私密'}
+                </span>
+                {item.tags.map((tag) => (
+                  <span key={tag} className="chip">
+                    {tag}
+                  </span>
+                ))}
+                {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
+              </div>
+              {item.description ? <p className="detail-desc">{item.description}</p> : null}
+              <div className="detail-stats">
+                <div className="detail-stat">
+                  <b>{formatThousand(item.video_count)}</b>
+                  <span>影片</span>
+                </div>
+                <div className="detail-stat">
+                  <b>{formatThousand(item.subscribe_count)}</b>
+                  <span>订阅</span>
+                </div>
+                <div className="detail-stat">
+                  <b>{formatRelative(item.updated_at)}</b>
+                  <span>更新</span>
+                </div>
+                <div className="detail-stat">
+                  <b>{item.author?.username ?? '—'}</b>
+                  <span>作者</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <div className="toolbar">
+        <input
+          className="input"
+          type="search"
+          placeholder="在该片单里搜片名"
+          defaultValue={search.q}
+          onKeyDown={(e) => e.key === 'Enter' && go({ q: (e.target as HTMLInputElement).value.trim(), page: 1 })}
+        />
+        <span className="spacer" />
+        {item?.is_edit_video ? (
+          <button className="btn btn--primary" onClick={() => setAdding(true)}>
+            <IconPlus />
+            添加影片
+          </button>
+        ) : null}
+      </div>
+
+      {videos.error ? <ErrorBlock error={videos.error as Error & { status?: number }} onRetry={() => videos.refetch()} /> : null}
+      {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
+
+      {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
+        <EmptyBlock title="片单里还没有影片" hint="点「添加影片」，按片名搜索后加入。" />
+      ) : null}
+
+      {!videos.isLoading && videos.data && videos.data.items.length > 0 ? (
+        <div className="table-card">
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '44%' }}>影片</th>
+                <th style={{ width: '12%' }}>类型</th>
+                <th className="num" style={{ width: '12%' }}>排序</th>
+                <th style={{ width: '18%' }}>备注</th>
+                <th style={{ width: '14%', textAlign: 'right' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {videos.data.items.map((video) => (
+                <tr key={video.video_id}>
+                  <td>
+                    <div className="cell-title">
+                      {video.video_image_poster ? (
+                        <img className="poster-img" src={video.video_image_poster} alt="" loading="lazy" />
+                      ) : (
+                        <span className="thumb">{video.video_title.slice(0, 1)}</span>
+                      )}
+                      <span>
+                        <span className="cell-title__name">{video.video_title}</span>
+                        <span className="cell-title__code">
+                          {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="zone">
+                      <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
+                      {VIDEO_TYPE_LABEL[video.video_type]}
+                    </span>
+                  </td>
+                  <td className="num">{video.sort}</td>
+                  <td className="muted">{video.remark ?? '—'}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    {item?.is_edit_video ? (
+                      <button className="btn btn--quiet" onClick={() => removeVideo.mutate(video.video_id)} disabled={removeVideo.isPending}>
+                        移出
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="table-foot">
+            <span>
+              共 {formatThousand(videos.data.total)} 部 · 第 {search.page} / {totalPages} 页
+            </span>
+            <div className="pager">
+              <button disabled={search.page <= 1} onClick={() => go({ page: search.page - 1 })} aria-label="上一页">
+                <IconLeft />
+              </button>
+              <button aria-current="page">{search.page}</button>
+              <button disabled={search.page >= totalPages} onClick={() => go({ page: search.page + 1 })} aria-label="下一页">
+                <IconRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {adding ? (
+        <Modal title="添加影片" onClose={() => setAdding(false)} width={520}>
+          <label className="field">
+            <span>按片名搜索</span>
+            <input
+              className="input"
+              autoFocus
+              value={term}
+              placeholder="输入片名，回车搜索"
+              onChange={(e) => setTerm(e.target.value)}
+            />
+          </label>
+          <div style={{ display: 'grid', gap: 6, maxHeight: 320, overflowY: 'auto' }}>
+            {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
+            {(candidates.data ?? []).map((c) => (
+              <div key={c.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                {c.video_image_poster ? <img className="poster-img" src={c.video_image_poster} alt="" /> : null}
+                <span style={{ display: 'grid' }}>
+                  <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
+                  <span className="muted" style={{ fontSize: 11.5 }}>
+                    {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
+                  </span>
+                </span>
+                <button
+                  className="btn btn--ghost"
+                  style={{ marginLeft: 'auto' }}
+                  onClick={() => addVideo.mutate(c.video_id)}
+                  disabled={addVideo.isPending}
+                >
+                  加入
+                </button>
+              </div>
+            ))}
+            {term.trim() && !candidates.isFetching && (candidates.data ?? []).length === 0 ? (
+              <p className="muted">没有找到「{term}」</p>
+            ) : null}
+          </div>
+        </Modal>
+      ) : null}
+
+      {dynamicOpen ? (
+        <Modal
+          title="动态抓取"
+          onClose={() => setDynamicOpen(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setDynamicOpen(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                onClick={() => {
+                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null)
+                  setDynamicOpen(false)
+                }}
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>抓取地址（留空关闭）</span>
+            <input className="input" value={dynamicUrl} onChange={(e) => setDynamicUrl(e.target.value)} placeholder="https://…" />
+          </label>
+          <p className="state__hint" style={{ textAlign: 'left' }}>
+            填了地址后，片单会按该地址定期同步内容；清空即关闭。
+          </p>
+        </Modal>
+      ) : null}
+    </>
+  )
+}

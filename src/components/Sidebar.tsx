@@ -48,11 +48,8 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
 ]
 
 const ZONES = [
-  { key: 'movie', label: '电影', color: 'var(--c-yellow)', tail: '1.2k' },
-  { key: 'series', label: '剧集', color: 'var(--c-green)', tail: '480' },
-  { key: 'documentary', label: '纪录片', color: 'var(--c-blue)', tail: '210' },
-  { key: 'variety', label: '综艺', color: 'var(--c-pink)', tail: '64' },
-  { key: 'short', label: '短片', color: 'var(--c-purple)', tail: '18' },
+  { key: 'movie' as const, label: '电影', color: 'var(--c-yellow)' },
+  { key: 'tv' as const, label: '剧集', color: 'var(--c-green)' },
 ]
 
 export function Sidebar({ user }: { user?: { pseudonym?: string | null; username?: string } }) {
@@ -119,7 +116,6 @@ export function Sidebar({ user }: { user?: { pseudonym?: string | null; username
               <span className="rail__dot" style={{ color: zone.color }} />
             </span>
             <span>{zone.label}</span>
-            <span className="rail__tail">{zone.tail}</span>
           </Link>
         ))}
       </nav>
