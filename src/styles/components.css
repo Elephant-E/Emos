@@ -279,7 +279,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
-  margin-top: 26px;
+  margin-top: 24px;
   max-width: var(--page-max);
 }
 
@@ -291,7 +291,7 @@
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
   box-shadow: var(--shadow-card);
-  padding: 24px 26px 26px;
+  padding: 24px;
 }
 .stat__label {
   margin: 0 0 14px;
@@ -469,7 +469,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 13px 16px;
+  padding: 13px 20px;
   text-align: left;
   font-size: var(--text-xs);
   font-weight: 500;
@@ -501,7 +501,7 @@
 th.num .th-sort { flex-direction: row-reverse; }
 .table tbody td {
   height: 38px;
-  padding: 7px 16px;
+  padding: 7px 20px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--fg-2);
   font-size: 13.5px;
@@ -567,7 +567,7 @@ th.num .th-sort { flex-direction: row-reverse; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 12px 20px;
   border-top: 1px solid var(--line-soft);
   color: var(--fg-3);
   font-size: 12.5px;
@@ -802,7 +802,7 @@ th.num .th-sort { flex-direction: row-reverse; }
 .detail-head {
   display: grid;
   gap: 16px;
-  padding: 22px 24px;
+  padding: 24px;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));

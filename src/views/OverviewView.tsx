@@ -198,7 +198,7 @@ export function OverviewView() {
                 </span>
               )
             })}
-            {!stats.data ? <span className="muted" style={{ fontSize: 12 }}>取数中…</span> : null}
+            {!stats.data ? <span className="muted" style={{ fontSize: 12 }}>读取中</span> : null}
           </div>
 
           <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
