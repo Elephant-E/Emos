@@ -13,7 +13,7 @@ import { ShopView } from '@/views/ShopView'
 import { OrdersView } from '@/views/OrdersView'
 import { LiveView } from '@/views/LiveView'
 import { LinesView } from '@/views/LinesView'
-import { getToken } from '@/api/client'
+import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
 const rootRoute = createRootRoute({
@@ -39,7 +39,7 @@ const appLayout = createRoute({
   id: 'app',
   component: AdminLayout,
   beforeLoad: () => {
-    if (!getToken() && import.meta.env.VITE_MOCK !== '1') {
+    if (!getToken() && !USE_MOCK) {
       throw redirect({ to: '/login' })
     }
   },

@@ -35,13 +35,15 @@ export function VideoDetailView({
   }, [seasons.data, season])
 
   const episodes = useEpisodes(videoId, season)
-  const currentEpisode = episodes.data?.find((e) => e.episode_number === episode) ?? episodes.data?.[0]
+  const currentSeason = seasons.data?.find((s) => s.season_number === season)
+  const seasonEpisodes = (episodes.data ?? []).filter((e) => (currentSeason ? e.season_id === currentSeason.season_id : true))
+  const currentEpisode = seasonEpisodes.find((e) => e.episode_number === episode) ?? seasonEpisodes[0]
 
   useEffect(() => {
     if (episodes.data?.length && !episodes.data.some((e) => e.episode_number === episode)) {
       setEpisode(episodes.data[0].episode_number)
     }
-  }, [episodes.data, episode])
+  }, [seasonEpisodes.length, episode])
 
   const media = useMediaList({
     video_list_id: videoId,
@@ -160,9 +162,16 @@ export function VideoDetailView({
 
           {seasons.isLoading ? <div className="skeleton" style={{ height: 120 }} /> : null}
           {seasons.data && seasons.data.length > 0 ? (
-            <div className="seg" style={{ marginBottom: 12, marginTop: 6 }}>
+            <div className="tabs" style={{ marginBottom: 12, marginTop: 6, overflowX: 'auto', flexWrap: 'nowrap', scrollbarWidth: 'none' }}>
               {seasons.data.map((s) => (
-                <button key={s.season_id} aria-pressed={s.season_number === season} onClick={() => pick(s.season_number, 1)}>
+                <button
+                  key={s.season_id}
+                  className="tab"
+                  role="tab"
+                  aria-selected={s.season_number === season}
+                  onClick={() => pick(s.season_number, 1)}
+                  style={{ flex: 'none' }}
+                >
                   {s.season_title || `第 ${s.season_number} 季`}
                 </button>
               ))}
@@ -170,10 +179,10 @@ export function VideoDetailView({
           ) : null}
 
           {episodes.isLoading ? <div className="skeleton" style={{ height: 160 }} /> : null}
-          {episodes.data && episodes.data.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
-          {episodes.data && episodes.data.length > 0 ? (
+          {episodes.data && seasonEpisodes.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
+          {seasonEpisodes.length > 0 ? (
             <ul style={{ display: 'grid', gap: 2 }}>
-              {episodes.data.map((ep) => {
+              {seasonEpisodes.map((ep) => {
                 const active = currentEpisode?.episode_id === ep.episode_id
                 return (
                   <li key={ep.episode_id}>
@@ -193,14 +202,14 @@ export function VideoDetailView({
                         cursor: 'pointer',
                       }}
                     >
-                      <span className="tnum" style={{ width: 26, color: 'var(--fg-4)' }}>
+                      <span className="tnum" style={{ width: 26, color: 'var(--fg-4)', flex: 'none' }}>
                         {String(ep.episode_number).padStart(2, '0')}
                       </span>
-                      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {ep.episode_title}
-                      </span>
-                      <span className="muted" style={{ fontSize: 11.5 }}>
-                        {ep.runtime ? `${ep.runtime} 分` : '—'} · {ep.medias_count} 资源 · {ep.subtitles_count} 字幕
+                      <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 2 }}>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ep.episode_title}</span>
+                        <span className="muted" style={{ fontSize: 11.5 }}>
+                          {ep.runtime ? `${ep.runtime} 分` : '—'} · {ep.medias_count} 资源 · {ep.subtitles_count} 字幕
+                        </span>
                       </span>
                     </button>
                   </li>
@@ -217,7 +226,7 @@ export function VideoDetailView({
                 资源
               </p>
               <span className="muted" style={{ fontSize: 12 }}>
-                {currentEpisode ? `${episodes.data?.find((e) => e.episode_id === currentEpisode.episode_id)?.episode_title ?? ''}` : ''}
+                {currentEpisode?.episode_title ?? ''}
               </span>
             </div>
 

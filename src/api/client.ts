@@ -1,7 +1,9 @@
 import type { ApiError } from './types'
 import { mockRequest } from './mock'
 export const API_BASE = import.meta.env.VITE_API_BASE ?? ''
-export const USE_MOCK = import.meta.env.VITE_MOCK === '1'
+const MOCK_MODE = import.meta.env.VITE_MOCK ?? ''
+export const USE_FIXTURES = MOCK_MODE === 'fixtures'
+export const USE_MOCK = MOCK_MODE === '1' || USE_FIXTURES
 export const TOKEN_KEY = 'emos_admin_token'
 export function getToken(): string | null {
   try {

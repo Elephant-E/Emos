@@ -1,4 +1,16 @@
 import type { ListResult, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
+import { USE_FIXTURES } from './client'
+
+type Fixture = { method: string; pattern: string; name: string; body: unknown; re: RegExp }
+let fixtureCache: Fixture[] | null = null
+
+async function loadFixtures(): Promise<Fixture[]> {
+  if (fixtureCache) return fixtureCache
+  const res = await fetch('/__fixtures.json')
+  const raw = (await res.json()) as Array<Omit<Fixture, 're'>>
+  fixtureCache = raw.map((item) => ({ ...item, re: new RegExp(item.pattern) }))
+  return fixtureCache
+}
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -171,7 +183,15 @@ export async function mockRequest<T>(
   path: string,
   opts: { method?: string; query?: Record<string, unknown>; body?: unknown },
 ): Promise<T> {
-  await delay(80 + Math.random() * 120)
+  await delay(80 + Math.random() * 160)
+
+  if (USE_FIXTURES) {
+    const [rawPath] = path.split('?')
+    const list = await loadFixtures()
+    const hit = list.find((item) => item.method === (opts.method ?? 'GET') && item.re.test(rawPath))
+    if (hit) return hit.body as T
+  }
+
   const [clean] = path.split('?')
   const query = (opts.query ?? {}) as Record<string, string | number | boolean | undefined>
   const body = (opts.body ?? {}) as Record<string, unknown>

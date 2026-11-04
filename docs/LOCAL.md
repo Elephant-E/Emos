@@ -30,8 +30,11 @@ token 存在 `localStorage.emos_admin_token`。侧栏底部头像可添加/切�
 
 ## 4. 假数据模式
 
-`VITE_MOCK=1` 时全部走 `src/api/mock.ts`，不请求后端。
-侧栏 logo 旁会显示黄色 **MOCK** 标记——看到它就别把数据当真。
+- `VITE_MOCK=1`：手写样例数据（`src/api/mock.ts`），用来做界面与交互。
+- `VITE_MOCK=fixtures`：**Postman 里记录的真实响应**（`dev/fixtures.json`，158 条），
+  用来验证字段解析。这个文件只在 dev 中间件里提供，不会进生产产物。
+
+两种模式侧栏 logo 旁都会显示黄色 **MOCK** 标记。
 
 ## 5. 联调时重点核对这几处
 
