@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { useCapabilities, useCarrot, useContinueWatching, useSession } from '@/api/queries'
+import { useCapabilities, useCarrot, useContinueWatching, useSession, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
+import { WatchHeatmap } from '@/components/WatchHeatmap'
+import { IconCalendar, IconCarrot, IconClock, IconLayers, IconUpload } from '@/components/icons'
 import { formatSize, formatThousand } from '@/lib/format'
 
 export function OverviewView() {
@@ -11,6 +14,8 @@ export function OverviewView() {
   const session = useSession()
   const carrot = useCarrot()
   const watching = useContinueWatching()
+  const [weeks, setWeeks] = useState(1)
+  const stats = useWatchStats(weeks)
   const qc = useQueryClient()
 
   const sign = useMutation({
@@ -28,15 +33,34 @@ export function OverviewView() {
   const year = String(now.getFullYear())
   const signedToday = caps.signedToday
   const signInfo = session.data?.sign
+  const hour = now.getHours()
+  const greeting = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好'
+  const displayName = session.data?.pseudonym || session.data?.username || ''
+  const todayKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const todaySeconds = stats.data?.byDate[todayKey] ?? 0
+  const todayText =
+    todaySeconds > 0
+      ? `今天看了 ${Math.round(todaySeconds / 60)} 分钟`
+      : hour >= 18
+        ? '今天还没看片'
+        : '今天还没有观看记录'
 
   return (
     <>
       <PageHeader crumb={['概览', `${year} 年`]} title={monthName} hint={year} />
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
+      <p className="muted" style={{ margin: '2px 0 0', fontSize: 13.5 }}>
+        {greeting}
+        {displayName ? `，${displayName}` : ''} · {todayText}
+      </p>
+
+      <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
         <article className="card">
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-            <p className="stat__label" style={{ margin: 0 }}>签到</p>
+            <p className="stat__label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+              <IconCalendar size={14} />
+              签到
+            </p>
             <button
               className={signedToday ? 'btn btn--quiet' : 'btn btn--primary'}
               style={{ height: 28 }}
@@ -56,7 +80,10 @@ export function OverviewView() {
         </article>
 
         <article className="card">
-          <p className="stat__label">我的胡萝卜</p>
+          <p className="stat__label" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <IconCarrot size={14} />
+            我的胡萝卜
+          </p>
           <p className="stat__value">
             {carrot.data ? formatThousand(carrot.data.carrot) : '—'}
             <small>个</small>
@@ -67,7 +94,10 @@ export function OverviewView() {
         </article>
 
         <Link className="card todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
-          <p className="stat__label">片单槽位</p>
+          <p className="stat__label" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <IconLayers size={14} />
+            片单槽位
+          </p>
           <p className="stat__value">
             {caps.slotRemaining}
             <small>个可用</small>
@@ -78,7 +108,10 @@ export function OverviewView() {
         </Link>
 
         <Link className="card todo" to="/upload">
-          <p className="stat__label">我的上传</p>
+          <p className="stat__label" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <IconUpload size={14} />
+            我的上传
+          </p>
           <p className="stat__value">
             {caps.sizeUpload > 0 ? formatSize(caps.sizeUpload) : '0 B'}
             <small>累计</small>
@@ -91,8 +124,17 @@ export function OverviewView() {
 
       <section className="cards cards--wide">
         <article className="card">
+          <WatchHeatmap stats={stats.data} loading={stats.isLoading} onExpand={weeks === 1 ? () => setWeeks(4) : undefined} />
+        </article>
+      </section>
+
+      <section className="cards cards--wide">
+        <article className="card">
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-            <p className="stat__label" style={{ margin: 0 }}>继续观看</p>
+            <p className="stat__label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
+              <IconClock size={14} />
+              继续观看
+            </p>
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               去媒体库
             </Link>

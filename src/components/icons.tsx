@@ -189,3 +189,33 @@ export const IconWallet = (p: IconProps) => (
     <path d="M2 7.4h12M10.6 10.6h1.2" />
   </Svg>
 )
+
+export const IconCalendar = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2.2" y="3.4" width="11.6" height="10.4" rx="1.6" />
+    <path d="M2.2 6.6h11.6M5.4 2.2v2.4M10.6 2.2v2.4" />
+    <path d="m6 9.6 1.4 1.4 2.6-2.8" />
+  </Svg>
+)
+
+export const IconCarrot = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M9.8 3.4c1.8-1 4 .2 3.6 2.2-.2 1-1 1.8-2 1.8" />
+    <path d="M11.4 7.4c0 3-2.6 5.6-6.4 6.2-.6.1-1-.4-.9-1C4.8 8.8 7.2 6 10 6" />
+    <path d="M6.6 9.4 9 11.8" />
+  </Svg>
+)
+
+export const IconLayers = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m8 2.4 5.4 2.8L8 8 2.6 5.2z" />
+    <path d="m2.6 8.4 5.4 2.8 5.4-2.8M2.6 11.4 8 14.2l5.4-2.8" />
+  </Svg>
+)
+
+export const IconClock = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="8" cy="8" r="5.8" />
+    <path d="M8 4.8V8l2.2 1.4" />
+  </Svg>
+)

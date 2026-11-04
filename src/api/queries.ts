@@ -88,6 +88,70 @@ export function useMyWatchlists() {
   })
 }
 
+export interface WatchStats {
+  byDate: Record<string, number>
+  totalSeconds: number
+  activeDays: number
+  days: number
+  weeks: Array<Array<{ date: string; seconds: number }>>
+}
+
+function isoDate(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export function useWatchStats(weeks = 4) {
+  return useQuery({
+    queryKey: ['watch', 'stats', weeks] as const,
+    staleTime: 10 * 60_000,
+    queryFn: async (): Promise<WatchStats> => {
+      const total = weeks * 7
+      const today = new Date()
+      const dates: string[] = []
+      for (let i = total - 1; i >= 0; i -= 1) {
+        const d = new Date(today)
+        d.setDate(today.getDate() - i)
+        dates.push(isoDate(d))
+      }
+
+      const chunks: string[][] = []
+      for (let i = 0; i < dates.length; i += 7) chunks.push(dates.slice(i, i + 7))
+
+      const responses = await Promise.all(
+        chunks.map((chunk) =>
+          userApi
+            .statsVideoHistory(chunk)
+            .then((rows) => (rows as unknown as Array<Record<string, unknown>>) ?? [])
+            .catch(() => [] as Array<Record<string, unknown>>),
+        ),
+      )
+
+      const byDate: Record<string, number> = {}
+      for (const rows of responses) {
+        for (const row of rows) {
+          const date = String(row.date ?? '')
+          if (!date) continue
+          byDate[date] = (byDate[date] ?? 0) + Number(row.video_watch_second_real ?? 0)
+        }
+      }
+
+      const weekRows: WatchStats['weeks'] = []
+      for (let w = 0; w < weeks; w += 1) {
+        const row = dates.slice(w * 7, w * 7 + 7).map((date) => ({ date, seconds: byDate[date] ?? 0 }))
+        weekRows.push(row)
+      }
+
+      return {
+        byDate,
+        weeks: weekRows,
+        days: total,
+        totalSeconds: Object.values(byDate).reduce((a, b) => a + b, 0),
+        activeDays: Object.values(byDate).filter((v) => v > 0).length,
+      }
+    },
+  })
+}
+
 export function useContinueWatching() {
   return useQuery({
     queryKey: ['record', 'list'] as const,
