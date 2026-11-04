@@ -40,6 +40,9 @@ export function buildUrl(path: string, query?: Record<string, unknown>): string 
     if (value === undefined || value === null || value === '') continue
     if (Array.isArray(value)) {
       for (const v of value) qs.append(`${key}[]`, String(v))
+    } else if (typeof value === 'boolean') {
+      // 后端把布尔参数按 1/0 解析，传 true/false 会返回 422
+      qs.append(key, value ? '1' : '0')
     } else {
       qs.append(key, String(value))
     }

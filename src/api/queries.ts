@@ -545,6 +545,42 @@ export function useMusicMutations(songId = 0) {
   }
 }
 
+export function useDeletedMedia(page: number, pageSize = 20) {
+  return useQuery({
+    queryKey: ['recycle', 'media', page, pageSize] as const,
+    queryFn: async () => {
+      const res = (await mediaApi.listAll({ only_delete: true, page, page_size: pageSize })) as unknown as {
+        items?: Array<Record<string, unknown>>
+        total?: number
+        page_size?: number
+      }
+      return { items: res.items ?? [], total: res.total ?? 0, page_size: res.page_size ?? pageSize }
+    },
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useDeletedVideos(page: number, pageSize = 20) {
+  return useQuery({
+    queryKey: ['recycle', 'video', page, pageSize] as const,
+    queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useRecycleMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['recycle'] })
+    qc.invalidateQueries({ queryKey: ['videos'] })
+    qc.invalidateQueries({ queryKey: ['video'] })
+  }
+  return {
+    restoreMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.restore(mediaId), onSuccess: invalidate }),
+    restoreVideo: useMutation({ mutationFn: (videoId: number) => videoApi.remove(videoId), onSuccess: invalidate }),
+  }
+}
+
 export function useUserPayInfo(userId: string) {
   return useQuery({
     queryKey: ['user', userId, 'pay'] as const,

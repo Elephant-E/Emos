@@ -59,6 +59,12 @@
 - 同一屏里超过 3 个并行请求时，先想清楚谁是必需的、谁可以后到。
 - 实测这台实例的接口耗时差异极大：`/api/user` 2–5s、`/api/ban/list` 5–11s、`/api/carrot/current` 20s 超时、`/api/user/stats/video/history` 11s 且单次最多 7 天。
 
+## 4.2 布尔参数
+
+后端把查询参数里的布尔值按 **1 / 0** 解析，传 `true/false` 会直接 422。
+`client.ts` 的 `buildUrl` 已统一处理：`typeof value === 'boolean'` → `1`/`0`。
+写新接口时直接传布尔即可，不要再手动 `String(true)`。
+
 ## 5. 数字与排版
 
 - 所有数字 `font-variant-numeric: tabular-nums`。

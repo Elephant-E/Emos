@@ -10,6 +10,7 @@ import {
   IconGrid,
   IconInbox,
   IconLive,
+  IconLayers,
   IconLogo,
   IconMusic,
   IconWallet,
@@ -47,6 +48,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '系统',
     items: [
       { to: '/lines', label: '线路', icon: IconRoute },
+      { to: '/recycle', label: '回收站', icon: IconLayers },
       { to: '/pay', label: '支付', icon: IconWallet },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],

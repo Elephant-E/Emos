@@ -17,6 +17,7 @@ import { MusicView } from '@/views/MusicView'
 import { SongDetailView } from '@/views/SongDetailView'
 import { PayView } from '@/views/PayView'
 import { UserDetailView } from '@/views/UserDetailView'
+import { RecycleView } from '@/views/RecycleView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -160,6 +161,32 @@ function LiveRoute() {
 
 const linesRoute = createRoute({ getParentRoute: () => appLayout, path: '/lines', component: LinesView })
 
+const recycleRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/recycle',
+  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; size: number } => ({
+    tab: s.tab === 'video' ? 'video' : 'media',
+    page: Math.max(1, Number(s.page) || 1),
+    size: [20, 50, 100].includes(Number(s.size)) ? Number(s.size) : 20,
+  }),
+  component: RecycleRoute,
+})
+
+function RecycleRoute() {
+  const search = recycleRoute.useSearch()
+  const navigate = recycleRoute.useNavigate()
+  return (
+    <RecycleView
+      tab={search.tab}
+      page={search.page}
+      pageSize={search.size}
+      onTab={(tab) => navigate({ search: { tab, page: 1, size: search.size } })}
+      onPage={(page) => navigate({ search: { ...search, page } })}
+      onPageSize={(size) => navigate({ search: { ...search, size, page: 1 } })}
+    />
+  )
+}
+
 const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
@@ -284,6 +311,7 @@ const routeTree = rootRoute.addChildren([
     ordersRoute,
     liveRoute,
     linesRoute,
+    recycleRoute,
     musicRoute,
     songRoute,
     payRoute,
