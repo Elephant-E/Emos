@@ -1132,3 +1132,30 @@ th.num .th-sort { flex-direction: row-reverse; }
   transition: border-color var(--t-fast) var(--ease);
 }
 .quick:hover { border-color: var(--line-hot); }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 24px;
+  height: 24px;
+}
+
+.card-head .btn {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.card-body { margin-top: var(--stack); }
+
+.card-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--fg-3);
+}
+
+.card-body > .card-note + * { margin-top: var(--stack); }

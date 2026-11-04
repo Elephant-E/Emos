@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
-import { IconClock } from '@/components/icons'
 import { formatSize, formatThousand } from '@/lib/format'
 
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
@@ -137,31 +136,23 @@ export function OverviewView() {
 
       <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
         <article className="card">
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-            <p className="stat__label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 7 }}>
-              <IconClock size={14} />
-              继续观看
-            </p>
+          <div className="card-head">
+            <p className="stat__label" style={{ margin: 0 }}>继续观看</p>
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               去媒体库
             </Link>
           </div>
 
-          {watching.isLoading ? <div className="skeleton" style={{ height: 96, marginTop: 12 }} /> : null}
+          <div className="card-body">
+          {watching.isLoading ? <div className="skeleton" style={{ height: 96 }} /> : null}
 
-          {watching.error ? (
-            <p className="state__hint" style={{ textAlign: 'left', padding: '16px 0' }}>
-              暂时取不到观看记录，稍后刷新。
-            </p>
-          ) : null}
+          {watching.error ? <p className="card-note">暂时取不到观看记录，稍后刷新～</p> : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
-            <p className="state__hint" style={{ textAlign: 'left', padding: '16px 0' }}>
-              还没有未看完的内容。去媒体库挑一部，或从自己的片单开始。
-            </p>
+            <p className="card-note">还没有未看完的内容，去媒体库挑一部吧～</p>
           ) : null}
 
-          <ul style={{ display: 'grid', gap: 12, marginTop: 12 }}>
+          <ul style={{ display: 'grid', gap: 12 }}>
             {(watching.data ?? []).map((row, index) => {
               const played = Number(row.play_seconds ?? 0)
               const total = Number(row.media_seconds ?? 0)
@@ -190,18 +181,28 @@ export function OverviewView() {
               )
             })}
           </ul>
+          </div>
         </article>
 
         <article className="card">
-          <p className="stat__label">我的近况</p>
+          <div className="card-head">
+            <p className="stat__label" style={{ margin: 0 }}>我的近况</p>
+          </div>
 
-          {stats.data && stats.data.activeDays === 0 ? (
-            <p className="state__hint" style={{ textAlign: 'left', padding: '14px 0 0' }}>
-              本周还没有观看记录，去媒体库挑一部吧～
-            </p>
+          <div className="card-body">
+
+          {!stats.data ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div className="skeleton" style={{ height: 40 }} />
+              <div className="skeleton" style={{ height: 12, width: '60%' }} />
+            </div>
           ) : null}
 
-          <div style={{ display: stats.data?.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 6, marginTop: 14, height: 44 }}>
+          {stats.data && stats.data.activeDays === 0 ? (
+            <p className="card-note">本周还没有观看记录，去媒体库挑一部吧～</p>
+          ) : null}
+
+          <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 6, height: 60 }}>
             {(stats.data?.weeks[0] ?? []).map((day) => {
               const minutes = Math.round(day.seconds / 60)
               const h = minutes <= 0 ? 10 : Math.min(40, 12 + Math.round(minutes / 3))
@@ -221,7 +222,6 @@ export function OverviewView() {
                 </span>
               )
             })}
-            {!stats.data ? <span className="muted" style={{ fontSize: 12 }}>读取中</span> : null}
           </div>
 
           <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
@@ -233,7 +233,7 @@ export function OverviewView() {
           </p>
 
           {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
-            <ul style={{ display: 'grid', gap: 8, marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--line-soft)' }}>
+            <ul style={{ display: 'grid', gap: 8, marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>
               {carrotHistory.data.items.slice(0, 3).map((row, index) => (
                 <li key={index} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12.5 }}>
                   <span style={{ color: 'var(--fg-3)' }}>{row.trigger_type_string || row.trigger_type}</span>
@@ -247,12 +247,13 @@ export function OverviewView() {
               ))}
             </ul>
           ) : null}
+          </div>
         </article>
       </section>
 
       <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
         <article className="card">
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+          <div className="card-head">
             <p className="stat__label" style={{ margin: 0 }}>我的片单</p>
             <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
               全部
@@ -295,8 +296,10 @@ export function OverviewView() {
         </article>
 
         <article className="card">
-          <p className="stat__label">快捷入口</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginTop: 14 }}>
+          <div className="card-head">
+            <p className="stat__label" style={{ margin: 0 }}>快捷入口</p>
+          </div>
+          <div className="card-body" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
             {[
               { label: '上传影片', to: '/upload' as const, note: caps.canUpload ? '入库到媒体库' : '需先开通权限' },
               { label: '发起求片', to: '/seek' as const, note: '缺什么求什么' },
