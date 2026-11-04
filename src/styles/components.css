@@ -1077,3 +1077,14 @@ th.num .th-sort { flex-direction: row-reverse; }
 }
 .card.todo:hover { border-color: var(--line-hot); }
 .card.todo:focus-visible { outline-offset: 3px; }
+
+.greeting {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--fg-2);
+  letter-spacing: 0.01em;
+}
+.greeting span {
+  color: var(--fg-4);
+  margin-left: 10px;
+}
