@@ -8,6 +8,7 @@ import { WatchlistDetailView } from '@/views/WatchlistDetailView'
 import { PlaceholderView, LoginView } from '@/views/PlaceholderView'
 import { UploadView } from '@/views/UploadView'
 import { VideoDetailView } from '@/views/VideoDetailView'
+import { AccountView } from '@/views/AccountView'
 import { getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -85,6 +86,21 @@ function VideoDetailRoute() {
   )
 }
 
+const accountRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/account',
+  validateSearch: (s: Record<string, unknown>): { tab: 'profile' | 'invite' | 'carrot' | 'ban' } => ({
+    tab: s.tab === 'invite' || s.tab === 'carrot' || s.tab === 'ban' ? s.tab : 'profile',
+  }),
+  component: AccountRoute,
+})
+
+function AccountRoute() {
+  const search = accountRoute.useSearch()
+  const navigate = accountRoute.useNavigate()
+  return <AccountView tab={search.tab} onTab={(tab) => navigate({ search: { tab } })} />
+}
+
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
@@ -150,7 +166,6 @@ const placeholders: Array<{ path: string; title: string; note: string }> = [
   { path: '/orders', title: '订单', note: '商户订单、发货与备注，接 /api/shop/order/shop。' },
   { path: '/music', title: '音乐', note: '歌曲、专辑、歌手、歌词与资源，接 /api/music 系列。' },
   { path: '/lines', title: '线路', note: '反代线路增删，接 /api/proxy/line。' },
-  { path: '/account', title: '账号', note: '账号设置、邀请树、胡萝卜、封禁，接 /api/user 与 /api/invite。' },
 ]
 
 const placeholderRoutes = placeholders.map((item) =>
@@ -169,6 +184,7 @@ const routeTree = rootRoute.addChildren([
     libraryRoute,
     videoDetailRoute,
     seekRoute,
+    accountRoute,
     watchlistsRoute,
     watchlistDetailRoute,
     ...placeholderRoutes,

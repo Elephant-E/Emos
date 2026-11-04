@@ -1,5 +1,7 @@
-import { Link } from '@tanstack/react-router'
-import { useRouterState } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { Link, useRouterState } from '@tanstack/react-router'
+import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
+import type { UserInfo } from '@/api/types'
 import {
   IconBag,
   IconChevron,
@@ -52,9 +54,16 @@ const ZONES = [
   { key: 'tv' as const, label: '剧集', color: 'var(--c-green)' },
 ]
 
-export function Sidebar({ user }: { user?: { pseudonym?: string | null; username?: string } }) {
+export function Sidebar({ user }: { user?: UserInfo }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const initial = (user?.pseudonym || user?.username || '?').slice(0, 1)
+  const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!user?.user_id) return
+    setAccounts(rememberAccount({ user_id: user.user_id, username: user.pseudonym || user.username, avatar: user.avatar }))
+  }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
     <aside className="rail">
@@ -121,8 +130,54 @@ export function Sidebar({ user }: { user?: { pseudonym?: string | null; username
       </nav>
 
       <div className="rail__foot">
-        <span className="avatar">{initial}</span>
-        <span>{user?.pseudonym || user?.username || '未登录'}</span>
+        <button
+          className="rail__account"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <span className="avatar">{initial}</span>
+          <span className="rail__account-name">{user?.pseudonym || user?.username || '未登录'}</span>
+          <span className="rail__account-caret">▾</span>
+        </button>
+
+        {menuOpen ? (
+          <div className="rail__menu" role="menu">
+            {accounts.map((account) => {
+              const current = account.user_id === user?.user_id
+              return (
+                <div key={account.user_id} className="rail__menu-row">
+                  <button
+                    role="menuitem"
+                    className="rail__menu-item"
+                    onClick={() => {
+                      if (current) return
+                      if (switchAccount(account.user_id)) location.reload()
+                    }}
+                  >
+                    <span className="avatar" style={{ width: 22, height: 22, fontSize: 10.5 }}>
+                      {account.username.slice(0, 1)}
+                    </span>
+                    <span>{account.username}</span>
+                    {current ? <span className="rail__menu-flag">当前</span> : null}
+                  </button>
+                  {!current ? (
+                    <button
+                      className="rail__menu-remove"
+                      aria-label={`移除 ${account.username}`}
+                      onClick={() => setAccounts(forgetAccount(account.user_id))}
+                    >
+                      ✕
+                    </button>
+                  ) : null}
+                </div>
+              )
+            })}
+            <button className="rail__menu-add" role="menuitem" onClick={() => (location.href = '/login')}>
+              添加账号
+            </button>
+          </div>
+        ) : null}
       </div>
     </aside>
   )

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { mediaApi, rankApi, seekApi, sessionApi, subtitleApi, videoApi, watchApi, carrotApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, mediaApi, rankApi, seekApi, sessionApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -169,6 +169,56 @@ export function useVideoMutations(videoId: number) {
     syncMetadata: useMutation({ mutationFn: (mediaId: string) => mediaApi.syncMetadata(mediaId), onSuccess: invalidate }),
     renameSubtitle: useMutation({ mutationFn: (p: { id: string; title: string }) => subtitleApi.rename(p.id, p.title), onSuccess: invalidate }),
     removeSubtitle: useMutation({ mutationFn: (id: string) => subtitleApi.remove(id), onSuccess: invalidate }),
+  }
+}
+
+export function useInviteInfo() {
+  return useQuery({ queryKey: ['invite', 'info'] as const, queryFn: () => inviteApi.info() })
+}
+
+export function useInviteHistory(page: number, pageSize = 10) {
+  return useQuery({
+    queryKey: ['invite', 'history', page] as const,
+    queryFn: () => inviteApi.history({ page, page_size: pageSize }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useInviteTree() {
+  return useQuery({ queryKey: ['invite', 'tree'] as const, queryFn: () => inviteApi.tree() })
+}
+
+export function useCarrotHistory(page: number, pageSize = 10) {
+  return useQuery({
+    queryKey: ['carrot', 'history', page] as const,
+    queryFn: () => carrotApi.history({ page, page_size: pageSize }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useBanList() {
+  return useQuery({ queryKey: ['ban', 'list'] as const, queryFn: () => banApi.list() })
+}
+
+export function useAccountMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['session'] })
+    qc.invalidateQueries({ queryKey: ['invite'] })
+    qc.invalidateQueries({ queryKey: ['carrot'] })
+    qc.invalidateQueries({ queryKey: ['ban'] })
+  }
+
+  return {
+    setPseudonym: useMutation({ mutationFn: (name: string) => userApi.pseudonym(name), onSuccess: invalidate }),
+    setShowEmpty: useMutation({ mutationFn: (value: boolean) => userApi.showEmpty(value), onSuccess: invalidate }),
+    temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
+    resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
+    sign: useMutation({ mutationFn: () => userApi.sign(), onSuccess: invalidate }),
+    invite: useMutation({ mutationFn: (payload: { id: string; remark: string }) => inviteApi.create(payload.id, payload.remark || null), onSuccess: invalidate }),
+    revoke: useMutation({ mutationFn: (userId: string) => inviteApi.revoke(userId), onSuccess: invalidate }),
+    transfer: useMutation({ mutationFn: (payload: { userId: string; carrot: number }) => carrotApi.transfer(payload.userId, payload.carrot), onSuccess: invalidate }),
+    banChange: useMutation({ mutationFn: (payload: { type: string; userId: string; reason?: string }) => banApi.change(payload.type, payload.userId, payload.reason), onSuccess: invalidate }),
   }
 }
 

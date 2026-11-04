@@ -307,6 +307,53 @@ export async function mockRequest<T>(
     return rows as T
   }
 
+  if (clean === '/api/invite/info') return { invite_at: '2026-01-16 09:06:31', invite_remaining: 3, invite_count: 12, parent: { pseudonym: null } } as T
+  if (clean === '/api/invite/history') {
+    const rows = Array.from({ length: 6 }, (_, i) => ({
+      user_id: `e${1000 + i}Xs`,
+      username: ['lin', 'zhou', 'chen', 'kai', 'mu', 'su'][i],
+      telegram_user_id: null,
+      invite_at: `2026-10-0${i + 1} 10:00:00`,
+      invite_remark: i % 3 === 0 ? '同事' : null,
+      join_at: `2026-10-0${i + 1} 10:05:00`,
+      last_video_player: '2026-11-02 21:00:00',
+      last_telegram_message: null,
+      last_user_sign: '2026-11-03 09:00:00',
+    }))
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
+  if (clean === '/api/invite/tree') {
+    return [
+      { user_id: 'eXD3VD3Y1s', username: 'sorakand', invite_at: '2026-01-17 10:10:10', invite_user_id: 'emos', is_disabled: false, join_at: '2026-01-17 00:06:35', last_video_player: '2026-11-02 12:42:04', last_telegram_message: '2026-10-14 15:16:27', last_user_sign: '2026-11-03 15:34:57' },
+      { user_id: 'e1000Xs', username: 'lin', invite_at: '2026-10-01 10:00:00', invite_user_id: 'eXD3VD3Y1s', is_disabled: false, join_at: '2026-10-01 10:05:00', last_video_player: '2026-11-01 20:00:00', last_telegram_message: null, last_user_sign: '2026-11-03 08:00:00' },
+    ] as T
+  }
+  if (clean === '/api/carrot/history') {
+    const rows = Array.from({ length: 8 }, (_, i) => ({
+      trigger_type: i % 2 ? 'upload' : 'sign',
+      trigger_type_string: i % 2 ? '上传奖励' : '签到',
+      type: i % 2 ? 'in' : 'in',
+      point: i % 2 ? 3 : 2,
+      expired_at: null,
+      created_at: `2026-11-0${(i % 9) + 1}T08:00:00.000000Z`,
+    }))
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
+  if (clean === '/api/ban/list') {
+    return [
+      { user_id: 'e0E4MKO96s', username: 'dajun7095', avatar: null, invite_user_id: 'eK98JXQ9Ms', invite_pseudonym: '咸鱼翻身计划', invite_at: '2026-01-22 17:39:27', telegram_user_id: '6181680957', disable_reason: '请求数异常', created_at: '2026-01-21T15:27:08.000000Z' },
+    ] as T
+  }
+  if (clean === '/api/ban/change') return { carrot: -1 } as T
+  if (clean === '/api/invite') return {} as T
+  if (clean === '/api/invite/revoke') return { invite_remaining: 4 } as T
+  if (clean === '/api/carrot/transfer') return { carrot: 4000 } as T
+  if (clean === '/api/user/pseudonym') return { pseudonym: String(query.name ?? '') } as T
+  if (clean === '/api/user/showEmpty') return { is_show_empty: Boolean((body as { is_show_empty?: boolean }).is_show_empty) } as T
+  if (clean === '/api/user/passwordTemporary') return { password: 481, second: 45 } as T
+  if (clean === '/api/user/passwordReset') return {} as T
+  if (clean === '/api/user/sign') return { sign_index: 1, earn_point: 2, continuous_days: 7 } as T
+
   if (clean === '/api/upload/store/disk') return ['local_emos_1', 'local_emos_2'] as T
   if (clean === '/api/upload/store/file') {
     return [

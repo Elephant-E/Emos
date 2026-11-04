@@ -726,6 +726,14 @@ tr:hover .row-menu,
 .modal__title { font-size: 15.5px; font-weight: 550; }
 
 .modal__body { padding: 18px 20px; display: grid; gap: 14px; }
+.modal__hint {
+  margin: 0;
+  padding: 12px 20px 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--fg-4);
+}
 
 .modal__foot {
   display: flex;
@@ -940,3 +948,88 @@ tr:hover .row-menu,
 .queue-name { display: grid; gap: 3px; min-width: 0; }
 .queue-name b { font-size: 13.5px; font-weight: 450; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .queue-name span { font-size: 11.5px; color: var(--fg-4); }
+
+.rail__foot { position: relative; display: block; padding: 12px 8px 0; }
+
+.rail__account {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--fg-3);
+  font-size: 12.5px;
+  text-align: left;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.rail__account:hover { background: rgba(255, 255, 255, 0.045); color: var(--fg-2); }
+.rail__account-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail__account-caret { color: var(--fg-4); font-size: 12px; line-height: 1; }
+
+.rail__menu {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: calc(100% + 6px);
+  z-index: var(--z-overlay);
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #1a1917;
+  box-shadow: var(--shadow-pop);
+}
+
+.rail__menu-row { display: flex; align-items: center; gap: 2px; }
+
+.rail__menu-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.rail__menu-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--fg); }
+
+.rail__menu-flag { margin-left: auto; font-size: 11px; color: var(--fg-4); }
+
+.rail__menu-remove {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-5);
+  cursor: pointer;
+}
+.rail__menu-remove:hover { background: rgba(255, 255, 255, 0.06); color: var(--fg-2); }
+
+.rail__menu-add {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 8px;
+  border: 0;
+  border-top: 1px solid var(--line-soft);
+  border-radius: 0 0 8px 8px;
+  background: transparent;
+  color: var(--fg-3);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.rail__menu-add:hover { color: var(--fg); }
+
+.row-input { display: flex; gap: 8px; align-items: center; }
+.row-input .input { flex: 1 1 auto; min-width: 0; width: auto; }
+.row-input .btn { flex: none; white-space: nowrap; }

@@ -2,12 +2,14 @@ import type { ReactNode } from 'react'
 
 export function Modal({
   title,
+  hint,
   children,
   footer,
   onClose,
   width = 460,
 }: {
   title: string
+  hint?: string
   children: ReactNode
   footer?: ReactNode
   onClose: () => void
@@ -23,6 +25,7 @@ export function Modal({
           </button>
         </div>
         <div className="modal__body">{children}</div>
+        {hint ? <p className="modal__hint">{hint}</p> : null}
         {footer ? <div className="modal__foot">{footer}</div> : null}
       </div>
     </div>
