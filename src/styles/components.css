@@ -1072,7 +1072,6 @@ th.num .th-sort { flex-direction: row-reverse; }
 .card.todo {
   text-decoration: none;
   color: inherit;
-  display: block;
   transition: border-color var(--t-fast) var(--ease);
 }
 .card.todo:hover { border-color: var(--line-hot); }
@@ -1088,3 +1087,49 @@ th.num .th-sort { flex-direction: row-reverse; }
   color: var(--fg-4);
   margin-left: 10px;
 }
+
+.card { display: flex; flex-direction: column; }
+.card--stat {
+  display: grid;
+  grid-template-rows: 28px 52px minmax(0, auto);
+  row-gap: 10px;
+  align-content: start;
+}
+
+.card--stat > .stat__label,
+.card--stat > div:first-child {
+  margin: 0;
+  height: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card--stat > .stat__label { line-height: 28px; }
+
+.card--stat > .stat__value {
+  margin: 0;
+  height: 52px;
+  align-items: baseline;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.card--stat > .stat__delta {
+  margin: 0;
+  align-self: end;
+  line-height: 1.5;
+}
+
+.quick {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: var(--r-item);
+  border: 1px solid var(--line);
+  text-decoration: none;
+  transition: border-color var(--t-fast) var(--ease);
+}
+.quick:hover { border-color: var(--line-hot); }

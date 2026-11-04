@@ -80,6 +80,14 @@ export function useIsAdmin(): boolean {
   return useCapabilities().isAdmin
 }
 
+export function useMyWatchlistRecent(size = 3) {
+  return useQuery({
+    queryKey: ['watch', 'mine', 'recent', size] as const,
+    queryFn: async () => (await watchApi.list({ is_self: true, page: 1, page_size: size })).items,
+    staleTime: 5 * 60_000,
+  })
+}
+
 export function useMyWatchlists() {
   return useQuery({
     queryKey: ['watch', 'mine'] as const,

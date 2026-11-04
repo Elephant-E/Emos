@@ -1,11 +1,36 @@
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useWatchStats } from '@/api/queries'
+import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { IconClock } from '@/components/icons'
 import { formatSize, formatThousand } from '@/lib/format'
+
+const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
+
+const LINES_WATCHED = [
+  '今天已经看了 {m} 分钟～',
+  '今天看了 {m} 分钟，正合适～',
+  '{m} 分钟到手，明天见～',
+  '今天看了 {m} 分钟，好兴致～',
+]
+
+const LINES_IDLE = [
+  '今天还没看片，要不要挑一部～',
+  '今天还没动，片单里有一部等你～',
+  '还没开演，挑一部慢慢看～',
+  '今天还没看片，来点轻松的还是烧脑的～',
+  '屏幕还黑着，随手挑一部吧～',
+  '不如现在开一部，正好赶上～',
+  '今天还没看片，先把想看的那部补上～',
+  '还没开始看，随便点一部都是新的～',
+]
+
+function pickByDay<T>(pool: readonly T[], date: Date, salt = 0): T {
+  const key = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate() + salt
+  return pool[key % pool.length]
+}
 
 export function OverviewView() {
   const caps = useCapabilities()
@@ -14,6 +39,7 @@ export function OverviewView() {
   const watching = useContinueWatching()
   const stats = useWatchStats(1)
   const carrotHistory = useCarrotHistory(1, 3)
+  const myWatches = useMyWatchlistRecent(3)
   const ready = Boolean(session.data)
   const qc = useQueryClient()
 
@@ -33,18 +59,15 @@ export function OverviewView() {
   const signedToday = caps.signedToday
   const signInfo = session.data?.sign
   const hour = now.getHours()
-  const greeting = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好'
+  const greeting =
+    hour < 6 ? GREETINGS[4] : hour < 11 ? GREETINGS[0] : hour < 14 ? GREETINGS[1] : hour < 18 ? GREETINGS[2] : GREETINGS[3]
   const displayName = session.data?.pseudonym || session.data?.username || ''
   const todayKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const todaySeconds = stats.data?.byDate[todayKey] ?? 0
   const todayText =
     todaySeconds > 0
-      ? `今天已经看了 ${Math.round(todaySeconds / 60)} 分钟`
-      : hour >= 18
-        ? '今天还没看片，要不要挑一部'
-        : hour < 11
-          ? '新的一天，来看点什么'
-          : '还没有开始看，随时都行'
+      ? pickByDay(LINES_WATCHED, now).replace('{m}', String(Math.round(todaySeconds / 60)))
+      : pickByDay(LINES_IDLE, now)
 
   return (
     <>
@@ -52,14 +75,14 @@ export function OverviewView() {
 
       <p className="greeting">
         {greeting}
-        {displayName ? `，${displayName}` : ''}～
+        {displayName ? `，${displayName}` : ''}
         <span>{todayText}</span>
       </p>
 
       <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
-        <article className="card">
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-            <p className="stat__label" style={{ margin: 0 }}>签到</p>
+        <article className="card card--stat">
+          <p className="stat__label" style={{ margin: 0 }}>
+            签到
             <button
               className={signedToday ? 'btn btn--quiet' : 'btn btn--primary'}
               style={{ height: 28 }}
@@ -68,8 +91,8 @@ export function OverviewView() {
             >
               {signedToday ? '今天已签' : '立即签到'}
             </button>
-          </div>
-          <p className="stat__value" style={{ marginTop: 14 }}>
+          </p>
+          <p className="stat__value">
             {!ready ? '—' : signedToday ? (signInfo?.continuous_days ?? 0) : '—'}
             <small>{!ready ? '读取中' : signedToday ? '天连续' : '还没签到'}</small>
           </p>
@@ -78,7 +101,7 @@ export function OverviewView() {
           </p>
         </article>
 
-        <article className="card">
+        <article className="card card--stat">
           <p className="stat__label">我的胡萝卜</p>
           <p className="stat__value">
             {formatThousand(carrot.data?.carrot ?? session.data?.carrot ?? 0)}
@@ -89,7 +112,7 @@ export function OverviewView() {
           </p>
         </article>
 
-        <Link className="card todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
+        <Link className="card card--stat todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
           <p className="stat__label">片单槽位</p>
           <p className="stat__value">
             {ready ? caps.slotRemaining : '—'}
@@ -100,7 +123,7 @@ export function OverviewView() {
           </p>
         </Link>
 
-        <Link className="card todo" to="/upload">
+        <Link className="card card--stat todo" to="/upload">
           <p className="stat__label">我的上传</p>
           <p className="stat__value">
             {!ready ? '—' : caps.sizeUpload > 0 ? formatSize(caps.sizeUpload) : '0 B'}
@@ -224,6 +247,68 @@ export function OverviewView() {
               ))}
             </ul>
           ) : null}
+        </article>
+      </section>
+
+      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+        <article className="card">
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+            <p className="stat__label" style={{ margin: 0 }}>我的片单</p>
+            <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
+              全部
+            </Link>
+          </div>
+
+          {myWatches.isLoading ? <div className="skeleton" style={{ height: 72, marginTop: 12 }} /> : null}
+          {myWatches.error ? (
+            <p className="state__hint" style={{ textAlign: 'left', padding: '14px 0 0' }}>
+              片单暂时取不到，稍后再看～
+            </p>
+          ) : null}
+
+          {myWatches.data && myWatches.data.length === 0 ? (
+            <p className="state__hint" style={{ textAlign: 'left', padding: '14px 0 0' }}>
+              还没有自己的片单，建一个把想看的攒起来～
+            </p>
+          ) : null}
+
+          <ul style={{ display: 'grid', gap: 10, marginTop: 12 }}>
+            {(myWatches.data ?? []).map((watch) => (
+              <li key={watch.id}>
+                <Link
+                  to="/watchlists/$watchId"
+                  params={{ watchId: String(watch.id) }}
+                  search={{ page: 1, page_size: 20, q: '' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}
+                >
+                  <span style={{ color: 'var(--fg-2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {watch.name}
+                  </span>
+                  <span className="muted tnum" style={{ fontSize: 11.5 }}>{watch.video_count} 部</span>
+                  <span className="muted" style={{ fontSize: 11.5, width: 62, textAlign: 'right' }}>
+                    {watch.updated_at ? watch.updated_at.slice(5, 10) : ''}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </article>
+
+        <article className="card">
+          <p className="stat__label">快捷入口</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginTop: 14 }}>
+            {[
+              { label: '上传影片', to: '/upload' as const, note: caps.canUpload ? '入库到媒体库' : '需先开通权限' },
+              { label: '发起求片', to: '/seek' as const, note: '缺什么求什么' },
+              { label: '兑换槽位', to: '/account' as const, note: `当前 ${caps.slotRemaining} 个` },
+              { label: '账号设置', to: '/account' as const, note: '密码与邀请' },
+            ].map((item) => (
+              <Link key={item.label} className="quick" to={item.to}>
+                <span style={{ color: 'var(--fg)', fontSize: 13.5 }}>{item.label}</span>
+                <span className="muted" style={{ fontSize: 11.5 }}>{item.note}</span>
+              </Link>
+            ))}
+          </div>
         </article>
       </section>
     </>
