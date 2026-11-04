@@ -31,6 +31,7 @@ const user: UserInfo = {
   slot_remaining: 2,
   size_upload: 0,
   carrot: 4210,
+  sign: { sign_index: 12, sign_at: '2026-11-04 09:00:00', earn_point: 2, continuous_days: 7 },
   server_video: 'https://video.emos.best',
   server_live: null,
   server_music: null,

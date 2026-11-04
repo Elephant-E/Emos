@@ -2,10 +2,104 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
-import { useCarrot, usePlayingNow, useRankUpload, useSeekOpen, useSession, useTodos, useZoneCounts } from '@/api/queries'
+import { useCarrot, useContinueWatching, useIsAdmin, useMyWatchlists, usePlayingNow, useRankUpload, useSeekOpen, useSession, useTodos, useZoneCounts } from '@/api/queries'
 import { formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 
+function UserOverview() {
+  const session = useSession()
+  const carrot = useCarrot()
+  const mine = useMyWatchlists()
+  const watching = useContinueWatching()
+  const sign = session.data?.sign
+
+  const now = new Date()
+  const monthName = `${now.getMonth() + 1} 月`
+  const year = String(now.getFullYear())
+  const signedToday = sign?.sign_at ? sign.sign_at.slice(0, 10) === now.toISOString().slice(0, 10) : false
+
+  return (
+    <>
+      <PageHeader crumb={['概览', `${year} 年`]} title={monthName} hint={year} />
+
+      <section className="cards">
+        <article className="card">
+          <p className="stat__label">连续签到</p>
+          <p className="stat__value">
+            {sign ? sign.continuous_days : '—'}
+            <small>天</small>
+          </p>
+          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+            {signedToday ? '今天已签到' : '今天还没签到'}
+          </p>
+        </article>
+        <article className="card">
+          <p className="stat__label">我的胡萝卜</p>
+          <p className="stat__value">
+            {carrot.data ? formatThousand(carrot.data.carrot) : '—'}
+            <small>个</small>
+          </p>
+          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+            上传与签到都会获得
+          </p>
+        </article>
+        <Link className="card todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
+          <p className="stat__label">我的片单</p>
+          <p className="stat__value">
+            {mine.data === undefined ? '—' : formatThousand(mine.data)}
+            <small>个</small>
+          </p>
+          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+            进入片单
+          </p>
+        </Link>
+      </section>
+
+      <section className="cards cards--wide">
+        <article className="card">
+          <p className="stat__label">继续观看</p>
+          {watching.isLoading ? <div className="skeleton" style={{ height: 120, marginTop: 12 }} /> : null}
+          {watching.data && watching.data.length === 0 ? (
+            <p className="state__hint" style={{ textAlign: 'left', padding: '18px 0' }}>
+              还没有未看完的内容。去媒体库挑一部。
+            </p>
+          ) : null}
+          <ul style={{ display: 'grid', gap: 12, marginTop: 12 }}>
+            {(watching.data ?? []).map((row, index) => {
+              const played = Number(row.play_seconds ?? 0)
+              const total = Number(row.media_seconds ?? 0)
+              const ratio = total > 0 ? Math.min(1, played / total) : 0
+              return (
+                <li key={index} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {row.video_image_poster ? (
+                    <img className="poster-img" src={String(row.video_image_poster)} alt="" loading="lazy" />
+                  ) : (
+                    <span className="thumb">{String(row.video_title ?? '?').slice(0, 1)}</span>
+                  )}
+                  <span style={{ display: 'grid', gap: 6, flex: 1, minWidth: 0 }}>
+                    <span style={{ color: 'var(--fg-2)', fontSize: 13.5 }}>
+                      {String(row.video_title ?? '—')}
+                      {row.season_number ? ` S${row.season_number}` : ''}
+                      {row.episode_number ? `E${row.episode_number}` : ''}
+                    </span>
+                    <span className="progress-line">
+                      <i style={{ transform: `scaleX(${ratio.toFixed(3)})` }} />
+                    </span>
+                  </span>
+                  <span className="muted tnum" style={{ fontSize: 12 }}>
+                    {Math.round(ratio * 100)}%
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </article>
+      </section>
+    </>
+  )
+}
+
 export function OverviewView() {
+  if (!useIsAdmin()) return <UserOverview />
   const session = useSession()
   const carrot = useCarrot()
   const zones = useZoneCounts()

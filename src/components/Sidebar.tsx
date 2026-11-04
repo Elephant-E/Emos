@@ -21,7 +21,7 @@ import {
   IconUser,
 } from './icons'
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean }
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean; admin?: boolean }
 
 const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
@@ -38,16 +38,16 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '运营',
     items: [
       { to: '/upload', label: '上传', icon: IconUpload },
-      { to: '/live', label: '直播', icon: IconLive },
-      { to: '/shop', label: '商城', icon: IconBag },
-      { to: '/orders', label: '订单', icon: IconReceipt },
+      { to: '/live', label: '直播', icon: IconLive, admin: true },
+      { to: '/shop', label: '商城', icon: IconBag, admin: true },
+      { to: '/orders', label: '订单', icon: IconReceipt, admin: true },
     ],
   },
   {
     label: '系统',
     items: [
-      { to: '/lines', label: '线路', icon: IconRoute },
-      { to: '/pay', label: '支付', icon: IconWallet },
+      { to: '/lines', label: '线路', icon: IconRoute, admin: true },
+      { to: '/pay', label: '支付', icon: IconWallet, admin: true },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],
   },
@@ -59,6 +59,7 @@ const ZONES = [
 ]
 
 export function Sidebar({ user }: { user?: UserInfo }) {
+  const isAdmin = Boolean(user?.roles?.includes('admin'))
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const initial = (user?.pseudonym || user?.username || '?').slice(0, 1)
   const navigate = useNavigate()
@@ -101,11 +102,13 @@ export function Sidebar({ user }: { user?: UserInfo }) {
         </span>
       </label>
 
-      {GROUPS.map((group) => (
+      {GROUPS.filter((group) => isAdmin || group.label !== '系统' || false).map((group) => (
         <div key={group.label}>
-          <p className="rail__label">{group.label}</p>
+          <p className="rail__label">
+            {!isAdmin ? (group.label === '系统' ? '个人' : group.label === '运营' ? '我的' : group.label) : group.label}
+          </p>
           <nav className="rail__nav">
-            {group.items.map((item) => {
+            {group.items.filter((item) => !item.admin || isAdmin).map((item) => {
               const Icon = item.icon
               const active = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
               return (

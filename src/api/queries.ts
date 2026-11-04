@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, rankApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -38,6 +38,30 @@ export function useSession() {
       }
       return profile
     },
+  })
+}
+
+export function useIsAdmin(): boolean {
+  const { data } = useSession()
+  return Boolean(data?.roles?.includes('admin'))
+}
+
+export function useMyWatchlists() {
+  return useQuery({
+    queryKey: ['watch', 'mine'] as const,
+    queryFn: async () => (await watchApi.list({ is_self: true, page: 1, page_size: 1 })).total,
+    staleTime: 5 * 60_000,
+  })
+}
+
+export function useContinueWatching() {
+  return useQuery({
+    queryKey: ['record', 'list'] as const,
+    queryFn: async () => {
+      const res = (await recordApi.list({ page: 1, page_size: 6 })) as unknown as { items?: Array<Record<string, unknown>> }
+      return (res.items ?? []).filter((row) => !row.is_complete).slice(0, 3)
+    },
+    staleTime: 60_000,
   })
 }
 

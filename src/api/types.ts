@@ -7,6 +7,7 @@ export interface ListResult<T> {
 
 export interface CarrotDelta {
   carrot: number
+  sign: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
 
 export interface IdResult {
@@ -40,7 +41,7 @@ export interface UserInfo extends UserBase {
   is_can_upload: boolean
   is_can_down: boolean
   is_original_image: boolean
-  roles: unknown[]
+  roles: string[]
   must_otp: boolean
   is_viewing: boolean
   invite_remaining: number
@@ -48,6 +49,7 @@ export interface UserInfo extends UserBase {
   slot_remaining: number
   size_upload: number
   carrot: number
+  sign: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
 
 export type VideoType = 'movie' | 'tv'
