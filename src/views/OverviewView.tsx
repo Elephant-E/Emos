@@ -39,7 +39,7 @@ export function OverviewView() {
   const stats = useWatchStats(1)
   const carrotHistory = useCarrotHistory(1, 3)
   const myWatches = useMyWatchlistRecent(3)
-  const ready = Boolean(session.data)
+  const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
 
   const sign = useMutation({
@@ -84,7 +84,6 @@ export function OverviewView() {
             签到
             <button
               className={signedToday ? 'btn btn--quiet' : 'btn btn--primary'}
-              style={{ height: 28 }}
               disabled={signedToday || sign.isPending}
               onClick={() => sign.mutate()}
             >
