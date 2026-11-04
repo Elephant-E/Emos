@@ -198,7 +198,11 @@ export function UploadView() {
                     </span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    {item.status === 'done' ? null : item.status === 'uploading' ? (
+                    {item.status === 'done' && item.target ? (
+                      <a className="btn btn--quiet" href={`/media/${item.target.item_id}?season=1&episode=1`}>
+                        查看
+                      </a>
+                    ) : item.status === 'uploading' ? (
                       <span className="muted">{Math.round(item.progress * 100)}%</span>
                     ) : (
                       <button className="btn btn--quiet" onClick={() => startUpload(item)}>

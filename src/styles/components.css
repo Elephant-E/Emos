@@ -1068,3 +1068,12 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .stamp i { background: var(--fg-5); }
 .stamp--live i { background: var(--c-green); }
+
+.card.todo {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: border-color var(--t-fast) var(--ease);
+}
+.card.todo:hover { border-color: var(--line-hot); }
+.card.todo:focus-visible { outline-offset: 3px; }

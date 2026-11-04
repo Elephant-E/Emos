@@ -1,7 +1,8 @@
+import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
-import { useCarrot, usePlayingNow, useRankUpload, useSeekOpen, useSession, useZoneCounts } from '@/api/queries'
+import { useCarrot, usePlayingNow, useRankUpload, useSeekOpen, useSession, useTodos, useZoneCounts } from '@/api/queries'
 import { formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export function OverviewView() {
@@ -10,6 +11,7 @@ export function OverviewView() {
   const zones = useZoneCounts()
   const rank = useRankUpload()
   const seekOpen = useSeekOpen()
+  const todos = useTodos()
   const playing = usePlayingNow()
 
   const now = new Date()
@@ -44,20 +46,41 @@ export function OverviewView() {
       {!error ? (
         <>
           <section className="cards">
+            <Link className="card todo" to="/seek" search={{ page: 1, page_size: 20, tab: 'default' }}>
+              <p className="stat__label">待处理求片</p>
+              <p className="stat__value" style={{ fontSize: 34 }}>
+                {todos.data?.seeks === null ? '—' : formatThousand(todos.data?.seeks ?? seekOpen.data)}
+                <small>条</small>
+              </p>
+              <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>用户还在等</p>
+            </Link>
+
+            <Link className="card todo" to="/orders" search={{ page: 1, pay: 'paid', delivery: 'pending' }}>
+              <p className="stat__label">待发货订单</p>
+              <p className="stat__value" style={{ fontSize: 34 }}>
+                {todos.data?.orders === null ? '—' : formatThousand(todos.data?.orders)}
+                <small>单</small>
+              </p>
+              <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>已付款未发货</p>
+            </Link>
+
+            <Link className="card todo" to="/account" search={{ tab: 'ban' }}>
+              <p className="stat__label">封禁中用户</p>
+              <p className="stat__value" style={{ fontSize: 34 }}>
+                {todos.data?.bans === null ? '—' : formatThousand(todos.data?.bans)}
+                <small>人</small>
+              </p>
+              <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>可解除</p>
+            </Link>
+          </section>
+
+          <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
             <StatCard
               label="片库总量"
               value={zones.isLoading ? '—' : formatThousand(total)}
               unit={zones.isLoading ? undefined : '部'}
               delta={zones.isLoading ? undefined : `电影 ${formatThousand(zones.data?.movie)}`}
               deltaSuffix={` · 剧集 ${formatThousand(zones.data?.tv)}`}
-            />
-            <StatCard
-              label="待处理求片"
-              value={seekOpen.isLoading ? '—' : formatThousand(seekOpen.data ?? 0)}
-              unit="条"
-              delta="状态为求片中"
-              deltaSuffix=""
-              tone="quiet"
             />
             <StatCard
               label="我的胡萝卜"

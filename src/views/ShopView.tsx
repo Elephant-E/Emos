@@ -327,7 +327,6 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                         toast('已保存', 'success')
                         setEditing(null)
                       },
-                      onError: () => toast('保存失败', 'error'),
                     },
                   )
                 }

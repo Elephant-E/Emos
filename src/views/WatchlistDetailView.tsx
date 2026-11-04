@@ -187,7 +187,6 @@ export function WatchlistDetailView({
                           if (!ok) return
                           removeVideo.mutate(video.video_id, {
                             onSuccess: () => toast('已移出', 'success'),
-                            onError: () => toast('移出失败', 'error'),
                           })
                         }}
                         disabled={removeVideo.isPending}
@@ -246,7 +245,6 @@ export function WatchlistDetailView({
                   onClick={() =>
                     addVideo.mutate(c.video_id, {
                       onSuccess: () => toast(`已加入《${c.video_title}》`, 'success'),
-                      onError: () => toast('加入失败', 'error'),
                     })
                   }
                   disabled={addVideo.isPending}
@@ -276,7 +274,6 @@ export function WatchlistDetailView({
                 onClick={() => {
                   setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
                     onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
-                    onError: () => toast('保存失败', 'error'),
                   })
                   setDynamicOpen(false)
                 }}

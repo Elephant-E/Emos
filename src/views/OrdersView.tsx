@@ -123,7 +123,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             onClick={() =>
                               actions.deliver.mutate(order.order_no, {
                                 onSuccess: () => toast('已标记发货', 'success'),
-                                onError: () => toast('发货失败', 'error'),
                               })
                             }
                           >
@@ -132,6 +131,22 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                         ) : null}
                         <button className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
                           备注
+                        </button>
+                        <button
+                          className="btn btn--quiet"
+                          onClick={async () => {
+                            const ok = await confirmDialog({
+                              title: '删除这个订单？',
+                              message: `订单 ${order.order_no} 会从列表移除。`,
+                              hint: '此操作不可撤销。',
+                              confirmText: '删除',
+                              danger: true,
+                            })
+                            if (!ok) return
+                            actions.removeOrder.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+                          }}
+                        >
+                          删除
                         </button>
                       </span>
                     </td>

@@ -226,7 +226,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         setCreating(false)
                         setForm({ title: '', code: '', library: search.library || 100, description: '' })
                       },
-                      onError: () => toast('创建失败', 'error'),
                     },
                   )
                 }
@@ -289,7 +288,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         toast('源已添加', 'success')
                         setAddingSource(false)
                       },
-                      onError: () => toast('添加失败', 'error'),
                     },
                   )
                 }

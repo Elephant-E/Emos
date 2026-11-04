@@ -73,6 +73,28 @@ export function useSeekOpen() {
   })
 }
 
+export function useTodos() {
+  return useQuery({
+    queryKey: ['todos'] as const,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const safe = async (run: () => Promise<number>) => {
+        try {
+          return await run()
+        } catch {
+          return null
+        }
+      }
+      const [seeks, orders, bans] = await Promise.all([
+        safe(() => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total)),
+        safe(() => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: 'true', is_delivery: 'false' }).then((r) => r.total)),
+        safe(() => banApi.list().then((r) => r.length)),
+      ])
+      return { seeks, orders, bans }
+    },
+  })
+}
+
 export function useRankUpload() {
   return useQuery({ queryKey: qk.rankUpload, queryFn: () => rankApi.upload(), staleTime: 60_000 })
 }

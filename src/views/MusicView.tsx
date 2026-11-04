@@ -154,7 +154,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                               { type: 'mp', value: String(id) },
                               {
                                 onSuccess: () => toast('已触发同步', 'success'),
-                                onError: () => toast('同步失败', 'error'),
                               },
                             )
                           }}

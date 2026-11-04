@@ -147,7 +147,6 @@ export function LinesView() {
                         setCreating(false)
                         setForm({ name: '', url: '', tagline: '' })
                       },
-                      onError: () => toast('创建失败', 'error'),
                     },
                   )
                 }

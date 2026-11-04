@@ -349,7 +349,6 @@ export function VideoDetailView({
                       toast('已重命名', 'success')
                       setRenaming(null)
                     },
-                    onError: () => toast('重命名失败', 'error'),
                   })
                 }
               >

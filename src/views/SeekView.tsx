@@ -122,7 +122,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num">{item.seek_carrot || '—'}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td style={{ textAlign: 'right' }}>
-                      {item.is_can_claim && item.status === 'default' ? (
+                      {item.status === 'upload' ? (
+                        <a className="btn btn--quiet" href="/upload">
+                          去上传
+                        </a>
+                      ) : item.is_can_claim && item.status === 'default' ? (
                         <button className="btn btn--ghost" onClick={() => claim.mutate(item.id)} disabled={claim.isPending}>
                           认领
                         </button>

@@ -72,7 +72,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               onClick={() =>
                 actions.sign.mutate(undefined, {
                   onSuccess: (res) => toast(`签到成功，+${res.earn_point} 胡萝卜`, 'success'),
-                  onError: () => toast('今天已经签到过了', 'error'),
                 })
               }
             >
@@ -145,7 +144,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       onClick={() =>
                         actions.setPseudonym.mutate(pseudonym, {
                           onSuccess: () => toast('笔名已更新', 'success'),
-                          onError: () => toast('更新失败', 'error'),
                         })
                       }
                     >
@@ -171,7 +169,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     onClick={() =>
                       actions.temporaryPassword.mutate(undefined, {
                         onSuccess: (res) => setPassword(res),
-                        onError: () => toast('获取失败', 'error'),
                       })
                     }
                   >
@@ -478,7 +475,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         setInviteId('')
                         setInviteRemark('')
                       },
-                      onError: () => toast('邀请失败', 'error'),
                     },
                   )
                 }
@@ -527,7 +523,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         toast(`已转赠，余额 ${res.carrot}`, 'success')
                         setTransferring(false)
                       },
-                      onError: () => toast('转赠失败', 'error'),
                     },
                   )
                 }}
