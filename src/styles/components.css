@@ -1144,12 +1144,19 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .card-head .btn,
 .card--stat .stat__label .btn {
-  height: 24px;
-  padding: 0 8px;
-  margin-right: -8px;
-  font-size: 12px;
+  height: 20px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  font-size: 12.5px;
   letter-spacing: 0.02em;
+  color: var(--fg-3);
 }
+.card-head .btn:hover,
+.card--stat .stat__label .btn:hover { color: var(--fg); background: transparent; }
+.card-head .btn:disabled,
+.card--stat .stat__label .btn:disabled { color: var(--fg-5); cursor: default; }
 
 .card-body { margin-top: var(--stack); }
 

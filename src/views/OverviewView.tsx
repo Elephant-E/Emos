@@ -83,11 +83,11 @@ export function OverviewView() {
           <p className="stat__label" style={{ margin: 0 }}>
             签到
             <button
-              className={signedToday ? 'btn btn--quiet' : 'btn btn--primary'}
+              className="btn btn--quiet"
               disabled={signedToday || sign.isPending}
               onClick={() => sign.mutate()}
             >
-              {signedToday ? '今天已签' : '立即签到'}
+              {signedToday ? '今天已签' : sign.isPending ? '签到中…' : '立即签到'}
             </button>
           </p>
           <p className="stat__value">
