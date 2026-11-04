@@ -4,7 +4,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconArrowDown, IconDots, IconFilter, IconLeft, IconPlus, IconRight, IconSort } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
-import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
@@ -199,12 +199,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             </div>
           </div>
         </div>
-      ) : null}
-
-      {data && data.items.length > 0 ? (
-        <p className="muted" style={{ marginTop: 14, fontSize: 12 }}>
-          最近更新 {formatRelative(data.items[0]?.video_date_air)}
-        </p>
       ) : null}
     </>
   )

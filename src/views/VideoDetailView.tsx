@@ -85,7 +85,8 @@ export function VideoDetailView({
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '删除这部影片？',
-                  message: `《${video?.video_title}》会被标记为已删除，可从回收处恢复。`,
+                  message: `《${video?.video_title}》会被标记为已删除，从列表里移除。`,
+                  hint: '可从回收处恢复；已上传的资源和字幕不会被立即清除。',
                   confirmText: '删除',
                   danger: true,
                 })
@@ -378,7 +379,13 @@ export function VideoDetailView({
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
-                const ok = await confirmDialog({ title: '删除这个资源？', message: '会扣除相应胡萝卜，可从回收处恢复。', danger: true, confirmText: '删除' })
+                const ok = await confirmDialog({
+                  title: '删除这个资源？',
+                  message: '删除后播放端立刻不可用。',
+                  hint: '会扣除相应胡萝卜，可从回收处恢复。',
+                  danger: true,
+                  confirmText: '删除',
+                })
                 if (ok) {
                   actions.removeMedia.mutate(renaming.mediaId, {
                     onSuccess: (res) => {
@@ -427,7 +434,13 @@ export function VideoDetailView({
           <button
             className="btn btn--ghost"
             onClick={async () => {
-              const ok = await confirmDialog({ title: '删除这条字幕？', danger: true, confirmText: '删除' })
+              const ok = await confirmDialog({
+                title: '删除这条字幕？',
+                message: '观看端将不再显示这条字幕。',
+                hint: '会扣除 1 个胡萝卜，可重新上传。',
+                danger: true,
+                confirmText: '删除',
+              })
               if (!ok) return
               actions.removeSubtitle.mutate(renamingSub.id, {
                 onSuccess: () => {

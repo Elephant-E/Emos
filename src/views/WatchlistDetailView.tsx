@@ -179,7 +179,8 @@ export function WatchlistDetailView({
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: '移出这个影片？',
-                            message: `《${video.video_title}》会从本片单移除，影片本身不会被删除。`,
+                            message: `《${video.video_title}》会从本片单移除。`,
+                            hint: '影片本身不会被删除，其它片单不受影响。',
                             confirmText: '移出',
                             danger: true,
                           })
