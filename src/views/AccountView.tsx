@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -291,7 +292,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       {inviteHistory.data.items.map((row) => (
                         <tr key={String(row.user_id)}>
                           <td>
-                            <span className="cell-title__name">{String(row.username ?? '—')}</span>
+                            <Link
+                              to="/users/$userId"
+                              params={{ userId: String(row.user_id) }}
+                              className="cell-title__name"
+                              style={{ color: 'var(--fg)' }}
+                            >
+                              {String(row.username ?? '—')}
+                            </Link>
                             <span className="cell-title__code">{String(row.user_id)}</span>
                           </td>
                           <td className="muted">{formatDateTime(String(row.invite_at))}</td>
@@ -436,7 +444,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   {bans.data.map((row) => (
                     <tr key={row.user_id}>
                       <td>
-                        <span className="cell-title__name">{row.username}</span>
+                        <Link to="/users/$userId" params={{ userId: row.user_id }} className="cell-title__name" style={{ color: 'var(--fg)' }}>
+                          {row.username}
+                        </Link>
                         <span className="cell-title__code">
                           {row.user_id}
                           {row.invite_pseudonym ? ` · 邀请人 ${row.invite_pseudonym}` : ''}

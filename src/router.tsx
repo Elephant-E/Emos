@@ -16,6 +16,7 @@ import { LinesView } from '@/views/LinesView'
 import { MusicView } from '@/views/MusicView'
 import { SongDetailView } from '@/views/SongDetailView'
 import { PayView } from '@/views/PayView'
+import { UserDetailView } from '@/views/UserDetailView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -189,6 +190,17 @@ function SongRoute() {
 
 const payRoute = createRoute({ getParentRoute: () => appLayout, path: '/pay', component: PayView })
 
+const userDetailRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/users/$userId',
+  component: UserRoute,
+})
+
+function UserRoute() {
+  const { userId } = userDetailRoute.useParams()
+  return <UserDetailView userId={userId} />
+}
+
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
@@ -275,6 +287,7 @@ const routeTree = rootRoute.addChildren([
     musicRoute,
     songRoute,
     payRoute,
+    userDetailRoute,
     watchlistsRoute,
     watchlistDetailRoute,
     ...placeholderRoutes,

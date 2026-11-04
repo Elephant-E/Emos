@@ -545,6 +545,26 @@ export function useMusicMutations(songId = 0) {
   }
 }
 
+export function useUserPayInfo(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId, 'pay'] as const,
+    enabled: Boolean(userId),
+    staleTime: 5 * 60_000,
+    queryFn: async () => (await payApi.userInfo({ user_id: userId }).catch(() => null)) as unknown as import('./types').UserDetail | null,
+  })
+}
+
+export function useUserInvite(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId, 'invite'] as const,
+    enabled: Boolean(userId),
+    staleTime: 5 * 60_000,
+    queryFn: async () =>
+      ((await inviteApi.history({ user_id: userId, page: 1, page_size: 5 }).catch(() => null))?.items?.[0] ??
+        null) as Record<string, unknown> | null,
+  })
+}
+
 export function usePayBase() {
   return useQuery({ queryKey: ['pay', 'base'] as const, queryFn: () => payApi.base() })
 }

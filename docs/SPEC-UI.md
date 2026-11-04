@@ -53,6 +53,12 @@
 - 说"取不到"的时候不要显示成 0——用 `—` 或一句人话。
 - 写操作失败必须说清原因（全局 `MutationCache.onError` 已兜底，带状态码）。
 
+## 4.1 请求编排
+
+- **一个慢接口不能阻塞整页**。把不同来源的数据拆成独立 query，各自加载各自渲染。
+- 同一屏里超过 3 个并行请求时，先想清楚谁是必需的、谁可以后到。
+- 实测这台实例的接口耗时差异极大：`/api/user` 2–5s、`/api/ban/list` 5–11s、`/api/carrot/current` 20s 超时、`/api/user/stats/video/history` 11s 且单次最多 7 天。
+
 ## 5. 数字与排版
 
 - 所有数字 `font-variant-numeric: tabular-nums`。

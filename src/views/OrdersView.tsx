@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -96,7 +97,21 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           <span className="cell-title__name">{order.order_title}</span>
                           <span className="cell-title__code">
                             {order.order_no}
-                            {order.user?.username ? ` · ${order.user.username}` : ''}
+                            {order.user?.user_id ? (
+                              <>
+                                {' · '}
+                                <Link
+                                  to="/users/$userId"
+                                  params={{ userId: order.user.user_id }}
+                                  onClick={(e) => e.stopPropagation()}
+                                  style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
+                                >
+                                  {order.user.username ?? order.user.user_id}
+                                </Link>
+                              </>
+                            ) : order.user?.username ? (
+                              ` · ${order.user.username}`
+                            ) : null}
                           </span>
                         </span>
                       </div>

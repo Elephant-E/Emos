@@ -436,6 +436,18 @@ export interface PayOrder {
   notify_status: string
 }
 
+export interface UserDetail {
+  user_id: string
+  username: string
+  avatar: string | null
+  is_viewing: boolean
+  invite_user_id: string | null
+  size_upload: number
+  telegram_user_id: string | null
+  is_disable: boolean
+  created_at: string
+}
+
 export interface BanItem {
   user_id: string
   username: string
