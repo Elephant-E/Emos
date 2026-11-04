@@ -1,45 +1,13 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
 node_modules
 dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Environment variables
 .env
 .env.local
 .env.*.local
-
-# Wrangler
+.DS_Store
+*.local
 .wrangler
-worker-with-assets.js
-worker.js.timestamp-*.mjs
 
-# Cloudflare local env (keys live here, never commit)
+.env.development
+
 .dev.vars
-
-# 同级其他独立项目（非 emos-vue 内容，不入库）
-NeteaseCloudMusicApi/
-medb.emos.club/
-music.emos.best/
-music.emos.club/
-todb/
-emos.club/
+.audit

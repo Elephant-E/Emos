@@ -1,27 +1,30 @@
 {
-  "name": "emos-vue",
-  "version": "1.0.0",
+  "name": "emos.club",
   "private": true,
+  "version": "2.0.0",
   "type": "module",
-  "description": "EMOS媒体管理系统",
-  "author": "EMOS Team",
+  "description": "EMOS 媒体服务管理台 · 暗色数据台（React + TanStack + Cloudflare Workers）",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "build:worker": "npm run build && node build-worker.cjs",
-    "deploy": "npm run build:worker && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "pinia": "^2.1.7",
-    "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "@tanstack/react-query": "^5.59.16",
+    "@tanstack/react-router": "^1.79.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.2.6",
-    "wrangler": "^4.84.1"
+    "@tanstack/router-devtools": "^1.79.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9",
+    "wrangler": "^4.84.1",
+    "@types/node": "^22.7.5"
   }
 }
