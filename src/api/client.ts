@@ -47,7 +47,28 @@ export function buildUrl(path: string, query?: Record<string, unknown>): string 
   const s = qs.toString()
   return API_BASE + path + (s ? (path.includes('?') ? '&' : '?') + s : '')
 }
+async function withRetry<T>(fn: () => Promise<T>, attempts: number): Promise<T> {
+  let lastError: unknown
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error
+      const status = (error as { status?: number }).status
+      if (status !== 0 || i === attempts - 1) throw error
+      await new Promise((resolve) => setTimeout(resolve, 300 * (i + 1)))
+    }
+  }
+  throw lastError
+}
+
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { method = 'GET' } = options
+  const attempts = method === 'GET' ? 3 : 1
+  return withRetry(() => requestOnce<T>(path, options), attempts)
+}
+
+async function requestOnce<T>(path: string, options: RequestOptions): Promise<T> {
   const { method = 'GET', query, body, signal, silent401 } = options
   if (USE_MOCK) {
     return mockRequest<T>(path, { method, query, body })

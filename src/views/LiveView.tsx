@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { Pager } from '@/components/Pager'
+import { IconPlus } from '@/components/icons'
 import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -25,7 +26,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   const [addingSource, setAddingSource] = useState(false)
   const [source, setSource] = useState({ name: '', path_type: 'm3u8', path_url: '' })
 
-  const totalPages = list.data ? Math.max(1, Math.ceil(list.data.total / list.data.page_size)) : 1
   const channel = list.data?.items.find((item) => item.id === search.channel)
 
   return (
@@ -135,20 +135,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               })}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {list.data.total} 个 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
       ) : null}
 

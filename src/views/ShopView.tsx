@@ -12,6 +12,7 @@ import type { ShopProduct } from '@/api/types'
 type Tab = 'products' | 'categories' | 'seller'
 
 const SELLER_STATUS: Record<string, string> = {
+  pass: '营业中',
   normal: '营业中',
   examine: '审核中',
   review: '审核中',
@@ -27,7 +28,7 @@ const TABS: Array<{ key: Tab; label: string }> = [
 
 export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   const seller = useShopSeller()
-  const categories = useShopCategories()
+  const categories = useShopCategories(seller.data?.seller_id)
   const [categoryId, setCategoryId] = useState(0)
   const [page, setPage] = useState(1)
   const products = useShopProducts(page, categoryId)

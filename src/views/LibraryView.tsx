@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { IconArrowDown, IconDots, IconFilter, IconLeft, IconPlus, IconRight, IconSort } from '@/components/icons'
+import { IconArrowDown, IconDots, IconFilter, IconPlus, IconSort } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
+import { Pager } from '@/components/Pager'
 import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
@@ -32,7 +33,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
     type: (search.type || undefined) as VideoType | undefined,
   })
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
 
   return (
     <>
@@ -184,20 +184,13 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {formatThousand(data.total)} 部 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager
+            total={data.total}
+            page={search.page}
+            pageSize={search.page_size}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(page_size) => onSearch({ page: 1, page_size })}
+          />
         </div>
       ) : null}
     </>

@@ -48,3 +48,51 @@ VITE_MOCK=fixtures npm run dev
 | `POST /api/upload/getUploadToken` | 只记录了失败响应（"此资源您一周内上传过"） | 成功响应里 file_id 的字段名未知，代码按 `file_id/fileId/id/file_key/key/upload_id` 依次尝试 |
 
 这两处等你连上后端跑一次就能定，改动点都在一个函数里。
+
+---
+
+# 第二版：连上生产 API
+
+token 换成生产用户（admin）后直连 `https://emos.best` 成功，拿到了真实数据。
+
+## 代理怎么做的（照抄原项目）
+
+旧项目的两处配置才是对的，我之前自己写的 fetch 反代会被上游 RST：
+
+**开发（旧 vite.config.ts）**
+```ts
+proxy: { '/api': { target: 'https://emos.best', changeOrigin: true, secure: false } }
+```
+
+**生产（旧 worker.js）**
+```ts
+headers.set('Host', 'emos.best')
+headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
+headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
+```
+非 JSON 响应包成 `{message}` 返回。
+
+新版已照此实现：`worker/index.ts` 补齐 `EMOS-PROXY-*` 头，`wrangler.jsonc` 写入两个变量。
+
+## 真实数据量 → 改掉的 UI
+
+| 数据 | 真实值 | 原实现的问题 | 现在 |
+|---|---|---|---|
+| 片库 | 209,486 部 | 只有上一页/下一页 | 每页 20/50/100 + 页码直达 |
+| 线路 | 1,279 条 | 无搜索、无分页（全量渲染） | 搜索 + 分页 |
+| 胡萝卜记录 | 25,064 条 | 只有上一页/下一页 | 统一 Pager（带跳页） |
+| 片单 | 260 个 | `type` 参数没传给接口，音乐片单混进来 | 传入 `type` |
+| 上传榜 | 161 TB / 103 TB | 显示原始字节数 | 按 TB/GB 格式化 |
+| 店铺 | `status: "pass"` | 未映射，界面显示 pass | 映射为「营业中」 |
+| 商城分类 | 必须带 `seller_id` | 不传 → 422 | 用 seller_id 拉取 |
+
+## 修正上一次的误判
+
+我说「`?season_number=` 不过滤」是**错的**——那是 fixtures 的假象（同一条记录被所有季复用）。
+真实接口是对的：某剧 `season_number` 缺省 14 集、`=1` 13 集、`=0` 1 集。
+前端按 `season_id` 过滤只是防御，不影响正确性。
+
+## 另外
+
+- 这条链路不稳（客户端 fetch 6 次里 1 次超时），已给所有 GET 加 3 次重试（300ms/600ms 退避）。
+- `media/list` 与 `getUploadToken` 的成功响应仍未见：前者在该剧该集返回 `[]`（确认是数组），后者集合里只有失败样例。

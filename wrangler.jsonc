@@ -9,7 +9,9 @@
     "not_found_handling": "single-page-application"
   },
   "vars": {
-    "API_ORIGIN": "https://test.emos.best"
+    "API_ORIGIN": "https://emos.best",
+    "EMOS_PROXY_NAME": "@Elephant",
+    "EMOS_PROXY_ID": "e7E6K6OE4s"
   },
   "observability": { "enabled": true }
 }

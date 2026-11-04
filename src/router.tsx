@@ -54,7 +54,7 @@ const libraryRoute = createRoute({
   path: '/library',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: '' | VideoType } => ({
     page: Math.max(1, Number(s.page) || 1),
-    page_size: 20,
+    page_size: [20, 50, 100].includes(Number(s.page_size)) ? Number(s.page_size) : 20,
     q: typeof s.q === 'string' ? s.q : '',
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
   }),

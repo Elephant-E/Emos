@@ -4,11 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { formatRelative, formatThousand } from '@/lib/format'
+import { Pager } from '@/components/Pager'
 
 export interface WatchSearch {
   page: number
@@ -32,6 +33,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
     page_size: search.page_size,
+    type: search.type,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
   })
@@ -55,7 +57,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     onError: (err) => toast(err instanceof Error ? err.message : '创建失败', 'error'),
   })
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
 
   return (
     <>
@@ -164,20 +165,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {formatThousand(data.total)} 个 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
         </div>
       ) : null}
 

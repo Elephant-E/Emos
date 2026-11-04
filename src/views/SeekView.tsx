@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconRight } from '@/components/icons'
+import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
 import { useSeekPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -39,7 +39,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: () => { invalidate(); toast('已认领', 'success') } })
   const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: () => { invalidate(); toast('已催片', 'success') } })
 
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
 
   return (
     <>
@@ -138,20 +137,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               })}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {formatThousand(data.total)} 条 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
       ) : null}
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconRight } from '@/components/icons'
+import { Pager } from '@/components/Pager'
 import { useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -33,7 +33,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   const actions = useShopMutations()
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
 
-  const totalPages = orders.data ? Math.max(1, Math.ceil(orders.data.total / orders.data.page_size)) : 1
 
   return (
     <>
@@ -141,20 +140,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               })}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {orders.data.total} 单 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => onSearch({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => onSearch({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager total={orders.data.total} page={search.page} pageSize={orders.data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
       ) : null}
 

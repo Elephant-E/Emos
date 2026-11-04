@@ -71,7 +71,7 @@ export function useSeekPage(params: { page: number; page_size: number; status: S
   })
 }
 
-export function useWatchPage(params: { page: number; page_size: number }) {
+export function useWatchPage(params: { page: number; page_size: number; type?: 'video' | 'music' }) {
   return useQuery({ queryKey: qk.watches(params), queryFn: () => watchApi.list(params), placeholderData: (prev) => prev })
 }
 
@@ -226,8 +226,12 @@ export function useShopSeller() {
   return useQuery({ queryKey: ['shop', 'seller'] as const, queryFn: () => shopApi.sellerBase() })
 }
 
-export function useShopCategories() {
-  return useQuery({ queryKey: ['shop', 'categories'] as const, queryFn: () => shopApi.categories() })
+export function useShopCategories(sellerId?: number) {
+  return useQuery({
+    queryKey: ['shop', 'categories', sellerId ?? 0] as const,
+    queryFn: () => shopApi.categories(sellerId),
+    enabled: Boolean(sellerId),
+  })
 }
 
 export function useShopProducts(page: number, categoryId: number, pageSize = 12) {

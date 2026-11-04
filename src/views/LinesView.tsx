@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
+import { Pager } from '@/components/Pager'
 import { useLineList, useLineMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -12,7 +13,17 @@ export function LinesView() {
   const lines = useLineList()
   const actions = useLineMutations()
   const [creating, setCreating] = useState(false)
+  const [term, setTerm] = useState('')
+  const [page, setPage] = useState(1)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
+
+  const rows = (lines.data ?? []).filter((line) => {
+    const q = term.trim().toLowerCase()
+    if (!q) return true
+    return line.name.toLowerCase().includes(q) || line.url.toLowerCase().includes(q) || (line.tagline ?? '').toLowerCase().includes(q)
+  })
+  const pageSize = 20
+  const paged = rows.slice((page - 1) * pageSize, page * pageSize)
 
   return (
     <>
@@ -29,6 +40,13 @@ export function LinesView() {
       />
 
       <div className="toolbar">
+        <input
+          className="input"
+          type="search"
+          placeholder="搜索名称、地址或简介"
+          value={term}
+          onChange={(e) => { setTerm(e.target.value); setPage(1) }}
+        />
         <span className="spacer" />
         <button className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />
@@ -39,8 +57,9 @@ export function LinesView() {
       {lines.error ? <ErrorBlock error={lines.error as Error & { status?: number }} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
       {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" hint="线路用于客户端反代，地址不需要尾部斜杠。" /> : null}
+      {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title="没有匹配的线路" hint={`「${term}」没有结果。`} /> : null}
 
-      {lines.data && lines.data.length > 0 ? (
+      {paged.length > 0 ? (
         <div className="table-card">
           <table className="table">
             <thead>
@@ -53,7 +72,7 @@ export function LinesView() {
               </tr>
             </thead>
             <tbody>
-              {lines.data.map((line) => (
+              {paged.map((line) => (
                 <tr key={line.id}>
                   <td>
                     <div className="cell-title">
@@ -95,9 +114,14 @@ export function LinesView() {
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>共 {lines.data.length} 条</span>
-          </div>
+          <Pager
+            total={rows.length}
+            page={page}
+            pageSize={pageSize}
+            sizes={[20, 50]}
+            onPage={setPage}
+            onPageSize={() => setPage(1)}
+          />
         </div>
       ) : null}
 

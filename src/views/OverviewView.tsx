@@ -2,7 +2,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { useCarrot, usePlayingNow, useRankUpload, useSeekOpen, useSession, useZoneCounts } from '@/api/queries'
-import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export function OverviewView() {
   const session = useSession()
@@ -139,7 +139,7 @@ export function OverviewView() {
                       </span>
                       <span style={{ color: 'var(--fg-2)' }}>{row.username}</span>
                       <span className="tnum" style={{ marginLeft: 'auto', color: 'var(--fg)' }}>
-                        {formatThousand(row.size)}
+                        {formatSize(row.size)}
                       </span>
                     </li>
                   ))}
