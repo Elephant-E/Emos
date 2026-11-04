@@ -174,3 +174,18 @@ export const IconUser = (p: IconProps) => (
     <path d="M2.8 13.4c.7-2.4 2.7-3.8 5.2-3.8s4.5 1.4 5.2 3.8" />
   </Svg>
 )
+
+export const IconMusic = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6.2 12V4.2l6.6-1.4v7.4" />
+    <circle cx="4.4" cy="12.2" r="1.8" />
+    <circle cx="11" cy="10.6" r="1.8" />
+  </Svg>
+)
+
+export const IconWallet = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2" y="4.4" width="12" height="8.4" rx="1.6" />
+    <path d="M2 7.4h12M10.6 10.6h1.2" />
+  </Svg>
+)

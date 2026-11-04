@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, rankApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
@@ -15,8 +15,30 @@ export const qk = {
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 }
 
+const SESSION_CACHE_KEY = 'emos_admin_profile'
+
 export function useSession() {
-  return useQuery({ queryKey: qk.session, queryFn: () => sessionApi.profile(), staleTime: 5 * 60_000 })
+  return useQuery({
+    queryKey: qk.session,
+    staleTime: 5 * 60_000,
+    placeholderData: () => {
+      try {
+        const raw = localStorage.getItem(SESSION_CACHE_KEY)
+        return raw ? (JSON.parse(raw) as Awaited<ReturnType<typeof sessionApi.profile>>) : undefined
+      } catch {
+        return undefined
+      }
+    },
+    queryFn: async () => {
+      const profile = await sessionApi.profile()
+      try {
+        localStorage.setItem(SESSION_CACHE_KEY, JSON.stringify(profile))
+      } catch {
+        /* 忽略 */
+      }
+      return profile
+    },
+  })
 }
 
 export function useCarrot() {
@@ -315,6 +337,70 @@ export function useLineMutations() {
     create: useMutation({ mutationFn: (payload: { name: string; url: string; tagline?: string }) => lineApi.create(payload), onSuccess: invalidate }),
     remove: useMutation({ mutationFn: (id: number) => lineApi.remove(id), onSuccess: invalidate }),
   }
+}
+
+export function useMusicSongs(page: number, term: string, pageSize = 20) {
+  return useQuery({
+    queryKey: ['music', 'songs', page, term] as const,
+    queryFn: () => musicApi.songs({ page, page_size: pageSize, name: term || undefined }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useMusicAlbums(page: number, term: string, pageSize = 20) {
+  return useQuery({
+    queryKey: ['music', 'albums', page, term] as const,
+    queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useMusicPersons(page: number, term: string, pageSize = 20) {
+  return useQuery({
+    queryKey: ['music', 'persons', page, term] as const,
+    queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useSongLyrics(songId: number) {
+  return useQuery({
+    queryKey: ['music', 'lyrics', songId] as const,
+    queryFn: async () => (await musicApi.lyrics(songId)) as unknown as Array<Record<string, unknown>>,
+    enabled: songId > 0,
+  })
+}
+
+export function useSongMedia(songId: number) {
+  return useQuery({
+    queryKey: ['music', 'media', songId] as const,
+    queryFn: async () => (await musicApi.media(songId)) as unknown as Array<Record<string, unknown>>,
+    enabled: songId > 0,
+  })
+}
+
+export function useMusicMutations(songId = 0) {
+  const qc = useQueryClient()
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['music'] })
+  return {
+    favorite: useMutation({ mutationFn: (p: { type: string; value: number }) => musicApi.favorite(p.type, p.value), onSuccess: invalidate }),
+    rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
+    sync: useMutation({ mutationFn: (p: { type: string; value: string }) => musicApi.sync(p.type, p.value), onSuccess: invalidate }),
+    deleteSong: useMutation({ mutationFn: () => musicApi.deleteSong(songId), onSuccess: invalidate }),
+  }
+}
+
+export function usePayBase() {
+  return useQuery({ queryKey: ['pay', 'base'] as const, queryFn: () => payApi.base() })
+}
+
+export function usePayOrder(no: string) {
+  return useQuery({
+    queryKey: ['pay', 'order', no] as const,
+    queryFn: () => payApi.query(no),
+    enabled: no.trim().length > 0,
+    retry: false,
+  })
 }
 
 export function useWatchMutations(watchId: number) {

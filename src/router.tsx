@@ -13,6 +13,9 @@ import { ShopView } from '@/views/ShopView'
 import { OrdersView } from '@/views/OrdersView'
 import { LiveView } from '@/views/LiveView'
 import { LinesView } from '@/views/LinesView'
+import { MusicView } from '@/views/MusicView'
+import { SongDetailView } from '@/views/SongDetailView'
+import { PayView } from '@/views/PayView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -156,6 +159,36 @@ function LiveRoute() {
 
 const linesRoute = createRoute({ getParentRoute: () => appLayout, path: '/lines', component: LinesView })
 
+const musicRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/music',
+  validateSearch: (s: Record<string, unknown>): { page: number; tab: 'songs' | 'albums' | 'persons'; q: string } => ({
+    page: Math.max(1, Number(s.page) || 1),
+    tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
+    q: typeof s.q === 'string' ? s.q : '',
+  }),
+  component: MusicRoute,
+})
+
+function MusicRoute() {
+  const search = musicRoute.useSearch()
+  const navigate = musicRoute.useNavigate()
+  return <MusicView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const songRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/music/song/$songId',
+  component: SongRoute,
+})
+
+function SongRoute() {
+  const { songId } = songRoute.useParams()
+  return <SongDetailView songId={Number(songId)} />
+}
+
+const payRoute = createRoute({ getParentRoute: () => appLayout, path: '/pay', component: PayView })
+
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
@@ -216,7 +249,6 @@ function WatchDetailRoute() {
 }
 
 const placeholders: Array<{ path: string; title: string; note: string }> = [
-  { path: '/music', title: '音乐', note: '歌曲、专辑、歌手、歌词与资源，接 /api/music 系列。' },
 ]
 
 const placeholderRoutes = placeholders.map((item) =>
@@ -240,6 +272,9 @@ const routeTree = rootRoute.addChildren([
     ordersRoute,
     liveRoute,
     linesRoute,
+    musicRoute,
+    songRoute,
+    payRoute,
     watchlistsRoute,
     watchlistDetailRoute,
     ...placeholderRoutes,

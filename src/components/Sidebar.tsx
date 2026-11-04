@@ -11,6 +11,8 @@ import {
   IconInbox,
   IconLive,
   IconLogo,
+  IconMusic,
+  IconWallet,
   IconPanel,
   IconReceipt,
   IconRoute,
@@ -29,7 +31,8 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { to: '/', label: '概览', icon: IconGrid },
       { to: '/library', label: '媒体库', icon: IconFilm },
       { to: '/watchlists', label: '片单', icon: IconTag, chev: true },
-      { to: '/seek', label: '求片', icon: IconInbox, tail: '12' },
+      { to: '/seek', label: '求片', icon: IconInbox },
+      { to: '/music', label: '音乐', icon: IconMusic },
     ],
   },
   {
@@ -45,6 +48,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '系统',
     items: [
       { to: '/lines', label: '线路', icon: IconRoute },
+      { to: '/pay', label: '支付', icon: IconWallet },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],
   },
