@@ -4,6 +4,8 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconLeft, IconPlus, IconRight } from '@/components/icons'
 import { useWatch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface WatchDetailSearch {
@@ -47,12 +49,12 @@ export function WatchlistDetailView({
         tools={
           item ? (
             <>
-              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate()} disabled={subscribe.isPending}>
+              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success'), onError: () => toast('操作失败', 'error') })} disabled={subscribe.isPending}>
                 {item.is_subscribe ? '取消订阅' : '订阅'}
               </button>
               {item.is_self ? (
                 <>
-                  <button className="btn btn--ghost" onClick={() => toggleShow.mutate()} disabled={toggleShow.isPending}>
+                  <button className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
                     {item.user_is_show ? '隐藏' : '显示'}
                   </button>
                   <button className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
@@ -172,7 +174,23 @@ export function WatchlistDetailView({
                   <td className="muted">{video.remark ?? '—'}</td>
                   <td style={{ textAlign: 'right' }}>
                     {item?.is_edit_video ? (
-                      <button className="btn btn--quiet" onClick={() => removeVideo.mutate(video.video_id)} disabled={removeVideo.isPending}>
+                      <button
+                        className="btn btn--quiet"
+                        onClick={async () => {
+                          const ok = await confirmDialog({
+                            title: '移出这个影片？',
+                            message: `《${video.video_title}》会从本片单移除，影片本身不会被删除。`,
+                            confirmText: '移出',
+                            danger: true,
+                          })
+                          if (!ok) return
+                          removeVideo.mutate(video.video_id, {
+                            onSuccess: () => toast('已移出', 'success'),
+                            onError: () => toast('移出失败', 'error'),
+                          })
+                        }}
+                        disabled={removeVideo.isPending}
+                      >
                         移出
                       </button>
                     ) : null}
@@ -224,7 +242,12 @@ export function WatchlistDetailView({
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
-                  onClick={() => addVideo.mutate(c.video_id)}
+                  onClick={() =>
+                    addVideo.mutate(c.video_id, {
+                      onSuccess: () => toast(`已加入《${c.video_title}》`, 'success'),
+                      onError: () => toast('加入失败', 'error'),
+                    })
+                  }
                   disabled={addVideo.isPending}
                 >
                   加入
@@ -250,7 +273,10 @@ export function WatchlistDetailView({
               <button
                 className="btn btn--primary"
                 onClick={() => {
-                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null)
+                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
+                    onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
+                    onError: () => toast('保存失败', 'error'),
+                  })
                   setDynamicOpen(false)
                 }}
               >

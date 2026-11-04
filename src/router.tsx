@@ -6,6 +6,7 @@ import { SeekView } from '@/views/SeekView'
 import { WatchlistsView } from '@/views/WatchlistsView'
 import { WatchlistDetailView } from '@/views/WatchlistDetailView'
 import { PlaceholderView, LoginView } from '@/views/PlaceholderView'
+import { UploadView } from '@/views/UploadView'
 import { getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -39,6 +40,8 @@ const appLayout = createRoute({
 })
 
 const overviewRoute = createRoute({ getParentRoute: () => appLayout, path: '/', component: OverviewView })
+
+const uploadRoute = createRoute({ getParentRoute: () => appLayout, path: '/upload', component: UploadView })
 
 const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
@@ -118,7 +121,6 @@ function WatchDetailRoute() {
 }
 
 const placeholders: Array<{ path: string; title: string; note: string }> = [
-  { path: '/upload', title: '上传', note: '分片上传 / 识别 / 入库 / 暂存区搬运，接 /api/upload 与 /api/upload/multipart。' },
   { path: '/live', title: '直播', note: '直播列表、源管理与媒体库，接 /api/live 系列。' },
   { path: '/shop', title: '商城', note: '店铺、分类、商品、订单与发货，接 /api/shop 系列。' },
   { path: '/orders', title: '订单', note: '商户订单、发货与备注，接 /api/shop/order/shop。' },
@@ -139,6 +141,7 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   appLayout.addChildren([
     overviewRoute,
+    uploadRoute,
     libraryRoute,
     seekRoute,
     watchlistsRoute,

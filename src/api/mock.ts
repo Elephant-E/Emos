@@ -225,6 +225,28 @@ export async function mockRequest<T>(
     return rows as T
   }
 
+  if (clean === '/api/upload/store/disk') return ['local_emos_1', 'local_emos_2'] as T
+  if (clean === '/api/upload/store/file') {
+    return [
+      { file_name: '夜航西飞.2026.2160p.WEB-DL.H265.mp4', file_size: 8_589_934_592, mime_type: 'video/mp4' },
+      { file_name: '雾港.S02E04.1080p.mp4', file_size: 1_287_278_592, mime_type: 'video/mp4' },
+    ] as T
+  }
+  if (clean === '/api/upload/store/archive') return { media_id: 'mock-media-archive', carrot: 2 } as T
+  if (clean === '/api/upload/video/recognize') {
+    const name = String(query.file_name ?? '')
+    if (name.includes('雾港')) return { item_type: 've', item_id: 1002, title: '雾港 S2E04' } as T
+    return { message: '未找到对应的视频, 请先同步后使用.' } as T
+  }
+  if (clean === '/api/upload/getUploadToken') return { file_id: `mock-${Math.random().toString(36).slice(2, 10)}` } as T
+  if (/^\/api\/upload\/multipart\/.+\/presign$/.test(clean)) {
+    const number = Number((body as { number?: number }).number ?? 1)
+    return Array.from({ length: number }, (_, i) => ({ number: i + 1, upload_url: 'https://mock.invalid/put', upload_data: {} })) as T
+  }
+  if (/^\/api\/upload\/multipart\/.+\/complete$/.test(clean)) return { file_id: 'mock-file' } as T
+  if (clean === '/api/upload/video/save') return { count: 1, media_id: 'mock-media', carrot: 3 } as T
+  if (clean === '/api/user/agreeUploadAgreement') return {} as T
+
   if (/^\/api\/watch\/\d+\/video\/\d+$/.test(clean)) return { count: 1 } as T
   if (/^\/api\/watch\/\d+\/subscribe$/.test(clean)) return { is_subscribe: true } as T
   if (/^\/api\/watch\/\d+\/show$/.test(clean)) return { is_show: true } as T

@@ -6,6 +6,7 @@ import { Modal } from '@/components/Modal'
 import { IconLeft, IconRight } from '@/components/icons'
 import { seekApi } from '@/api/endpoints'
 import { useSeekPage } from '@/api/queries'
+import { toast } from '@/ui/toast'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
@@ -35,8 +36,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   })
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
-  const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: invalidate })
-  const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: invalidate })
+  const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: () => { invalidate(); toast('已认领', 'success') } })
+  const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: () => { invalidate(); toast('已催片', 'success') } })
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
 

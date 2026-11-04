@@ -811,3 +811,92 @@ tr:hover .row-menu,
 .detail-stat { display: grid; gap: 4px; }
 .detail-stat b { font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .detail-stat span { font-size: 12px; color: var(--fg-3); }
+
+.toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: var(--z-toast);
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: var(--r-item);
+  border: 1px solid var(--line);
+  background: rgba(24, 23, 21, 0.96);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-pop);
+  font-size: 13.5px;
+  color: var(--fg-2);
+  animation: toast-in var(--t-base) var(--ease);
+}
+
+.toast i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fg-4);
+  flex: none;
+}
+
+.toast--success i { background: var(--c-green); }
+.toast--error i { background: var(--c-red); }
+.toast--error { color: var(--fg); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.btn--danger {
+  background: var(--c-red);
+  border-color: var(--c-red);
+  color: #1a0c08;
+  font-weight: 550;
+}
+.btn--danger:hover { background: #ff8161; border-color: #ff8161; }
+
+.progress-line {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.progress-line > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--c-green);
+  transition: width var(--t-base) linear;
+}
+
+.dropzone {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 34px 24px;
+  border-radius: var(--r-card);
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.015);
+  color: var(--fg-3);
+  font-size: 13.5px;
+  text-align: center;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.dropzone.is-over {
+  border-color: rgba(255, 197, 61, 0.6);
+  background: rgba(255, 197, 61, 0.05);
+}
+
+.queue-name { display: grid; gap: 3px; min-width: 0; }
+.queue-name b { font-size: 13.5px; font-weight: 450; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-name span { font-size: 11.5px; color: var(--fg-4); }

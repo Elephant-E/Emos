@@ -7,6 +7,7 @@ import { Modal } from '@/components/Modal'
 import { IconLeft, IconPlus, IconRight } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useWatchPage } from '@/api/queries'
+import { toast } from '@/ui/toast'
 import { formatRelative, formatThousand } from '@/lib/format'
 
 export interface WatchSearch {
@@ -46,10 +47,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         tags: form.tags.split(/[,，\s]+/).filter(Boolean),
       }),
     onSuccess: () => {
+      toast('片单已创建', 'success')
       setCreating(false)
       setForm({ name: '', description: '', is_public: true, point: 0, tags: '' })
       qc.invalidateQueries({ queryKey: ['watches'] })
     },
+    onError: (err) => toast(err instanceof Error ? err.message : '创建失败', 'error'),
   })
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.page_size)) : 1
