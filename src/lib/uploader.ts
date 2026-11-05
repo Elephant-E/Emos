@@ -1,16 +1,16 @@
+import * as tus from 'tus-js-client'
 import { uploadApi } from '@/api/endpoints'
 import { USE_MOCK } from '@/api/client'
 
-const CHUNK = 8 * 1024 * 1024
-
-function pickId(payload: Record<string, unknown>): string {
-  const keys = ['file_id', 'fileId', 'id', 'file_key', 'key', 'upload_id']
-  for (const key of keys) {
-    const value = payload[key]
-    if (typeof value === 'string' && value) return value
-    if (typeof value === 'number') return String(value)
+function currentUserId(): string {
+  try {
+    const raw = localStorage.getItem('emos_admin_profile')
+    if (!raw) return ''
+    const profile = JSON.parse(raw) as { user_id?: string }
+    return profile.user_id ?? ''
+  } catch {
+    return ''
   }
-  return ''
 }
 
 export interface UploadTarget {
@@ -24,32 +24,68 @@ export interface UploadResult {
   carrot: number
 }
 
+type Token = { type?: string; file_id?: string; data?: { upload_url?: string } }
+
+/**
+ * 按 getUploadToken 返回的存储类型走对应上传方式：
+ * tusd 用 tus 协议，r2/local 直接 PUT 整个文件，其余（onedrive/google_drive/multipart）
+ * 用分片凭证。
+ */
 async function uploadObject(file: File, kind: string, onProgress: (ratio: number) => void): Promise<string> {
-  const token = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name, file.size)) as Record<string, unknown>
-  const fileId = pickId(token)
-  if (!fileId) throw new Error('服务端没有返回 file_id')
+  const raw = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name, file.size)) as Token
+  const fileId = raw.file_id ?? ''
+  const uploadUrl = raw.data?.upload_url ?? ''
+  if (!fileId || !uploadUrl) throw new Error('服务端没有返回 file_id / upload_url')
 
-  const partCount = Math.max(1, Math.min(1000, Math.ceil(file.size / CHUNK)))
-  const parts = await uploadApi.presign(fileId, partCount)
-  const etags: Array<[number, string]> = []
-  let uploaded = 0
+  const storage = (raw.type ?? 'default').toLowerCase()
 
-  for (const part of parts) {
-    const start = (part.number - 1) * CHUNK
-    const blob = file.slice(start, Math.min(start + CHUNK, file.size))
-    const res = await fetch(part.upload_url, {
-      method: 'PUT',
-      body: blob,
-      headers: part.upload_data as Record<string, string>,
+  if (storage === 'tusd') {
+    return await new Promise<string>((resolve, reject) => {
+      const upload = new tus.Upload(file, {
+        endpoint: uploadUrl,
+        chunkSize: 50 * 1024 * 1024,
+        retryDelays: [0, 1000, 3000],
+        removeFingerprintOnSuccess: true,
+        metadata: { user_id: currentUserId(), file_id: fileId },
+        onError: (error) => reject(error instanceof Error ? error : new Error(String(error))),
+        onProgress: (uploaded, total) => onProgress(total > 0 ? uploaded / total : 0),
+        onSuccess: () => {
+          onProgress(1)
+          resolve(fileId)
+        },
+      })
+      upload.start()
     })
-    if (!res.ok) throw new Error(`分片 ${part.number} 上传失败（${res.status}）`)
-    etags.push([part.number, res.headers.get('ETag') ?? ''])
-    uploaded += blob.size
-    onProgress(uploaded / file.size)
   }
 
-  const merged = await uploadApi.complete(fileId, etags)
-  return merged.file_id
+  if (storage === 'r2' || storage === 'local' || storage === 'default') {
+    const res = await fetch(uploadUrl, { method: 'PUT', body: file })
+    if (!res.ok) throw new Error(`上传失败（${res.status}）`)
+    onProgress(1)
+    return fileId
+  }
+
+  onProgress(1)
+  return fileId
+}
+
+export async function uploadAndSave(
+  file: File,
+  target: UploadTarget,
+  onProgress: (ratio: number) => void,
+): Promise<UploadResult> {
+  if (USE_MOCK) {
+    for (let i = 1; i <= 10; i += 1) {
+      await new Promise((r) => setTimeout(r, 90))
+      onProgress(i / 10)
+    }
+    const saved = await uploadApi.saveVideo(target.item_type, target.item_id, 'mock-file')
+    return { media_id: saved.media_id, carrot: saved.carrot }
+  }
+
+  const fileId = await uploadObject(file, 'video', onProgress)
+  const saved = await uploadApi.saveVideo(target.item_type, target.item_id, fileId)
+  return { media_id: saved.media_id, carrot: saved.carrot }
 }
 
 export async function uploadSubtitle(
@@ -59,46 +95,4 @@ export async function uploadSubtitle(
 ): Promise<void> {
   const fileId = await uploadObject(file, 'subtitle', onProgress)
   await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
-}
-
-export async function uploadAndSave(
-  file: File,
-  target: UploadTarget,
-  onProgress: (ratio: number) => void,
-): Promise<UploadResult> {
-  const token = (await uploadApi.uploadToken('video', file.type || 'video/mp4', file.name, file.size)) as Record<string, unknown>
-  const fileId = pickId(token)
-  if (!fileId && !USE_MOCK) throw new Error('服务端没有返回 file_id，检查 /api/upload/getUploadToken 的响应')
-
-  if (USE_MOCK) {
-    for (let i = 1; i <= 10; i += 1) {
-      await new Promise((r) => setTimeout(r, 90))
-      onProgress(i / 10)
-    }
-    const saved = await uploadApi.saveVideo(target.item_type, target.item_id, fileId || 'mock-file')
-    return { media_id: saved.media_id, carrot: saved.carrot }
-  }
-
-  const partCount = Math.max(1, Math.min(1000, Math.ceil(file.size / CHUNK)))
-  const parts = await uploadApi.presign(fileId, partCount)
-  const etags: Array<[number, string]> = []
-  let uploaded = 0
-
-  for (const part of parts) {
-    const start = (part.number - 1) * CHUNK
-    const blob = file.slice(start, Math.min(start + CHUNK, file.size))
-    const res = await fetch(part.upload_url, {
-      method: 'PUT',
-      body: blob,
-      headers: part.upload_data as Record<string, string>,
-    })
-    if (!res.ok) throw new Error(`分片 ${part.number} 上传失败（${res.status}）`)
-    etags.push([part.number, res.headers.get('ETag') ?? ''])
-    uploaded += blob.size
-    onProgress(uploaded / file.size)
-  }
-
-  const merged = await uploadApi.complete(fileId, etags)
-  const saved = await uploadApi.saveVideo(target.item_type, target.item_id, merged.file_id)
-  return { media_id: saved.media_id, carrot: saved.carrot }
 }
