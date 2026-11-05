@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useTodos, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
-import { formatSize, formatThousand } from '@/lib/format'
+import { formatSize, formatThousand, realmOf } from '@/lib/format'
 
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
 
@@ -129,7 +129,12 @@ export function OverviewView() {
             <small>个</small>
           </p>
           <p className="stat__delta stat__delta--quiet">
-            签到、上传都会获得
+            {(() => {
+              const value = carrot.data?.carrot ?? session.data?.carrot
+              if (value == null) return '签到、上传都会获得'
+              const realm = realmOf(value)
+              return realm.next ? `${realm.name} · 距下一境 ${formatThousand(realm.next - value)}` : realm.name
+            })()}
           </p>
         </article>
 

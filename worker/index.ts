@@ -29,6 +29,8 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
   headers.set('Host', target.host)
   if (env.EMOS_PROXY_NAME) headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
   if (env.EMOS_PROXY_ID) headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
+  // wiki/proxy 要求必须传递 X-FORWARDED-FOR，否则调用方 IP 记不到真实来源
+  headers.set('X-Forwarded-For', request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '')
 
   const init: RequestInit = { method: request.method, headers, redirect: 'manual' }
   if (request.method !== 'GET' && request.method !== 'HEAD') {

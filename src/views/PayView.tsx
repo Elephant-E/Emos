@@ -5,6 +5,7 @@ import { usePayBase, usePayOrder } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
 import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatThousand } from '@/lib/format'
 
 const PAY_STATUS: Record<string, string> = {
@@ -48,14 +49,24 @@ export function PayView() {
           action={
             <button
               className="btn btn--primary"
-              onClick={() =>
-                payApi
-                  .apply('我的支付服务', '由后台发起申请')
-                  .then(() => toast('已提交申请，等待审核', 'success'))
-                  .catch(() => toast('提交失败，可能已申请过', 'error'))
-              }
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  title: '申请成为支付服务商？',
+                  message: '申请将扣除 5000 胡萝卜，且不退还。',
+                  hint: '提交后需要联系管理员审核，审核不通过也不退还。',
+                  confirmText: '确认申请',
+                  danger: true,
+                })
+                if (!ok) return
+                try {
+                  await payApi.apply('我的支付服务', '由后台发起申请')
+                  toast('已提交申请，等待审核', 'success')
+                } catch {
+                  toast('提交失败，可能已申请过或胡萝卜不足', 'error')
+                }
+              }}
             >
-              申请成为服务商
+              申请成为服务商（扣 5000 胡萝卜）
             </button>
           }
         />

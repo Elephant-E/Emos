@@ -55,3 +55,41 @@ export const SEEK_STATUS: Record<string, { label: string; cls: string }> = {
   cancel: { label: '已取消', cls: 'badge--off' },
   forget: { label: '已遗忘', cls: 'badge--off' },
 }
+
+// 依据 wiki「萝卜 → 境界」对照表
+const REALMS: Array<[number, string]> = [
+  [100000000, '真仙'],
+  [10000000, '大乘'],
+  [1000000, '合体'],
+  [500000, '炼虚'],
+  [100000, '化神'],
+  [60000, '元婴圆满'],
+  [35000, '元婴后期'],
+  [20000, '元婴中期'],
+  [10000, '元婴初期'],
+  [6000, '结丹圆满'],
+  [3500, '结丹后期'],
+  [2000, '结丹中期'],
+  [1000, '结丹初期'],
+  [600, '筑基圆满'],
+  [300, '筑基后期'],
+  [150, '筑基中期'],
+  [100, '筑基初期'],
+  [90, '练气期九层'],
+  [80, '练气期八层'],
+  [70, '练气期七层'],
+  [60, '练气期六层'],
+  [50, '练气期五层'],
+  [40, '练气期四层'],
+  [30, '练气期三层'],
+  [20, '练气期二层'],
+  [10, '练气期一层'],
+  [0, '凡人期'],
+]
+
+export function realmOf(carrot: number): { name: string; next: number | null } {
+  const index = REALMS.findIndex(([floor]) => carrot >= floor)
+  const current = REALMS[index] ?? REALMS[REALMS.length - 1]
+  const next = index > 0 ? REALMS[index - 1][0] : null
+  return { name: current[1], next }
+}
