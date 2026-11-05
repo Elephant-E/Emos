@@ -80,6 +80,10 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         }
       />
 
+      {tab === 'media' ? (
+        <p className="card-note card-note--inline">显示「—」的资源是他人上传的，只能查看，不能由你恢复。</p>
+      ) : null}
+
       <div className="toolbar">
         {tab === 'media' ? (
           <select

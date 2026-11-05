@@ -1183,3 +1183,11 @@ th.num .th-sort { flex-direction: row-reverse; }
 .table--inset { margin-top: 10px; }
 .cell-right { text-align: right; }
 .note-left { text-align: left; }
+
+.card-note--inline {
+  margin: 0;
+  padding: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--fg-4);
+}
