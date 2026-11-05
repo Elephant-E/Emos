@@ -1,6 +1,6 @@
 # EMOS 管理台 · API 覆盖与正确性审计（第三轮）
 
-> 只读审计，未改任何源码。基线 HEAD `432e039`，工作区干净。
+> 只读审计，未改任何源码。基线 HEAD `432e039`；审查期间仓库前进到 `cff0d8b`（只动了 `OverviewView` 的两条快捷入口与一行 CSS，不影响本审计结论），`docs/review/api-round3.md` 被该提交一并带入 git，工作区版本是本次的修订稿。
 > 三份来源：`api.postman_collection.json`（字段级契约，最高优先级）、wiki.emos.best（已亲自复核 `/api/use`、`/api/changelog`、`/api/upload`、`/api/pay`、`/api/shop`、`/introduction/carrot` 六页）、`docs/UPLOAD-PROTOCOL.md`（真机实测）。
 > 方法：把 190 条 Postman 请求的 method+path 与 `src/api/endpoints.ts` 的 185 个方法自动对齐；再用「去空白后的跨行匹配」判定每个端点在 `views/`、`lib/`、`queries.ts` 中是否真被调用；对「已封装且在用」的，逐条比对 query/body 字段名、必填项、布尔编码与分页字段，并回溯到具体调用点。
 
@@ -8,8 +8,8 @@
 
 ## 结论先行
 
-1. **覆盖率很高，正确率不高。** 186 个真实 API 里封装了 184 个（99%），但「已封装且在用」的 105 个里，**有 16 处参数/语义与契约不符**，其中 6 处会让调用必然失败或结果相反。
-2. **最致命的一条：`PUT /api/video/media/delete` 的语义被当作「恢复」用。** 回收站「影片」Tab 的恢复按钮实际调用的是 `videoApi.remove()`（删除接口），响应里的 `is_delete` 被丢弃后一律 toast「已恢复」。
+1. **覆盖率很高，正确率不高。** 186 个真实 API 里封装了 184 个（99%），但「已封装且在用」的 105 个里，**有 16 处参数/语义与契约不符**：5 处致命（必然 4xx）、11 处误导（不报错但结果错），另记 11 条轻微问题。
+2. **最致命的一条：影片级的「删除」被复用成「恢复」。** 回收站「影片」Tab 的恢复按钮实际调用 `videoApi.remove()` → `PUT /api/video/{video_id}/delete`（删除接口；Postman 里根本没有影片级 restore），响应里的 `is_delete` 被丢弃后一律 toast「已恢复」。
 3. **第二致命：删除他人内容一律传 `reason: null`。** changelog 2026-03-29 明确「删除别人的内容时必须传入 reason」，而 `mediaApi.remove` / `subtitleApi.remove` 的 UI 没有任何原因输入框 —— 管理员删别人的资源/字幕必然 422，这恰恰是后台最常做的事。
 4. **布尔编码只修了一半。** 客户端已经把 JS `boolean` 统一转成 1/0，但订单页的 `is_pay` / `is_delivery` 传的是**字符串** `'true'` / `'false'`，从 `buildUrl` 的转换分支下漏过 —— 订单页两个筛选维度、以及待办角的「待发货」计数同时中招。
 5. **上传链路有 4 处断点**：`getUploadToken` 不传 wiki 明确要求的 `file_storage`（存储选择下拉形同虚设）；`onedrive`/`google_drive`/`multipart` 三种存储类型在 `uploadObject` 里直接 `return fileId`（**一个字节都没传**）却报告「上传中→入库成功」；暂存区「归档」缺必填 `item_type`/`item_id` 必然 422；手动关联影片时 `item_type` 恒为 `'vl'`，剧集资源会挂到剧集层而不是集。
@@ -44,7 +44,7 @@
 | 资源（8） | `list`、`listAll`、`remove`*、`restore`、`move`、`rename`、`playUrl`*、`syncMetadata` |
 | 字幕（3） | `list`、`remove`*、`rename` |
 | 观影记录（1） | `list` |
-| 片单（14） | `list`、`createOrUpdate`、`remove`、`slot`、`show`、`subscribe`、`dynamic`、`videos`、`searchVideos`、`addVideo`、`removeVideo`、`music`、`removeMusic`（+ `sort` 只挂在未消费的 mutation 上，见 1.2） |
+| 片单（13） | `list`、`createOrUpdate`、`remove`、`slot`、`show`、`subscribe`、`dynamic`、`videos`、`searchVideos`、`addVideo`、`removeVideo`、`music`、`removeMusic`（+ `sort` 只挂在未消费的 mutation 上，见 1.2） |
 | 线路（3） | `list`、`create`、`remove` |
 | 求片（5） | `list`、`query`、`history`、`claim`、`urge` |
 | 萝卜（3） | `current`、`history`、`transfer`* |
@@ -52,7 +52,7 @@
 | 支付（4） | `base`、`apply`*、`query`、`userInfo` |
 | 商城（14） | `sellerBase`、`sellerApply`*、`sellerUpdate`、`categories`、`createCategory`、`deleteCategory`、`products`、`saveProduct`*、`deleteProduct`、`productUp`、`ordersShop`*、`delivery`、`remarkOrder`、`deleteOrder` |
 | 封禁（2） | `list`、`change` |
-| 音乐（10） | `persons`、`songs`、`albums`、`favorite`、`sync`、`lyrics`、`media`、`deleteSong`（+ `rating` 未消费） |
+| 音乐（8） | `persons`、`songs`、`albums`、`favorite`、`sync`、`lyrics`、`media`、`deleteSong`（+ `rating` 只挂在未消费 mutation 上，见 1.2） |
 | 基金（3） | `orders`、`create`、`evidence` |
 | 悄悄话（3） | `sender`、`receiver`、`reply` |
 
@@ -60,18 +60,18 @@
 
 | 域 | 端点 | 备注 |
 |---|---|---|
+| 会话（2） | `check`、`base` | 与 `profile` 功能重叠，保留即可 |
 | 用户（2） | `videoHistory`、`videoLogout` | 设备列表/踢设备 —— 顶号工单唯一解法 |
-| 邀请（1） | `emps` | 备注编辑 `remark` 也在其中 |
-| 上传（7） | `videoBase`、`saveInternal`、`imageList`、`deleteImage`、`saveMusic`、`saveMusicHeadless`、`presign`/`complete`/`abort` | `presign/complete` 只在 mock 里出现，`uploadObject` 的 multipart 分支是空实现 |
+| 邀请（2） | `emps`、`remark` | 邀请备注只能建时填，之后改不了 |
+| 上传（9） | `videoBase`、`saveInternal`、`imageList`、`deleteImage`、`saveMusic`、`saveMusicHeadless`、`presign`、`complete`、`abort` | `presign/complete` 只在 mock 里出现，`uploadObject` 的 multipart 分支是空实现 |
 | 视频（2） | `tree`、`getVideoId` | `getVideoId` 是「按 tmdb/todb 反查 video_id」的唯一入口 |
-| 资源（1） | `listAll` 只在回收站用；`productSort`/`productCategory` 类的「有 mutation 无调用」见下 | |
 | 记录（2） | `requests`、`change` | |
 | 片单（7） | `maintainer`、`users`、`emptyVideos`、`emptyMusic`、`updateVideos`、`searchMusic`、`addMusic` | 音乐片单只能删歌、不能加歌 |
 | 求片（2） | `poll`、`apply` | |
-| 榜单（3） | `carrot`、`sign`、`playingLive` | `upload`/`playingVideo` 只挂在死 hook 上（`useRankUpload`/`usePlayingNow`） |
+| 榜单（3） | `carrot`、`sign`、`playingLive` | `upload`/`playingVideo` 见下（只挂死 hook） |
 | 支付（8） | `update`、`transfer`、`create`、`close`、`testNotify`、`userCarrot`、`userSign`、`notifyEmail` | 用户页余额卡写死「—」正因 `userCarrot` 未接 |
-| 商城（6） | `sortCategory`、`product`、`ordersUser`、`createOrder`、`payOrder`、`urgeOrder`、`closeOrder` | + `productSort`、`productCategory`（有 mutation，视图零调用） |
-| 音乐（9） | `searchSongs`、`syncSpotifyArtist`、`createLyric`、`deleteLyric`、`deleteMedia`、`playUrl`、`moveMedia`、`updateVideoId`、`batchHashExist`、`updateAlbumVideoId` | + `rating`（有 mutation，视图零调用） |
+| 商城（7） | `sortCategory`、`product`、`ordersUser`、`createOrder`、`payOrder`、`urgeOrder`、`closeOrder` | + `productSort`、`productCategory`（有 mutation，视图零调用） |
+| 音乐（10） | `searchSongs`、`syncSpotifyArtist`、`createLyric`、`deleteLyric`、`deleteMedia`、`playUrl`、`moveMedia`、`updateVideoId`、`batchHashExist`、`updateAlbumVideoId` | + `rating`（有 mutation，视图零调用） |
 | 红包（3）/投票（2）/抽奖（4）/影院（6） | 全部 | 按项目决定「不做」 |
 | 基金（1） | `check` | |
 | 悄悄话（1） | `create` | |
@@ -114,7 +114,7 @@
 | M7 | [`AccountView.tsx:585`](src/views/AccountView.tsx#L585) / [`PayView.tsx:175`](src/views/PayView.tsx#L175) 转赠 | 文案只写「单次 2 – 6000 个，转出后不可撤回」 | wiki `/introduction/carrot`：「转赠萝卜 系统扣 20% 手续费」；Postman `pay/transfer` 也注明「费率为千 6」（服务商通道） | 补手续费提示；并明确走 `carrotApi.transfer` 还是 `payApi.transfer`（两套费率不同，现在只用了前者） |
 | M8 | [`ShopView.tsx:402-426`](src/views/ShopView.tsx#L402) 申请开店 | 提交前没有任何「扣 3000 萝卜」的提示 | wiki `/api/shop`：「申请时将扣除 `3k` 萝卜」；对照支付页确实写了「扣 5000」 | 申请开店弹窗补一句 + 二次确认，与支付页保持一致 |
 | M9 | [`PayView.tsx:62`](src/views/PayView.tsx#L62) `payApi.apply('我的支付服务','由后台发起申请')` | 名称/描述硬编码；且申请按钮只在 `/api/pay/base` **返回 404** 的分支渲染 | Postman `/api/pay/apply` 的 `name` ≤10 字、`description` ≤200 字（合法）；但非服务商时 `/api/pay/base` 若返回 403 或 `status: default`（同 `/api/shop/seller/base` 的改法），按钮就永远不出现 | 申请入口不要绑在 404 上：按 `base.status` 判定；表单让用户填名称/简介 |
-| M10 | [`LiveView.tsx:223`](src/views/LiveView.tsx#L223) 新增频道 | 传 `code` 且 UI 必填；Postman `POST /api/live/list` 的 body **没有 `code`**（文档只说明「如果存在 `code` 则为官方源」） | Postman body 4 字段：`id`、`live_library_id`、`title`、`description`、`tagline`、`image_poster_url` | 去掉必填 `code`（或明确标注「仅官方源填写」）；补 `image_poster_url`（可选） |
+| M10 | [`LiveView.tsx:223`](src/views/LiveView.tsx#L223) 新增频道 | 传 `code` 且 UI 必填；Postman `POST /api/live/list` 的 body **没有 `code`**（文档只说明「如果存在 `code` 则为官方源」） | Postman body 六字段：`id`、`live_library_id`、`title`、`description`、`tagline`、`image_poster_url` | 去掉必填 `code`（或明确标注「仅官方源填写」）；补 `image_poster_url`（可选） |
 | M11 | [`ShopView.tsx`](src/views/ShopView.tsx) 商品表单 | 编辑弹窗只有 名称/售价/原价/库存/排序/分类/立即上架；`description`、`exchange_way`、`time_start`、`time_end` 从不发送 | Postman `createOrUpdate` 契约含这 4 个字段（`time_start/end` 是上下架时间窗） | 补字段；否则「限时活动」这类商品在后台永远做不出来 |
 
 ### 2.3 轻微：字段冗余、可选参数缺失、类型过宽
@@ -142,7 +142,7 @@
 | `POST /api/watch` 的 `is_show_empty` 必填 | ✅ 已修 | [`WatchlistsView.tsx:45`](src/views/WatchlistsView.tsx#L45) 传 `true` |
 | 上传的 `file_size` 必填 | ✅ 已修 | [`endpoints.ts:70`](src/api/endpoints.ts#L70) 四字段齐全（仍缺 `file_storage`，见 M3） |
 | `fund/order/evidence` 只有 `order_no/images/remark` | ✅ 符合 | [`FundView.tsx:44`](src/views/FundView.tsx#L44) 恰好这三个 |
-| `POST /api/watch/watch_id/video/{id}` 的 `sort` 必填 | ✅ 符合 | `addVideo` 默认 80 |
+| `POST /api/watch/{watch_id}/video/{video_id}` 的 `sort` 必填 | ✅ 符合 | `addVideo` 默认 80 |
 
 ### 2.5 需要真机/有 token 才能确认的（本次无法验证）
 
@@ -172,7 +172,7 @@
 
 ---
 
-## 附：与 `docs/WIKI-NOTES.md` 的两处出入
+## 附：与 `docs/WIKI-NOTES.md` 的出入与核对
 
 1. **5000 / 3000 胡萝卜不在 `/introduction/carrot`**。该页只讲获取途径与境界表；实际出处是 `/api/pay`（申请扣 `5k`、提现手续费 ≤10‰）与 `/api/shop`（申请扣 `3k`）。数字本身没错，建议备注里改一下出处。
 2. `/introduction/carrot` 里还有一条对 UI 有直接影响、但 WIKI-NOTES 未收录：**「转赠萝卜 系统扣 20% 手续费」**（对应 M7）。

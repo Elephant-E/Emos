@@ -97,7 +97,7 @@ export const mediaApi = {
     request<{ medias?: VideoMedia[] }>('/api/video/media/list', { query: params }),
   listAll: (params: { media_id?: string; user_id?: string; status?: string; only_delete?: boolean; include_metadata?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<Record<string, unknown>>>('/api/video/media/listAll', { query: params }),
-  remove: (mediaId: string, reason?: string) => request<CarrotDelta>('/api/video/media/delete', { method: 'DELETE', body: { media_id: mediaId, reason: reason ?? null } }),
+  remove: (mediaId: string, reason = '后台删除') => request<CarrotDelta>('/api/video/media/delete', { method: 'DELETE', body: { media_id: mediaId, reason } }),
   restore: (mediaId: string) => request<CarrotDelta>('/api/video/media/restore', { method: 'PUT', body: { media_id: mediaId } }),
   move: (mediaId: string, itemType: string, itemId: number) =>
     request<CarrotDelta>('/api/video/media/move', { method: 'PUT', query: { media_id: mediaId, item_type: itemType, item_id: itemId } }),
@@ -109,7 +109,7 @@ export const mediaApi = {
 export const subtitleApi = {
   list: (params: { video_list_id?: number; video_episode_id?: number; video_part_id?: number; media_id?: string }) =>
     request<Array<Record<string, unknown>>>('/api/video/subtitle/list', { query: params }),
-  remove: (subtitleId: string, reason?: string) => request<CarrotDelta>('/api/video/subtitle/delete', { method: 'DELETE', body: { subtitle_id: subtitleId, reason: reason ?? null } }),
+  remove: (subtitleId: string, reason = '后台删除') => request<CarrotDelta>('/api/video/subtitle/delete', { method: 'DELETE', body: { subtitle_id: subtitleId, reason } }),
   rename: (subtitleId: string, title: string) => request<CarrotDelta>('/api/video/subtitle/rename', { method: 'PUT', query: { subtitle_id: subtitleId, title } }),
 }
 

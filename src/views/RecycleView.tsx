@@ -57,8 +57,10 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
     if (!ok) return
     setBusy(String(videoId))
     try {
-      await actions.restoreVideo.mutateAsync(videoId)
-      toast('已恢复', 'success')
+      // 该接口是 toggle：只有返回 is_delete 为 false 才算真的恢复
+      const res = await actions.restoreVideo.mutateAsync(videoId)
+      if (res?.is_delete) toast('这部影片仍是删除状态，请重试', 'error')
+      else toast('已恢复', 'success')
     } catch {
       toast('恢复失败', 'error')
     } finally {

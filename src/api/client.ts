@@ -43,6 +43,9 @@ export function buildUrl(path: string, query?: Record<string, unknown>): string 
     } else if (typeof value === 'boolean') {
       // 后端把布尔参数按 1/0 解析，传 true/false 会返回 422
       qs.append(key, value ? '1' : '0')
+    } else if (value === 'true' || value === 'false') {
+      // 调用点写成字符串的布尔同样要转，否则筛选被静默忽略
+      qs.append(key, value === 'true' ? '1' : '0')
     } else {
       qs.append(key, String(value))
     }
