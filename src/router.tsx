@@ -18,6 +18,7 @@ import { SongDetailView } from '@/views/SongDetailView'
 import { PayView } from '@/views/PayView'
 import { UserDetailView } from '@/views/UserDetailView'
 import { RecycleView } from '@/views/RecycleView'
+import { UserSearchView } from '@/views/UserSearchView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -164,10 +165,12 @@ const linesRoute = createRoute({ getParentRoute: () => appLayout, path: '/lines'
 const recycleRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/recycle',
-  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; size: number } => ({
+  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; size: number; q: string; by: 'media_id' | 'user_id' } => ({
     tab: s.tab === 'video' ? 'video' : 'media',
     page: Math.max(1, Number(s.page) || 1),
     size: [20, 50, 100].includes(Number(s.size)) ? Number(s.size) : 20,
+    q: typeof s.q === 'string' ? s.q : '',
+    by: s.by === 'user_id' ? ('user_id' as const) : ('media_id' as const),
   }),
   component: RecycleRoute,
 })
@@ -180,7 +183,10 @@ function RecycleRoute() {
       tab={search.tab}
       page={search.page}
       pageSize={search.size}
-      onTab={(tab) => navigate({ search: { tab, page: 1, size: search.size } })}
+      q={search.q}
+      by={search.by}
+      onQuery={(q, by) => navigate({ search: { ...search, q, by, page: 1 } })}
+      onTab={(tab) => navigate({ search: { tab, page: 1, size: search.size, q: '', by: 'media_id' } })}
       onPage={(page) => navigate({ search: { ...search, page } })}
       onPageSize={(size) => navigate({ search: { ...search, size, page: 1 } })}
     />
@@ -216,6 +222,8 @@ function SongRoute() {
 }
 
 const payRoute = createRoute({ getParentRoute: () => appLayout, path: '/pay', component: PayView })
+
+const userSearchRoute = createRoute({ getParentRoute: () => appLayout, path: '/users', component: UserSearchView })
 
 const userDetailRoute = createRoute({
   getParentRoute: () => appLayout,
@@ -315,6 +323,7 @@ const routeTree = rootRoute.addChildren([
     musicRoute,
     songRoute,
     payRoute,
+    userSearchRoute,
     userDetailRoute,
     watchlistsRoute,
     watchlistDetailRoute,

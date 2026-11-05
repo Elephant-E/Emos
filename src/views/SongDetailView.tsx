@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { useMusicMutations, useSongLyrics, useSongMedia } from '@/api/queries'
+import { useMusicMutations, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize } from '@/lib/format'
 
 export function SongDetailView({ songId }: { songId: number }) {
+  const song = useSong(songId)
   const lyrics = useSongLyrics(songId)
   const media = useSongMedia(songId)
   const actions = useMusicMutations(songId)
@@ -16,9 +17,13 @@ export function SongDetailView({ songId }: { songId: number }) {
   return (
     <>
       <PageHeader
-        crumb={['音乐', `#${songId}`]}
-        title="歌曲详情"
-        hint={`#${songId}`}
+        crumb={['音乐', song.data?.name ?? `#${songId}`]}
+        title={song.data?.name ?? '歌曲详情'}
+        hint={
+          song.data
+            ? `${song.data.duration ? `${Math.floor(song.data.duration / 60)}:${String(Math.round(song.data.duration % 60)).padStart(2, '0')}` : '时长未知'} · #${songId}`
+            : `#${songId}`
+        }
         tools={
           <>
             <Link className="btn btn--ghost" to="/music" search={{ page: 1, tab: 'songs', q: '' }}>

@@ -519,6 +519,17 @@ export function useMusicPersons(page: number, term: string, pageSize = 20) {
   })
 }
 
+export function useSong(songId: number) {
+  return useQuery({
+    queryKey: ['music', 'song', songId] as const,
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const res = await musicApi.songs({ song_id: songId, page: 1, page_size: 1 })
+      return res.items?.[0] ?? null
+    },
+  })
+}
+
 export function useSongLyrics(songId: number) {
   return useQuery({
     queryKey: ['music', 'lyrics', songId] as const,
@@ -546,11 +557,13 @@ export function useMusicMutations(songId = 0) {
   }
 }
 
-export function useDeletedMedia(page: number, pageSize = 20) {
+export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'media_id' | 'user_id' = 'media_id') {
   return useQuery({
-    queryKey: ['recycle', 'media', page, pageSize] as const,
+    queryKey: ['recycle', 'media', page, pageSize, q ?? '', by] as const,
     queryFn: async () => {
-      const res = (await mediaApi.listAll({ only_delete: true, page, page_size: pageSize })) as unknown as {
+      const params: Record<string, unknown> = { only_delete: true, page, page_size: pageSize }
+      if (q) params[by] = q
+      const res = (await mediaApi.listAll(params as Parameters<typeof mediaApi.listAll>[0])) as unknown as {
         items?: Array<Record<string, unknown>>
         total?: number
         page_size?: number
@@ -561,10 +574,10 @@ export function useDeletedMedia(page: number, pageSize = 20) {
   })
 }
 
-export function useDeletedVideos(page: number, pageSize = 20) {
+export function useDeletedVideos(page: number, pageSize = 20, q?: string) {
   return useQuery({
-    queryKey: ['recycle', 'video', page, pageSize] as const,
-    queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize }),
+    queryKey: ['recycle', 'video', page, pageSize, q ?? ''] as const,
+    queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize, title: q || undefined }),
     placeholderData: (prev) => prev,
   })
 }

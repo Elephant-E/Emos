@@ -9,16 +9,19 @@ import { formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYP
 
 type Tab = 'media' | 'video'
 
-export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize }: {
+export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q, by, onQuery }: {
   tab: Tab
   onTab: (tab: Tab) => void
   page: number
   onPage: (page: number) => void
   pageSize: number
   onPageSize: (size: number) => void
+  q: string
+  by: 'media_id' | 'user_id'
+  onQuery: (q: string, by: 'media_id' | 'user_id') => void
 }) {
-  const media = useDeletedMedia(page, pageSize)
-  const videos = useDeletedVideos(page, pageSize)
+  const media = useDeletedMedia(page, pageSize, tab === 'media' ? q : undefined, by)
+  const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined)
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
 
@@ -78,6 +81,34 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize }: 
       />
 
       <div className="toolbar">
+        {tab === 'media' ? (
+          <select
+            className="input"
+            defaultValue={by}
+            style={{ width: 130 }}
+            onChange={(event) => onQuery(q, event.target.value as 'media_id' | 'user_id')}
+            aria-label="搜索范围"
+          >
+            <option value="media_id">资源 ID</option>
+            <option value="user_id">上传者 ID</option>
+          </select>
+        ) : null}
+
+        <label className="field">
+          <span className="sr-only">搜索</span>
+          <input
+            className="input"
+            type="search"
+            defaultValue={q}
+            placeholder={tab === 'media' ? (by === 'media_id' ? '搜资源 ID' : '搜上传者 ID') : '搜片名'}
+            style={{ width: 280 }}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter') return
+              onQuery((event.target as HTMLInputElement).value.trim(), by)
+            }}
+          />
+        </label>
+
         <div className="tabs" role="tablist" aria-label="回收类型">
           <button className="tab" role="tab" aria-selected={tab === 'media'} onClick={() => onTab('media')}>
             资源
