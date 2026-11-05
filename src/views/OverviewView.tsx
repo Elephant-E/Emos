@@ -342,8 +342,6 @@ export function OverviewView() {
           <div className="card-body stack--loose" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
             {[
               { label: '上传影片', to: '/upload' as const, note: caps.canUpload ? '入库到媒体库' : '需先开通权限' },
-              { label: '发起求片', to: '/seek' as const, note: '缺什么求什么' },
-              { label: '兑换槽位', to: '/account' as const, note: `当前 ${caps.slotRemaining} 个` },
               { label: '账号设置', to: '/account' as const, note: '密码与邀请' },
             ].map((item) => (
               <Link key={item.label} className="quick" to={item.to}>
