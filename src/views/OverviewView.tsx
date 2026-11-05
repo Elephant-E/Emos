@@ -77,7 +77,21 @@ export function OverviewView() {
 
   return (
     <>
-      <PageHeader crumb={['概览', `${year} 年`]} title={monthName} hint={year} />
+      <PageHeader
+        crumb={['概览', `${year} 年`]}
+        title={monthName}
+        hint={year}
+        tools={
+          <>
+            <Link className="btn btn--ghost" to="/upload">
+              上传
+            </Link>
+            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, size: 20, q: '', by: 'media_id' }}>
+              回收站
+            </Link>
+          </>
+        }
+      />
 
       <p className="greeting">
         {greeting}
@@ -291,7 +305,7 @@ export function OverviewView() {
         </article>
       </section>
 
-      <section className="cards cards--2">
+      <section className="cards cards--1">
         <article className="card">
           <div className="card-head">
             <p className="stat__label">我的片单</p>
@@ -335,22 +349,6 @@ export function OverviewView() {
           </ul>
         </article>
 
-        <article className="card">
-          <div className="card-head">
-            <p className="stat__label">快捷入口</p>
-          </div>
-          <div className="card-body stack--loose" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
-            {[
-              { label: '上传影片', to: '/upload' as const, note: caps.canUpload ? '入库到媒体库' : '需先开通权限' },
-              { label: '账号设置', to: '/account' as const, note: '密码与邀请' },
-            ].map((item) => (
-              <Link key={item.label} className="quick" to={item.to}>
-                <span className="text-sm" style={{ color: 'var(--fg)' }}>{item.label}</span>
-                <span className="muted tnum-sm">{item.note}</span>
-              </Link>
-            ))}
-          </div>
-        </article>
       </section>
     </>
   )
