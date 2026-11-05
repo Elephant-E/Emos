@@ -50,6 +50,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { to: '/lines', label: '线路', icon: IconRoute },
       { to: '/recycle', label: '回收站', icon: IconLayers },
       { to: '/users', label: '查用户', icon: IconUser },
+      { to: '/fund', label: '基金', icon: IconWallet },
       { to: '/whisper', label: '悄悄话', icon: IconInbox },
       { to: '/pay', label: '支付', icon: IconWallet },
       { to: '/account', label: '账号', icon: IconUser, chev: true },

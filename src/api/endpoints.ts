@@ -330,7 +330,7 @@ export const fundApi = {
   check: (fundActivityCode: string) => request<MessageResult>('/api/fund/order/check', { method: 'POST', body: { fund_activity_code: fundActivityCode } }),
   orders: (params: { page?: number; page_size?: number } = {}) => request<ListResult<Record<string, unknown>>>('/api/fund/order/list', { query: params }),
   create: (fundActivityCode: string, carrot: number) => request<{ no: string }>('/api/fund/order/create', { method: 'POST', body: { fund_activity_code: fundActivityCode, carrot } }),
-  evidence: (payload: { order_no: string; footprint_post_id: string; images: string[]; remark: string }) =>
+  evidence: (payload: { order_no: string; images: string[]; remark: string }) =>
     request<{ payout_status: string }>('/api/fund/order/evidence', { method: 'POST', body: payload }),
 }
 

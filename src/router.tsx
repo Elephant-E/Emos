@@ -21,6 +21,7 @@ import { UserDetailView } from '@/views/UserDetailView'
 import { RecycleView } from '@/views/RecycleView'
 import { UserSearchView } from '@/views/UserSearchView'
 import { WhisperView } from '@/views/WhisperView'
+import { FundView } from '@/views/FundView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -225,6 +226,29 @@ function SongRoute() {
 
 const payRoute = createRoute({ getParentRoute: () => appLayout, path: '/pay', component: PayView })
 
+const fundRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/fund',
+  validateSearch: (s: Record<string, unknown>): { page: number; size: number } => ({
+    page: asPage(s.page),
+    size: asPageSize(s.size),
+  }),
+  component: FundRoute,
+})
+
+function FundRoute() {
+  const search = fundRoute.useSearch()
+  const navigate = fundRoute.useNavigate()
+  return (
+    <FundView
+      page={search.page}
+      pageSize={search.size}
+      onPage={(page) => navigate({ search: { ...search, page } })}
+      onPageSize={(size) => navigate({ search: { ...search, size, page: 1 } })}
+    />
+  )
+}
+
 const whisperRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/whisper',
@@ -340,6 +364,7 @@ const routeTree = rootRoute.addChildren([
     musicRoute,
     songRoute,
     payRoute,
+    fundRoute,
     whisperRoute,
     userSearchRoute,
     userDetailRoute,
