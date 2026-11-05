@@ -128,9 +128,10 @@ export function OverviewView() {
         <article className="card card--stat">
           <p className="stat__label">我的胡萝卜</p>
           <p className="stat__value">
-            {carrot.data?.carrot ?? session.data?.carrot ?? null
-              ? formatThousand(carrot.data?.carrot ?? session.data?.carrot ?? 0)
-              : '—'}
+            {(() => {
+              const balance = carrot.data?.carrot ?? session.data?.carrot
+              return balance == null ? '—' : formatThousand(balance)
+            })()}
             <small>个</small>
           </p>
           <p className="stat__delta stat__delta--quiet">

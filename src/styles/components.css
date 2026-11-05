@@ -977,7 +977,7 @@ th.num .th-sort { flex-direction: row-reverse; }
 .com-zone,
 .zone { transition: color var(--t-fast) var(--ease); }
 
-.btn[aria-busy='true'] { opacity: 0.6; }
+.btn[aria-busy='true'] { opacity: 0.6; transition: opacity 140ms var(--ease) 140ms; }
 
 @keyframes toast-out {
   from { opacity: 1; transform: none; }
