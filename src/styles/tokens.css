@@ -14,7 +14,6 @@
   --fg-3: #8f8d86;
   --fg-4: #83817a;
   --fg-5: #6b6962;      
-  --fg-ink: #6b6962;    
   --on-light: #14130f;
   --c-yellow: #ffc53d;
   --c-green: #34d399;
@@ -22,7 +21,6 @@
   --c-pink: #ff7ab0;
   --c-purple: #b394fa;
   --c-red: #f2704a;
-  --c-gray: #83817a;
   --stack: 12px;
 
   --s-1: 4px;
@@ -47,9 +45,6 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
   --font-mono: "SF Mono", ui-monospace, "Menlo", "Consolas", monospace;
-  --text-display: 44px;
-  --text-h1: 30px;
-  --text-h2: 20px;
   --text-body: 14px;
   --text-sm: 13px;
   --text-xs: 12px;

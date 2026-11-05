@@ -85,7 +85,7 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards" style={{ gridTemplateColumns: `repeat(${Math.min(todoItems.length, 4)}, minmax(0, 1fr))`, marginTop: 16 }}>
+        <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
           {todoItems.map((item) => (
             <Link key={item.label} className="card todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
