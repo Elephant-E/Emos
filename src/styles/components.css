@@ -1149,3 +1149,33 @@ th.num .th-sort { flex-direction: row-reverse; }
   gap: 12px;
   min-height: 24px;
 }
+
+/* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
+.cards--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cards--1 { grid-template-columns: minmax(0, 1fr); }
+
+.stack { display: grid; gap: var(--stack); }
+.stack--tight { display: grid; gap: 8px; }
+.stack--loose { display: grid; gap: 10px; }
+.stack--top { margin-top: var(--stack); }
+
+.row { display: flex; align-items: center; gap: 12px; }
+.row--baseline { align-items: baseline; gap: 8px; }
+.row__main { display: grid; gap: 6px; flex: 1; min-width: 0; }
+
+.ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tnum-sm { font-size: 11.5px; }
+.text-sm { font-size: 13px; }
+.text-quiet { color: var(--fg-3); }
+.text-body { color: var(--fg-2); font-size: 13.5px; }
+.meta-end { margin-left: auto; font-size: 11.5px; }
+.note-block { text-align: left; padding: 14px 0 0; }
+.mark-up { color: var(--c-green); }
+.mark-down { color: var(--c-red); }
+
+.card-head .stat__label,
+.card--stat > .stat__label { margin: 0; }
+.card--stat > .stat__delta { margin-top: 0; }
+
+.cards--todos .stat__value { font-size: 30px; }

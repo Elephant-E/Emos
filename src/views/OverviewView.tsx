@@ -85,23 +85,23 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
+        <section className="cards cards--4 cards--todos" style={{ marginTop: 16 }}>
           {todoItems.map((item) => (
             <Link key={item.label} className="card todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
-              <p className="stat__value" style={{ fontSize: 30 }}>
+              <p className="stat__value">
                 {item.value === null ? '—' : formatThousand(item.value ?? 0)}
                 <small>{item.unit}</small>
               </p>
-              <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>去处理</p>
+              <p className="stat__delta stat__delta--quiet">去处理</p>
             </Link>
           ))}
         </section>
       ) : null}
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', marginTop: 16 }}>
+      <section className="cards cards--4" style={{ marginTop: 16 }}>
         <article className="card card--stat">
-          <p className="stat__label" style={{ margin: 0 }}>
+          <p className="stat__label">
             签到
             <button
               className="btn btn--quiet"
@@ -115,7 +115,7 @@ export function OverviewView() {
             {!ready ? '—' : signedToday ? (signInfo?.continuous_days ?? 0) : '—'}
             <small>{!ready ? '读取中' : signedToday ? '天连续' : '还没签到'}</small>
           </p>
-          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+          <p className="stat__delta stat__delta--quiet">
             {signedToday ? `今天 +${signInfo?.earn_point ?? 0} 胡萝卜` : '签到可得胡萝卜'}
           </p>
         </article>
@@ -128,7 +128,7 @@ export function OverviewView() {
               : '—'}
             <small>个</small>
           </p>
-          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+          <p className="stat__delta stat__delta--quiet">
             签到、上传都会获得
           </p>
         </article>
@@ -139,7 +139,7 @@ export function OverviewView() {
             {ready ? caps.slotRemaining : '—'}
             <small>个可用</small>
           </p>
-          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+          <p className="stat__delta stat__delta--quiet">
             可用胡萝卜兑换
           </p>
         </Link>
@@ -150,16 +150,16 @@ export function OverviewView() {
             {!ready ? '—' : caps.sizeUpload > 0 ? formatSize(caps.sizeUpload) : '0 B'}
             <small>累计</small>
           </p>
-          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 10 }}>
+          <p className="stat__delta stat__delta--quiet">
             {!ready ? '读取中' : caps.canUpload ? '进入上传' : '上传权限未开通'}
           </p>
         </Link>
       </section>
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+      <section className="cards cards--2">
         <article className="card">
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>继续观看</p>
+            <p className="stat__label">继续观看</p>
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               去媒体库
             </Link>
@@ -174,7 +174,7 @@ export function OverviewView() {
             <p className="card-note">还没有未看完的内容，去媒体库挑一部吧～</p>
           ) : null}
 
-          <ul style={{ display: 'grid', gap: 12 }}>
+          <ul className="stack">
             {(watching.data ?? []).map((row, index) => {
               const played = Number(row.play_seconds ?? 0)
               const total = Number(row.media_seconds ?? 0)
@@ -185,15 +185,15 @@ export function OverviewView() {
                     to="/media/$videoId"
                     params={{ videoId: String(row.video_id ?? 0) }}
                     search={{ season: Number(row.season_number ?? 1), episode: Number(row.episode_number ?? 1) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12 }}
+                    className="row"
                   >
                   {row.video_image_poster ? (
                     <img className="poster-img" src={String(row.video_image_poster)} alt="" loading="lazy" />
                   ) : (
                     <span className="thumb">{String(row.video_title ?? '?').slice(0, 1)}</span>
                   )}
-                  <span style={{ display: 'grid', gap: 6, flex: 1, minWidth: 0 }}>
-                    <span style={{ color: 'var(--fg-2)', fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span className="row__main">
+                    <span className="text-body ellipsis">
                       {String(row.video_title ?? '—')}
                       {row.season_number ? ` S${row.season_number}` : ''}
                       {row.episode_number ? `E${row.episode_number}` : ''}
@@ -215,7 +215,7 @@ export function OverviewView() {
 
         <article className="card">
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>我的近况</p>
+            <p className="stat__label">我的近况</p>
           </div>
 
           <div className="card-body">
@@ -223,7 +223,7 @@ export function OverviewView() {
           {stats.error ? <p className="card-note">本周记录取不到，稍后再看～</p> : null}
 
           {!stats.data && !stats.error ? (
-            <div style={{ display: 'grid', gap: 10 }}>
+            <div className="stack--loose">
               <div className="skeleton" style={{ height: 40 }} />
               <div className="skeleton" style={{ height: 12, width: '60%' }} />
             </div>
@@ -264,9 +264,9 @@ export function OverviewView() {
           {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
             <ul style={{ display: 'grid', gap: 8, marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>
               {carrotHistory.data.items.slice(0, 3).map((row, index) => (
-                <li key={index} style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 12.5 }}>
+                <li key={index} className="row--baseline" style={{ display: 'flex' }}>
                   <span style={{ color: 'var(--fg-3)' }}>{row.trigger_type_string || row.trigger_type}</span>
-                  <span className="muted" style={{ marginLeft: 'auto', fontSize: 11.5 }}>
+                  <span className="muted meta-end">
                     {String(row.created_at).slice(5, 10)}
                   </span>
                   <span className="tnum" style={{ color: row.point >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
@@ -280,10 +280,10 @@ export function OverviewView() {
         </article>
       </section>
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+      <section className="cards cards--2">
         <article className="card">
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>我的片单</p>
+            <p className="stat__label">我的片单</p>
             <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
               全部
             </Link>
@@ -291,27 +291,27 @@ export function OverviewView() {
 
           {myWatches.isLoading ? <div className="skeleton" style={{ height: 72, marginTop: 12 }} /> : null}
           {myWatches.error ? (
-            <p className="state__hint" style={{ textAlign: 'left', padding: '14px 0 0' }}>
+            <p className="state__hint note-block">
               片单暂时取不到，稍后再看～
             </p>
           ) : null}
 
           {myWatches.data && myWatches.data.length === 0 ? (
-            <p className="state__hint" style={{ textAlign: 'left', padding: '14px 0 0' }}>
+            <p className="state__hint note-block">
               还没有自己的片单，建一个把想看的攒起来～
             </p>
           ) : null}
 
-          <ul style={{ display: 'grid', gap: 10, marginTop: 12 }}>
+          <ul className="stack--loose stack--top">
             {(myWatches.data ?? []).map((watch) => (
               <li key={watch.id}>
                 <Link
                   to="/watchlists/$watchId"
                   params={{ watchId: String(watch.id) }}
                   search={{ page: 1, page_size: 20, q: '' }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}
+                  className="row text-sm"
                 >
-                  <span style={{ color: 'var(--fg-2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span className="text-body ellipsis" style={{ flex: 1 }}>
                     {watch.name}
                   </span>
                   <span className="muted tnum" style={{ fontSize: 11.5 }}>{watch.video_count} 部</span>
@@ -326,9 +326,9 @@ export function OverviewView() {
 
         <article className="card">
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>快捷入口</p>
+            <p className="stat__label">快捷入口</p>
           </div>
-          <div className="card-body" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+          <div className="card-body stack--loose" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
             {[
               { label: '上传影片', to: '/upload' as const, note: caps.canUpload ? '入库到媒体库' : '需先开通权限' },
               { label: '发起求片', to: '/seek' as const, note: '缺什么求什么' },
@@ -336,8 +336,8 @@ export function OverviewView() {
               { label: '账号设置', to: '/account' as const, note: '密码与邀请' },
             ].map((item) => (
               <Link key={item.label} className="quick" to={item.to}>
-                <span style={{ color: 'var(--fg)', fontSize: 13.5 }}>{item.label}</span>
-                <span className="muted" style={{ fontSize: 11.5 }}>{item.note}</span>
+                <span className="text-sm" style={{ color: 'var(--fg)' }}>{item.label}</span>
+                <span className="muted tnum-sm">{item.note}</span>
               </Link>
             ))}
           </div>
