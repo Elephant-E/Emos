@@ -263,6 +263,28 @@ export function useWatchVideos(watchId: number, params: { page: number; page_siz
   })
 }
 
+export function useWatchMusic(watchId: number, params: { page: number; page_size: number; song_title?: string }) {
+  return useQuery({
+    queryKey: ['watch', watchId, 'music', params] as const,
+    queryFn: () => watchApi.music(watchId, params),
+    placeholderData: (prev) => prev,
+  })
+}
+
+export function useWatchMusicMutations(watchId: number) {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['watch', watchId, 'music'] })
+    qc.invalidateQueries({ queryKey: ['watch', watchId] })
+  }
+  return {
+    removeSong: useMutation({
+      mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
+      onSuccess: invalidate,
+    }),
+  }
+}
+
 export function useWatchSearch(watchId: number, title: string) {
   return useQuery({
     queryKey: qk.watchSearch(watchId, title),

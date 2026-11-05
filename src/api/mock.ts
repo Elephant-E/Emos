@@ -84,21 +84,21 @@ const videos: VideoItem[] = TITLES.map(([title, origin, type], i) => ({
 
 const watches: WatchItem[] = [
   {
-    subscribe_id: null, id: 1000, name: '本周新片', description: '每周更新的院线新片合集',
+    subscribe_id: null, id: 1000, type: 'video' as const, name: '本周新片', description: '每周更新的院线新片合集',
     is_public: true, carrot: 0, tags: ['院线', '追新'], image_poster: null, image_poster_url: poster('watch1'),
     is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: true,
     user_sort: 80, subscribe_count: 128, video_count: 24, maintainers: [], author: { username: 'sorakand' },
     updated_at: '2026-11-04T09:12:00Z',
   },
   {
-    subscribe_id: 77, id: 1001, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
+    subscribe_id: 77, id: 1001, type: 'video' as const, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
     is_public: true, carrot: 10, tags: ['修复', '4K'], image_poster: null, image_poster_url: poster('watch2'),
     is_show_empty: false, is_self: true, is_edit_video: true, is_subscribe: true, user_is_show: true,
     user_sort: 70, subscribe_count: 42, video_count: 12, maintainers: [{ username: 'lin' }], author: { username: 'sorakand' },
     updated_at: '2026-11-02T12:40:00Z',
   },
   {
-    subscribe_id: null, id: 1002, name: '纪录片精选', description: null,
+    subscribe_id: null, id: 1002, type: 'video' as const, name: '纪录片精选', description: null,
     is_public: false, carrot: 0, tags: ['纪录片'], image_poster: null, image_poster_url: poster('watch3'),
     is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: false,
     user_sort: 80, subscribe_count: 6, video_count: 31, maintainers: [], author: { username: 'zhou' },

@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { Pager } from '@/components/Pager'
 import { IconLeft, IconPlus, IconRight } from '@/components/icons'
-import { useWatch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -36,6 +38,11 @@ export function WatchlistDetailView({
   const { addVideo, removeVideo, subscribe, toggleShow, setDynamic } = useWatchMutations(id)
 
   const item = watch.data?.items[0]
+
+  if (item?.type === 'music') {
+    return <WatchMusicList watchId={id} title={item.name} search={search} onSearch={onSearch} />
+  }
+
   const totalPages = videos.data ? Math.max(1, Math.ceil(videos.data.total / videos.data.page_size)) : 1
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
@@ -297,6 +304,122 @@ export function WatchlistDetailView({
             填了地址后，片单会按该地址定期同步内容；清空即关闭。
           </p>
         </Modal>
+      ) : null}
+    </>
+  )
+}
+
+
+function WatchMusicList({
+  watchId,
+  title,
+  search,
+  onSearch,
+}: {
+  watchId: number
+  title: string
+  search: WatchDetailSearch
+  onSearch: (patch: Partial<WatchDetailSearch>) => void
+}) {
+  const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
+  const { removeSong } = useWatchMusicMutations(watchId)
+  const totalPages = songs.data ? Math.max(1, Math.ceil(songs.data.total / songs.data.page_size)) : 1
+
+  return (
+    <>
+      <PageHeader
+        crumb={['片单', title]}
+        title={title}
+        hint={songs.data ? `${formatThousand(songs.data.total)} 首` : undefined}
+        tools={
+          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
+            返回列表
+          </Link>
+        }
+      />
+
+      <div className="toolbar">
+        <input
+          className="input"
+          type="search"
+          placeholder="搜歌名"
+          defaultValue={search.q}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') return
+            onSearch({ q: (event.target as HTMLInputElement).value.trim(), page: 1 })
+          }}
+        />
+      </div>
+
+      {songs.error ? <ErrorBlock error={songs.error as Error & { status?: number }} onRetry={() => songs.refetch()} /> : null}
+      {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
+
+      {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (
+        <EmptyBlock title="这个片单还没有歌" hint="在音乐页把喜欢的歌加进来。" />
+      ) : null}
+
+      {songs.data && songs.data.items.length > 0 ? (
+        <div className="table-card">
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '52%' }}>歌曲</th>
+                <th className="num" style={{ width: '14%' }}>时长</th>
+                <th className="num" style={{ width: '14%' }}>收藏</th>
+                <th style={{ width: '96px' }} className="cell-right">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {songs.data.items.map((song: import('@/api/types').MusicSong) => (
+                <tr key={song.song_id}>
+                  <td>
+                    <Link to="/music/song/$songId" params={{ songId: String(song.song_id) }} className="cell-title__name" style={{ color: 'var(--fg)' }}>
+                      {song.name}
+                    </Link>
+                    <span className="cell-title__code">
+                      #{song.song_id}
+                      {song.description ? ` · ${song.description.slice(0, 40)}` : ''}
+                    </span>
+                  </td>
+                  <td className="num muted">
+                    {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}
+                  </td>
+                  <td className="num muted">{song.count_medias ?? 0}</td>
+                  <td className="cell-right">
+                    <button
+                      className="btn btn--danger-text"
+                      disabled={removeSong.isPending && removeSong.variables === song.song_id}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `从片单移除《${song.name}》？`,
+                          message: '歌曲本身不会被删除。',
+                          confirmText: '移除',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        removeSong.mutate(song.song_id, { onSuccess: () => toast('已移除', 'success') })
+                      }}
+                    >
+                      移除
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="table-foot">
+            <span className="muted">
+              共 {formatThousand(songs.data.total)} 首 · 第 {search.page} / {totalPages} 页
+            </span>
+            <Pager
+              total={songs.data.total}
+              page={search.page}
+              pageSize={search.page_size}
+              onPage={(page) => onSearch({ page })}
+              onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
+            />
+          </div>
+        </div>
       ) : null}
     </>
   )

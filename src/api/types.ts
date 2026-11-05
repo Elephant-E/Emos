@@ -151,6 +151,7 @@ export interface WatchAuthor {
 export interface WatchItem {
   subscribe_id: number | null
   id: number
+  type: 'video' | 'music'
   name: string
   description: string | null
   is_public: boolean
