@@ -27,7 +27,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const qc = useQueryClient()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
   const [detailTarget, setDetailTarget] = useState<SeekItem | null>(null)
-  const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean }>({ info: null, history: [], loading: false })
+  const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean; error?: boolean }>({ info: null, history: [], loading: false })
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
 
@@ -138,11 +138,15 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         onClick={async () => {
                           setDetailTarget(item)
                           setDetail({ info: null, history: [], loading: true })
-                          const [info, history] = await Promise.all([
-                            seekApi.query(item.id).catch(() => null),
-                            seekApi.history(item.id).catch(() => []),
-                          ])
-                          setDetail({ info, history: history ?? [], loading: false })
+                          try {
+                            const [info, history] = await Promise.all([
+                              seekApi.query(item.id),
+                              seekApi.history(item.id),
+                            ])
+                            setDetail({ info, history: history ?? [], loading: false })
+                          } catch {
+                            setDetail({ info: null, history: [], loading: false, error: true })
+                          }
                         }}
                       >
                         详情
@@ -183,6 +187,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           onClose={() => setDetailTarget(null)}
         >
           {detail.loading ? <p className="card-note">读取中…</p> : null}
+
+          {detail.error ? <p className="card-note">详情取不到，稍后再试～</p> : null}
 
           {!detail.loading && detail.info ? (
             <dl className="kv">

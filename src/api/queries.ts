@@ -127,10 +127,7 @@ export function useWatchStats(weeks = 4) {
 
       const responses = await Promise.all(
         chunks.map((chunk) =>
-          userApi
-            .statsVideoHistory(chunk)
-            .then((rows) => (rows as unknown as Array<Record<string, unknown>>) ?? [])
-            .catch(() => [] as Array<Record<string, unknown>>),
+          userApi.statsVideoHistory(chunk).then((rows) => (rows as unknown as Array<Record<string, unknown>>) ?? []),
         ),
       )
 
@@ -600,7 +597,14 @@ export function useUserPayInfo(userId: string) {
     queryKey: ['user', userId, 'pay'] as const,
     enabled: Boolean(userId),
     staleTime: 5 * 60_000,
-    queryFn: async () => (await payApi.userInfo({ user_id: userId }).catch(() => null)) as unknown as import('./types').UserDetail | null,
+    queryFn: async () => {
+      try {
+        return (await payApi.userInfo({ user_id: userId })) as unknown as import('./types').UserDetail | null
+      } catch (error) {
+        if ((error as { status?: number }).status === 403) return null
+        throw error
+      }
+    },
   })
 }
 
@@ -610,8 +614,15 @@ export function useUserInvite(userId: string) {
     enabled: Boolean(userId),
     staleTime: 5 * 60_000,
     queryFn: async () =>
-      ((await inviteApi.history({ user_id: userId, page: 1, page_size: 5 }).catch(() => null))?.items?.[0] ??
-        null) as Record<string, unknown> | null,
+      (() => {
+        try {
+          return inviteApi.history({ user_id: userId, page: 1, page_size: 5 })
+        } catch {
+          return Promise.resolve(null)
+        }
+      })()
+        .then((res) => (res?.items?.[0] ?? null) as Record<string, unknown> | null)
+        .catch(() => null),
   })
 }
 
