@@ -7,7 +7,7 @@ import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
 import { useSeekPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL, formatDateTime } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
@@ -26,6 +26,8 @@ const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[
 export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (patch: Partial<SeekSearch>) => void }) {
   const qc = useQueryClient()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
+  const [detailTarget, setDetailTarget] = useState<SeekItem | null>(null)
+  const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean }>({ info: null, history: [], loading: false })
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
 
@@ -37,6 +39,15 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
   const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: () => { invalidate(); toast('已认领', 'success') } })
+  const cancelClaim = useMutation({
+    mutationFn: (id: number) => seekApi.claim(id, 'cancel'),
+    onSuccess: () => {
+      invalidate()
+      toast('已撤回认领', 'success')
+      setDetailTarget(null)
+    },
+  })
+
   const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: () => { invalidate(); toast('已催片', 'success') } })
 
 
@@ -122,6 +133,20 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num">{item.seek_carrot || '—'}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td style={{ textAlign: 'right' }}>
+                      <button
+                        className="btn btn--quiet"
+                        onClick={async () => {
+                          setDetailTarget(item)
+                          setDetail({ info: null, history: [], loading: true })
+                          const [info, history] = await Promise.all([
+                            seekApi.query(item.id).catch(() => null),
+                            seekApi.history(item.id).catch(() => []),
+                          ])
+                          setDetail({ info, history: history ?? [], loading: false })
+                        }}
+                      >
+                        详情
+                      </button>
                       {item.status === 'upload' ? (
                         <a className="btn btn--quiet" href="/upload">
                           去上传
@@ -148,6 +173,67 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           </table>
           <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
+      ) : null}
+
+      {detailTarget ? (
+        <Modal
+          title={`求片详情 · ${detailTarget.video_title_display}`}
+          hint={`#${detailTarget.id} · ${detailTarget.status}`}
+          width={520}
+          onClose={() => setDetailTarget(null)}
+        >
+          {detail.loading ? <p className="card-note">读取中…</p> : null}
+
+          {!detail.loading && detail.info ? (
+            <dl className="kv">
+              {[
+                ['status', '状态'],
+                ['upload_username', '认领人'],
+                ['request_count', '求片人数'],
+                ['seek_carrot', '悬赏'],
+                ['updated_at', '最近更新'],
+                ['upload_expired_at', '上传期限'],
+              ]
+                .map(([key, label]) => [label, detail.info?.[key]] as const)
+                .filter(([, v]) => v !== null && v !== undefined && v !== '')
+                .map(([label, v]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>
+                      {label === '状态'
+                        ? (SEEK_STATUS[String(v) as SeekStatus] ?? SEEK_STATUS.default).label
+                        : label === '最近更新' || label === '上传期限'
+                          ? formatDateTime(String(v))
+                          : String(v)}
+                    </dd>
+                  </div>
+                ))}
+            </dl>
+          ) : null}
+
+          <p className="stat__label" style={{ marginTop: 'var(--stack)' }}>投票记录</p>
+          {!detail.loading && detail.history.length === 0 ? <p className="card-note">还没有人投票。</p> : null}
+          <ul className="stack--tight">
+            {detail.history.map((row, index) => (
+              <li key={index} className="row row--baseline" style={{ display: 'flex' }}>
+                <span className="text-body">{String(row.username ?? '—')}</span>
+                <span className="muted meta-end">{String(row.carrot)} 胡萝卜</span>
+                <span className="muted tnum-sm">{formatRelative(String(row.created_at))}</span>
+              </li>
+            ))}
+          </ul>
+
+          {detailTarget.status === 'upload' ? (
+            <button
+              className="btn btn--danger-text"
+              style={{ marginTop: 'var(--stack)' }}
+              disabled={cancelClaim.isPending}
+              onClick={() => cancelClaim.mutate(detailTarget.id)}
+            >
+              {cancelClaim.isPending ? '撤回中…' : '撤回认领'}
+            </button>
+          ) : null}
+        </Modal>
       ) : null}
 
       {urgeTarget ? (

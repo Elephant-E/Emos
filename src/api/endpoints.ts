@@ -173,7 +173,12 @@ export interface SeekQuery {
 }
 
 export const seekApi = {
-  list: (body: SeekQuery) => request<ListResult<SeekItem>>('/api/seek', { method: 'POST', body }),
+  // 后端要求 sort_by/sort_order 必填，缺省会 422
+  list: (body: SeekQuery) =>
+    request<ListResult<SeekItem>>('/api/seek', {
+      method: 'POST',
+      body: { sort_by: 'updated_at', sort_order: 'desc', ...body },
+    }),
   poll: (lastId?: number, pageSize = 10) => request<SeekItem[]>('/api/seek/poll', { query: { last_id: lastId, page_size: pageSize } }),
   apply: (itemType: string, itemId: number) => request<{ seek_is_request: boolean }>('/api/seek/apply', { method: 'PUT', query: { item_type: itemType, item_id: itemId } }),
   query: (seekId: number) => request<Record<string, unknown>>('/api/seek/query', { query: { seek_id: seekId } }),
