@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { ErrorBlock } from '@/components/StateBlock'
 import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useTodos, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -97,6 +98,10 @@ export function OverviewView() {
             </Link>
           ))}
         </section>
+      ) : null}
+
+      {session.error ? (
+        <ErrorBlock error={session.error as Error & { status?: number }} onRetry={() => session.refetch()} />
       ) : null}
 
       <section className="cards cards--4" style={{ marginTop: 16 }}>
