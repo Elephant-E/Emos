@@ -1179,3 +1179,7 @@ th.num .th-sort { flex-direction: row-reverse; }
 .card--stat > .stat__delta { margin-top: 0; }
 
 .cards--todos .stat__value { font-size: 30px; }
+
+.table--inset { margin-top: 10px; }
+.cell-right { text-align: right; }
+.note-left { text-align: left; }

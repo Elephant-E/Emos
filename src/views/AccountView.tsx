@@ -241,7 +241,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 </div>
 
                 {password ? (
-                  <p className="state__hint" style={{ textAlign: 'left' }}>
+                  <p className="state__hint note-left">
                     临时密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
                   </p>
                 ) : null}
@@ -253,7 +253,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
       {tab === 'invite' ? (
         <>
-          <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+          <section className="cards cards--2">
             <article className="card">
               <p className="stat__label">邀请名额</p>
               <p className="stat__value">
@@ -273,7 +273,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   邀请
                 </button>
               </div>
-              <p className="state__hint" style={{ textAlign: 'left', marginTop: 10 }}>
+              <p className="state__hint note-left" style={{ marginTop: 10 }}>
                 对方的 ID 可以在他自己的账号页看到。
               </p>
             </article>
@@ -286,13 +286,13 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               {inviteHistory.data && inviteHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有邀请过别人" /> : null}
               {inviteHistory.data && inviteHistory.data.items.length > 0 ? (
                 <>
-                  <table className="table" style={{ marginTop: 10 }}>
+                  <table className="table table--inset">
                     <thead>
                       <tr>
                         <th>用户</th>
                         <th style={{ width: 130 }}>邀请时间</th>
                         <th style={{ width: 130 }}>最近播放</th>
-                        <th style={{ width: 96, textAlign: 'right' }}>操作</th>
+                        <th className="cell-right" style={{ width: 96 }}>操作</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -311,7 +311,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                           </td>
                           <td className="muted">{formatDateTime(String(row.invite_at))}</td>
                           <td className="muted">{formatDateTime(String(row.last_video_player))}</td>
-                          <td style={{ textAlign: 'right' }}>
+                          <td className="cell-right">
                             <button
                               className="btn btn--quiet"
                               onClick={async () => {
@@ -345,12 +345,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <section className="cards cards--wide" style={{ marginTop: 18 }}>
               <article className="card">
                 <p className="stat__label">邀请关系</p>
-                <ul style={{ display: 'grid', gap: 10, marginTop: 10 }}>
+                <ul className="stack--loose stack--top">
                   {tree.data.map((node, index) => (
-                    <li key={String(node.user_id)} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
+                    <li key={String(node.user_id)} className="row text-sm">
                       {index > 0 ? <IconChevron size={12} style={{ color: 'var(--fg-5)' }} /> : null}
                       <span style={{ color: 'var(--fg-2)' }}>{String(node.username)}</span>
-                      <span className="muted" style={{ fontSize: 11.5 }}>
+                      <span className="muted tnum-sm">
                         {String(node.user_id)} · 加入 {formatDateTime(String(node.join_at))}
                       </span>
                       {node.is_disabled ? <span className="badge badge--warn"><i />已禁用</span> : null}
@@ -365,7 +365,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
       {tab === 'carrot' ? (
         <>
-          <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+          <section className="cards cards--2">
             <article className="card">
               <p className="stat__label">当前余额</p>
               <p className="stat__value">
@@ -378,7 +378,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               <button className="btn btn--ghost" style={{ marginTop: 12 }} onClick={() => setTransferring(true)}>
                 转给别人
               </button>
-              <p className="state__hint" style={{ textAlign: 'left', marginTop: 10 }}>
+              <p className="state__hint note-left" style={{ marginTop: 10 }}>
                 单次 2 – 6000 个，双方都会收到通知。
               </p>
             </article>
@@ -391,7 +391,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               {carrotHistory.data && carrotHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有记录" /> : null}
               {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
                 <>
-                  <table className="table" style={{ marginTop: 10 }}>
+                  <table className="table table--inset">
                     <thead>
                       <tr>
                         <th>来源</th>
@@ -402,9 +402,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     <tbody>
                       {carrotHistory.data.items.map((row, i) => (
                         <tr key={`${row.created_at}-${i}`}>
-                          <td style={{ color: 'var(--fg-2)' }}>{String(row.trigger_type_string || row.trigger_type)}</td>
+                          <td className="text-body" style={{ fontSize: 13 }}>{String(row.trigger_type_string || row.trigger_type)}</td>
                           <td className="muted">{formatDateTime(String(row.created_at))}</td>
-                          <td className="num" style={{ color: row.point >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
+                          <td className={row.point >= 0 ? 'num mark-up' : 'num mark-down'}>
                             {row.point > 0 ? '+' : ''}
                             {row.point}
                           </td>
@@ -438,13 +438,13 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             {bans.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {bans.data && bans.data.length === 0 ? <EmptyBlock bare title="没有被封禁的用户" /> : null}
             {bans.data && bans.data.length > 0 ? (
-              <table className="table" style={{ marginTop: 10 }}>
+              <table className="table table--inset">
                 <thead>
                   <tr>
                     <th>用户</th>
                     <th style={{ width: 200 }}>原因</th>
                     <th style={{ width: 140 }}>封禁时间</th>
-                    <th style={{ width: 96, textAlign: 'right' }}>操作</th>
+                    <th className="cell-right" style={{ width: 96 }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -461,7 +461,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       </td>
                       <td className="muted">{row.disable_reason ?? '—'}</td>
                       <td className="muted">{formatRelative(row.created_at)}</td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td className="cell-right">
                         <button
                           className="btn btn--quiet"
                           onClick={async () => {
