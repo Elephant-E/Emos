@@ -25,7 +25,7 @@ export interface UploadResult {
 }
 
 async function uploadObject(file: File, kind: string, onProgress: (ratio: number) => void): Promise<string> {
-  const token = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name)) as Record<string, unknown>
+  const token = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name, file.size)) as Record<string, unknown>
   const fileId = pickId(token)
   if (!fileId) throw new Error('服务端没有返回 file_id')
 
@@ -66,7 +66,7 @@ export async function uploadAndSave(
   target: UploadTarget,
   onProgress: (ratio: number) => void,
 ): Promise<UploadResult> {
-  const token = (await uploadApi.uploadToken('video', file.type || 'video/mp4', file.name)) as Record<string, unknown>
+  const token = (await uploadApi.uploadToken('video', file.type || 'video/mp4', file.name, file.size)) as Record<string, unknown>
   const fileId = pickId(token)
   if (!fileId && !USE_MOCK) throw new Error('服务端没有返回 file_id，检查 /api/upload/getUploadToken 的响应')
 

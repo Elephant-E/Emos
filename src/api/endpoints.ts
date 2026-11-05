@@ -66,8 +66,12 @@ export const uploadApi = {
   storeFiles: (pathType: string) =>
     request<Array<{ file_name: string; file_size: number; mime_type: string }>>('/api/upload/store/file', { query: { path_type: pathType } }),
   archive: (payload: Record<string, unknown>) => request<{ media_id: string; carrot: number }>('/api/upload/store/archive', { method: 'POST', body: payload }),
-  uploadToken: (type: string, fileType: string, fileName: string) =>
-    request<Record<string, unknown>>('/api/upload/getUploadToken', { method: 'POST', body: { type, file_type: fileType, file_name: fileName } }),
+  // file_size 为必填（字节），缺省会 422
+  uploadToken: (type: string, fileType: string, fileName: string, fileSize: number) =>
+    request<Record<string, unknown>>('/api/upload/getUploadToken', {
+      method: 'POST',
+      body: { type, file_type: fileType, file_name: fileName, file_size: fileSize },
+    }),
 }
 
 export const videoApi = {
