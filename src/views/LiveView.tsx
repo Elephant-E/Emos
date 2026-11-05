@@ -71,6 +71,8 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" hint="点右上角新增频道。" /> : null}
 
       {list.data && list.data.items.length > 0 ? (
+        <>
+        <p className="card-note card-note--inline">你只能编辑自己创建的直播源，别人的源仅可查看。</p>
         <div className="table-card">
           <table className="table">
             <thead>
@@ -137,6 +139,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           </table>
           <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
+        </>
       ) : null}
 
       {channel ? (
