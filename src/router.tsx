@@ -1,3 +1,4 @@
+import { asPage, asPageSize, asString } from '@/lib/search'
 import { createRootRoute, createRoute, createRouter, Outlet, redirect } from '@tanstack/react-router'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { OverviewView } from '@/views/OverviewView'
@@ -59,9 +60,9 @@ const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/library',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: '' | VideoType } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     page_size: [20, 50, 100].includes(Number(s.page_size)) ? Number(s.page_size) : 20,
-    q: typeof s.q === 'string' ? s.q : '',
+    q: asString(s.q),
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
   }),
   component: LibraryRoute,
@@ -130,7 +131,7 @@ const ordersRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/orders',
   validateSearch: (s: Record<string, unknown>): { page: number; pay: 'all' | 'paid' | 'unpaid'; delivery: 'all' | 'sent' | 'pending' } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
   }),
@@ -147,7 +148,7 @@ const liveRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/live',
   validateSearch: (s: Record<string, unknown>): { page: number; library: number; channel: number } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     library: Number(s.library) || 0,
     channel: Number(s.channel) || 0,
   }),
@@ -167,9 +168,9 @@ const recycleRoute = createRoute({
   path: '/recycle',
   validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; size: number; q: string; by: 'media_id' | 'user_id' } => ({
     tab: s.tab === 'video' ? 'video' : 'media',
-    page: Math.max(1, Number(s.page) || 1),
-    size: [20, 50, 100].includes(Number(s.size)) ? Number(s.size) : 20,
-    q: typeof s.q === 'string' ? s.q : '',
+    page: asPage(s.page),
+    size: asPageSize(s.size),
+    q: asString(s.q),
     by: s.by === 'user_id' ? ('user_id' as const) : ('media_id' as const),
   }),
   component: RecycleRoute,
@@ -197,9 +198,9 @@ const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
   validateSearch: (s: Record<string, unknown>): { page: number; tab: 'songs' | 'albums' | 'persons'; q: string } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
-    q: typeof s.q === 'string' ? s.q : '',
+    q: asString(s.q),
   }),
   component: MusicRoute,
 })
@@ -240,7 +241,7 @@ const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; tab: 'all' | 'default' | 'upload' | 'complete' } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     page_size: 20,
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
   }),
@@ -257,7 +258,7 @@ const watchlistsRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; scope: 'all' | 'self' | 'subscribed'; type: 'video' | 'music' } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     page_size: 20,
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
     type: s.type === 'music' ? 'music' : 'video',
@@ -275,9 +276,9 @@ const watchlistDetailRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists/$watchId',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
-    page: Math.max(1, Number(s.page) || 1),
+    page: asPage(s.page),
     page_size: 20,
-    q: typeof s.q === 'string' ? s.q : '',
+    q: asString(s.q),
   }),
   component: WatchDetailRoute,
 })
