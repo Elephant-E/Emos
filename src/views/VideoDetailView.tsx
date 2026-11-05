@@ -5,6 +5,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
+import { uploadSubtitle } from '@/lib/uploader'
 import { useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -58,6 +59,9 @@ export function VideoDetailView({
   const [renaming, setRenaming] = useState<{ mediaId: string; name: string } | null>(null)
   const [renamingSub, setRenamingSub] = useState<{ id: string; title: string } | null>(null)
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
+  const [subUploading, setSubUploading] = useState(false)
+  const [subProgress, setSubProgress] = useState(0)
+  const [subBusy, setSubBusy] = useState(false)
   const [moveSeason, setMoveSeason] = useState<number>(season)
   const moveEpisodes = useEpisodes(videoId, moveSeason)
 
@@ -296,7 +300,12 @@ export function VideoDetailView({
           </article>
 
           <article className="card" style={{ padding: '18px 20px' }}>
-            <p className="stat__label">字幕</p>
+            <div className="card-head">
+              <p className="stat__label">字幕</p>
+              <button className="btn btn--quiet" onClick={() => setSubUploading(true)}>
+                上传字幕
+              </button>
+            </div>
             {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
               <table className="table" style={{ marginTop: 10 }}>
@@ -439,6 +448,43 @@ export function VideoDetailView({
             >
               删除
             </button>
+          </div>
+        </Modal>
+      ) : null}
+
+      {subUploading ? (
+        <Modal title="上传字幕" hint="支持 srt / ass / vtt，挂到当前这一集。" width={460} onClose={() => setSubUploading(false)}>
+          <div className="stack">
+            <label className="btn btn--ghost" style={{ justifySelf: 'start', cursor: subBusy ? 'default' : 'pointer' }}>
+              {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '选择字幕文件'}
+              <input
+                type="file"
+                hidden
+                accept=".srt,.ass,.ssa,.vtt,text/plain"
+                disabled={subBusy}
+                onChange={async (event) => {
+                  const file = event.target.files?.[0]
+                  if (!file || !currentEpisode) return
+                  setSubBusy(true)
+                  setSubProgress(0)
+                  try {
+                    await uploadSubtitle(file, { item_type: 've', item_id: currentEpisode.episode_id }, setSubProgress)
+                    toast('字幕已上传', 'success')
+                    setSubUploading(false)
+                    void subtitles.refetch()
+                  } catch (error) {
+                    toast(error instanceof Error ? error.message : '上传失败', 'error')
+                  } finally {
+                    setSubBusy(false)
+                  }
+                }}
+              />
+            </label>
+            {subBusy ? (
+              <span className="progress-line">
+                <i style={{ transform: `scaleX(${subProgress.toFixed(3)})` }} />
+              </span>
+            ) : null}
           </div>
         </Modal>
       ) : null}

@@ -24,6 +24,43 @@ export interface UploadResult {
   carrot: number
 }
 
+async function uploadObject(file: File, kind: string, onProgress: (ratio: number) => void): Promise<string> {
+  const token = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name)) as Record<string, unknown>
+  const fileId = pickId(token)
+  if (!fileId) throw new Error('服务端没有返回 file_id')
+
+  const partCount = Math.max(1, Math.min(1000, Math.ceil(file.size / CHUNK)))
+  const parts = await uploadApi.presign(fileId, partCount)
+  const etags: Array<[number, string]> = []
+  let uploaded = 0
+
+  for (const part of parts) {
+    const start = (part.number - 1) * CHUNK
+    const blob = file.slice(start, Math.min(start + CHUNK, file.size))
+    const res = await fetch(part.upload_url, {
+      method: 'PUT',
+      body: blob,
+      headers: part.upload_data as Record<string, string>,
+    })
+    if (!res.ok) throw new Error(`分片 ${part.number} 上传失败（${res.status}）`)
+    etags.push([part.number, res.headers.get('ETag') ?? ''])
+    uploaded += blob.size
+    onProgress(uploaded / file.size)
+  }
+
+  const merged = await uploadApi.complete(fileId, etags)
+  return merged.file_id
+}
+
+export async function uploadSubtitle(
+  file: File,
+  target: { item_type: string; item_id: number },
+  onProgress: (ratio: number) => void,
+): Promise<void> {
+  const fileId = await uploadObject(file, 'subtitle', onProgress)
+  await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
+}
+
 export async function uploadAndSave(
   file: File,
   target: UploadTarget,
