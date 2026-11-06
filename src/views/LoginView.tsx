@@ -76,9 +76,11 @@ export function LoginView({ onDone }: { onDone: () => void }) {
           echo <i>+</i> media <i>+</i> oasis <i>=</i> emos
         </p>
         <div className="login__strip" aria-hidden="true">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <i key={index} className={index === 4 ? 'is-lit' : undefined} />
-          ))}
+          <div className="login__strip-track">
+            {Array.from({ length: 18 }).map((_, index) => (
+              <i key={index} className={index % 9 === 4 ? 'is-lit' : undefined} />
+            ))}
+          </div>
         </div>
 
         <ul className="login__facts">
