@@ -25,7 +25,8 @@ export function formatSize(bytes: number | null | undefined): string {
 }
 
 export function formatDateTime(iso: string | null | undefined): string {
-  if (!iso) return '—'
+  // 调用点常写成 String(x)，null 会变成字面量 "null"，必须挡掉
+  if (!iso || iso === 'null' || iso === 'undefined') return '—'
   const d = new Date(iso.replace(' ', 'T'))
   if (Number.isNaN(d.getTime())) return iso
   const p = (v: number) => String(v).padStart(2, '0')
@@ -37,7 +38,7 @@ export function formatDateTime(iso: string | null | undefined): string {
 }
 
 export function formatRelative(iso: string | null | undefined): string {
-  if (!iso) return '—'
+  if (!iso || iso === 'null' || iso === 'undefined') return '—'
   const then = new Date(iso.replace(' ', 'T')).getTime()
   if (Number.isNaN(then)) return iso
   const raw = Date.now() - then

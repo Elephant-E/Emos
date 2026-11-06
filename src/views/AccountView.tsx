@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconChevron, IconLeft, IconRight } from '@/components/icons'
+import { IconLeft, IconRight } from '@/components/icons'
 import {
   useAccountMutations,
   useCapabilities,
@@ -307,8 +307,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                             </Link>
                             <span className="cell-title__code">{String(row.user_id)}</span>
                           </td>
-                          <td className="muted">{formatDateTime(String(row.invite_at))}</td>
-                          <td className="muted">{formatDateTime(String(row.last_video_player))}</td>
+                          <td className="muted">{formatDateTime(row.invite_at as string)}</td>
+                          <td className="muted">{formatDateTime(row.last_video_player as string)}</td>
                           <td className="cell-right">
                             <button
                               className="btn btn--quiet"
@@ -342,12 +342,16 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           {tree.data && tree.data.length > 0 ? (
             <section className="cards cards--wide" style={{ marginTop: 18 }}>
               <article className="card">
-                <p className="stat__label">邀请关系</p>
+                <div className="card-head">
+                  <p className="stat__label" style={{ margin: 0 }}>邀请关系</p>
+                  <span className="muted tnum-sm">共 {formatThousand(tree.data.length)} 人</span>
+                </div>
                 <ul className="stack--loose stack--top">
-                  {tree.data.map((node, index) => (
+                  {tree.data.slice(0, 40).map((node) => (
                     <li key={String(node.user_id)} className="row text-sm">
-                      {index > 0 ? <IconChevron size={12} style={{ color: 'var(--fg-5)' }} /> : null}
-                      <span style={{ color: 'var(--fg-2)' }}>{String(node.username)}</span>
+                      <Link to="/users/$userId" params={{ userId: String(node.user_id) }} style={{ color: 'var(--fg-2)' }}>
+                        {String(node.username)}
+                      </Link>
                       <span className="muted tnum-sm">
                         {String(node.user_id)} · 加入 {formatDateTime(String(node.join_at))}
                       </span>
@@ -355,6 +359,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     </li>
                   ))}
                 </ul>
+                {tree.data.length > 40 ? (
+                  <p className="card-note" style={{ marginTop: 'var(--stack)' }}>只显示最近 40 人，更多请按用户 ID 查询。</p>
+                ) : null}
               </article>
             </section>
           ) : null}

@@ -137,7 +137,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
                           </span>
                         </div>
                       </td>
-                      <td className="num">{product.price ?? '—'}</td>
+                      <td className="num">{product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`}</td>
                       <td className="num">{formatThousand(product.stock)}</td>
                       <td className="num">{formatThousand(product.sales)}</td>
                       <td>

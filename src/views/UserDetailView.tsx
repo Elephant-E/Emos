@@ -167,11 +167,11 @@ export function UserDetailView({ userId }: { userId: string }) {
                   </div>
                   <div>
                     <dt>最近播放</dt>
-                    <dd>{invited ? formatDateTime(String(invited.last_video_player)) : '—'}</dd>
+                    <dd>{invited ? formatDateTime(invited.last_video_player as string) : '—'}</dd>
                   </div>
                   <div>
                     <dt>最近签到</dt>
-                    <dd>{invited ? formatDateTime(String(invited.last_user_sign)) : '—'}</dd>
+                    <dd>{invited ? formatDateTime(invited.last_user_sign as string) : '—'}</dd>
                   </div>
                   <div>
                     <dt>最近 Telegram</dt>
