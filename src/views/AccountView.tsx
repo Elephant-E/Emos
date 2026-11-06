@@ -24,8 +24,6 @@ type Tab = 'profile' | 'invite' | 'carrot' | 'ban'
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'profile', label: '资料' },
   { key: 'invite', label: '邀请' },
-  { key: 'carrot', label: '胡萝卜' },
-  { key: 'ban', label: '封禁' },
 ]
 
 export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {

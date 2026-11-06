@@ -8,12 +8,66 @@ import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
+import { useCarrot, useCarrotHistory } from '@/api/queries'
+
+function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) => void }) {
+  const carrot = useCarrot()
+  const history = useCarrotHistory(page, 20)
+  const rows = history.data?.items ?? []
+  return (
+    <>
+      <section className="cards cards--2">
+        <article className="card card--stat">
+          <p className="stat__label">胡萝卜余额</p>
+          <p className="stat__value">{carrot.data ? formatThousand(carrot.data.carrot) : '—'}<small>个</small></p>
+          <p className="stat__delta stat__delta--quiet">签到、上传、字幕都会获得</p>
+        </article>
+        <article className="card card--stat">
+          <p className="stat__label">本页记录</p>
+          <p className="stat__value">{rows.length}<small>条</small></p>
+          <p className="stat__delta stat__delta--quiet">第 {page} 页</p>
+        </article>
+      </section>
+      {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
+      {rows.length > 0 ? (
+        <div className="table-card">
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '46%' }}>来源</th>
+                <th className="num" style={{ width: '16%' }}>变动</th>
+                <th style={{ width: '24%' }}>时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={index}>
+                  <td className="text-body">{String(row.trigger_type_string ?? row.trigger_type ?? '—')}</td>
+                  <td className={Number(row.point) >= 0 ? 'num mark-up' : 'num mark-down'}>
+                    {Number(row.point) > 0 ? '+' : ''}{String(row.point)}
+                  </td>
+                  <td className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="table-foot">
+            <span className="muted">共 {formatThousand(history.data?.total ?? 0)} 条</span>
+            <button className="btn btn--quiet" onClick={() => onPage(page + 1)} disabled={(history.data?.total ?? 0) <= page * 20}>
+              下一页
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
+  )
+}
 
 type Row = Record<string, unknown>
 
 export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
-  tab: 'orders' | 'merchant'
-  onTab: (tab: 'orders' | 'merchant') => void
+  tab: 'orders' | 'merchant' | 'carrot'
+  onTab: (tab: 'orders' | 'merchant' | 'carrot') => void
   page: number
   pageSize: number
   onPage: (page: number) => void
@@ -84,10 +138,14 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           <button className="tab" role="tab" aria-selected={tab === 'merchant'} onClick={() => onTab('merchant')}>
             支付服务
           </button>
+          <button className="tab" role="tab" aria-selected={tab === 'carrot'} onClick={() => onTab('carrot')}>
+            胡萝卜
+          </button>
         </div>
       </div>
 
       {tab === 'merchant' ? <PayView embedded /> : null}
+      {tab === 'carrot' ? <CarrotSection page={page} onPage={onPage} /> : null}
 
       {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}

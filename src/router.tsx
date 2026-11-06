@@ -234,10 +234,10 @@ const payRoute = createRoute({
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
-  validateSearch: (s: Record<string, unknown>): { page: number; size: number; tab: 'orders' | 'merchant' } => ({
+  validateSearch: (s: Record<string, unknown>): { page: number; size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
     page: asPage(s.page),
     size: asPageSize(s.size),
-    tab: s.tab === 'merchant' ? 'merchant' : 'orders',
+    tab: s.tab === 'merchant' ? 'merchant' : s.tab === 'carrot' ? 'carrot' : 'orders',
   }),
   component: FundRoute,
 })
