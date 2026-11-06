@@ -290,7 +290,7 @@ export const lotteryApi = {
 
 export const banApi = {
   list: () => request<BanItem[]>('/api/ban/list'),
-  change: (type: string, userId: string, reason?: string) => request<CarrotDelta>('/api/ban/change', { method: 'PUT', query: { type, user_id: userId, reason } }),
+  change: (type: 'disable' | 'unblock', userId: string, reason?: string) => request<CarrotDelta>('/api/ban/change', { method: 'PUT', query: { type, user_id: userId, reason } }),
 }
 
 export const musicApi = {

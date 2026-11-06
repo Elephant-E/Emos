@@ -40,7 +40,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                     confirmText: '解除',
                   })
                   if (!ok) return
-                  actions.banChange.mutate({ type: 'enable', userId }, { onSuccess: () => toast('已解除封禁', 'success') })
+                  actions.banChange.mutate({ type: 'unblock', userId }, { onSuccess: () => toast('已解除封禁', 'success') })
                 }}
               >
                 解除封禁
@@ -84,10 +84,14 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">账号状态</p>
               <p className="stat__value" style={{ color: banned ? 'var(--c-red)' : undefined }}>
-                {banned ? '已封禁' : '正常'}
+                {banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
               </p>
               <p className="stat__delta stat__delta--quiet">
-                {banned ? `于 ${formatRelative(banned.created_at)} 封禁` : bans.isLoading ? '检查中…' : '不在封禁名单里'}
+                {banned
+                  ? `于 ${formatRelative(banned.created_at)} 封禁`
+                  : bans.isLoading
+                    ? '正在核对封禁列表'
+                    : '以封禁列表为准，未被列出即可解封试探'}
               </p>
             </article>
 

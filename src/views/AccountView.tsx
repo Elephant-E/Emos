@@ -477,7 +477,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                             })
                             if (!ok) return
                             actions.banChange.mutate(
-                              { type: 'enable', userId: row.user_id },
+                              { type: 'unblock', userId: row.user_id },
                               { onSuccess: () => toast('已解除封禁', 'success') },
                             )
                           }}
