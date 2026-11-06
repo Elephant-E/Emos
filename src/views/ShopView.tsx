@@ -26,7 +26,8 @@ const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'seller', label: '店铺' },
 ]
 
-export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
+export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
+  const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
   const [categoryId, setCategoryId] = useState(0)
@@ -60,16 +61,18 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="商城分区">
-          {TABS.map((item) => (
-            <button key={item.key} className="tab" role="tab" aria-selected={tab === item.key} onClick={() => onTab(item.key)}>
-              {item.label}
-            </button>
-          ))}
+        <span className="muted tnum-sm">{isSeller ? '只显示本店商品' : '仅可浏览，开店后可管理商品'}</span>
+        <div className="row" style={{ marginLeft: 'auto', gap: 12 }}>
+          <button className="btn btn--quiet" onClick={() => setPanel('categories')}>
+            分类
+          </button>
+          <button className="btn btn--quiet" onClick={() => setPanel('seller')}>
+            店铺
+          </button>
         </div>
       </div>
 
-      {tab === 'products' ? (
+      {true ? (
         <>
           <div className="toolbar" style={{ marginTop: 0 }}>
             <div className="tabs">
@@ -205,9 +208,9 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
         </>
       ) : null}
 
-      {tab === 'categories' ? (
-        <section className="cards cards--wide">
-          <article className="card">
+      {panel === 'categories' ? (
+        <Modal title="分类管理" width={600} onClose={() => setPanel(null)}>
+          <>
             <div className="chart-head">
               <p className="stat__label" style={{ margin: 0 }}>分类</p>
               {isSeller ? (
@@ -264,13 +267,13 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                 ))}
               </ul>
             ) : null}
-          </article>
-        </section>
+          </>
+        </Modal>
       ) : null}
 
-      {tab === 'seller' ? (
-        <section className="cards cards--wide">
-          <article className="card">
+      {panel === 'seller' ? (
+        <Modal title="店铺设置" width={600} onClose={() => setPanel(null)}>
+          <>
             <p className="stat__label">店铺信息</p>
             {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {seller.data ? (
@@ -309,8 +312,8 @@ export function ShopView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }
                 )}
               </>
             ) : null}
-          </article>
-        </section>
+          </>
+        </Modal>
       ) : null}
 
       {editing ? (
