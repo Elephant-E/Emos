@@ -12,9 +12,15 @@ function readPrefill(): string {
   return search.get('token') ?? hashParams.get('token') ?? ''
 }
 
+// 应用标识，必须是合法 UUID（接口会校验格式），固定值保证每次授权认作同一个应用
+const APP_UUID = '7c1e5b90-4f2a-4c8e-9d31-6b8a2e704f15'
+
 function authUrl(): string {
-  const url = `${location.origin}/login`
-  const params = new URLSearchParams({ uuid: 'emos-admin', name: 'EMOS Club', url })
+  const params = new URLSearchParams({
+    uuid: APP_UUID,
+    name: 'EMOS Club',
+    url: `${location.origin}/login`,
+  })
   return `https://emos.best/link?${params.toString()}`
 }
 
