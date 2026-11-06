@@ -9,13 +9,6 @@ import { formatSize, formatThousand, realmOf } from '@/lib/format'
 
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
 
-const LINES_WATCHED = [
-  '今天已经看了 {m} 分钟～',
-  '今天看了 {m} 分钟，正合适～',
-  '{m} 分钟到手，明天见～',
-  '今天看了 {m} 分钟，好兴致～',
-]
-
 const LINES_IDLE = [
   '今天还没看片，要不要挑一部～',
   '今天还没动，片单里有一部等你～',
@@ -68,11 +61,11 @@ export function OverviewView() {
   const greeting =
     hour < 6 ? GREETINGS[4] : hour < 11 ? GREETINGS[0] : hour < 14 ? GREETINGS[1] : hour < 18 ? GREETINGS[2] : GREETINGS[3]
   const displayName = session.data?.pseudonym || session.data?.username || ''
-  const todayKey = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-  const todaySeconds = stats.data?.byDate[todayKey] ?? 0
+  // stats/video/history 只能查到「今天之前」，用它判断今天必然出错，改用继续观看的实际情况
+  const unfinished = watching.data?.length ?? 0
   const todayText =
-    todaySeconds > 0
-      ? pickByDay(LINES_WATCHED, now).replace('{m}', String(Math.round(todaySeconds / 60)))
+    unfinished > 0
+      ? `还有 ${unfinished} 部没看完${pickByDay(['～', '，接着看吧～', '，从上次停下的地方继续～'], now)}`
       : pickByDay(LINES_IDLE, now)
 
   return (
@@ -172,7 +165,7 @@ export function OverviewView() {
         <Link className="card card--stat todo" to="/upload">
           <p className="stat__label">我的上传</p>
           <p className="stat__value">
-            {!ready ? '—' : caps.sizeUpload > 0 ? formatSize(caps.sizeUpload) : '0 B'}
+            {!ready ? '—' : formatSize(caps.sizeUpload)}
             <small>累计</small>
           </p>
           <p className="stat__delta stat__delta--quiet">

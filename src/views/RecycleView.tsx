@@ -165,7 +165,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                         {row.season_number ? ` S${row.season_number}` : ''}
                         {row.episode_number ? `E${row.episode_number}` : ''}
                       </td>
-                      <td className="num muted">{formatSize(Number(row.media_file_size ?? 0))}</td>
+                      <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                       <td className="muted">{String(row.storage_title ?? '—')}</td>
                       <td className="num muted">{formatRelative(String(row.created_at ?? ''))}</td>
                       <td style={{ textAlign: 'right' }}>

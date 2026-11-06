@@ -278,7 +278,7 @@ export function VideoDetailView({
                           <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
                           <span className="cell-title__code">{mediaId}</span>
                         </td>
-                        <td className="num muted">{formatSize(Number(row.media_file_size ?? 0))}</td>
+                        <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td style={{ textAlign: 'right' }}>
                           <button

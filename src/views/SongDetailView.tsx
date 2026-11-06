@@ -129,7 +129,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                         <span className="cell-title__code">{String(row.media_id ?? '')}</span>
                       </td>
                       <td className="muted">{String(row.file_suffix ?? '—')}</td>
-                      <td className="num muted">{formatSize(Number(row.file_size ?? 0))}</td>
+                      <td className="num muted">{formatSize(row.file_size == null ? null : Number(row.file_size))}</td>
                       <td className="num muted">
                         {row.meta_rate_bit ? `${Math.round(Number(row.meta_rate_bit) / 1000)} kbps` : '—'}
                       </td>

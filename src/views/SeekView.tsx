@@ -130,7 +130,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                       </span>
                     </td>
                     <td className="num">{item.count_request}</td>
-                    <td className="num">{item.seek_carrot || '—'}</td>
+                    <td className="num">{item.seek_carrot == null ? '—' : formatThousand(item.seek_carrot)}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td style={{ textAlign: 'right' }}>
                       <button

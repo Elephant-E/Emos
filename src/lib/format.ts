@@ -11,7 +11,9 @@ export function formatThousand(n: number | null | undefined): string {
 }
 
 export function formatSize(bytes: number | null | undefined): string {
-  if (!bytes || bytes <= 0) return '—'
+  // 0 是合法的「没有体积」，只有缺失才显示 —；否则用户无法区分「空」与「取不到」
+  if (bytes === null || bytes === undefined || Number.isNaN(bytes)) return '—'
+  if (bytes <= 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
   let v = bytes
   let i = 0
@@ -27,14 +29,21 @@ export function formatDateTime(iso: string | null | undefined): string {
   const d = new Date(iso.replace(' ', 'T'))
   if (Number.isNaN(d.getTime())) return iso
   const p = (v: number) => String(v).padStart(2, '0')
-  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+  const sameYear = d.getFullYear() === new Date().getFullYear()
+  const date = `${p(d.getMonth() + 1)}-${p(d.getDate())}`
+  const time = `${p(d.getHours())}:${p(d.getMinutes())}`
+  if (iso.length <= 10) return sameYear ? date : `${d.getFullYear()}-${date}`
+  return `${sameYear ? date : `${d.getFullYear()}-${date}`} ${time}`
 }
 
 export function formatRelative(iso: string | null | undefined): string {
   if (!iso) return '—'
   const then = new Date(iso.replace(' ', 'T')).getTime()
   if (Number.isNaN(then)) return iso
-  const diff = Math.max(0, Date.now() - then)
+  const raw = Date.now() - then
+  // 未来时间不能显示成「刚刚」，那会掩盖过期/预告类字段
+  if (raw < 0) return formatDateTime(iso)
+  const diff = raw
   const min = Math.floor(diff / 60000)
   if (min < 1) return '刚刚'
   if (min < 60) return `${min} 分钟前`

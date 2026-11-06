@@ -175,9 +175,9 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                       <span className="cell-title__name tnum">{orderNo}</span>
                       <span className="cell-title__code">{String(row.fund_activity_code ?? row.activity_code ?? '')}</span>
                     </td>
-                    <td className="num">{formatThousand(Number(row.carrot ?? 0))}</td>
-                    <td className="muted">{String(row.payout_status ?? row.status ?? '—')}</td>
-                    <td className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</td>
+                    <td className="num">{row.tier_carrot == null ? '—' : formatThousand(Number(row.tier_carrot))}</td>
+                    <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
+                    <td className="muted tnum">{row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}</td>
                     <td className="cell-right">
                       <button
                         className="btn btn--quiet"
