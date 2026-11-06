@@ -351,8 +351,8 @@ export function VideoDetailView({
           <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 10 }}>
             {persons.data.items.slice(0, 8).map((person) => (
               <div key={person.id} style={{ display: 'grid', gap: 6, width: 84 }}>
-                {person.image_profile ? (
-                  <img src={person.image_profile} alt="" style={{ width: 84, height: 112, objectFit: 'cover', borderRadius: 8 }} />
+                {String(person.image_profile_url ?? '').startsWith('http') ? (
+                  <img src={String(person.image_profile_url)} alt="" loading="lazy" style={{ width: 84, height: 112, objectFit: 'cover', borderRadius: 8 }} />
                 ) : (
                   <div style={{ width: 84, height: 112, borderRadius: 8, background: 'var(--raised)' }} />
                 )}

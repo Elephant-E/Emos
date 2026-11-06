@@ -119,7 +119,7 @@ export interface VideoPerson {
   person_id: number
   name: string
   original_name: string | null
-  image_profile: string | null
+  image_profile_url: string | null
   job: string | null
   title: string | null
   tagline: string | null
@@ -405,7 +405,7 @@ export interface MusicPersonItem {
   birthplace: string | null
   is_virtual: boolean
   is_adult: boolean
-  image_profile: string | null
+  image_profile_url: string | null
 }
 
 export interface MusicLyric {

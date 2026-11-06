@@ -115,8 +115,8 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                   >
                     <td>
                       <div className="cell-title">
-                        {row.image_poster_url || row.image_profile ? (
-                          <img className="poster-img" src={String(row.image_poster_url ?? row.image_profile)} alt="" loading="lazy" />
+                        {row.image_poster_url || row.image_profile_url ? (
+                          <img className="poster-img" src={String(row.image_poster_url ?? row.image_profile_url)} alt="" loading="lazy" />
                         ) : (
                           <span className="thumb">{name.slice(0, 1)}</span>
                         )}

@@ -214,7 +214,7 @@ export function useTodos() {
       }
       const [seeks, orders, bans] = await Promise.all([
         safe(() => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total)),
-        safe(() => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: 'true', is_delivery: 'false' }).then((r) => r.total)),
+        safe(() => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: true, is_delivery: false }).then((r) => r.total)),
         safe(() => banApi.list().then((r) => r.length)),
       ])
       return { seeks, orders, bans }
@@ -439,7 +439,7 @@ export function useShopProducts(page: number, categoryId: number, pageSize = 12)
   })
 }
 
-export function useShopOrders(page: number, filter: { is_pay?: string; is_delivery?: string }, pageSize = 10) {
+export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean }, pageSize = 10) {
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
     queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),

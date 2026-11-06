@@ -15,16 +15,16 @@ export interface OrdersSearch {
   delivery: 'all' | 'sent' | 'pending'
 }
 
-const PAY_TABS: Array<{ key: OrdersSearch['pay']; label: string; filter: { is_pay?: string } }> = [
+const PAY_TABS: Array<{ key: OrdersSearch['pay']; label: string; filter: { is_pay?: boolean } }> = [
   { key: 'all', label: '全部', filter: {} },
-  { key: 'paid', label: '已支付', filter: { is_pay: 'true' } },
-  { key: 'unpaid', label: '待支付', filter: { is_pay: 'false' } },
+  { key: 'paid', label: '已支付', filter: { is_pay: true } },
+  { key: 'unpaid', label: '待支付', filter: { is_pay: false } },
 ]
 
-const DELIVERY_TABS: Array<{ key: OrdersSearch['delivery']; label: string; filter: { is_delivery?: string } }> = [
+const DELIVERY_TABS: Array<{ key: OrdersSearch['delivery']; label: string; filter: { is_delivery?: boolean } }> = [
   { key: 'all', label: '全部', filter: {} },
-  { key: 'sent', label: '已发货', filter: { is_delivery: 'true' } },
-  { key: 'pending', label: '待发货', filter: { is_delivery: 'false' } },
+  { key: 'sent', label: '已发货', filter: { is_delivery: true } },
+  { key: 'pending', label: '待发货', filter: { is_delivery: false } },
 ]
 
 export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearch: (patch: Partial<OrdersSearch>) => void }) {

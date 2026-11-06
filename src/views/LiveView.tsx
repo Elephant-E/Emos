@@ -172,9 +172,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <span className="muted" style={{ fontSize: 11.5, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {row.path_url}
                     </span>
-                    <span className={`badge ${row.status === 'ok' ? 'badge--ok' : 'badge--warn'}`}>
+                    <span className={`badge ${row.status === 'normal' ? 'badge--ok' : 'badge--warn'}`}>
                       <i />
-                      {row.status === 'ok' ? '正常' : row.status}
+                      {row.status === 'normal' ? '正常' : row.status === 'error' ? '异常' : String(row.status ?? '—')}
                     </span>
                     {row.is_can_edit ? (
                       <button

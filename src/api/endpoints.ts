@@ -255,7 +255,7 @@ export const shopApi = {
   productSort: (productId: number, sort: number) => request<{ sort: number }>('/api/shop/product/sort', { method: 'PUT', query: { product_id: productId, sort } }),
   productUp: (productId: number) => request<{ is_up: boolean }>('/api/shop/product/up', { method: 'PUT', query: { product_id: productId } }),
 
-  ordersShop: (params: { user_id?: string; order_no?: string; order_title?: string; is_pay?: string; is_delivery?: string; product_id?: number; page?: number; page_size?: number }) =>
+  ordersShop: (params: { user_id?: string; order_no?: string; order_title?: string; is_pay?: boolean; is_delivery?: boolean; product_id?: number; page?: number; page_size?: number }) =>
     request<ListResult<ShopOrder>>('/api/shop/order/shop/order', { query: params }),
   delivery: (orderNo: string, isDelivery: boolean) => request<{ time_delivery: string }>('/api/shop/order/shop/delivery', { method: 'PUT', body: { order_no: orderNo, is_delivery: isDelivery } }),
   remarkOrder: (orderNo: string, remark: string) => request<unknown>('/api/shop/order/shop/remark', { method: 'POST', body: { order_no: orderNo, remark } }),

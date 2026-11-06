@@ -145,7 +145,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th style={{ width: '22%' }}>所属</th>
                   <th className="num" style={{ width: '12%' }}>大小</th>
                   <th style={{ width: '14%' }}>存储</th>
-                  <th className="num" style={{ width: '12%' }}>删除时间</th>
+                  <th className="num" style={{ width: '12%' }}>入库时间</th>
                   <th style={{ width: '96px', textAlign: 'right' }}>操作</th>
                 </tr>
               </thead>

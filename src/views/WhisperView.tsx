@@ -71,15 +71,18 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
             <tbody>
               {rows.map((row, index) => {
                 const id = Number(row.whisper_id ?? index)
-                const peer = tab === 'receiver' ? row.sender_pseudonym ?? row.sender_id : row.receiver_pseudonym ?? row.receiver_id
+                const peerUser = (row.sender_user ?? row.receiver_user) as { username?: string; id?: string } | undefined
+                const peer = peerUser?.username ?? '—'
+                const body = tab === 'receiver' ? row.sender_content : row.receiver_content
+                const reply = tab === 'receiver' ? row.receiver_content : row.sender_content
                 return (
                   <tr key={id}>
                     <td>
-                      <span className="cell-title__name">{String(row.content ?? '—')}</span>
-                      {row.reply_content ? <span className="cell-title__code">回复：{String(row.reply_content)}</span> : null}
+                      <span className="cell-title__name">{String(body ?? '—')}</span>
+                      {reply && reply !== body ? <span className="cell-title__code">回复：{String(reply)}</span> : null}
                     </td>
-                    <td className="muted">{String(peer ?? '—')}</td>
-                    <td className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</td>
+                    <td className="muted">{String(peer)}</td>
+                    <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
                     <td className="cell-right">
                       {tab === 'receiver' ? (
                         <button
@@ -106,7 +109,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       {replyTarget ? (
         <Modal title="回复悄悄话" width={480} onClose={() => setReplyTarget(null)}>
           <div className="stack">
-            <p className="card-note">{String(replyTarget.content ?? '')}</p>
+            <p className="card-note">{String(replyTarget.sender_content ?? '')}</p>
             <textarea
               className="input"
               rows={4}

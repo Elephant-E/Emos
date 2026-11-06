@@ -66,7 +66,7 @@ export function UploadView() {
         if (itemId) {
           patch(item.id, {
             status: 'ready',
-            target: { item_type: String(res.item_type ?? 'vl'), item_id: itemId, title: String(res.title ?? item.file.name) },
+            target: { item_type: String(res.item_type ?? 'vl'), item_id: itemId, title: String(res.video_title ?? res.title ?? item.file.name) },
           })
         } else {
           patch(item.id, { status: 'need-target', message: String(res.message ?? '无法自动识别') })
