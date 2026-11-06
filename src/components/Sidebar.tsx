@@ -51,7 +51,6 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { to: '/users', label: '用户', icon: IconShield },
       { to: '/fund', label: '资金', icon: IconWallet },
       { to: '/whisper', label: '悄悄话', icon: IconTag },
-      { to: '/pay', label: '支付', icon: IconWallet },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],
   },

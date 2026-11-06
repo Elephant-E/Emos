@@ -16,7 +16,6 @@ import { LiveView } from '@/views/LiveView'
 import { LinesView } from '@/views/LinesView'
 import { MusicView } from '@/views/MusicView'
 import { SongDetailView } from '@/views/SongDetailView'
-import { PayView } from '@/views/PayView'
 import { UserDetailView } from '@/views/UserDetailView'
 import { RecycleView } from '@/views/RecycleView'
 import { UserSearchView } from '@/views/UserSearchView'
@@ -224,14 +223,21 @@ function SongRoute() {
   return <SongDetailView songId={Number(songId)} />
 }
 
-const payRoute = createRoute({ getParentRoute: () => appLayout, path: '/pay', component: PayView })
+const payRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/pay',
+  beforeLoad: () => {
+    throw redirect({ to: '/fund', search: { tab: 'merchant', page: 1, size: 20 } })
+  },
+})
 
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
-  validateSearch: (s: Record<string, unknown>): { page: number; size: number } => ({
+  validateSearch: (s: Record<string, unknown>): { page: number; size: number; tab: 'orders' | 'merchant' } => ({
     page: asPage(s.page),
     size: asPageSize(s.size),
+    tab: s.tab === 'merchant' ? 'merchant' : 'orders',
   }),
   component: FundRoute,
 })
@@ -241,6 +247,8 @@ function FundRoute() {
   const navigate = fundRoute.useNavigate()
   return (
     <FundView
+      tab={search.tab}
+      onTab={(tab) => navigate({ search: { ...search, tab } })}
       page={search.page}
       pageSize={search.size}
       onPage={(page) => navigate({ search: { ...search, page } })}

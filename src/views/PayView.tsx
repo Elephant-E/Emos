@@ -16,7 +16,7 @@ const PAY_STATUS: Record<string, string> = {
   refund: '已退款',
 }
 
-export function PayView() {
+export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const base = usePayBase()
   const [no, setNo] = useState('')
   const [lookup, setLookup] = useState('')
@@ -28,6 +28,7 @@ export function PayView() {
 
   return (
     <>
+      {!embedded ? (
       <PageHeader
         crumb={['支付']}
         title="支付"
@@ -41,6 +42,7 @@ export function PayView() {
           ) : null
         }
       />
+      ) : null}
 
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock

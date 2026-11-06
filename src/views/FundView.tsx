@@ -7,10 +7,13 @@ import { Pager } from '@/components/Pager'
 import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatDateTime, formatThousand } from '@/lib/format'
+import { PayView } from '@/views/PayView'
 
 type Row = Record<string, unknown>
 
-export function FundView({ page, pageSize, onPage, onPageSize }: {
+export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
+  tab: 'orders' | 'merchant'
+  onTab: (tab: 'orders' | 'merchant') => void
   page: number
   pageSize: number
   onPage: (page: number) => void
@@ -61,24 +64,39 @@ export function FundView({ page, pageSize, onPage, onPageSize }: {
   return (
     <>
       <PageHeader
-        crumb={['基金', '订单']}
-        title="基金订单"
-        hint={orders.data ? `${formatThousand(total)} 笔` : undefined}
+        crumb={['资金', tab === 'orders' ? '基金订单' : '支付服务']}
+        title="资金"
+        hint={tab === 'orders' && orders.data ? `${formatThousand(total)} 笔` : undefined}
         tools={
-          <button className="btn btn--ghost" onClick={() => setCreating(true)}>
-            新建订单
-          </button>
+          tab === 'orders' ? (
+            <button className="btn btn--ghost" onClick={() => setCreating(true)}>
+              新建订单
+            </button>
+          ) : null
         }
       />
 
-      {orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
-      {orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
+      <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="资金">
+          <button className="tab" role="tab" aria-selected={tab === 'orders'} onClick={() => onTab('orders')}>
+            基金订单
+          </button>
+          <button className="tab" role="tab" aria-selected={tab === 'merchant'} onClick={() => onTab('merchant')}>
+            支付服务
+          </button>
+        </div>
+      </div>
 
-      {!orders.isLoading && !orders.error && rows.length === 0 ? (
+      {tab === 'merchant' ? <PayView embedded /> : null}
+
+      {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
+      {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
+
+      {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (
         <EmptyBlock title="还没有基金订单" hint="用活动码新建一笔，再去客户端兑换。" />
       ) : null}
 
-      {rows.length > 0 ? (
+      {tab === 'orders' && rows.length > 0 ? (
         <div className="table-card">
           <table className="table">
             <thead>
