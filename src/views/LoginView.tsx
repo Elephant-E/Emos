@@ -90,16 +90,14 @@ export function LoginView({ onDone }: { onDone: () => void }) {
 
       <section className="login__panel">
         <div className="login__card">
-          <p className="login__eyebrow">登录</p>
-          <h2 className="login__title">用 EMOS 账号继续</h2>
-          <p className="login__sub">在 emos.best 授权后回到这里，无需手动复制任何东西。</p>
+          <h2 className="login__title">登录</h2>
 
           <a className="btn btn--primary login__cta" href={authUrl()}>
-            前往 emos.best 授权登录
+            使用 EMOS 账号登录
           </a>
 
           <button className="login__toggle" type="button" onClick={() => setManual((value) => !value)} aria-expanded={manual}>
-            {manual ? '收起令牌登录' : '或使用访问令牌登录'}
+            {manual ? '收起' : '使用访问令牌'}
           </button>
 
           {manual ? (
@@ -161,8 +159,6 @@ export function LoginView({ onDone }: { onDone: () => void }) {
         </div>
 
         <p className="login__foot">
-          令牌只存在本机 localStorage
-          <span aria-hidden="true">·</span>
           <a href="https://wiki.emos.best" target="_blank" rel="noreferrer">
             文档
           </a>
