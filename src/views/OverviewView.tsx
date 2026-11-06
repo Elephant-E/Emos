@@ -124,8 +124,20 @@ export function OverviewView() {
             </button>
           </p>
           <p className="stat__value">
-            {!ready ? '—' : signedToday ? (signInfo?.continuous_days ?? 0) : '—'}
-            <small>{!ready ? '读取中' : signedToday ? '天连续' : '还没签到'}</small>
+            {!ready ? (
+              <>
+                —
+                <small>读取中</small>
+              </>
+            ) : signedToday ? (
+              <>
+                {signInfo?.continuous_days ?? 0}
+                <small>天连续</small>
+              </>
+            ) : (
+              // 未签到是有数据的状态，不该用表示「没取到」的破折号
+              <span className="stat__word">今天未签</span>
+            )}
           </p>
           <p className="stat__delta stat__delta--quiet">
             {signedToday ? `今天 +${signInfo?.earn_point ?? 0} 胡萝卜` : '签到可得胡萝卜'}

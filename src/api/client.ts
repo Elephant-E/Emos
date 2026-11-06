@@ -63,7 +63,9 @@ async function withRetry<T>(fn: () => Promise<T>, attempts: number): Promise<T> 
     } catch (error) {
       lastError = error
       const status = (error as { status?: number }).status
-      if (status !== 0 || i === attempts - 1) throw error
+      // 0 = 网络层失败；502/503/504 = 代理或上游临时不可用，GET 可安全重试
+      const retryable = status === 0 || status === 502 || status === 503 || status === 504
+      if (!retryable || i === attempts - 1) throw error
       await new Promise((resolve) => setTimeout(resolve, 300 * (i + 1)))
     }
   }
