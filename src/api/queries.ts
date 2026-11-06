@@ -411,7 +411,7 @@ export function useAccountMutations() {
     exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
-    sign: useMutation({ mutationFn: () => userApi.sign(), onSuccess: invalidate }),
+    sign: useMutation({ mutationFn: (content?: string) => userApi.sign(content), onSuccess: invalidate }),
     invite: useMutation({ mutationFn: (payload: { id: string; remark: string }) => inviteApi.create(payload.id, payload.remark || null), onSuccess: invalidate }),
     revoke: useMutation({ mutationFn: (userId: string) => inviteApi.revoke(userId), onSuccess: invalidate }),
     transfer: useMutation({ mutationFn: (payload: { userId: string; carrot: number }) => carrotApi.transfer(payload.userId, payload.carrot), onSuccess: invalidate }),

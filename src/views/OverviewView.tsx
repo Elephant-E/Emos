@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock } from '@/components/StateBlock'
+import { Modal } from '@/components/Modal'
 import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useTodos, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -42,13 +44,34 @@ export function OverviewView() {
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
 
+  const [signing, setSigning] = useState(false)
+  const [signNote, setSignNote] = useState('')
+
+  const refreshCarrot = () => {
+    void qc.invalidateQueries({ queryKey: ['session'] })
+    void qc.invalidateQueries({ queryKey: ['carrot'] })
+    void qc.invalidateQueries({ queryKey: ['todos'] })
+  }
+
   const sign = useMutation({
-    mutationFn: () => userApi.sign(),
+    // content 可选：带上「说点什么」会额外获得随机胡萝卜
+    mutationFn: (content?: string) => userApi.sign(content),
     onSuccess: (res) => {
-      toast(`签到成功，+${res.earn_point} 胡萝卜`, 'success')
-      void qc.invalidateQueries({ queryKey: ['session'] })
-      void qc.invalidateQueries({ queryKey: ['carrot'] })
-      void qc.invalidateQueries({ queryKey: ['todos'] })
+      toast(`第 ${res.sign_index} 位签到 · 连续 ${res.continuous_days} 天 · +${res.earn_point} 胡萝卜`, 'success')
+      setSigning(false)
+      setSignNote('')
+      refreshCarrot()
+    },
+    onError: (error) => {
+      const status = (error as { status?: number }).status
+      const message = (error as Error).message ?? ''
+      if (status === 429 || message.includes('重复')) {
+        // 重复签到不是故障，是今天已经签过了
+        toast('今天已经签过了', 'info')
+        setSigning(false)
+        setSignNote('')
+        refreshCarrot()
+      }
     },
   })
 
@@ -118,9 +141,9 @@ export function OverviewView() {
             <button
               className="btn btn--quiet"
               disabled={signedToday || sign.isPending}
-              onClick={() => sign.mutate()}
+              onClick={() => setSigning(true)}
             >
-              {signedToday ? '今天已签' : sign.isPending ? '签到中…' : '立即签到'}
+              {signedToday ? '今天已签' : '立即签到'}
             </button>
           </p>
           <p className="stat__value">
@@ -355,6 +378,36 @@ export function OverviewView() {
         </article>
 
       </section>
+      {signing ? (
+        <Modal
+          title="今日签到"
+          hint="说点什么会有额外的随机胡萝卜，留空也能签。"
+          width={420}
+          onClose={() => setSigning(false)}
+        >
+          <div className="stack">
+            <input
+              className="input"
+              value={signNote}
+              maxLength={10}
+              autoFocus
+              placeholder="对自己说点什么…（最多 10 字）"
+              onChange={(event) => setSignNote(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') sign.mutate(signNote.trim() || undefined)
+              }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn--ghost" onClick={() => setSigning(false)}>
+                取消
+              </button>
+              <button className="btn btn--primary" disabled={sign.isPending} onClick={() => sign.mutate(signNote.trim() || undefined)}>
+                {sign.isPending ? '签到中…' : '签到'}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
     </>
   )
 }

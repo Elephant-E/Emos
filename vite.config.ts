@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
+import https from 'node:https'
 import { readFile } from 'node:fs/promises'
 
 const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.club'
@@ -44,6 +45,9 @@ export default defineConfig({
           'EMOS-PROXY-NAME': '@Elephant',
           'EMOS-PROXY-ID': 'e7E6K6OE4s',
         },
+        // Vue/Node 代理默认复用 keep-alive 连接，上游（Cloudflare）会静默回收空闲连接，
+        // 复用时就抛 ECONNRESET。curl 每次新建连接所以正常，这解释了「curl 通、页面报错」。
+        agent: new https.Agent({ keepAlive: false }),
         // 上游偶发 ECONNRESET 时默认会返回 500，客户端不会重试。
         // 改成 504，让 buildUrl 的重试逻辑（502/503/504）接手。
         configure: (proxy: { on: (event: string, handler: (...args: unknown[]) => void) => void }) => {
