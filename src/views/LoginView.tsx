@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { request } from '@/api/client'
+import { LOGIN_POSTERS } from '@/views/login-posters'
 
 const TOKEN_KEY = 'emos_admin_token'
-const BACKDROP = 'https://files.emos.best/files/base/logo/logo_1.jpg'
 
 type Phase = 'idle' | 'checking' | 'error'
 
@@ -14,7 +14,7 @@ function readPrefill(): string {
 
 function authUrl(): string {
   const url = `${location.origin}/login`
-  const params = new URLSearchParams({ uuid: 'emos-admin', name: 'EMOS 管理台', url })
+  const params = new URLSearchParams({ uuid: 'emos-admin', name: 'EMOS Club', url })
   return `https://emos.best/link?${params.toString()}`
 }
 
@@ -59,13 +59,19 @@ export function LoginView({ onDone }: { onDone: () => void }) {
 
   return (
     <main className="login">
-      <img className="login__backdrop" src={BACKDROP} alt="" aria-hidden="true" />
+      <div className="login__wall" aria-hidden="true">
+        <div className="login__wall-track">
+          {[...LOGIN_POSTERS, ...LOGIN_POSTERS].map((src, index) => (
+            <img key={`${src}-${index}`} src={src} alt="" loading="lazy" referrerPolicy="no-referrer" />
+          ))}
+        </div>
+      </div>
       <div className="login__veil" aria-hidden="true" />
 
       <section className="login__aside">
         <p className="login__mark">
           <span>EMOS</span>
-          <em>管理台</em>
+          <em>Club</em>
         </p>
         <h1 className="login__claim">
           把片库、求片与上传
@@ -75,6 +81,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
         <p className="login__line">
           echo <i>+</i> media <i>+</i> oasis <i>=</i> emos
         </p>
+
         <div className="login__strip" aria-hidden="true">
           <div className="login__strip-track">
             {Array.from({ length: 18 }).map((_, index) => (
@@ -82,12 +89,6 @@ export function LoginView({ onDone }: { onDone: () => void }) {
             ))}
           </div>
         </div>
-
-        <ul className="login__facts">
-          <li>永久公益</li>
-          <li>自研架构</li>
-          <li>网页端管理</li>
-        </ul>
       </section>
 
       <section className="login__panel">
