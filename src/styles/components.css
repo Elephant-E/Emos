@@ -1324,18 +1324,14 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .login__panel {
   display: grid;
-  gap: 0;
-  align-content: center;
+  gap: 16px;
   justify-items: stretch;
-  width: 340px;
-  min-height: 260px;
-  padding-left: 60px;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  width: 380px;
   align-self: center;
 }
 
 .login__kicker {
-  margin: 0 0 18px;
+  margin: 0 0 14px;
   font-size: 13px;
   letter-spacing: 0.32em;
   color: var(--fg-4);
@@ -1344,6 +1340,12 @@ th.num .th-sort { flex-direction: row-reverse; }
 .login__card {
   display: grid;
   gap: 14px;
+  padding: 30px 28px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(18, 17, 20, 0.72);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
   animation: page-in var(--t-enter) var(--ease);
 }
 
@@ -1373,7 +1375,7 @@ th.num .th-sort { flex-direction: row-reverse; }
 }
 
 .login__cta {
-  height: 44px;
+  height: 42px;
   font-size: 13.5px;
   letter-spacing: 0.02em;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -1387,6 +1389,21 @@ th.num .th-sort { flex-direction: row-reverse; }
   color: #fff;
 }
 
+.login__or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 2px;
+  font-size: 12.5px;
+  color: var(--fg-4);
+}
+.login__or::before,
+.login__or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+}
 .login__toggle {
   justify-self: start;
   margin-top: 18px;
@@ -1426,13 +1443,19 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .login__error { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--c-red); }
 
-.login__submit { width: 100%; height: 36px; }
+.login__submit { width: 100%; height: 38px; font-size: 13.5px; }
+.login__submit:disabled {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--fg-5);
+  box-shadow: none;
+}
 
 .login__foot {
   display: flex;
   gap: 8px;
-  justify-content: flex-start;
-  margin: 34px 0 0;
+  justify-content: center;
+  margin: 0;
   font-size: 12.5px;
   color: var(--fg-5);
 }

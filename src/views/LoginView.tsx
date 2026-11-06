@@ -23,7 +23,6 @@ export function LoginView({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [message, setMessage] = useState('')
   const [reveal, setReveal] = useState(false)
-  const [manual, setManual] = useState(Boolean(readPrefill()))
 
   useEffect(() => {
     if (token) void submit(token)
@@ -98,12 +97,9 @@ export function LoginView({ onDone }: { onDone: () => void }) {
             使用 EMOS 账号登录
           </a>
 
-          <button className="login__toggle" type="button" onClick={() => setManual((value) => !value)} aria-expanded={manual}>
-            {manual ? '收起' : '使用访问令牌'}
-          </button>
+          <p className="login__or"><span>或使用访问令牌</span></p>
 
-          {manual ? (
-            <form
+          <form
               className="login__manual"
               onSubmit={(event) => {
                 event.preventDefault()
@@ -147,17 +143,10 @@ export function LoginView({ onDone }: { onDone: () => void }) {
                   {message}
                 </p>
               ) : null}
-              <button className="btn btn--ghost login__submit" disabled={!token.trim() || phase === 'checking'}>
+              <button className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
                 {phase === 'checking' ? '正在验证…' : '用令牌进入'}
               </button>
-            </form>
-          ) : null}
-
-          {!manual && message ? (
-            <p className="login__error" role="alert">
-              {message}
-            </p>
-          ) : null}
+          </form>
         </div>
 
         <p className="login__foot">
