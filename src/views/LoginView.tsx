@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { request } from '@/api/client'
-import { IconLogo } from '@/components/icons'
 
 const TOKEN_KEY = 'emos_admin_token'
+const BACKDROP = 'https://files.emos.best/files/base/logo/logo_1.jpg'
 
 type Phase = 'idle' | 'checking' | 'error'
 
@@ -12,13 +12,19 @@ function readPrefill(): string {
   return search.get('token') ?? hashParams.get('token') ?? ''
 }
 
+function authUrl(): string {
+  const url = `${location.origin}/login`
+  const params = new URLSearchParams({ uuid: 'emos-admin', name: 'EMOS 管理台', url })
+  return `https://emos.best/link?${params.toString()}`
+}
+
 export function LoginView({ onDone }: { onDone: () => void }) {
   const [token, setToken] = useState(readPrefill)
   const [phase, setPhase] = useState<Phase>('idle')
   const [message, setMessage] = useState('')
   const [reveal, setReveal] = useState(false)
+  const [manual, setManual] = useState(Boolean(readPrefill()))
 
-  // 带 token 进来（主站快捷登录）时自动校验一次
   useEffect(() => {
     if (token) void submit(token)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -30,114 +36,142 @@ export function LoginView({ onDone }: { onDone: () => void }) {
     setPhase('checking')
     setMessage('')
     try {
-      // 用这份令牌直接验一次，验过才写进本地，避免带着坏令牌进入后台
-      await request('/api/user', {
-        token: trimmed,
-        silent401: true,
-        signal: AbortSignal.timeout(12_000),
-      })
+      await request('/api/user', { token: trimmed, silent401: true, signal: AbortSignal.timeout(12_000) })
       localStorage.setItem(TOKEN_KEY, trimmed)
       onDone()
     } catch (error) {
       const status = (error as { status?: number }).status
+      const aborted = (error as Error).name === 'TimeoutError' || (error as Error).name === 'AbortError'
       setPhase('error')
       setMessage(
-        (error as Error).name === 'TimeoutError' || status === undefined && /abort/i.test((error as Error).message)
+        aborted
           ? '验证超时，服务器没有及时响应。检查网络后重试。'
           : status === 401
-          ? '令牌无效或已失效，请重新获取。'
-          : status === 403
-            ? '这个令牌没有后台权限。'
-            : status === 0
-              ? '连不上服务器，检查网络后重试。'
-              : (error as Error).message || '验证失败，稍后再试。',
+            ? '令牌无效或已失效，请重新获取。'
+            : status === 403
+              ? '这个令牌没有后台权限。'
+              : status === 0
+                ? '连不上服务器，检查网络后重试。'
+                : (error as Error).message || '验证失败，稍后再试。',
       )
     }
   }
 
   return (
     <main className="login">
-      <div className="login__glow" aria-hidden="true" />
+      <img className="login__backdrop" src={BACKDROP} alt="" aria-hidden="true" />
+      <div className="login__veil" aria-hidden="true" />
 
-      <form
-        className="login__card"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void submit(token)
-        }}
-      >
-        <div className="login__brand">
-          <IconLogo size={18} />
+      <section className="login__aside">
+        <p className="login__mark">
           <span>EMOS</span>
           <em>管理台</em>
+        </p>
+        <h1 className="login__claim">
+          把片库、求片与上传
+          <br />
+          收在一个地方。
+        </h1>
+        <p className="login__line">
+          echo <i>+</i> media <i>+</i> oasis <i>=</i> emos
+        </p>
+        <div className="login__strip" aria-hidden="true">
+          {Array.from({ length: 9 }).map((_, index) => (
+            <i key={index} className={index === 4 ? 'is-lit' : undefined} />
+          ))}
         </div>
 
-        <h1 className="login__title">用访问令牌进入</h1>
-        <p className="login__sub">令牌只保存在这台设备的浏览器里，不会上传到任何第三方。</p>
+        <ul className="login__facts">
+          <li>永久公益</li>
+          <li>自研架构</li>
+          <li>网页端管理</li>
+        </ul>
+      </section>
 
-        <div className="login__field">
-          <label className="login__label" htmlFor="token">
-            访问令牌
-          </label>
-          <div className="login__input">
-            <input
-              id="token"
-              className="input"
-              type={reveal ? 'text' : 'password'}
-              value={token}
-              autoFocus
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="例如 1090_xxxxxxxxxxxx"
-              aria-invalid={phase === 'error'}
-              aria-describedby={message ? 'token-error' : undefined}
-              onChange={(event) => {
-                setToken(event.target.value)
-                if (phase === 'error') {
-                  setPhase('idle')
-                  setMessage('')
-                }
+      <section className="login__panel">
+        <div className="login__card">
+          <p className="login__eyebrow">登录</p>
+          <h2 className="login__title">用 EMOS 账号继续</h2>
+          <p className="login__sub">在 emos.best 授权后回到这里，无需手动复制任何东西。</p>
+
+          <a className="btn btn--primary login__cta" href={authUrl()}>
+            前往 emos.best 授权登录
+          </a>
+
+          <button className="login__toggle" type="button" onClick={() => setManual((value) => !value)} aria-expanded={manual}>
+            {manual ? '收起令牌登录' : '或使用访问令牌登录'}
+          </button>
+
+          {manual ? (
+            <form
+              className="login__manual"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void submit(token)
               }}
-            />
-            <button
-              type="button"
-              className="login__reveal"
-              aria-label={reveal ? '隐藏令牌' : '显示令牌'}
-              onClick={() => setReveal((value) => !value)}
             >
-              {reveal ? '隐藏' : '显示'}
-            </button>
-          </div>
-          {message ? (
-            <p className="login__error" id="token-error" role="alert">
+              <label className="login__label" htmlFor="token">
+                访问令牌
+              </label>
+              <div className="login__input">
+                <input
+                  id="token"
+                  className="input"
+                  type={reveal ? 'text' : 'password'}
+                  value={token}
+                  autoFocus
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="1090_xxxxxxxxxxxx"
+                  aria-invalid={phase === 'error'}
+                  aria-describedby={message ? 'token-error' : undefined}
+                  onChange={(event) => {
+                    setToken(event.target.value)
+                    if (phase === 'error') {
+                      setPhase('idle')
+                      setMessage('')
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="login__reveal"
+                  aria-label={reveal ? '隐藏令牌' : '显示令牌'}
+                  onClick={() => setReveal((value) => !value)}
+                >
+                  {reveal ? '隐藏' : '显示'}
+                </button>
+              </div>
+              {message ? (
+                <p className="login__error" id="token-error" role="alert">
+                  {message}
+                </p>
+              ) : null}
+              <button className="btn btn--ghost login__submit" disabled={!token.trim() || phase === 'checking'}>
+                {phase === 'checking' ? '正在验证…' : '用令牌进入'}
+              </button>
+            </form>
+          ) : null}
+
+          {!manual && message ? (
+            <p className="login__error" role="alert">
               {message}
             </p>
           ) : null}
         </div>
 
-        <button className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
-          {phase === 'checking' ? '正在验证…' : '进入'}
-        </button>
-
-        <details className="login__help">
-          <summary>令牌从哪里来</summary>
-          <p>
-            在 emos.best 登录后，于账号页复制访问令牌；或在主站用 <code>#/sign?token=</code> 快捷链接直接带回这里。
-          </p>
-        </details>
-      </form>
-
-      <footer className="login__foot">
-        <span>令牌仅存于 localStorage</span>
-        <span aria-hidden="true">·</span>
-        <a href="https://wiki.emos.best" target="_blank" rel="noreferrer">
-          文档
-        </a>
-        <span aria-hidden="true">·</span>
-        <a href="https://status.emos.best" target="_blank" rel="noreferrer">
-          服务状态
-        </a>
-      </footer>
+        <p className="login__foot">
+          令牌只存在本机 localStorage
+          <span aria-hidden="true">·</span>
+          <a href="https://wiki.emos.best" target="_blank" rel="noreferrer">
+            文档
+          </a>
+          <span aria-hidden="true">·</span>
+          <a href="https://status.emos.best" target="_blank" rel="noreferrer">
+            服务状态
+          </a>
+        </p>
+      </section>
     </main>
   )
 }
