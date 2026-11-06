@@ -27,6 +27,8 @@ function fail(status: number, message: string, payload?: unknown): ApiError {
   return err
 }
 export interface RequestOptions {
+  /** 覆盖本地令牌，仅用于登录校验 */
+  token?: string
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   query?: Record<string, unknown>
   body?: unknown
@@ -81,7 +83,7 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
   }
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (body !== undefined) headers['Content-Type'] = 'application/json'
-  const token = getToken()
+  const token = options.token ?? getToken()
   if (token) headers.Authorization = `Bearer ${token}`
   let res: Response
   try {
