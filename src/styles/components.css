@@ -1324,12 +1324,21 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .login__panel {
   display: grid;
-  gap: 26px;
+  gap: 0;
+  align-content: center;
   justify-items: stretch;
-  max-width: 360px;
-  padding-left: 44px;
+  width: 340px;
+  min-height: 260px;
+  padding-left: 60px;
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   align-self: center;
+}
+
+.login__kicker {
+  margin: 0 0 18px;
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--fg-4);
 }
 
 .login__card {
@@ -1363,11 +1372,25 @@ th.num .th-sort { flex-direction: row-reverse; }
   color: var(--fg-3);
 }
 
-.login__cta { height: 46px; font-size: 14px; letter-spacing: 0.02em; }
+.login__cta {
+  height: 44px;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--fg);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.login__cta:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
 
 .login__toggle {
   justify-self: start;
-  margin-top: -2px;
+  margin-top: 18px;
+  font-size: 13px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1409,9 +1432,8 @@ th.num .th-sort { flex-direction: row-reverse; }
   display: flex;
   gap: 8px;
   justify-content: flex-start;
-  margin: 0;
-  margin: 0;
-  font-size: 12px;
+  margin: 34px 0 0;
+  font-size: 12.5px;
   color: var(--fg-5);
 }
 .login__foot a { color: var(--fg-4); text-decoration: none; }

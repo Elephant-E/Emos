@@ -93,7 +93,8 @@ export function LoginView({ onDone }: { onDone: () => void }) {
 
       <section className="login__panel">
         <div className="login__card">
-          <a className="btn btn--primary login__cta" href={authUrl()}>
+          <p className="login__kicker">登录</p>
+          <a className="btn login__cta" href={authUrl()}>
             使用 EMOS 账号登录
           </a>
 
