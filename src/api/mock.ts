@@ -463,6 +463,10 @@ export async function mockRequest<T>(
     return [
       { user_id: 'eXD3VD3Y1s', username: 'sorakand', invite_at: '2026-01-17 10:10:10', invite_user_id: 'emos', is_disabled: false, join_at: '2026-01-17 00:06:35', last_video_player: '2026-11-02 12:42:04', last_telegram_message: '2026-10-14 15:16:27', last_user_sign: '2026-11-03 15:34:57' },
       { user_id: 'e1000Xs', username: 'lin', invite_at: '2026-10-01 10:00:00', invite_user_id: 'eXD3VD3Y1s', is_disabled: false, join_at: '2026-10-01 10:05:00', last_video_player: '2026-11-01 20:00:00', last_telegram_message: null, last_user_sign: '2026-11-03 08:00:00' },
+      { user_id: 'e1001Xs', username: 'zhou', invite_at: '2026-10-02 10:00:00', invite_user_id: 'eXD3VD3Y1s', is_disabled: false, join_at: '2026-10-02 10:05:00', last_video_player: '2026-10-30 19:00:00', last_telegram_message: null, last_user_sign: '2026-11-01 09:00:00' },
+      { user_id: 'e1004Xs', username: 'xuan', invite_at: '2026-10-08 09:00:00', invite_user_id: 'eXD3VD3Y1s', is_disabled: true, join_at: '2026-10-08 09:02:00', last_video_player: null, last_telegram_message: null, last_user_sign: null },
+      { user_id: 'e1002Xs', username: 'chen', invite_at: '2026-10-03 10:00:00', invite_user_id: 'e1000Xs', is_disabled: false, join_at: '2026-10-03 10:05:00', last_video_player: null, last_telegram_message: null, last_user_sign: null },
+      { user_id: 'e1003Xs', username: 'kai', invite_at: '2026-10-04 10:00:00', invite_user_id: 'e1001Xs', is_disabled: false, join_at: '2026-10-04 10:05:00', last_video_player: null, last_telegram_message: null, last_user_sign: null },
     ] as T
   }
   if (clean === '/api/carrot/history') {

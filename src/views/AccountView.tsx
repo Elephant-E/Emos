@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import {
   useAccountMutations,
@@ -71,6 +71,24 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     }
     walk(me, 1)
     return out
+  })()
+
+  // 合并「我邀请的」与「下级邀请的」：同一个表里用缩进区分层级，
+  // 最近播放来自 inviteHistory（只有直接邀请的人才有）
+  const inviteRows = (() => {
+    const nameById = new Map<string, string>()
+    for (const node of tree.data ?? []) nameById.set(node.user_id, node.username)
+    const playedById = new Map<string, string | null>()
+    for (const row of inviteHistory.data?.items ?? []) playedById.set(String(row.user_id), (row.last_video_player as string) ?? null)
+    return myTree.map((node) => ({
+      userId: node.user_id,
+      username: node.username,
+      depth: node.depth,
+      joinAt: node.join_at,
+      isDisabled: Boolean(node.is_disabled),
+      invitedBy: node.depth > 1 ? (nameById.get(node.invite_user_id ?? '') ?? null) : null,
+      lastPlayed: playedById.get(node.user_id) ?? null,
+    }))
   })()
 
   return (
@@ -390,39 +408,46 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             </article>
           </section>
 
-          <section className="cards cards--wide" style={{ marginTop: 18 }}>
-            <article className="card">
-              <p className="stat__label">邀请记录</p>
-              {inviteHistory.isLoading ? <LoadingBlock bare rows={5} columns={4} /> : null}
-              {inviteHistory.data && inviteHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有邀请过别人" /> : null}
-              {inviteHistory.data && inviteHistory.data.items.length > 0 ? (
-                <>
-                  <table className="table table--inset">
-                    <thead>
-                      <tr>
-                        <th>用户</th>
-                        <th style={{ width: 130 }}>邀请时间</th>
-                        <th style={{ width: 130 }}>最近播放</th>
-                        <th style={{ width: 96 }}>操作</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {inviteHistory.data.items.map((row) => (
-                        <tr key={String(row.user_id)}>
-                          <td>
-                            <Link
-                              to="/users/$userId"
-                              params={{ userId: String(row.user_id) }}
-                              className="cell-title__name"
-                              style={{ color: 'var(--fg)' }}
-                            >
-                              {String(row.username ?? '—')}
-                            </Link>
-                            <span className="cell-title__code">{String(row.user_id)}</span>
-                          </td>
-                          <td className="muted">{formatDateTime(row.invite_at as string)}</td>
-                          <td className="muted">{formatDateTime(row.last_video_player as string)}</td>
-                          <td>
+          {myTree.length > 0 ? (
+            <section className="cards cards--wide" style={{ marginTop: 18 }}>
+              <article className="card">
+                <div className="card-head">
+                  <p className="stat__label" style={{ margin: 0 }}>我的邀请</p>
+                  <span className="muted tnum-sm">
+                    直接 {myTree.filter((n) => n.depth === 1).length} · 合计 {formatThousand(myTree.length)} 人
+                  </span>
+                </div>
+                <table className="table table--inset">
+                  <thead>
+                    <tr>
+                      <th>用户</th>
+                      <th style={{ width: 130 }}>加入时间</th>
+                      <th style={{ width: 130 }}>最近播放</th>
+                      <th style={{ width: 96 }}>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {inviteRows.slice(0, 50).map((row) => (
+                      <tr key={row.userId}>
+                        <td style={{ paddingLeft: 24 + (row.depth - 1) * 20 }}>
+                          <Link
+                            to="/users/$userId"
+                            params={{ userId: row.userId }}
+                            className="cell-title__name"
+                            style={{ color: 'var(--fg)' }}
+                          >
+                            {row.username}
+                          </Link>
+                          <span className="cell-title__code">
+                            {row.userId}
+                            {row.invitedBy ? ` · 由 ${row.invitedBy} 邀请` : ''}
+                            {row.isDisabled ? ' · 已禁用' : ''}
+                          </span>
+                        </td>
+                        <td className="muted">{formatDateTime(row.joinAt)}</td>
+                        <td className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</td>
+                        <td>
+                          {row.depth === 1 ? (
                             <button
                               className="btn btn--quiet"
                               onClick={async () => {
@@ -434,51 +459,22 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                                   danger: true,
                                 })
                                 if (!ok) return
-                                actions.revoke.mutate(String(row.user_id), { onSuccess: () => toast('已撤销', 'success') })
+                                actions.revoke.mutate(row.userId, { onSuccess: () => toast('已撤销', 'success') })
                               }}
                             >
                               撤销
                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="table-foot">
-                    <span>共 {inviteHistory.data.total} 人</span>
-                  </div>
-                </>
-              ) : null}
-            </article>
-          </section>
-
-          {myTree.length > 0 ? (
-            <section className="cards cards--wide" style={{ marginTop: 18 }}>
-              <article className="card">
-                <div className="card-head">
-                  <p className="stat__label" style={{ margin: 0 }}>我的邀请</p>
-                  <span className="muted tnum-sm">共 {formatThousand(myTree.length)} 人</span>
-                </div>
-                <ul className="stack--loose stack--top">
-                  {myTree.slice(0, 30).map((node) => (
-                    <li
-                      key={node.user_id}
-                      className="row text-sm"
-                      style={{ paddingLeft: (node.depth - 1) * 18 }}
-                    >
-                      <Link to="/users/$userId" params={{ userId: node.user_id }} style={{ color: 'var(--fg-2)' }}>
-                        {node.username}
-                      </Link>
-                      <span className="muted tnum-sm">
-                        {node.user_id} · 加入 {formatDateTime(node.join_at)}
-                      </span>
-                      {node.is_disabled ? <span className="badge badge--warn"><i />已禁用</span> : null}
-                    </li>
-                  ))}
-                </ul>
-                {myTree.length > 30 ? (
+                          ) : (
+                            <span className="muted">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {inviteRows.length > 50 ? (
                   <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
-                    只列出前 30 位，完整名单见邀请记录。
+                    只列出前 50 位。
                   </p>
                 ) : null}
               </article>
