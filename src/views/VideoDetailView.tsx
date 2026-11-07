@@ -373,7 +373,9 @@ export function VideoDetailView({
                   <div style={{ width: 84, height: 112, borderRadius: 8, background: 'var(--raised)' }} />
                 )}
                 <span style={{ fontSize: 12.5, color: 'var(--fg-2)' }}>{person.name}</span>
-                <span style={{ fontSize: 11, color: 'var(--fg-4)' }}>{person.job ?? person.title ?? ''}</span>
+                <span style={{ fontSize: 11, color: 'var(--fg-4)' }}>
+                  {person.job ?? (person.title ? `饰 ${person.title}` : '')}
+                </span>
               </div>
             ))}
           </div>
