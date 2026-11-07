@@ -289,15 +289,17 @@ export function VideoDetailView({
                         <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td style={{ textAlign: 'right' }}>
-                          <button
-                            className="row-menu"
-                            aria-label="操作"
-                            onClick={() =>
-                              setRenaming({ mediaId, name: String(row.media_name ?? '') })
-                            }
-                          >
-                            <IconDots />
-                          </button>
+                          {row.is_self_upload ? (
+                            <button
+                              className="row-menu"
+                              aria-label="操作"
+                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? '') })}
+                            >
+                              <IconDots />
+                            </button>
+                          ) : (
+                            <span className="muted">只读</span>
+                          )}
                         </td>
                       </tr>
                     )
@@ -337,9 +339,13 @@ export function VideoDetailView({
                         <td className="muted">{String(row.subtitle_codec)}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td style={{ textAlign: 'right' }}>
-                          <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
-                            <IconDots />
-                          </button>
+                          {row.is_self_upload ? (
+                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
+                              <IconDots />
+                            </button>
+                          ) : (
+                            <span className="muted">只读</span>
+                          )}
                         </td>
                       </tr>
                     )

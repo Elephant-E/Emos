@@ -347,8 +347,8 @@ export async function mockRequest<T>(
   if (clean === '/api/live/media') {
     return paginate(
       [
-        { media_id: 'lgqjrvnnwzxd', name: '三网直达 1080p', path_type: 'm3u8', path_url: 'http://live.local/cctv1.m3u8', status: 'ok', pseudonym: 'sorakand', is_can_edit: true, created_at: '2026-11-01T10:00:00Z' },
-        { media_id: 'mgqjrvnnwzxe', name: '电信线路', path_type: 'flv', path_url: 'http://live.local/cctv1.flv', status: 'ok', pseudonym: 'lin', is_can_edit: false, created_at: '2026-10-30T10:00:00Z' },
+        { media_id: 'lgqjrvnnwzxd', name: '三网直达 1080p', path_type: 'm3u8', path_url: 'http://live.local/cctv1.m3u8', status: 'normal', pseudonym: 'sorakand', is_can_edit: true, created_at: '2026-11-01T10:00:00Z' },
+        { media_id: 'mgqjrvnnwzxe', name: '电信线路', path_type: 'flv', path_url: 'http://live.local/cctv1.flv', status: 'normal', pseudonym: 'lin', is_can_edit: false, created_at: '2026-10-30T10:00:00Z' },
       ],
       1,
       50,
