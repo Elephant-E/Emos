@@ -24,6 +24,11 @@ export const userApi = {
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),
   videoHistory: () => request<Array<{ device_client: string; device_name: string; device_id: string; device_version: string; last_used_at: string }>>('/api/user/server/videoHistory'),
   videoLogout: (deviceId: string | null = null) => request<{ logout_count: number }>('/api/user/server/videoLogout', { method: 'POST', body: { device_id: deviceId } }),
+  // 下面三个接口 Postman 未收录，但旧项目在用，实测 originalImage 有效。
+  // 注意 originalImage 是 toggle：请求体参数被忽略，返回翻转后的值。
+  originalImage: () => request<{ is_original_image: boolean }>('/api/user/originalImage', { method: 'PUT', body: {} }),
+  unbindTelegram: () => request<unknown>('/api/user/telegram', { method: 'DELETE' }),
+  resetToken: () => request<unknown>('/api/user/resetToken', { method: 'PUT' }),
   statsVideoHistory: (dates: string[]) => request<Array<Record<string, unknown>>>('/api/user/stats/video/history', { query: { dates } }),
 }
 
@@ -290,7 +295,9 @@ export const lotteryApi = {
 
 export const banApi = {
   list: () => request<BanItem[]>('/api/ban/list'),
-  change: (type: 'disable' | 'unblock', userId: string, reason?: string) => request<CarrotDelta>('/api/ban/change', { method: 'PUT', query: { type, user_id: userId, reason } }),
+  // reason 对 disable 与 unblock 都是必填，缺了直接 422
+  change: (type: 'disable' | 'unblock', userId: string, reason = '后台操作') =>
+    request<CarrotDelta>('/api/ban/change', { method: 'PUT', query: { type, user_id: userId, reason } }),
 }
 
 export const musicApi = {

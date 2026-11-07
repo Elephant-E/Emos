@@ -33,7 +33,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       <PageHeader
         crumb={['直播', channel?.title ?? '频道']}
         title="直播"
-        hint={list.data ? `${list.data.total} 个频道` : undefined}
         tools={
           <span className="stamp">
             <i />

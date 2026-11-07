@@ -29,6 +29,7 @@ const user: UserInfo = {
   invite_remaining: 3,
   is_have_emps: false,
   slot_remaining: 2,
+  password: '123456',
   size_upload: 0,
   carrot: 4210,
   sign: { sign_index: 12, sign_at: '2026-11-04 09:00:00', earn_point: 2, continuous_days: 7 },

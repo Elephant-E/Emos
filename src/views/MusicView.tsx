@@ -6,7 +6,7 @@ import { Pager } from '@/components/Pager'
 import { IconDots } from '@/components/icons'
 import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { formatThousand } from '@/lib/format'
+import { } from '@/lib/format'
 
 export interface MusicSearch {
   page: number
@@ -45,7 +45,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       <PageHeader
         crumb={['音乐', TABS.find((t) => t.key === search.tab)?.label ?? '歌曲']}
         title="音乐"
-        hint={active.data ? `${formatThousand(active.data.total)} 条` : undefined}
         tools={
           <span className="stamp">
             <i />

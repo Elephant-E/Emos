@@ -102,8 +102,8 @@ function VideoDetailRoute() {
 const accountRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/account',
-  validateSearch: (s: Record<string, unknown>): { tab: 'profile' | 'invite' | 'carrot' | 'ban' } => ({
-    tab: s.tab === 'invite' || s.tab === 'carrot' || s.tab === 'ban' ? s.tab : 'profile',
+  validateSearch: (s: Record<string, unknown>): { tab: 'profile' | 'invite' } => ({
+    tab: s.tab === 'invite' ? 'invite' : 'profile',
   }),
   component: AccountRoute,
 })

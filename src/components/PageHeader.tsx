@@ -22,7 +22,7 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
         </nav>
         <h1 className="page-title">
           {title}
-          {hint ? <span>{hint}</span> : null}
+          {hint ? <span className="page-title__hint">{hint}</span> : null}
         </h1>
       </div>
       {tools ? <div className="head-tools">{tools}</div> : null}

@@ -48,6 +48,8 @@ export interface UserInfo extends UserBase {
   is_have_emps: boolean
   slot_remaining: number
   size_upload: number
+  /** 服的登录密码；must_otp 为 true 时是一次性密码 */
+  password: string
   carrot: number
   sign: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
@@ -115,6 +117,8 @@ export interface VideoEpisode {
 }
 
 export interface VideoPerson {
+  /** 文件 id（不是 URL），拼 https://image.theotherdb.org/original/{id} 使用 */
+  image_profile: string | null
   id: number
   person_id: number
   name: string

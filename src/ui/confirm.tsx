@@ -14,6 +14,12 @@ interface Pending extends ConfirmOptions {
 }
 
 let open: ((options: ConfirmOptions) => Promise<boolean>) | null = null
+let openCount = 0
+
+/** 确认框是叠在弹层之上的，Esc 应只关它，不能穿透到底层弹层 */
+export function isConfirmOpen(): boolean {
+  return openCount > 0
+}
 
 export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
   if (!open) return Promise.resolve(window.confirm(options.title))
@@ -27,6 +33,7 @@ export function ConfirmHost() {
   useEffect(() => {
     open = (options) =>
       new Promise<boolean>((resolve) => {
+        openCount += 1
         const next: Pending = { ...options, resolve }
         current.current = next
         setPending(next)
@@ -37,7 +44,9 @@ export function ConfirmHost() {
   }, [])
 
   const settle = (ok: boolean) => {
-    current.current?.resolve(ok)
+    if (!current.current) return
+    openCount = Math.max(0, openCount - 1)
+    current.current.resolve(ok)
     current.current = null
     setPending(null)
   }
@@ -45,15 +54,18 @@ export function ConfirmHost() {
   useEffect(() => {
     if (!pending) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') return settle(false)
+      if (e.key === 'Escape') {
+        e.stopImmediatePropagation()
+        return settle(false)
+      }
       if (e.key !== 'Enter') return
       const active = document.activeElement as HTMLElement | null
       if (active?.dataset.confirmAction === 'cancel') return
       e.preventDefault()
       settle(true)
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
   })
 
   if (!pending) return null
@@ -73,13 +85,18 @@ export function ConfirmHost() {
         {pending.hint ? <p className="confirm__hint">{pending.hint}</p> : null}
 
         <div className="confirm__foot">
-          <button className="btn btn--ghost" data-confirm-action="cancel" onClick={() => settle(false)}>
+          <button
+            className="btn btn--ghost"
+            data-confirm-action="cancel"
+            autoFocus={pending.danger}
+            onClick={() => settle(false)}
+          >
             {pending.cancelText ?? '取消'}
           </button>
           <button
             className={pending.danger ? 'btn btn--danger' : 'btn btn--primary'}
             onClick={() => settle(true)}
-            autoFocus
+            autoFocus={!pending.danger}
           >
             {pending.confirmText ?? '确定'}
           </button>

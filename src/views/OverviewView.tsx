@@ -39,7 +39,7 @@ export function OverviewView() {
   const todoItems = [
     { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page: 1, page_size: 20, tab: 'default' as const } },
     { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
-    { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/account' as const, search: { tab: 'ban' as const } },
+    { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
   ].filter((item) => (item.value ?? 0) > 0)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()

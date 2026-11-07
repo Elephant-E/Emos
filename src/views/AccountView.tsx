@@ -3,13 +3,10 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconRight } from '@/components/icons'
 import {
   useAccountMutations,
   useCapabilities,
-  useBanList,
   useCarrot,
-  useCarrotHistory,
   useInviteHistory,
   useInviteInfo,
   useInviteTree,
@@ -17,9 +14,9 @@ import {
 } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime, formatRelative, formatThousand } from '@/lib/format'
+import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
 
-type Tab = 'profile' | 'invite' | 'carrot' | 'ban'
+type Tab = 'profile' | 'invite'
 
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'profile', label: '资料' },
@@ -30,10 +27,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const session = useSession()
   const carrot = useCarrot()
   const info = useInviteInfo()
-  const bans = useBanList()
   const actions = useAccountMutations()
   const caps = useCapabilities()
 
+  const [showPassword, setShowPassword] = useState(false)
   const [pseudonym, setPseudonym] = useState('')
   const [password, setPassword] = useState<{ password: number; second: number } | null>(null)
   const [resetting, setResetting] = useState(false)
@@ -47,8 +44,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
   const inviteHistory = useInviteHistory(1)
   const tree = useInviteTree()
-  const [carrotPage, setCarrotPage] = useState(1)
-  const carrotHistory = useCarrotHistory(carrotPage)
 
   useEffect(() => {
     if (session.data) setPseudonym(session.data.pseudonym ?? '')
@@ -109,24 +104,75 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </p>
             </article>
             <article className="card">
-              <p className="stat__label">上传</p>
+              <p className="stat__label">累计上传</p>
               <p className="stat__value">
-                {user.is_can_upload ? '已开通' : '未开通'}
-                <small>上传权限</small>
+                {formatSize(user.size_upload)}
               </p>
               <p className="stat__delta stat__delta--quiet">
-                已占用 {formatThousand(Math.round(user.size_upload / 1024 / 1024))} MB
+                {user.is_can_upload ? '上传权限已开通' : '上传权限未开通'}
               </p>
             </article>
             <article className="card">
-              <p className="stat__label">安全</p>
+              <p className="stat__label">片单槽位</p>
               <p className="stat__value">
-                {user.must_otp ? '需 OTP' : '常规'}
-                <small>登录策略</small>
+                {user.slot_remaining}
+                <small>个可用</small>
               </p>
-              <p className="stat__delta stat__delta--quiet">
-                {user.telegram_user_id ? '已绑定 Telegram' : '未绑定 Telegram'}
-              </p>
+              <p className="stat__delta stat__delta--quiet">可用胡萝卜兑换</p>
+            </article>
+          </section>
+
+          <section className="cards cards--wide">
+            <article className="card">
+              <div className="card-head">
+                <p className="stat__label" style={{ margin: 0 }}>客户端登录</p>
+                <span className="muted tnum-sm">在播放器里填这些地址</span>
+              </div>
+              <dl className="kv" style={{ marginTop: 'var(--stack)' }}>
+                {[
+                  ['视频服', user.server_video],
+                  ['直播服', user.server_live],
+                  ['音乐服', user.server_music],
+                ].map(([label, url]) =>
+                  url ? (
+                    <div key={String(label)}>
+                      <dt>{label}</dt>
+                      <dd>
+                        <button
+                          className="btn btn--quiet"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(String(url))
+                            toast(`已复制${label}地址`, 'success')
+                          }}
+                        >
+                          {String(url).replace(/^https?:\/\//, '')} · 复制
+                        </button>
+                      </dd>
+                    </div>
+                  ) : null,
+                )}
+                <div>
+                  <dt>登录密码</dt>
+                  <dd>
+                    {showPassword ? (
+                      <button
+                        className="btn btn--quiet tnum"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(user.password)
+                          toast('已复制密码', 'success')
+                        }}
+                      >
+                        {user.password} · 复制
+                      </button>
+                    ) : (
+                      <button className="btn btn--quiet" onClick={() => setShowPassword(true)}>
+                        显示
+                      </button>
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              {user.must_otp ? <p className="card-note" style={{ marginTop: 'var(--stack)' }}>该密码是一次性密码，登录后请改永久密码。</p> : null}
             </article>
           </section>
 
@@ -163,6 +209,48 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   />
                   显示空媒体库
                 </label>
+
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={user.is_original_image}
+                    disabled={actions.toggleOriginalImage.isPending}
+                    onChange={() =>
+                      actions.toggleOriginalImage.mutate(undefined, {
+                        onSuccess: (res) => toast(res.is_original_image ? '已开启高清海报' : '已关闭高清海报', 'success'),
+                      })
+                    }
+                  />
+                  高清海报
+                </label>
+
+                <div className="row" style={{ gap: 12 }}>
+                  <span className="muted text-sm">
+                    Telegram {user.telegram_user_id ? `已绑定 ${user.telegram_user_id}` : '未绑定'}
+                  </span>
+                  {user.telegram_user_id ? (
+                    <button
+                      className="btn btn--danger-text"
+                      disabled={actions.unbindTelegram.isPending}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: '解绑 Telegram？',
+                          message: '解绑后将收不到机器人通知。',
+                          confirmText: '解绑',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.unbindTelegram.mutate(undefined, { onSuccess: () => toast('已解绑', 'success') })
+                      }}
+                    >
+                      解绑
+                    </button>
+                  ) : user.telegram_bind_url ? (
+                    <a className="btn btn--quiet" href={user.telegram_bind_url} target="_blank" rel="noreferrer">
+                      去绑定
+                    </a>
+                  ) : null}
+                </div>
 
                 <div className="detail-stats" style={{ marginTop: 4 }}>
                   <div className="detail-stat">
@@ -240,7 +328,13 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
                 {password ? (
                   <p className="state__hint note-left">
-                    临时密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
+                    {password.password ? (
+                      <>
+                        临时密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
+                      </>
+                    ) : (
+                      <>未启用一次性密码，请用上面的登录密码。</>
+                    )}
                   </p>
                 ) : null}
               </div>
@@ -368,131 +462,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         </>
       ) : null}
 
-      {tab === 'carrot' ? (
-        <>
-          <section className="cards cards--2">
-            <article className="card">
-              <p className="stat__label">当前余额</p>
-              <p className="stat__value">
-                {formatThousand(carrot.data?.carrot ?? user?.carrot)}
-                <small>个</small>
-              </p>
-            </article>
-            <article className="card">
-              <p className="stat__label">转赠</p>
-              <button className="btn btn--ghost" style={{ marginTop: 12 }} onClick={() => setTransferring(true)}>
-                转给别人
-              </button>
-              <p className="state__hint note-left" style={{ marginTop: 10 }}>
-                单次 2 – 6000 个，双方都会收到通知。
-              </p>
-            </article>
-          </section>
 
-          <section className="cards cards--wide" style={{ marginTop: 18 }}>
-            <article className="card">
-              <p className="stat__label">变化记录</p>
-              {carrotHistory.isLoading ? <LoadingBlock bare rows={5} columns={3} /> : null}
-              {carrotHistory.data && carrotHistory.data.items.length === 0 ? <EmptyBlock bare title="还没有记录" /> : null}
-              {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
-                <>
-                  <table className="table table--inset">
-                    <thead>
-                      <tr>
-                        <th>来源</th>
-                        <th style={{ width: 120 }}>时间</th>
-                        <th className="num" style={{ width: 100 }}>变动</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {carrotHistory.data.items.map((row, i) => (
-                        <tr key={`${row.created_at}-${i}`}>
-                          <td className="text-body" style={{ fontSize: 13 }}>{String(row.trigger_type_string || row.trigger_type)}</td>
-                          <td className="muted">{formatDateTime(String(row.created_at))}</td>
-                          <td className={row.point >= 0 ? 'num mark-up' : 'num mark-down'}>
-                            {row.point > 0 ? '+' : ''}
-                            {row.point}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="table-foot">
-                    <span>共 {carrotHistory.data.total} 条</span>
-                    <div className="pager">
-                      <button disabled={carrotPage <= 1} onClick={() => setCarrotPage((p) => p - 1)} aria-label="上一页">
-                        <IconLeft />
-                      </button>
-                      <button aria-current="page">{carrotPage}</button>
-                      <button onClick={() => setCarrotPage((p) => p + 1)} aria-label="下一页">
-                        <IconRight />
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ) : null}
-            </article>
-          </section>
-        </>
-      ) : null}
-
-      {tab === 'ban' ? (
-        <section className="cards cards--wide">
-          <article className="card">
-            <p className="stat__label">封禁列表</p>
-            {bans.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {bans.data && bans.data.length === 0 ? <EmptyBlock bare title="没有被封禁的用户" /> : null}
-            {bans.data && bans.data.length > 0 ? (
-              <table className="table table--inset">
-                <thead>
-                  <tr>
-                    <th>用户</th>
-                    <th style={{ width: 200 }}>原因</th>
-                    <th style={{ width: 140 }}>封禁时间</th>
-                    <th className="cell-right" style={{ width: 96 }}>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bans.data.map((row) => (
-                    <tr key={row.user_id}>
-                      <td>
-                        <Link to="/users/$userId" params={{ userId: row.user_id }} className="cell-title__name" style={{ color: 'var(--fg)' }}>
-                          {row.username}
-                        </Link>
-                        <span className="cell-title__code">
-                          {row.user_id}
-                          {row.invite_pseudonym ? ` · 邀请人 ${row.invite_pseudonym}` : ''}
-                        </span>
-                      </td>
-                      <td className="muted">{row.disable_reason ?? '—'}</td>
-                      <td className="muted">{formatRelative(row.created_at)}</td>
-                      <td className="cell-right">
-                        <button
-                          className="btn btn--quiet"
-                          onClick={async () => {
-                            const ok = await confirmDialog({
-                              title: `解除 ${row.username} 的封禁？`,
-                              hint: '解除后对方可以立即恢复访问。',
-                              confirmText: '解除',
-                            })
-                            if (!ok) return
-                            actions.banChange.mutate(
-                              { type: 'unblock', userId: row.user_id },
-                              { onSuccess: () => toast('已解除封禁', 'success') },
-                            )
-                          }}
-                        >
-                          解除
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : null}
-          </article>
-        </section>
-      ) : null}
 
       {resetting ? (
         <Modal

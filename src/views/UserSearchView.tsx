@@ -21,7 +21,7 @@ export function UserSearchView() {
         crumb={['用户', '查询']}
         title="查用户"
         tools={
-          <Link className="btn btn--ghost" to="/account" search={{ tab: 'ban' }}>
+          <Link className="btn btn--ghost" to="/users">
             封禁列表
           </Link>
         }
@@ -58,7 +58,7 @@ export function UserSearchView() {
         <article className="card">
           <div className="card-head">
             <p className="stat__label" style={{ margin: 0 }}>最近封禁</p>
-            <Link className="btn btn--quiet" to="/account" search={{ tab: 'ban' }}>
+            <Link className="btn btn--quiet" to="/users">
               全部
             </Link>
           </div>

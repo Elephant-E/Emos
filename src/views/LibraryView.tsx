@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots, IconFilter, IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { Pager } from '@/components/Pager'
-import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
@@ -42,12 +43,16 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       <PageHeader
         crumb={['媒体库', search.type ? VIDEO_TYPE_LABEL[search.type] : '全部']}
         title="媒体库"
-        hint={data ? `${formatThousand(data.total)} 部` : undefined}
         tools={
-          <span className="stamp">
-            <i />
-            {isFetching ? '同步中' : '已同步'}
-          </span>
+          <>
+            <span className="stamp">
+              <i />
+              {isFetching ? '同步中' : '已同步'}
+            </span>
+            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, size: 20, q: '', by: 'media_id' }}>
+              回收站
+            </Link>
+          </>
         }
       />
 

@@ -120,7 +120,6 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       <PageHeader
         crumb={['资金', tab === 'orders' ? '基金订单' : '支付服务']}
         title="资金"
-        hint={tab === 'orders' && orders.data ? `${formatThousand(total)} 笔` : undefined}
         tools={
           tab === 'orders' ? (
             <button className="btn btn--ghost" onClick={() => setCreating(true)}>

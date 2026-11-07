@@ -26,7 +26,7 @@ export function UserDetailView({ userId }: { userId: string }) {
         hint={`#${userId}`}
         tools={
           <>
-            <Link className="btn btn--ghost" to="/account" search={{ tab: 'ban' }}>
+            <Link className="btn btn--ghost" to="/users">
               封禁列表
             </Link>
             {banned ? (
@@ -84,7 +84,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">账号状态</p>
               <p className="stat__value" style={{ color: banned ? 'var(--c-red)' : undefined }}>
-                {banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
+                <span className="stat__word">{banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}</span>
               </p>
               <p className="stat__delta stat__delta--quiet">
                 {banned

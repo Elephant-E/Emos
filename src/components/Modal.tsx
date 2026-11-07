@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { isConfirmOpen } from '@/ui/confirm'
 
 export function Modal({
   title,
@@ -36,6 +37,8 @@ export function Modal({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation()
+        // 确认框叠在弹层之上，此时 Esc 只应关掉确认框
+        if (isConfirmOpen()) return
         onClose()
         return
       }

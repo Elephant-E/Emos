@@ -406,6 +406,9 @@ export function useAccountMutations() {
   return {
     setPseudonym: useMutation({ mutationFn: (name: string) => userApi.pseudonym(name), onSuccess: invalidate }),
     setShowEmpty: useMutation({ mutationFn: (value: boolean) => userApi.showEmpty(value), onSuccess: invalidate }),
+    toggleOriginalImage: useMutation({ mutationFn: () => userApi.originalImage(), onSuccess: invalidate }),
+    unbindTelegram: useMutation({ mutationFn: () => userApi.unbindTelegram(), onSuccess: invalidate }),
+    resetToken: useMutation({ mutationFn: () => userApi.resetToken() }),
     agreeUpload: useMutation({ mutationFn: () => userApi.agreeUpload(), onSuccess: invalidate }),
     agreeDown: useMutation({ mutationFn: () => userApi.agreeDown(), onSuccess: invalidate }),
     exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),

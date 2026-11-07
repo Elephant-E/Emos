@@ -40,7 +40,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       <PageHeader
         crumb={['订单']}
         title="订单"
-        hint={orders.data ? `${orders.data.total} 单` : undefined}
         tools={
           <span className="stamp">
             <i />

@@ -30,7 +30,6 @@ export function LinesView() {
       <PageHeader
         crumb={['线路']}
         title="线路"
-        hint={lines.data ? `${lines.data.length} 条` : undefined}
         tools={
           <span className="stamp">
             <i />

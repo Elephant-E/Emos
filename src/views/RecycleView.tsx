@@ -5,7 +5,7 @@ import { Pager } from '@/components/Pager'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import {formatRelative, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 type Tab = 'media' | 'video'
 
@@ -73,7 +73,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       <PageHeader
         crumb={['回收站', tab === 'media' ? '资源' : '影片']}
         title="回收站"
-        hint={active.data ? `${formatThousand(total)} 条` : undefined}
         tools={
           <span className="stamp">
             <i />
@@ -101,7 +100,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         ) : null}
 
         <label className="field">
-          <span className="sr-only">搜索</span>
+          <span className="visually-hidden">搜索</span>
           <input
             className="input"
             type="search"

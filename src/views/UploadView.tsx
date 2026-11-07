@@ -27,6 +27,7 @@ export function UploadView() {
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [over, setOver] = useState(false)
   const [storage, setStorage] = useState('')
+  const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
   const [term, setTerm] = useState('')
 
@@ -262,15 +263,7 @@ export function UploadView() {
                       <button
                         className="row-menu"
                         aria-label="归档"
-                        onClick={async () => {
-                          try {
-                            const res = await uploadApi.archive({ path_type: storage, file_name: file.file_name })
-                            toast(`已归档，+${res.carrot} 胡萝卜`, 'success')
-                            storeFiles.refetch()
-                          } catch (err) {
-                            toast(err instanceof Error ? err.message : '归档失败', 'error')
-                          }
-                        }}
+                        onClick={() => setArchiving({ file_name: file.file_name })}
                       >
                         <IconDots />
                       </button>
@@ -282,6 +275,48 @@ export function UploadView() {
           ) : null}
         </article>
       </section>
+
+      {archiving ? (
+        <Modal title={`归档到影片 · ${archiving.file_name}`} onClose={() => setArchiving(null)} width={520}>
+          <label className="field">
+            <span>按片名搜索</span>
+            <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
+          </label>
+          <div style={{ display: 'grid', gap: 4, maxHeight: 320, overflowY: 'auto' }}>
+            {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
+            {(candidates.data?.items ?? []).map((video: VideoItem) => (
+              <div key={video.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>{video.video_title}</span>
+                <span className="muted" style={{ fontSize: 11.5 }}>#{video.video_id}</span>
+                <button
+                  className="btn btn--ghost"
+                  style={{ marginLeft: 'auto' }}
+                  onClick={async () => {
+                    try {
+                      const res = await uploadApi.archive({
+                        item_type: 'vl',
+                        item_id: video.video_id,
+                        path_type: storage,
+                        file_name: archiving.file_name,
+                      })
+                      toast(`已归档，+${res.carrot} 胡萝卜`, 'success')
+                      setArchiving(null)
+                      storeFiles.refetch()
+                    } catch (err) {
+                      toast(err instanceof Error ? err.message : '归档失败', 'error')
+                    }
+                  }}
+                >
+                  归档到这里
+                </button>
+              </div>
+            ))}
+            {term.trim() && !candidates.isFetching && (candidates.data?.items ?? []).length === 0 ? (
+              <p className="muted">没有找到「{term}」</p>
+            ) : null}
+          </div>
+        </Modal>
+      ) : null}
 
       {picking ? (
         <Modal title={`选择影片 · ${picking.file.name}`} onClose={() => setPicking(null)} width={520}>
