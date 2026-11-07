@@ -31,10 +31,7 @@ export function LinesView() {
         crumb={['线路']}
         title="线路"
         tools={
-          <span className="stamp">
-            <i />
-            反代线路
-          </span>
+          <span className="head-note">反代线路</span>
         }
       />
 

@@ -47,10 +47,14 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         crumb={['音乐', TABS.find((t) => t.key === search.tab)?.label ?? '歌曲']}
         title="音乐"
         tools={
-          <span className="stamp">
-            <i />
-            {active.isFetching ? '同步中' : '已同步'}
-          </span>
+          active.isFetching ? (
+            <span className="stamp">
+              <i />
+              同步中
+            </span>
+          ) : (
+            <span className="head-note">已同步</span>
+          )
         }
       />
 

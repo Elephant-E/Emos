@@ -58,10 +58,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         crumb={['求片', TABS.find((t) => t.key === search.tab)?.label ?? '全部']}
         title="求片"
         tools={
-          <span className="stamp">
-            <i />
-            {isFetching ? '拉取中' : '每 30 秒刷新'}
-          </span>
+          <span className="head-note">{isFetching ? '拉取中' : '每 30 秒刷新'}</span>
         }
       />
 

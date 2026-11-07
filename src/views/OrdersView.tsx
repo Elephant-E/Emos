@@ -42,10 +42,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         crumb={['订单']}
         title="订单"
         tools={
-          <span className="stamp">
-            <i />
-            {orders.isFetching ? '拉取中' : '商户视角'}
-          </span>
+          <span className="head-note">{orders.isFetching ? '拉取中' : '商户视角'}</span>
         }
       />
 

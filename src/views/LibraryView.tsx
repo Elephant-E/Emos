@@ -46,10 +46,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         title="媒体库"
         tools={
           <>
-            <span className="stamp">
-              <i />
-              {isFetching ? '同步中' : '已同步'}
-            </span>
+            {isFetching ? (
+              <span className="stamp">
+                <i />
+                同步中
+              </span>
+            ) : (
+              <span className="head-note">已同步</span>
+            )}
             <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, size: 20, q: '', by: 'media_id' }}>
               回收站
             </Link>

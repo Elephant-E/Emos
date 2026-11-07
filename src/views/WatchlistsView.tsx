@@ -69,10 +69,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         crumb={['片单', TABS.find((t) => t.key === search.scope)?.label ?? '全部']}
         title="片单"
         tools={
-          <span className="stamp">
-            <i />
-            片单槽位剩余 {session.data ? session.data.slot_remaining : '—'}
-          </span>
+          <span className="head-note">片单槽位剩余 {session.data ? session.data.slot_remaining : '—'}</span>
         }
       />
 

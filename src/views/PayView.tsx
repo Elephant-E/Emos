@@ -35,10 +35,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         hint={base.data ? base.data.name : undefined}
         tools={
           base.data ? (
-            <span className="stamp">
-              <i />
-              {base.data.status === 'pass' ? '已开通' : base.data.status}
-            </span>
+            <span className="head-note">{base.data.status === 'pass' ? '已开通' : base.data.status}</span>
           ) : null
         }
       />

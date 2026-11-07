@@ -97,10 +97,14 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         crumb={['直播', channel?.title ?? '频道']}
         title="直播"
         tools={
-          <span className="stamp">
-            <i />
-            {list.isFetching ? '拉取中' : '已同步'}
-          </span>
+          list.isFetching ? (
+            <span className="stamp">
+              <i />
+              拉取中
+            </span>
+          ) : (
+            <span className="head-note">已同步</span>
+          )
         }
       />
 
