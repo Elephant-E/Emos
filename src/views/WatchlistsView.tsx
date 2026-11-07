@@ -68,7 +68,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       <PageHeader
         crumb={['片单', TABS.find((t) => t.key === search.scope)?.label ?? '全部']}
         title="片单"
-        hint={data ? `${formatThousand(data.total)} 个` : undefined}
         tools={
           <span className="stamp">
             <i />
@@ -139,7 +138,15 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                         <span className="thumb">{watch.name.slice(0, 1)}</span>
                       )}
                       <span>
-                        <span className="cell-title__name">{watch.name}</span>
+                        <span className="cell-title__name">
+                          {watch.name}
+                          {watch.is_subscribe ? (
+                            <span className="badge badge--run" style={{ marginLeft: 8 }}>
+                              <i />
+                              已订阅
+                            </span>
+                          ) : null}
+                        </span>
                         <span className="cell-title__code">
                           {watch.is_self ? '我创建的' : watch.author?.username ?? '—'}
                           {watch.tags.length ? ` · ${watch.tags.join(' / ')}` : ''}
@@ -156,16 +163,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num">{formatThousand(watch.video_count)}</td>
                   <td className="num">{formatThousand(watch.subscribe_count)}</td>
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
-                  <td>
-                    {watch.is_subscribe ? (
-                      <span className="badge badge--run">
-                        <i />
-                        已订阅
-                      </span>
-                    ) : (
-                      <span className="muted">—</span>
-                    )}
-                  </td>
                   <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
                     {watch.is_self ? (
                       <button

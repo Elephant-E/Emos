@@ -57,7 +57,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       <PageHeader
         crumb={['求片', TABS.find((t) => t.key === search.tab)?.label ?? '全部']}
         title="求片"
-        hint={data ? `${formatThousand(data.total)} 条` : undefined}
         tools={
           <span className="stamp">
             <i />

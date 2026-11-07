@@ -286,7 +286,11 @@ export function OverviewView() {
           ) : null}
 
           {stats.data && stats.data.activeDays === 0 ? (
-            <p className="card-note">本周还没有观看记录，去媒体库挑一部吧～</p>
+            <p className="card-note">
+              {(watching.data?.length ?? 0) > 0
+                ? '统计只覆盖到昨天，今天的观看还没计入。'
+                : '本周还没有观看记录，去媒体库挑一部吧～'}
+            </p>
           ) : null}
 
           <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 6, height: 60 }}>
