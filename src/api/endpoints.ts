@@ -50,6 +50,24 @@ export const uploadApi = {
   storeFiles: (pathType: string) =>
     request<Array<{ file_name: string; file_size: number; mime_type: string }>>('/api/upload/store/file', { query: { path_type: pathType } }),
   archive: (payload: Record<string, unknown>) => request<{ media_id: string; carrot: number }>('/api/upload/store/archive', { method: 'POST', body: payload }),
+  // multipart：服务端分片上传（R2 S3 预签名）。token 返回 type=multipart 时走这条路
+  multipartPresign: (fileId: string, number: number) =>
+    request<Array<{ number: number; upload_url: string }>>(`/api/upload/multipart/${fileId}/presign`, {
+      method: 'POST',
+      body: { number },
+    }),
+  multipartComplete: (fileId: string, parts: Array<{ number: number; etag: string }>) =>
+    request<{ file_id: string }>(`/api/upload/multipart/${fileId}/complete`, { method: 'POST', body: { parts } }),
+  multipartAbort: (fileId: string) => request<unknown>(`/api/upload/multipart/${fileId}/abort`, { method: 'DELETE' }),
+
+  // 图片：上传后进图库，image/list 能查到
+  images: (params: { name?: string; date?: string }) =>
+    request<ListResult<{ file_id: string; url: string; file_name: string; file_size: number; created_at: string }>>(
+      '/api/upload/image/list',
+      { query: params },
+    ),
+  removeImage: (fileId: string) => request<unknown>('/api/upload/image/delete', { method: 'DELETE', query: { file_id: fileId } }),
+
   // file_size 为必填（字节），缺省会 422
   // file_storage 决定文件落到哪：global 国际 / internal 国内 / default 默认 /
   // zn_r2_upload Zn 存档服 / google_drive 谷歌盘。不传就是 default

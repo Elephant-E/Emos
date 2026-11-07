@@ -6,19 +6,10 @@ import { Modal } from '@/components/Modal'
 import { IconDots, IconPlus, IconUpload } from '@/components/icons'
 import { uploadApi, userApi, videoApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
-import { uploadAndSave, type UploadTarget } from '@/lib/uploader'
+import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES, uploadAndSave, type UploadTarget } from '@/lib/uploader'
 import { formatSize } from '@/lib/format'
 import { USE_MOCK } from '@/api/client'
 import type { VideoItem } from '@/api/types'
-
-// 取自 wiki /api/upload：getUploadToken 的 file_storage
-const STORAGE_OPTIONS = [
-  { value: 'default', label: '默认' },
-  { value: 'global', label: '国际' },
-  { value: 'internal', label: '国内' },
-  { value: 'zn_r2_upload', label: 'Zn 存档服' },
-  { value: 'google_drive', label: '谷歌盘' },
-]
 
 type Status = 'recognizing' | 'need-target' | 'ready' | 'uploading' | 'done' | 'failed'
 
@@ -38,7 +29,7 @@ export function UploadView() {
   // 暂存区浏览用的盘（/api/upload/store/disk 返回，如 local_emos_1）
   const [storage, setStorage] = useState('')
   // 上传文件落点（getUploadToken 的 file_storage），取值见 wiki
-  const [fileStorage, setFileStorage] = useState('default')
+  const [fileStorage, setFileStorage] = useState<string>(DEFAULT_UPLOAD_STORAGE)
   const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
   const [term, setTerm] = useState('')
@@ -137,7 +128,7 @@ export function UploadView() {
             onChange={(e) => setFileStorage(e.target.value)}
             aria-label="上传落点"
           >
-            {STORAGE_OPTIONS.map((opt) => (
+            {UPLOAD_STORAGES.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>

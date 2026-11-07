@@ -498,6 +498,18 @@ export async function mockRequest<T>(
   if (clean === '/api/user/passwordReset') return {} as T
   if (clean === '/api/user/sign') return { sign_index: 1, earn_point: 2, continuous_days: 7 } as T
 
+  if (clean === '/api/upload/image/list') {
+    const name = String(query.name ?? '').trim()
+    const rows = Array.from({ length: 8 }, (_, i) => ({
+      file_id: `img_${1000 + i}`,
+      url: poster(`gallery${i + 1}`),
+      file_name: ['封面-01.jpg', '封面-02.jpg', '海报-a.png', '海报-b.png', '横幅.png', '图标.png', '活动图.jpg', '周边.jpg'][i],
+      file_size: 120_000 + i * 9000,
+      created_at: '2026-11-0' + ((i % 5) + 1) + 'T10:00:00Z',
+    }))
+    return paginate(name ? rows.filter((r) => r.file_name.includes(name)) : rows, 1, 40) as T
+  }
+  if (clean === '/api/upload/image/delete') return { is_delete: true } as T
   if (clean === '/api/upload/store/disk') return ['local_emos_1', 'local_emos_2'] as T
   if (clean === '/api/upload/store/file') {
     return [

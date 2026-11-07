@@ -6,6 +6,7 @@ import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
+import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
@@ -409,6 +410,12 @@ export function ShopView({
             <span>名称</span>
             <input className="input" value={editing.name ?? ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} autoFocus />
           </label>
+          <ImagePicker
+            label="封面"
+            hint="从图库选一张，或直接上传"
+            value={editing.cover_url ?? null}
+            onChange={(url) => setEditing({ ...editing, cover_url: url })}
+          />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label className="field">
               <span>售价</span>

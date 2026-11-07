@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { ImagePicker } from '@/components/ImagePicker'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -31,7 +32,9 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
   const [removing, setRemoving] = useState(false)
-  const [form, setForm] = useState({ name: '', description: '', is_public: true, point: 0, tags: '' })
+  const [form, setForm] = useState<{ name: string; description: string; is_public: boolean; point: number; tags: string; image_poster_url: string | null }>({
+    name: '', description: '', is_public: true, point: 0, tags: '', image_poster_url: null,
+  })
 
   const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({
@@ -51,13 +54,14 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         is_public: form.is_public,
         point: form.point,
         tags: form.tags.split(/[,，\s]+/).filter(Boolean),
+        image_poster_url: form.image_poster_url,
         // 后端要求该字段必填，缺省会 422 is show empty 不能为空
         is_show_empty: true,
       }),
     onSuccess: () => {
       toast('片单已创建', 'success')
       setCreating(false)
-      setForm({ name: '', description: '', is_public: true, point: 0, tags: '' })
+      setForm({ name: '', description: '', is_public: true, point: 0, tags: '', image_poster_url: null })
       qc.invalidateQueries({ queryKey: ['watches'] })
     },
     onError: (err) => toast(err instanceof Error ? err.message : '创建失败', 'error'),
@@ -230,6 +234,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             <span>简介</span>
             <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </label>
+          <ImagePicker
+            label="封面"
+            hint="从图库选一张，或直接上传"
+            value={form.image_poster_url}
+            onChange={(url) => setForm({ ...form, image_poster_url: url })}
+          />
           <label className="field">
             <span>标签（逗号或空格分隔）</span>
             <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
