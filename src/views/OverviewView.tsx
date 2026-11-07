@@ -43,7 +43,7 @@ export function OverviewView() {
   ].filter((item) => (item.value ?? 0) > 0)
   // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡
   const showWatchlists = todoItems.length === 0
-  const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' })
+  const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
 

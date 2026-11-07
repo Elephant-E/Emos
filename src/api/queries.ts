@@ -184,14 +184,22 @@ export function useSeekPage(params: { page: number; page_size: number; status: S
   })
 }
 
-export function useWatchPage(params: {
-  page: number
-  page_size: number
-  type?: 'video' | 'music'
-  is_self?: boolean
-  is_subscribe?: boolean
-}) {
-  return useQuery({ queryKey: qk.watches(params), queryFn: () => watchApi.list(params), placeholderData: (prev) => prev })
+export function useWatchPage(
+  params: {
+    page: number
+    page_size: number
+    type?: 'video' | 'music'
+    is_self?: boolean
+    is_subscribe?: boolean
+  },
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: qk.watches(params),
+    queryFn: () => watchApi.list(params),
+    placeholderData: (prev) => prev,
+    enabled,
+  })
 }
 
 export function useWatch(watchId: number) {
