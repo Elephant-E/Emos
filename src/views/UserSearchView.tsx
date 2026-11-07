@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
-import { useBanList } from '@/api/queries'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { useAccountMutations, useBanList } from '@/api/queries'
+import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatRelative } from '@/lib/format'
 
 export function UserSearchView() {
   const navigate = useNavigate()
   const bans = useBanList()
+  const actions = useAccountMutations()
   const [value, setValue] = useState('')
 
   const submit = () => {
@@ -15,74 +19,87 @@ export function UserSearchView() {
     navigate({ to: '/users/$userId', params: { userId: id } })
   }
 
+  const unban = async (userId: string, name: string) => {
+    const ok = await confirmDialog({
+      title: `解除「${name}」的封禁？`,
+      message: '解除后该账号可以正常访问。',
+      confirmText: '解除',
+    })
+    if (!ok) return
+    actions.banChange.mutate({ type: 'unblock', userId }, { onSuccess: () => toast('已解除封禁', 'success') })
+  }
+
+  const rows = bans.data ?? []
+
   return (
     <>
-      <PageHeader
-        crumb={['用户', '查询']}
-        title="查用户"
-        tools={
-          <Link className="btn btn--ghost" to="/users">
-            封禁列表
-          </Link>
-        }
-      />
+      <PageHeader crumb={['用户']} title="用户" />
 
-      <section className="cards" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
-        <article className="card">
-          <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>用户 ID</p>
-          </div>
-          <div className="card-body">
-            <div style={{ display: 'flex', gap: 10 }}>
-              <input
-                className="input"
-                value={value}
-                placeholder="例如 eK98L0NEMs"
-                onChange={(event) => setValue(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') submit()
-                }}
-              />
-              <button className="btn btn--primary" disabled={!value.trim()} onClick={submit}>
-                查询
-              </button>
-            </div>
-            <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
-              用户 ID 会出现在邀请记录、封禁列表和订单里。服务商权限下的余额、观影、注册时间需要额外授权。
-            </p>
-          </div>
-        </article>
-      </section>
+      <div className="toolbar">
+        <input
+          className="input"
+          style={{ maxWidth: 280 }}
+          value={value}
+          placeholder="按用户 ID 查详情"
+          aria-label="按用户 ID 查详情"
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') submit()
+          }}
+        />
+        <button className="btn btn--primary" disabled={!value.trim()} onClick={submit}>
+          查详情
+        </button>
+        <span className="spacer" />
+        <span className="head-note">封禁列表来自最近一周的记录</span>
+      </div>
 
-      <section className="cards" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
-        <article className="card">
-          <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>最近封禁</p>
-            <Link className="btn btn--quiet" to="/users">
-              全部
-            </Link>
-          </div>
-          <div className="card-body">
-            {bans.isLoading ? <p className="card-note">读取中…</p> : null}
-            {bans.error ? <p className="card-note">取不到封禁列表，稍后再试～</p> : null}
-            {bans.data && bans.data.length === 0 ? <p className="card-note">目前没有封禁中的用户。</p> : null}
-            <ul style={{ display: 'grid', gap: 10 }}>
-              {(bans.data ?? []).slice(0, 5).map((row) => (
-                <li key={row.user_id} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13 }}>
-                  <Link
-                    to="/users/$userId"
-                    params={{ userId: row.user_id }}
-                    style={{ color: 'var(--fg-2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    {row.username ?? row.user_id}
-                  </Link>
-                  <span className="muted" style={{ fontSize: 11.5 }}>{formatRelative(row.created_at)}</span>
-                </li>
+      {bans.error ? <ErrorBlock error={bans.error as Error & { status?: number }} onRetry={() => bans.refetch()} /> : null}
+      {bans.isLoading ? <LoadingBlock rows={4} columns={3} /> : null}
+      {!bans.isLoading && !bans.error && rows.length === 0 ? <EmptyBlock title="没有封禁中的用户" /> : null}
+
+      {rows.length > 0 ? (
+        <div className="table-card content-in" key={rows.length}>
+          <table className="table table--fixed">
+            <thead>
+              <tr>
+                <th style={{ width: '34%' }}>用户</th>
+                <th style={{ width: '30%' }}>原因</th>
+                <th className="num" style={{ width: '18%' }}>封禁时间</th>
+                <th style={{ width: '96px', textAlign: 'right' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.user_id}>
+                  <td>
+                    <div className="cell-title">
+                      <span className="thumb">{(row.username ?? row.user_id).slice(0, 1)}</span>
+                      <span>
+                        <Link to="/users/$userId" params={{ userId: row.user_id }} className="cell-title__name">
+                          {row.username ?? row.user_id}
+                        </Link>
+                        <span className="cell-title__code">{row.user_id}</span>
+                      </span>
+                    </div>
+                  </td>
+                  <td className="muted ellipsis">{row.disable_reason ?? '—'}</td>
+                  <td className="num muted">{formatRelative(row.created_at)}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    <button
+                      className="btn btn--quiet"
+                      disabled={actions.banChange.isPending}
+                      onClick={() => unban(row.user_id, row.username ?? row.user_id)}
+                    >
+                      解除
+                    </button>
+                  </td>
+                </tr>
               ))}
-            </ul>
-          </div>
-        </article>
-      </section>
+            </tbody>
+          </table>
+        </div>
+      ) : null}
     </>
   )
 }
