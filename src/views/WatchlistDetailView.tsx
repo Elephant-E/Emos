@@ -5,7 +5,7 @@ import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
-import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { IconPlus } from '@/components/icons'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -44,7 +44,6 @@ export function WatchlistDetailView({
     return <WatchMusicList watchId={id} title={item.name} search={search} onSearch={onSearch} />
   }
 
-  const totalPages = videos.data ? Math.max(1, Math.ceil(videos.data.total / videos.data.page_size)) : 1
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
 
@@ -118,12 +117,6 @@ export function WatchlistDetailView({
         </section>
       ) : null}
 
-      {item && !item.is_edit_video ? (
-        <p className="card-note" style={{ marginTop: 12 }}>
-          你不是这个片单的维护者，只能查看和搜索，不能增删影片。
-        </p>
-      ) : null}
-
       <div className="toolbar">
         <input
           className="input"
@@ -157,7 +150,10 @@ export function WatchlistDetailView({
                 <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
                 <th style={{ width: '18%' }}>备注</th>
-                <th style={{ width: '14%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '14%', textAlign: 'right' }}>
+                  操作
+                  {item && !item.is_edit_video ? <span className="th-hint">非维护者</span> : null}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -207,26 +203,15 @@ export function WatchlistDetailView({
                       >
                         移出
                       </button>
-                    ) : null}
+                    ) : (
+                      <span className="muted">只读</span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span>
-              共 {formatThousand(videos.data.total)} 部 · 第 {search.page} / {totalPages} 页
-            </span>
-            <div className="pager">
-              <button disabled={search.page <= 1} onClick={() => go({ page: search.page - 1 })} aria-label="上一页">
-                <IconLeft />
-              </button>
-              <button aria-current="page">{search.page}</button>
-              <button disabled={search.page >= totalPages} onClick={() => go({ page: search.page + 1 })} aria-label="下一页">
-                <IconRight />
-              </button>
-            </div>
-          </div>
+          <Pager total={videos.data.total} page={search.page} pageSize={search.page_size} onPage={(page) => go({ page })} />
         </div>
       ) : null}
 
@@ -324,7 +309,6 @@ function WatchMusicList({
 }) {
   const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
   const { removeSong } = useWatchMusicMutations(watchId)
-  const totalPages = songs.data ? Math.max(1, Math.ceil(songs.data.total / songs.data.page_size)) : 1
 
   return (
     <>
@@ -408,18 +392,13 @@ function WatchMusicList({
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span className="muted">
-              共 {formatThousand(songs.data.total)} 首 · 第 {search.page} / {totalPages} 页
-            </span>
-            <Pager
-              total={songs.data.total}
-              page={search.page}
-              pageSize={search.page_size}
-              onPage={(page) => onSearch({ page })}
-              onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
-            />
-          </div>
+          <Pager
+            total={songs.data.total}
+            page={search.page}
+            pageSize={search.page_size}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
+          />
         </div>
       ) : null}
     </>
