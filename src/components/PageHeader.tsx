@@ -1,18 +1,48 @@
 import type { ReactNode } from 'react'
+import { Link } from '@tanstack/react-router'
 import { IconGrid } from './icons'
+
 interface PageHeaderProps {
   crumb: string[]
   title: string
   hint?: ReactNode
   tools?: ReactNode
 }
+
+/** 面包屑首段对应的列表页，点它能回到那一级 */
+const SECTION_PATH: Record<string, string> = {
+  概览: '/',
+  媒体库: '/library',
+  片单: '/watchlists',
+  求片: '/seek',
+  音乐: '/music',
+  上传: '/upload',
+  直播: '/live',
+  商城: '/shop',
+  订单: '/orders',
+  线路: '/lines',
+  用户: '/users',
+  资金: '/fund',
+  悄悄话: '/whisper',
+  账号: '/account',
+  回收站: '/recycle',
+}
+
 export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
+  const root = crumb[0]
+  const path = SECTION_PATH[root]
   return (
     <div className="page__head">
       <div>
         <nav className="crumb" aria-label="面包屑">
           <IconGrid />
-          <span>{crumb[0]}</span>
+          {path ? (
+            <Link className="crumb__link" to={path}>
+              {root}
+            </Link>
+          ) : (
+            <span>{root}</span>
+          )}
           {crumb[1] ? (
             <>
               <span className="crumb__sep">/</span>
