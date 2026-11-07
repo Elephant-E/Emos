@@ -483,7 +483,7 @@ export function useShopMutations() {
   }
 }
 
-export function useLiveList(page: number, libraryId: number, pageSize = 10) {
+export function useLiveList(page: number, libraryId: number, pageSize = 15) {
   return useQuery({
     queryKey: ['live', 'list', page, libraryId] as const,
     queryFn: () => liveApi.list({ page, page_size: pageSize, library_id: libraryId || undefined }),
@@ -494,10 +494,11 @@ export function useLiveLibrary() {
   return useQuery({ queryKey: ['live', 'library'] as const, queryFn: () => liveApi.library(), staleTime: 5 * 60_000 })
 }
 
-export function useLiveMedia(liveListId: number) {
+export function useLiveMedia(liveListId: number, page = 1) {
   return useQuery({
-    queryKey: ['live', 'media', liveListId] as const,
-    queryFn: () => liveApi.media(liveListId, { page: 1, page_size: 50 }),
+    queryKey: ['live', 'media', liveListId, page] as const,
+    // 该接口的 page_size 被后端固定成 15，传别的也没用
+    queryFn: () => liveApi.media(liveListId, { page }),
     enabled: liveListId > 0,
   })
 }

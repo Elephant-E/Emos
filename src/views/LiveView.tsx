@@ -19,7 +19,8 @@ export interface LiveSearch {
 export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
   const library = useLiveLibrary()
   const list = useLiveList(search.page, search.library)
-  const media = useLiveMedia(search.channel)
+  const [mediaPage, setMediaPage] = useState(1)
+  const media = useLiveMedia(search.channel, mediaPage)
   const actions = useLiveMutations()
 
   const [creating, setCreating] = useState(false)
@@ -121,6 +122,14 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                   </li>
                 ))}
               </ul>
+            ) : null}
+            {media.data && media.data.total > media.data.page_size ? (
+              <Pager
+                total={media.data.total}
+                page={mediaPage}
+                pageSize={media.data.page_size}
+                onPage={setMediaPage}
+              />
             ) : null}
           </article>
     </div>
