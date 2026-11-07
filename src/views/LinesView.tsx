@@ -9,21 +9,24 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime } from '@/lib/format'
 
-export function LinesView() {
+export interface LinesSearch {
+  page: number
+  size: number
+  q: string
+}
+
+export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch: (patch: Partial<LinesSearch>) => void }) {
   const lines = useLineList()
   const actions = useLineMutations()
   const [creating, setCreating] = useState(false)
-  const [term, setTerm] = useState('')
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(20)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
 
   const rows = (lines.data ?? []).filter((line) => {
-    const q = term.trim().toLowerCase()
+    const q = search.q.trim().toLowerCase()
     if (!q) return true
     return line.name.toLowerCase().includes(q) || line.url.toLowerCase().includes(q) || (line.tagline ?? '').toLowerCase().includes(q)
   })
-  const paged = rows.slice((page - 1) * pageSize, page * pageSize)
+  const paged = rows.slice((search.page - 1) * search.size, search.page * search.size)
 
   return (
     <>
@@ -40,8 +43,8 @@ export function LinesView() {
           className="input"
           type="search"
           placeholder="搜索名称、地址或简介"
-          value={term}
-          onChange={(e) => { setTerm(e.target.value); setPage(1) }}
+          value={search.q}
+          onChange={(e) => onSearch({ q: e.target.value, page: 1 })}
         />
         <span className="spacer" />
         <button className="btn btn--primary" onClick={() => setCreating(true)}>
@@ -53,7 +56,7 @@ export function LinesView() {
       {lines.error ? <ErrorBlock error={lines.error as Error & { status?: number }} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
       {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
-      {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title={`没有匹配「${term}」的线路`} /> : null}
+      {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title={`没有匹配「${search.q}」的线路`} /> : null}
 
       {paged.length > 0 ? (
         <div className="table-card">
@@ -116,11 +119,11 @@ export function LinesView() {
           </table>
           <Pager
             total={rows.length}
-            page={page}
-            pageSize={pageSize}
+            page={search.page}
+            pageSize={search.size}
             sizes={[20, 50]}
-            onPage={setPage}
-            onPageSize={(size) => { setPageSize(size); setPage(1) }}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(size) => onSearch({ size, page: 1 })}
           />
         </div>
       ) : null}

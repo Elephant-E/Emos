@@ -3,7 +3,8 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconLeft, IconPlus, IconRight } from '@/components/icons'
+import { Pager } from '@/components/Pager'
+import { IconPlus } from '@/components/icons'
 import { useShopCategories, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -27,12 +28,20 @@ const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'seller', label: '店铺' },
 ]
 
-export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
+export function ShopView({
+  tab,
+  page,
+  categoryId,
+  onSearch,
+}: {
+  tab: Tab
+  page: number
+  categoryId: number
+  onSearch: (patch: { tab?: Tab; page?: number; category?: number }) => void
+}) {
   const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
-  const [categoryId, setCategoryId] = useState(0)
-  const [page, setPage] = useState(1)
   const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId)
   const actions = useShopMutations()
 
@@ -40,7 +49,6 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
-  const totalPages = products.data ? Math.max(1, Math.ceil(products.data.total / products.data.page_size)) : 1
   const isSeller = seller.data?.is_self
 
   return (
@@ -77,7 +85,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
         <>
           <div className="toolbar" style={{ marginTop: 0 }}>
             <div className="tabs">
-              <button className="tab" aria-selected={categoryId === 0} onClick={() => { setCategoryId(0); setPage(1) }}>
+              <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
                 全部
               </button>
               {(categories.data ?? []).map((category) => (
@@ -85,7 +93,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
                   key={category.category_id}
                   className="tab"
                   aria-selected={categoryId === category.category_id}
-                  onClick={() => { setCategoryId(category.category_id); setPage(1) }}
+                  onClick={() => onSearch({ category: category.category_id, page: 1 })}
                 >
                   {category.name}
                 </button>
@@ -190,20 +198,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
                   ))}
                 </tbody>
               </table>
-              <div className="table-foot">
-                <span>
-                  共 {formatThousand(products.data.total)} 件 · 第 {page} / {totalPages} 页
-                </span>
-                <div className="pager">
-                  <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} aria-label="上一页">
-                    <IconLeft />
-                  </button>
-                  <button aria-current="page">{page}</button>
-                  <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} aria-label="下一页">
-                    <IconRight />
-                  </button>
-                </div>
-              </div>
+              <Pager total={products.data.total} page={page} pageSize={products.data.page_size} onPage={(next) => onSearch({ page: next })} />
             </div>
           ) : null}
         </>

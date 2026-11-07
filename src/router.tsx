@@ -117,8 +117,10 @@ function AccountRoute() {
 const shopRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/shop',
-  validateSearch: (s: Record<string, unknown>): { tab: 'products' | 'categories' | 'seller' } => ({
+  validateSearch: (s: Record<string, unknown>): { tab: 'products' | 'categories' | 'seller'; page: number; category: number } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
+    page: asPage(s.page),
+    category: Number(s.category) > 0 ? Number(s.category) : 0,
   }),
   component: ShopRoute,
 })
@@ -126,7 +128,14 @@ const shopRoute = createRoute({
 function ShopRoute() {
   const search = shopRoute.useSearch()
   const navigate = shopRoute.useNavigate()
-  return <ShopView tab={search.tab} onTab={(tab) => navigate({ search: { tab } })} />
+  return (
+    <ShopView
+      tab={search.tab}
+      page={search.page}
+      categoryId={search.category}
+      onSearch={(patch) => navigate({ search: { ...search, ...patch } })}
+    />
+  )
 }
 
 const ordersRoute = createRoute({
@@ -163,7 +172,28 @@ function LiveRoute() {
   return <LiveView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
 }
 
-const linesRoute = createRoute({ getParentRoute: () => appLayout, path: '/lines', component: LinesView })
+export interface LinesSearch {
+  page: number
+  size: number
+  q: string
+}
+
+const linesRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/lines',
+  validateSearch: (s: Record<string, unknown>): LinesSearch => ({
+    page: asPage(s.page),
+    size: asPageSize(s.size),
+    q: asString(s.q),
+  }),
+  component: LinesRoute,
+})
+
+function LinesRoute() {
+  const search = linesRoute.useSearch()
+  const navigate = linesRoute.useNavigate()
+  return <LinesView search={search} onSearch={(patch) => navigate({ search: { ...search, ...patch } })} />
+}
 
 const recycleRoute = createRoute({
   getParentRoute: () => appLayout,
