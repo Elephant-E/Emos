@@ -76,7 +76,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (
-        <EmptyBlock title="没有求片" hint="切换上方状态可查看其它阶段。" />
+        <EmptyBlock title="没有求片" />
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (

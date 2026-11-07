@@ -139,9 +139,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               <i />
               拉取中
             </span>
-          ) : (
-            <span className="head-note">已同步</span>
-          )
+          ) : null
         }
       />
 

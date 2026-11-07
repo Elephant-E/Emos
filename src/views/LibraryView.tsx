@@ -57,11 +57,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             {isFetching ? (
               <span className="stamp">
                 <i />
-                同步中
+                拉取中
               </span>
-            ) : (
-              <span className="head-note">已同步</span>
-            )}
+            ) : null}
             <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, size: 20, q: '', by: 'media_id' }}>
               回收站
             </Link>
@@ -107,7 +105,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
           title="没有匹配的影片"
-          hint={search.q ? `「${search.q}」没有结果，换个关键词或清空筛选。` : '片库还是空的，先上传或从 TMDB 检索入库。'}
+          hint={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
           action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
         />
       ) : null}

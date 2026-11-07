@@ -47,9 +47,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
       <PageHeader
         crumb={['线路']}
         title="线路"
-        tools={
-          <span className="head-note">反代线路</span>
-        }
       />
 
       <div className="toolbar">

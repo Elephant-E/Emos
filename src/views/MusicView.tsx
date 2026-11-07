@@ -58,11 +58,9 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           active.isFetching ? (
             <span className="stamp">
               <i />
-              同步中
+              拉取中
             </span>
-          ) : (
-            <span className="head-note">已同步</span>
-          )
+          ) : null
         }
       />
 

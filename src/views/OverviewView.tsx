@@ -227,7 +227,7 @@ export function OverviewView() {
           {watching.error ? <p className="card-note">暂时取不到观看记录，稍后刷新～</p> : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
-            <p className="card-note">还没有未看完的内容，去媒体库挑一部吧～</p>
+            <p className="card-note">还没有未看完的内容</p>
           ) : null}
 
           <ul className="stack">
@@ -289,7 +289,7 @@ export function OverviewView() {
             <p className="card-note">
               {(watching.data?.length ?? 0) > 0
                 ? '统计只覆盖到昨天，今天的观看还没计入。'
-                : '本周还没有观看记录，去媒体库挑一部吧～'}
+                : '本周还没有观看记录'}
             </p>
           ) : null}
 
@@ -353,7 +353,7 @@ export function OverviewView() {
             {myWatchlists.isLoading ? <div className="skeleton" style={{ height: 64, marginTop: 12 }} /> : null}
             {!myWatchlists.isLoading && (myWatchlists.data?.items.length ?? 0) === 0 ? (
               <p className="card-note" style={{ marginTop: 12 }}>
-                还没有自己的片单，去片单页建一个。
+                还没有自己的片单
               </p>
             ) : null}
 

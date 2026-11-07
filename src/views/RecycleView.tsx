@@ -84,9 +84,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       <PageHeader
         crumb={['回收站', tab === 'media' ? '资源' : '影片']}
         title="回收站"
-        tools={
-          <span className="head-note">删除后可在这里恢复</span>
-        }
       />
 
       <div className="toolbar">

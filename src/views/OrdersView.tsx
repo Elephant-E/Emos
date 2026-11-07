@@ -66,7 +66,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-      {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" hint="筛选项在上方，也可清空条件看全部。" /> : null}
+      {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" /> : null}
 
       {orders.data && orders.data.items.length > 0 ? (
         <div className="table-card content-in" key={`${orders.data.items.length}-${orders.data.items[0]?.order_no}-${orders.data.total}`}>
