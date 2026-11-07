@@ -252,7 +252,7 @@ export function ShopView({
           width={560}
           onClose={() => setPanel(null)}
           onSubmit={() => {
-            // 只有在新增分类输入框有内容时才让它承担回车
+            // 分类输入框有内容时回车才创建，否则不拦截
             if (newCategory.trim()) createCategory()
           }}
         >

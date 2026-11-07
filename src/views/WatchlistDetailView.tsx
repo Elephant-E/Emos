@@ -238,7 +238,7 @@ export function WatchlistDetailView({
               className="input"
               autoFocus
               value={term}
-              placeholder="输入片名，回车搜索"
+              placeholder="输入片名"
               onChange={(e) => setTerm(e.target.value)}
             />
           </label>
