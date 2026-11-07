@@ -184,64 +184,65 @@ export function VideoDetailView({
       {video ? (
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 0.85fr) minmax(0, 1.15fr)', gap: 18, marginTop: 18 }}>
         <article className="card" style={{ padding: '18px 20px' }}>
-          <p className="stat__label">季与集</p>
+          <div className="card-head">
+            <p className="stat__label" style={{ margin: 0 }}>季与集</p>
+            <span className="muted tnum-sm">
+              共 {seasons.data?.length ?? 0} 季 · 本季 {seasonEpisodes.length} 集
+            </span>
+          </div>
 
-          {seasons.isLoading ? <div className="skeleton" style={{ height: 120 }} /> : null}
+          {seasons.isLoading ? <div className="skeleton" style={{ height: 34, marginTop: 12 }} /> : null}
           {seasons.data && seasons.data.length > 0 ? (
-            <div className="tabs" style={{ marginBottom: 12, marginTop: 6, overflowX: 'auto', flexWrap: 'nowrap', scrollbarWidth: 'none' }}>
+            <select
+              className="input"
+              style={{ marginTop: 12 }}
+              value={season}
+              aria-label="选择季"
+              onChange={(event) => pick(Number(event.target.value), 1)}
+            >
               {seasons.data.map((s) => (
-                <button
-                  key={s.season_id}
-                  className="tab"
-                  role="tab"
-                  aria-selected={s.season_number === season}
-                  onClick={() => pick(s.season_number, 1)}
-                  style={{ flex: 'none' }}
-                >
+                <option key={s.season_id} value={s.season_number}>
                   {s.season_title || `第 ${s.season_number} 季`}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
           ) : null}
 
-          {episodes.isLoading ? <div className="skeleton" style={{ height: 160 }} /> : null}
+          {episodes.isLoading ? <div className="skeleton" style={{ height: 160, marginTop: 12 }} /> : null}
           {episodes.data && seasonEpisodes.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
+
           {seasonEpisodes.length > 0 ? (
-            <ul style={{ display: 'grid', gap: 2 }}>
-              {seasonEpisodes.map((ep) => {
-                const active = currentEpisode?.episode_id === ep.episode_id
-                return (
-                  <li key={ep.episode_id}>
+            <>
+              <div className="ep-grid" role="listbox" aria-label="选择集">
+                {seasonEpisodes.map((ep) => {
+                  const active = currentEpisode?.episode_id === ep.episode_id
+                  return (
                     <button
+                      key={ep.episode_id}
+                      role="option"
+                      aria-selected={active}
+                      className={`ep-chip${active ? ' is-active' : ''}`}
+                      title={ep.episode_title || `第 ${ep.episode_number} 集`}
                       onClick={() => pick(ep.season_number, ep.episode_number)}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '8px 10px',
-                        borderRadius: 10,
-                        border: 0,
-                        textAlign: 'left',
-                        background: active ? 'rgba(255,255,255,0.07)' : 'transparent',
-                        color: active ? 'var(--fg)' : 'var(--fg-2)',
-                        cursor: 'pointer',
-                      }}
                     >
-                      <span className="tnum" style={{ width: 26, color: 'var(--fg-4)', flex: 'none' }}>
-                        {String(ep.episode_number).padStart(2, '0')}
-                      </span>
-                      <span style={{ flex: 1, minWidth: 0, display: 'grid', gap: 2 }}>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ep.episode_title}</span>
-                        <span className="muted" style={{ fontSize: 11.5 }}>
-                          {ep.runtime ? `${ep.runtime} 分` : '—'} · {ep.medias_count} 资源 · {ep.subtitles_count} 字幕
-                        </span>
-                      </span>
+                      {String(ep.episode_number).padStart(2, '0')}
                     </button>
-                  </li>
-                )
-              })}
-            </ul>
+                  )
+                })}
+              </div>
+
+              {currentEpisode ? (
+                <div className="ep-current">
+                  <span className="ep-current__title">
+                    {currentEpisode.episode_title || `第 ${currentEpisode.episode_number} 集`}
+                  </span>
+                  <span className="muted" style={{ fontSize: 11.5 }}>
+                    {currentEpisode.runtime ? `${currentEpisode.runtime} 分` : '—'} ·{' '}
+                    {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
+                  </span>
+                </div>
+              ) : null}
+            </>
           ) : null}
         </article>
 
