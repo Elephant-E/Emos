@@ -91,6 +91,7 @@ export function LinesView() {
                     {line.is_self ? (
                       <button
                         className="btn btn--danger-text"
+                        disabled={actions.remove.isPending}
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: `删除线路「${line.name}」？`,

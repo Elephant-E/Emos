@@ -65,6 +65,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     {row.is_can_edit ? (
                       <button
                         className="btn btn--danger-text"
+                        disabled={actions.removeMedia.isPending}
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: '删除这个源？',
@@ -174,6 +175,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                       {item.is_can_edit ? (
                         <button
                           className="btn btn--danger-text"
+                        disabled={actions.removeChannel.isPending}
                           onClick={async (e) => {
                             e.stopPropagation()
                             const ok = await confirmDialog({
