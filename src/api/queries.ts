@@ -1,13 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, rankApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
 export const qk = {
   session: ['session'] as const,
   carrot: ['carrot', 'current'] as const,
-  zoneCounts: ['zones', 'counts'] as const,
-  rankUpload: ['rank', 'upload'] as const,
-  playing: ['rank', 'playing'] as const,
   videos: (p: Record<string, unknown>) => ['videos', p] as const,
   seeks: (p: Record<string, unknown>) => ['seeks', p] as const,
   watches: (p: Record<string, unknown>) => ['watches', p] as const,
@@ -74,26 +71,6 @@ export function useCapabilities(): Capabilities {
     signedToday: Boolean(data?.sign),
     isMerchant: Boolean(seller.data?.is_self) || isAdmin,
   }
-}
-
-export function useIsAdmin(): boolean {
-  return useCapabilities().isAdmin
-}
-
-export function useMyWatchlistRecent(size = 3) {
-  return useQuery({
-    queryKey: ['watch', 'mine', 'recent', size] as const,
-    queryFn: async () => (await watchApi.list({ is_self: true, page: 1, page_size: size })).items,
-    staleTime: 5 * 60_000,
-  })
-}
-
-export function useMyWatchlists() {
-  return useQuery({
-    queryKey: ['watch', 'mine'] as const,
-    queryFn: async () => (await watchApi.list({ is_self: true, page: 1, page_size: 1 })).total,
-    staleTime: 5 * 60_000,
-  })
 }
 
 export interface WatchStats {
@@ -177,29 +154,6 @@ export const ZONES: Array<{ type: VideoType | 'documentary'; label: string; colo
   { type: 'tv', label: '剧集', color: 'var(--c-green)' },
 ]
 
-export function useZoneCounts() {
-  return useQuery({
-    queryKey: qk.zoneCounts,
-    staleTime: 5 * 60_000,
-    queryFn: async () => {
-      const [movie, tv, all] = await Promise.all([
-        videoApi.list({ page: 1, page_size: 1, type: 'movie' }),
-        videoApi.list({ page: 1, page_size: 1, type: 'tv' }),
-        videoApi.list({ page: 1, page_size: 1 }),
-      ])
-      return { movie: movie.total, tv: tv.total, total: all.total }
-    },
-  })
-}
-
-export function useSeekOpen() {
-  return useQuery({
-    queryKey: ['seeks', 'open-count'] as const,
-    queryFn: async () => (await seekApi.list({ status: ['default'], page: 1, page_size: 1 })).total,
-    staleTime: 60_000,
-  })
-}
-
 export function useTodos() {
   return useQuery({
     queryKey: ['todos'] as const,
@@ -220,14 +174,6 @@ export function useTodos() {
       return { seeks, orders, bans }
     },
   })
-}
-
-export function useRankUpload() {
-  return useQuery({ queryKey: qk.rankUpload, queryFn: () => rankApi.upload(), staleTime: 60_000 })
-}
-
-export function usePlayingNow() {
-  return useQuery({ queryKey: qk.playing, queryFn: () => rankApi.playingVideo(), refetchInterval: 30_000 })
 }
 
 export function useVideoPage(params: { page: number; page_size: number; title?: string; type?: VideoType }) {
