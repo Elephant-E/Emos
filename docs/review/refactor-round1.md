@@ -78,6 +78,25 @@
 
 控制台错误仅 17 条，全部是 `files.emosstore.sbs` 图片域不可达（本机 DNS 把该域解析到 198.18.0.181 保留段），`<Poster>` 已兜底为首字方块，无 JS 异常。
 
+## 四之二、第二轮补充（本轮）
+
+| 项 | 处理 |
+|---|---|
+| 线路筛选在 state | page/size/q 进 URL，实测刷新后搜索保留 |
+| 商城分页/类目在 state | page/category 进 URL；手写分页换 `<Pager>` |
+| 弹层回车不能提交 | Modal 加 `onSubmit`，已接 5 个创建/编辑弹层 |
+| 线路 tagline 后端必填但 UI 可选 | 实测缺省/空串均 422，改为三项必填 |
+| 无分类时新增商品必然 422 | 无分类时禁用新增并给 title 提示 |
+| 片单名后端要求 ≥2 字符 | 前端同步校验 |
+| 订单/求片空态无出口 | 各补一句可执行下一步 |
+
+### 本轮误操作（需告知用户）
+
+用 `DELETE /api/user/telegram` 做「方法是否存在」探针时**真的解绑了账号的 Telegram**。
+当前状态：`telegram_user_id: null`，`telegram_bind_url: https://t.me/emospg_bot?start=bind_2o0bMmyb6B`。
+账号页已正确显示「未绑定 / 去绑定」。重新绑定需在 Telegram 里打开该链接。
+教训：写接口（尤其 DELETE）不能当探针用。
+
 ## 五、仍未解决
 
 | 项 | 原因 |
