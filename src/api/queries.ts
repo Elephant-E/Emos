@@ -472,24 +472,27 @@ export function useLineMutations() {
   }
 }
 
-export function useMusicSongs(page: number, term: string, pageSize = 20) {
+export function useMusicSongs(page: number, term: string, enabled = true, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'songs', page, term] as const,
     queryFn: () => musicApi.songs({ page, page_size: pageSize, name: term || undefined }),
+    enabled,
   })
 }
 
-export function useMusicAlbums(page: number, term: string, pageSize = 20) {
+export function useMusicAlbums(page: number, term: string, enabled = true, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'albums', page, term] as const,
     queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
+    enabled,
   })
 }
 
-export function useMusicPersons(page: number, term: string, pageSize = 20) {
+export function useMusicPersons(page: number, term: string, enabled = true, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'persons', page, term] as const,
     queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
+    enabled,
   })
 }
 
@@ -531,9 +534,10 @@ export function useMusicMutations(songId = 0) {
   }
 }
 
-export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'media_id' | 'user_id' = 'media_id') {
+export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'media_id' | 'user_id' = 'media_id', enabled = true) {
   return useQuery({
     queryKey: ['recycle', 'media', page, pageSize, q ?? '', by] as const,
+    enabled,
     queryFn: async () => {
       const params: Record<string, unknown> = { only_delete: true, page, page_size: pageSize }
       if (q) params[by] = q
@@ -547,9 +551,10 @@ export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'me
   })
 }
 
-export function useDeletedVideos(page: number, pageSize = 20, q?: string) {
+export function useDeletedVideos(page: number, pageSize = 20, q?: string, enabled = true) {
   return useQuery({
     queryKey: ['recycle', 'video', page, pageSize, q ?? ''] as const,
+    enabled,
     queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize, title: q || undefined }),
   })
 }

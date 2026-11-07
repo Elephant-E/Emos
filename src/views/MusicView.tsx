@@ -33,9 +33,11 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
 
-  const songs = useMusicSongs(search.page, search.q)
-  const albums = useMusicAlbums(search.page, search.q)
-  const persons = useMusicPersons(search.page, search.q)
+  // 只查当前 tab，切过去时才请求 —— 三份一起请求的话切 tab 会直接命中缓存，
+  // 既看不到加载态，也白拉了两份数据
+  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs')
+  const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums')
+  const persons = useMusicPersons(search.page, search.q, search.tab === 'persons')
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons

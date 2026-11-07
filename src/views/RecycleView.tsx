@@ -21,8 +21,9 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
 }) {
-  const media = useDeletedMedia(page, pageSize, tab === 'media' ? q : undefined, by)
-  const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined)
+  // 只查当前 tab：两个都查的话切 tab 直接命中缓存，看不到加载态，也白拉一份
+  const media = useDeletedMedia(page, pageSize, tab === 'media' ? q : undefined, by, tab === 'media')
+  const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined, tab === 'video')
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
   const [term, setTerm] = useState(q)

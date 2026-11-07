@@ -133,6 +133,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const orders = useQuery({
     queryKey: ['fund', 'orders', page, pageSize] as const,
     queryFn: () => fundApi.orders({ page, page_size: pageSize }),
+    // 只在基金订单 tab 里取数，切到支付服务或胡萝卜时不该白拉
+    enabled: tab === 'orders',
   })
 
   const [creating, setCreating] = useState(false)
