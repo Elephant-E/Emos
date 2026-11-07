@@ -293,7 +293,11 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       ) : null}
 
       {evidenceFor ? (
-        <Modal title={`提交凭证 · ${String(evidenceFor.no ?? '')}`} width={460} onClose={() => setEvidenceFor(null)}>
+        <Modal
+          title={`提交凭证 · ${String(evidenceFor.no ?? evidenceFor.order_no ?? '')}`}
+          width={460}
+          onClose={() => setEvidenceFor(null)}
+        >
           <div className="stack">
             <label className="field">
               <span>图片地址（每行一个）</span>
@@ -309,7 +313,11 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               </button>
               <button
                 className="btn btn--primary"
-                disabled={submitEvidence.isPending}
+                disabled={
+                  submitEvidence.isPending ||
+                  images.trim().split(/\s+/).filter(Boolean).length === 0 ||
+                  images.trim().split(/\s+/).filter(Boolean).some((u) => !/^https?:\/\//.test(u))
+                }
                 onClick={() => submitEvidence.mutate(String(evidenceFor.no ?? evidenceFor.order_no ?? ''))}
               >
                 {submitEvidence.isPending ? '提交中…' : '提交'}

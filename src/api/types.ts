@@ -172,7 +172,8 @@ export interface WatchItem {
   description: string | null
   is_public: boolean
   carrot: number
-  tags: string[]
+  /** 不传 tags 时后端返回 null 而非 [] */
+  tags: string[] | null
   image_poster: string | null
   image_poster_url: string | null
   is_show_empty: boolean

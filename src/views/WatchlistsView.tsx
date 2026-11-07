@@ -137,6 +137,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                       <span>
                         <span className="cell-title__name">
                           {watch.name}
+                          {watch.carrot > 0 ? (
+                            <span className="badge badge--wait" style={{ marginLeft: 8 }}>
+                              <i />
+                              {watch.carrot} 萝卜
+                            </span>
+                          ) : null}
                           {watch.is_subscribe ? (
                             <span className="badge badge--run" style={{ marginLeft: 8 }}>
                               <i />
@@ -146,7 +152,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                         </span>
                         <span className="cell-title__code">
                           {watch.is_self ? '我创建的' : watch.author?.username ?? '—'}
-                          {watch.tags.length ? ` · ${watch.tags.join(' / ')}` : ''}
+                          {watch.tags?.length ? ` · ${watch.tags.join(' / ')}` : ''}
                         </span>
                       </span>
                     </div>
@@ -227,6 +233,17 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           <label className="field">
             <span>标签（逗号或空格分隔）</span>
             <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+          </label>
+          <label className="field">
+            <span>订阅所需胡萝卜（0 为免费，最高 50000）</span>
+            <input
+              className="input tnum"
+              type="number"
+              min={0}
+              max={50000}
+              value={form.point}
+              onChange={(e) => setForm({ ...form, point: Math.min(50000, Math.max(0, Number(e.target.value) || 0)) })}
+            />
           </label>
           <label className="switch">
             <input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} />

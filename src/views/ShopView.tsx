@@ -71,8 +71,8 @@ export function ShopView({
         category_id: categoryId,
         name: editing.name,
         cover_url: editing.cover_url ?? null,
-        price: editing.price ?? null,
-        price_origin: editing.price_origin ?? 0,
+        price: editing.price ?? 1,
+        price_origin: editing.price_origin ?? 1,
         stock: editing.stock ?? 0,
         sort: editing.sort ?? 80,
         is_up: editing.is_up ?? false,
@@ -142,7 +142,7 @@ export function ShopView({
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
                 title={categories.data?.length ? undefined : '先创建至少一个分类'}
-                onClick={() => setEditing({ stock: 100, price_origin: 0, sort: 80, category_id: categories.data?.[0]?.category_id })}
+                onClick={() => setEditing({ stock: 100, price_origin: 100, price: 1, sort: 80, category_id: categories.data?.[0]?.category_id })}
               >
                 <IconPlus />
                 新增商品
@@ -355,7 +355,6 @@ export function ShopView({
       {editing ? (
         <Modal
           title={editing.product_id ? '编辑商品' : '新增商品'}
-          hint="库存为 0 时自动售罄"
           width={460}
           onClose={() => setEditing(null)}
           onSubmit={saveProduct}
@@ -381,11 +380,11 @@ export function ShopView({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label className="field">
               <span>售价</span>
-              <input className="input" type="number" value={editing.price ?? ''} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
+              <input className="input" type="number" min={1} value={editing.price ?? 1} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
             </label>
             <label className="field">
               <span>原价</span>
-              <input className="input" type="number" value={editing.price_origin ?? 0} onChange={(e) => setEditing({ ...editing, price_origin: Number(e.target.value) })} />
+              <input className="input" type="number" min={1} value={editing.price_origin ?? 1} onChange={(e) => setEditing({ ...editing, price_origin: Number(e.target.value) })} />
             </label>
             <label className="field">
               <span>库存</span>

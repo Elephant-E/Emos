@@ -98,7 +98,7 @@ export function WatchlistDetailView({
                   <i />
                   {item.is_public ? '公开' : '私密'}
                 </span>
-                {item.tags.map((tag) => (
+                {(item.tags ?? []).map((tag) => (
                   <span key={tag} className="chip">
                     {tag}
                   </span>
@@ -230,7 +230,8 @@ export function WatchlistDetailView({
               ))}
             </tbody>
           </table>
-          <Pager total={videos.data.total} page={search.page} pageSize={search.page_size} onPage={(page) => go({ page })} />
+          {/* 该接口把 page_size 固定成 15，必须用返回的值，否则总页数算少、尾部影片翻不到 */}
+          <Pager total={videos.data.total} page={search.page} pageSize={videos.data.page_size} onPage={(page) => go({ page })} />
         </div>
       ) : null}
 

@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
+import { isGatewayFalseNegative } from '@/api/client'
 import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -43,8 +44,8 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
 
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock
-          title="这个实例没有开通支付服务商"
-          hint="这个实例没有部署支付服务，转账与查单不可用。"
+          title="还不是支付服务商"
+          hint="查单与收款需要服务商身份；下面的转赠胡萝卜不依赖它，可以正常用。"
           action={
             <button
               className="btn btn--primary"
@@ -60,8 +61,15 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                 try {
                   await payApi.apply('我的支付服务', '由后台发起申请')
                   toast('已提交申请，等待审核', 'success')
-                } catch {
-                  toast('提交失败，可能已申请过或胡萝卜不足', 'error')
+                  void base.refetch()
+                } catch (error) {
+                  // 该接口在上游返回空 body 的 200 时会被网关判成 502，但申请其实已经落库
+                  if (isGatewayFalseNegative(error)) {
+                    toast('已提交，正在刷新状态', 'info')
+                    void base.refetch()
+                  } else {
+                    toast(error instanceof Error ? error.message : '提交失败', 'error')
+                  }
                 }
               }}
             >
@@ -100,8 +108,8 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         </article>
       </section>
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', display: base.error ? 'none' : undefined }}>
-        <article className="card">
+      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+        <article className="card" style={{ display: base.error ? 'none' : undefined }}>
           <p className="stat__label">查询订单</p>
           <div className="row-input" style={{ marginTop: 10 }}>
             <input className="input" placeholder="订单号" value={no} onChange={(e) => setNo(e.target.value)} />

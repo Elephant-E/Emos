@@ -10,7 +10,9 @@ import './styles/components.css'
 
 const queryClient = new QueryClient({
   mutationCache: new MutationCache({
-    onError: (error) => {
+    onError: (error, _vars, _ctx, mutation) => {
+      // mutation 声明了 wantsOwnError 就自己提示，避免一次失败弹两条
+      if (mutation.meta?.wantsOwnError) return
       const status = (error as { status?: number }).status
       const message = error instanceof Error ? error.message : '操作失败'
       if (status === 401) return

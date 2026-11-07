@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { isGatewayFalseNegative } from './client'
+import { toast } from '@/ui/toast'
 import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { SeekStatus, VideoType } from './types'
 
@@ -416,14 +418,63 @@ export function useShopMutations() {
     toggleUp: useMutation({ mutationFn: (productId: number) => shopApi.productUp(productId), onSuccess: invalidate }),
     setSort: useMutation({ mutationFn: (p: { productId: number; sort: number }) => shopApi.productSort(p.productId, p.sort), onSuccess: invalidate }),
     setCategory: useMutation({ mutationFn: (p: { productId: number; categoryId: number }) => shopApi.productCategory(p.productId, p.categoryId), onSuccess: invalidate }),
-    removeProduct: useMutation({ mutationFn: (productId: number) => shopApi.deleteProduct(productId), onSuccess: invalidate }),
+    // 502 可能是「已执行但网关判失败」，失败时也刷新，并由自己提示
+    removeProduct: useMutation({
+      mutationFn: (productId: number) => shopApi.deleteProduct(productId),
+      meta: { wantsOwnError: true },
+      onSuccess: invalidate,
+      onError: (error) => {
+        if (isGatewayFalseNegative(error)) {
+          toast('已删除，正在刷新', 'success')
+          void invalidate()
+        } else {
+          toast(error instanceof Error ? error.message : '删除失败', 'error')
+        }
+      },
+    }),
     saveProduct: useMutation({ mutationFn: (payload: Record<string, unknown>) => shopApi.saveProduct(payload), onSuccess: invalidate }),
     createCategory: useMutation({ mutationFn: (p: { name: string; sort: number }) => shopApi.createCategory(p.name, p.sort), onSuccess: invalidate }),
-    removeCategory: useMutation({ mutationFn: (categoryId: number) => shopApi.deleteCategory(categoryId), onSuccess: invalidate }),
+    removeCategory: useMutation({
+      mutationFn: (categoryId: number) => shopApi.deleteCategory(categoryId),
+      meta: { wantsOwnError: true },
+      onSuccess: invalidate,
+      onError: (error) => {
+        if (isGatewayFalseNegative(error)) {
+          toast('已删除，正在刷新', 'success')
+          void invalidate()
+        } else {
+          toast(error instanceof Error ? error.message : '删除失败', 'error')
+        }
+      },
+    }),
     saveSeller: useMutation({ mutationFn: (payload: { name: string; description: string }) => shopApi.sellerUpdate(payload), onSuccess: invalidate }),
-    applySeller: useMutation({ mutationFn: (p: { name: string; description: string }) => shopApi.sellerApply(p.name, p.description), onSuccess: invalidate }),
+    applySeller: useMutation({
+      mutationFn: (p: { name: string; description: string }) => shopApi.sellerApply(p.name, p.description),
+      meta: { wantsOwnError: true },
+      onSuccess: invalidate,
+      onError: (error) => {
+        if (isGatewayFalseNegative(error)) {
+          toast('申请已提交，正在刷新', 'success')
+          void invalidate()
+        } else {
+          toast(error instanceof Error ? error.message : '提交失败', 'error')
+        }
+      },
+    }),
     deliver: useMutation({ mutationFn: (orderNo: string) => shopApi.delivery(orderNo, true), onSuccess: invalidate }),
-    remark: useMutation({ mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark), onSuccess: invalidate }),
+    remark: useMutation({
+      mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark),
+      meta: { wantsOwnError: true },
+      onSuccess: invalidate,
+      onError: (error) => {
+        if (isGatewayFalseNegative(error)) {
+          toast('备注已保存，正在刷新', 'success')
+          void invalidate()
+        } else {
+          toast(error instanceof Error ? error.message : '保存失败', 'error')
+        }
+      },
+    }),
     removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
   }
 }

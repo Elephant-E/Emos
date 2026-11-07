@@ -33,7 +33,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               className="btn btn--ghost"
               onClick={() =>
                 actions.favorite.mutate(
-                  { type: 'mp', value: songId },
+                  { type: 'ms', value: songId },
                   { onSuccess: () => toast('已切换收藏', 'success') },
                 )
               }

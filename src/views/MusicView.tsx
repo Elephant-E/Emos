@@ -156,7 +156,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                           onClick={(e) => {
                             e.stopPropagation()
                             actions.sync.mutate(
-                              { type: 'mp', value: String(id) },
+                              { type: 'ms', value: String(id) },
                               {
                                 onSuccess: () => toast('已触发同步', 'success'),
                               },
