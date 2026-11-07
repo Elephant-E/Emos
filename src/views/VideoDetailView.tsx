@@ -297,9 +297,7 @@ export function VideoDetailView({
                             >
                               <IconDots />
                             </button>
-                          ) : (
-                            <span className="muted">只读</span>
-                          )}
+                          ) : null}
                         </td>
                       </tr>
                     )
@@ -343,9 +341,7 @@ export function VideoDetailView({
                             <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
                               <IconDots />
                             </button>
-                          ) : (
-                            <span className="muted">只读</span>
-                          )}
+                          ) : null}
                         </td>
                       </tr>
                     )

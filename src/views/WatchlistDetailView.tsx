@@ -153,10 +153,8 @@ export function WatchlistDetailView({
                 <th style={{ width: '44%' }}>影片</th>
                 <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
-                <th style={{ width: '18%' }}>备注</th>
-                <th style={{ width: '14%', textAlign: 'right' }}>
-                  操作
-                </th>
+                <th style={{ width: item?.is_edit_video ? '18%' : '32%' }}>备注</th>
+                {item?.is_edit_video ? <th style={{ width: '14%', textAlign: 'right' }}>操作</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -197,9 +195,9 @@ export function WatchlistDetailView({
                   </td>
                   <td className="num">{video.sort}</td>
                   <td className="muted">{video.remark ?? '—'}</td>
+                  {item?.is_edit_video ? (
                   <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
-                    {item?.is_edit_video ? (
-                      <button
+                    <button
                         className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
@@ -217,11 +215,9 @@ export function WatchlistDetailView({
                         disabled={removeVideo.isPending}
                       >
                         移出
-                      </button>
-                    ) : (
-                      <span className="muted">只读</span>
-                    )}
+                    </button>
                   </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
@@ -366,10 +362,10 @@ function WatchMusicList({
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '52%' }}>歌曲</th>
+                <th style={{ width: canEdit ? '52%' : '72%' }}>歌曲</th>
                 <th className="num" style={{ width: '14%' }}>时长</th>
                 <th className="num" style={{ width: '14%' }}>收藏</th>
-                <th style={{ width: '96px' }} className="cell-right">操作</th>
+                {canEdit ? <th style={{ width: '96px' }} className="cell-right">操作</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -398,8 +394,8 @@ function WatchMusicList({
                     {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}
                   </td>
                   <td className="num muted">{song.count_medias ?? 0}</td>
+                  {canEdit ? (
                   <td className="cell-right" onClick={(e) => e.stopPropagation()}>
-                    {canEdit ? (
                     <button
                       className="btn btn--danger-text"
                       disabled={removeSong.isPending && removeSong.variables === song.song_id}
@@ -416,10 +412,8 @@ function WatchMusicList({
                     >
                       移除
                     </button>
-                    ) : (
-                      <span className="muted">只读</span>
-                    )}
                   </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

@@ -172,9 +172,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                           >
                             {busy === mediaId ? '恢复中…' : '恢复'}
                           </button>
-                        ) : (
-                          <span className="muted">只读</span>
-                        )}
+                        ) : null}
                       </td>
                     </tr>
                   )

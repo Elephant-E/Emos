@@ -234,9 +234,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         >
                           删除
                         </button>
-                      ) : (
-                        <span className="muted">只读</span>
-                      )}
+                      ) : null}
                     </td>
                   </tr>
                   {selected ? (

@@ -122,9 +122,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                       >
                         删除
                       </button>
-                    ) : (
-                      <span className="muted">只读</span>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               ))}

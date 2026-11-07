@@ -188,9 +188,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                       >
                         删除
                       </button>
-                    ) : (
-                      <span className="muted">只读</span>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               ))}
