@@ -6,31 +6,42 @@ import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
-import { useCarrot, useCarrotHistory } from '@/api/queries'
+import { useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
 
 function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) => void }) {
   const carrot = useCarrot()
   const history = useCarrotHistory(page, 20)
+  const actions = useAccountMutations()
+  const [transferring, setTransferring] = useState(false)
+  const [transferTo, setTransferTo] = useState('')
+  const [transferAmount, setTransferAmount] = useState(10)
   const rows = history.data?.items ?? []
+
   return (
     <>
-      <section className="cards cards--2">
-        <article className="card card--stat">
-          <p className="stat__label">胡萝卜余额</p>
-          <p className="stat__value">{carrot.data ? formatThousand(carrot.data.carrot) : '—'}<small>个</small></p>
+      <section className="cards cards--1">
+        <article className="card">
+          <div className="card-head">
+            <p className="stat__label" style={{ margin: 0 }}>胡萝卜余额</p>
+            <button className="btn btn--quiet" disabled={!carrot.data || carrot.data.carrot < 2} onClick={() => setTransferring(true)}>
+              转赠
+            </button>
+          </div>
+          <p className="stat__value" style={{ marginTop: 8 }}>
+            {carrot.data ? formatThousand(carrot.data.carrot) : '—'}
+            <small>个</small>
+          </p>
           <p className="stat__delta stat__delta--quiet">签到、上传、字幕都会获得</p>
         </article>
-        <article className="card card--stat">
-          <p className="stat__label">本页记录</p>
-          <p className="stat__value">{rows.length}<small>条</small></p>
-          <p className="stat__delta stat__delta--quiet">第 {page} 页</p>
-        </article>
       </section>
+
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
+      {!history.isLoading && rows.length === 0 ? <EmptyBlock title="还没有胡萝卜记录" /> : null}
       {rows.length > 0 ? (
-        <div className="table-card">
+        <div className="table-card content-in" key={`${rows.length}-${page}`}>
           <table className="table">
             <thead>
               <tr>
@@ -51,13 +62,57 @@ function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) 
               ))}
             </tbody>
           </table>
-          <div className="table-foot">
-            <span className="muted">共 {formatThousand(history.data?.total ?? 0)} 条</span>
-            <button className="btn btn--quiet" onClick={() => onPage(page + 1)} disabled={(history.data?.total ?? 0) <= page * 20}>
-              下一页
-            </button>
-          </div>
+          <Pager total={history.data?.total ?? 0} page={page} pageSize={20} onPage={onPage} />
         </div>
+      ) : null}
+
+      {transferring ? (
+        <Modal
+          title="转赠胡萝卜"
+          hint="单次 2 – 6000 个，转账后不可撤回。"
+          onClose={() => setTransferring(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setTransferring(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={!transferTo.trim() || transferAmount < 2 || actions.transfer.isPending}
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: `转赠 ${transferAmount} 个胡萝卜？`,
+                    message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
+                    confirmText: '转赠',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  actions.transfer.mutate(
+                    { userId: transferTo.trim(), carrot: transferAmount },
+                    {
+                      onSuccess: (res: { carrot: number }) => {
+                        toast(`已转赠，余额 ${res.carrot}`, 'success')
+                        setTransferring(false)
+                        setTransferTo('')
+                      },
+                    },
+                  )
+                }}
+              >
+                转赠
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>对方用户 ID</span>
+            <input className="input" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} autoFocus />
+          </label>
+          <label className="field">
+            <span>数量</span>
+            <input className="input" type="number" min={2} max={6000} value={transferAmount} onChange={(e) => setTransferAmount(Number(e.target.value))} />
+          </label>
+        </Modal>
       ) : null}
     </>
   )
@@ -118,7 +173,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   return (
     <>
       <PageHeader
-        crumb={['资金', tab === 'orders' ? '基金订单' : '支付服务']}
+        crumb={['资金', tab === 'orders' ? '基金订单' : tab === 'merchant' ? '支付服务' : '胡萝卜']}
         title="资金"
         tools={
           tab === 'orders' ? (

@@ -84,7 +84,7 @@ export function OverviewView() {
   const greeting =
     hour < 6 ? GREETINGS[4] : hour < 11 ? GREETINGS[0] : hour < 14 ? GREETINGS[1] : hour < 18 ? GREETINGS[2] : GREETINGS[3]
   const displayName = session.data?.pseudonym || session.data?.username || ''
-  // stats/video/history 只能查到「今天之前」，用它判断今天必然出错，改用继续观看的实际情况
+  // stats/video/history 的日期区间不含今天，因此按未看完条数判断而不是今天的观看秒数
   const unfinished = watching.data?.length ?? 0
   const todayText =
     unfinished > 0

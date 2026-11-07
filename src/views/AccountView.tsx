@@ -38,9 +38,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const [inviting, setInviting] = useState(false)
   const [inviteId, setInviteId] = useState('')
   const [inviteRemark, setInviteRemark] = useState('')
-  const [transferring, setTransferring] = useState(false)
-  const [transferTo, setTransferTo] = useState('')
-  const [transferAmount, setTransferAmount] = useState(10)
 
   const inviteHistory = useInviteHistory(1)
   const tree = useInviteTree()
@@ -542,53 +539,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         </Modal>
       ) : null}
 
-      {transferring ? (
-        <Modal
-          title="转赠胡萝卜"
-          hint="单次 2 – 6000 个，转账后不可撤回。"
-          onClose={() => setTransferring(false)}
-          footer={
-            <>
-              <button className="btn btn--ghost" onClick={() => setTransferring(false)}>
-                取消
-              </button>
-              <button
-                className="btn btn--primary"
-                disabled={!transferTo.trim() || transferAmount < 2 || actions.transfer.isPending}
-                onClick={async () => {
-                  const ok = await confirmDialog({
-                    title: `转赠 ${transferAmount} 个胡萝卜？`,
-                    message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
-                    hint: '如果填错用户 ID，胡萝卜无法追回。',
-                    confirmText: '转赠',
-                  })
-                  if (!ok) return
-                  actions.transfer.mutate(
-                    { userId: transferTo.trim(), carrot: transferAmount },
-                    {
-                      onSuccess: (res) => {
-                        toast(`已转赠，余额 ${res.carrot}`, 'success')
-                        setTransferring(false)
-                      },
-                    },
-                  )
-                }}
-              >
-                转赠
-              </button>
-            </>
-          }
-        >
-          <label className="field">
-            <span>对方用户 ID</span>
-            <input className="input" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} autoFocus />
-          </label>
-          <label className="field">
-            <span>数量</span>
-            <input className="input" type="number" min={2} max={6000} value={transferAmount} onChange={(e) => setTransferAmount(Number(e.target.value))} />
-          </label>
-        </Modal>
-      ) : null}
       </div>
     </>
   )

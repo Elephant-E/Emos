@@ -1,10 +1,3 @@
-export function formatCount(n: number | null | undefined): { value: string; unit: string } {
-  if (n === null || n === undefined || Number.isNaN(n)) return { value: '—', unit: '' }
-  if (Math.abs(n) >= 100_000_000) return { value: (n / 100_000_000).toFixed(2), unit: '亿' }
-  if (Math.abs(n) >= 10_000) return { value: (n / 10_000).toFixed(0), unit: '万' }
-  return { value: n.toLocaleString('zh-CN'), unit: '' }
-}
-
 export function formatThousand(n: number | null | undefined): string {
   if (n === null || n === undefined || Number.isNaN(n)) return '—'
   return n.toLocaleString('zh-CN')
