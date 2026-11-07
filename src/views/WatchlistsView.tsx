@@ -111,7 +111,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <div className={`table-card content-in${isPlaceholderData ? ' is-stale' : ''}`} key={`${data.items.length}-${data.items[0]?.id}-${data.total}`}>
-          <table className="table">
+          <table className="table table--fixed">
             <thead>
               <tr>
                 <th style={{ width: '38%' }}>片单</th>

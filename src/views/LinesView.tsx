@@ -60,7 +60,7 @@ export function LinesView() {
 
       {paged.length > 0 ? (
         <div className="table-card">
-          <table className="table">
+          <table className="table table--fixed">
             <thead>
               <tr>
                 <th style={{ width: '24%' }}>名称</th>
@@ -69,7 +69,7 @@ export function LinesView() {
                 <th style={{ width: '18%' }}>创建时间</th>
                 <th style={{ width: '12%', textAlign: 'right' }}>
                   操作
-                  <span className="th-hint">他人创建只读</span>
+                  <span className="th-hint">他人创建</span>
                 </th>
               </tr>
             </thead>

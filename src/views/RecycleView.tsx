@@ -134,7 +134,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       {rows.length > 0 ? (
         <div className={`table-card content-in${(tab === 'media' ? media.isPlaceholderData : videos.isPlaceholderData) ? ' is-stale' : ''}`} key={`${tab}-${rows.length}-${String(rows[0]?.media_id ?? rows[0]?.video_id ?? "")}`}>
           {tab === 'media' ? (
-            <table className="table">
+            <table className="table table--fixed">
               <thead>
                 <tr>
                   <th style={{ width: '34%' }}>资源</th>
@@ -144,7 +144,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th className="num" style={{ width: '12%' }}>入库时间</th>
                   <th style={{ width: '96px', textAlign: 'right' }}>
                     操作
-                    <span className="th-hint">他人上传只读</span>
+                    <span className="th-hint">他人上传</span>
                   </th>
                 </tr>
               </thead>
@@ -186,7 +186,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
               </tbody>
             </table>
           ) : (
-            <table className="table">
+            <table className="table table--fixed">
               <thead>
                 <tr>
                   <th style={{ width: '46%' }}>影片</th>
@@ -195,7 +195,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th className="num" style={{ width: '16%' }}>上映</th>
                   <th style={{ width: '96px', textAlign: 'right' }}>
                     操作
-                    <span className="th-hint">他人上传只读</span>
+                    <span className="th-hint">他人上传</span>
                   </th>
                 </tr>
               </thead>
