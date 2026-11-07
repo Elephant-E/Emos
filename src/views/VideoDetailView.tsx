@@ -203,6 +203,7 @@ export function VideoDetailView({
               {seasons.data.map((s) => (
                 <option key={s.season_id} value={s.season_number}>
                   {s.season_title || `第 ${s.season_number} 季`}
+                  {s.episodes_count ? `（${s.episodes_count} 集）` : ''}
                 </option>
               ))}
             </select>
@@ -237,9 +238,13 @@ export function VideoDetailView({
                     {currentEpisode.episode_title || `第 ${currentEpisode.episode_number} 集`}
                   </span>
                   <span className="muted" style={{ fontSize: 11.5 }}>
+                    {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
                     {currentEpisode.runtime ? `${currentEpisode.runtime} 分` : '—'} ·{' '}
                     {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
                   </span>
+                  {currentEpisode.episode_description ? (
+                    <span className="ep-current__desc">{currentEpisode.episode_description}</span>
+                  ) : null}
                 </div>
               ) : null}
             </>

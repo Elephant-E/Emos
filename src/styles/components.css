@@ -1056,6 +1056,16 @@
   padding-top: 12px;
   border-top: 1px solid var(--line-soft);
 }
+.ep-current__desc {
+  margin-top: 6px;
+  color: var(--fg-3);
+  font-size: 12px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .ep-current__title {
   color: var(--fg);
   font-size: 13.5px;
