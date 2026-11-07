@@ -970,6 +970,15 @@ th.num .th-sort { flex-direction: row-reverse; }
   to { opacity: 1; }
 }
 
+/* 同一页面内切换筛选/分页时，内容淡入一次，避免旧列表被硬替换 */
+.content-in {
+  animation: content-in 160ms var(--ease);
+}
+@keyframes content-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes page-in {
   from { opacity: 0; }
   to { opacity: 1; }

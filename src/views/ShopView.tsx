@@ -106,7 +106,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
           ) : null}
 
           {products.data && products.data.items.length > 0 ? (
-            <div className="table-card">
+            <div className="table-card content-in" key={`${products.data.items.length}-${products.data.items[0]?.product_id}-${products.data.total}`}>
               <table className="table">
                 <thead>
                   <tr>

@@ -110,7 +110,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className="table-card">
+        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.id}-${data.total}`}>
           <table className="table">
             <thead>
               <tr>

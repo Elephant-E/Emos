@@ -72,7 +72,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       {list.data && list.data.items.length > 0 ? (
         <>
         <p className="card-note card-note--inline">你只能编辑自己创建的直播源，别人的源仅可查看。</p>
-        <div className="table-card">
+        <div className="table-card content-in" key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
           <table className="table">
             <thead>
               <tr>

@@ -343,6 +343,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         </>
       ) : null}
 
+      <div className="content-in" key={tab}>
       {tab === 'invite' ? (
         <>
           <section className="cards cards--2">
@@ -588,6 +589,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           </label>
         </Modal>
       ) : null}
+      </div>
     </>
   )
 }

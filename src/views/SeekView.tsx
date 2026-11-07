@@ -83,7 +83,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className="table-card">
+        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.id}-${data.total ?? data.items.length}`}>
           <table className="table">
             <thead>
               <tr>

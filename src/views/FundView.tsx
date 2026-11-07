@@ -143,8 +143,10 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
         </div>
       </div>
 
-      {tab === 'merchant' ? <PayView embedded /> : null}
-      {tab === 'carrot' ? <CarrotSection page={page} onPage={onPage} /> : null}
+      <div className="content-in" key={tab}>
+        {tab === 'merchant' ? <PayView embedded /> : null}
+        {tab === 'carrot' ? <CarrotSection page={page} onPage={onPage} /> : null}
+      </div>
 
       {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
