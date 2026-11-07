@@ -215,6 +215,7 @@ export function ShopView({
                             </button>
                             <button
                               className="btn btn--danger-text"
+                              disabled={actions.removeProduct.isPending}
                               onClick={async () => {
                                 const ok = await confirmDialog({
                                   title: `删除商品「${product.name}」？`,

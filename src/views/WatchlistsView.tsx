@@ -30,6 +30,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
+  const [removing, setRemoving] = useState(false)
   const [form, setForm] = useState({ name: '', description: '', is_public: true, point: 0, tags: '' })
 
   const session = useSession()
@@ -163,6 +164,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                     {watch.is_self ? (
                       <button
                         className="btn btn--danger-text"
+                        disabled={removing}
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: `删除片单「${watch.name}」？`,
@@ -172,12 +174,15 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                             danger: true,
                           })
                           if (!ok) return
+                          setRemoving(true)
                           try {
                             await watchApi.remove(watch.id)
                             toast('片单已删除', 'success')
                             void refetch()
                           } catch (error) {
                             toast(error instanceof Error ? error.message : '删除失败', 'error')
+                          } finally {
+                            setRemoving(false)
                           }
                         }}
                       >
