@@ -74,7 +74,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
             <thead>
               <tr>
                 <th style={{ width: '32%' }} className="th-thumb">订单</th>
-                <th className="num" style={{ width: '10%' }}>金额</th>
+                <th className="num" style={{ width: '14%' }}>单价 × 数量</th>
                 <th style={{ width: '12%' }}>支付</th>
                 <th style={{ width: '12%' }}>发货</th>
                 <th className="num" style={{ width: '12%' }}>下单时间</th>
@@ -109,11 +109,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             ) : order.user?.username ? (
                               ` · ${order.user.username}`
                             ) : null}
+                            {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
                           </span>
                         </span>
                       </div>
                     </td>
-                    <td className="num">{order.price_order}</td>
+                    <td className="num tnum">{order.price_order} × {order.buy_number ?? 1}</td>
                     <td>
                       <span className={`badge ${paid ? 'badge--ok' : 'badge--wait'}`}>
                         <i />
