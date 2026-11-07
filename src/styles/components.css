@@ -485,15 +485,6 @@
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .cell-title__name { display: block; color: var(--fg); font-size: 13.5px; }
-.cell-sub {
-  display: block;
-  margin-top: 6px;
-  color: var(--fg-4);
-  font-size: 11.5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .cell-title__code {
   display: block;
   margin-top: 1px;
@@ -1154,8 +1145,6 @@
 }
 
 .badge,
-.com-zone,
-.zone { transition: color var(--t-fast) var(--ease); }
 
 .btn[aria-busy='true'] { opacity: 0.6; transition: opacity 140ms var(--ease) 140ms; }
 

@@ -104,6 +104,30 @@
 账号页已正确显示「未绑定 / 去绑定」。重新绑定需在 Telegram 里打开该链接。
 教训：写接口（尤其 DELETE）不能当探针用。
 
+## 四之三、第三轮：方法学级核对
+
+对 `endpoints.ts` 里全部 **132 个端点**（106 个写 + 26 个读）做了 method 一致性验证：
+对每个端点用 GET 探针打过去，读 405 响应里的 `Supported methods:` 与服务端声明的
+真实方法比对。
+
+结果：**0 处不一致**。所有声明的方法都与后端一致。
+
+### 本轮删除
+
+| 项 | 数量 |
+|---|---|
+| 无人引用的 query hook | 7 个（useIsAdmin/useMyWatchlists/usePlayingNow/useRankUpload/useSeekOpen/useZoneCounts/useMyWatchlistRecent） |
+| 因此失效的 query key | 3 个 |
+| 无人引用的图标 | 9 个（上一版正则只匹配 `export function`，漏了 const 箭头函数） |
+| 无人引用的响应类型 | 5 个 |
+| 残留常量 | ZONES（侧栏内容分区删除后遗留） |
+| 残留 CSS 类 | .cell-sub / .com-zone |
+
+### 关于 endpoints.ts 里未触达的 78 个封装
+
+保留了。它们属于类型化 API 客户端覆盖面（lottery / redPacket / reel / pay 等客户端功能），
+不是「写坏了的死代码」；删掉会丢失后续接入所需的类型定义。已在文档中记录为已知取舍。
+
 ## 五、仍未解决
 
 | 项 | 原因 |
