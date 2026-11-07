@@ -217,10 +217,11 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '34%' }}>订单号</th>
-                <th className="num" style={{ width: '14%' }}>胡萝卜</th>
-                <th style={{ width: '18%' }}>状态</th>
-                <th style={{ width: '18%' }}>时间</th>
+                <th style={{ width: '38%' }}>订单</th>
+                <th className="num" style={{ width: '12%' }}>胡萝卜</th>
+                <th className="num" style={{ width: '12%' }}>补贴</th>
+                <th style={{ width: '16%' }}>状态</th>
+                <th style={{ width: '16%' }}>时间</th>
                 <th style={{ width: '120px' }}>操作</th>
               </tr>
             </thead>
@@ -230,10 +231,15 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                 return (
                   <tr key={orderNo}>
                     <td>
-                      <span className="cell-title__name tnum">{orderNo}</span>
-                      <span className="cell-title__code">{String(row.fund_activity_code ?? row.activity_code ?? '')}</span>
+                      <span className="cell-title__name">{String(row.order_title ?? orderNo)}</span>
+                      <span className="cell-title__code">
+                        {orderNo}
+                        {row.tier_name ? ` · ${String(row.tier_name)}` : ''}
+                        {row.activity_name ? ` · ${String(row.activity_name)}` : ''}
+                      </span>
                     </td>
                     <td className="num">{row.tier_carrot == null ? '—' : formatThousand(Number(row.tier_carrot))}</td>
+                    <td className="num">{row.tier_price == null ? '—' : `¥${String(row.tier_price)}`}</td>
                     <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
                     <td className="muted tnum">{row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}</td>
                     <td>

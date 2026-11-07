@@ -470,6 +470,14 @@ export async function mockRequest<T>(
       { user_id: 'e1003Xs', username: 'kai', invite_at: '2026-10-04 10:00:00', invite_user_id: 'e1001Xs', is_disabled: false, join_at: '2026-10-04 10:05:00', last_video_player: null, last_telegram_message: null, last_user_sign: null },
     ] as T
   }
+  if (clean === '/api/fund/order/list') {
+    const rows = [
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814221653fundLKoR0', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-14 22:16:53', payout_status: 'reviewing', payout_status_string: '审核中', reward_code: null },
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814220110fundXa9b', order_title: '使用 600🥕 兑换最高 6¥ 补贴', tier_name: '🎬 观影礼', tier_carrot: 600, tier_price: 6, payed_at: '2026-08-14 22:01:10', payout_status: 'pass', payout_status_string: '已打款', reward_code: null },
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260813093012fundQ1c', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-13 09:30:12', payout_status: 'default', payout_status_string: '待提交', reward_code: null },
+    ]
+    return paginate(rows, 1, 20) as T
+  }
   if (clean === '/api/carrot/history') {
     const rows = Array.from({ length: 8 }, (_, i) => ({
       trigger_type: i % 2 ? 'upload' : 'sign',
