@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -25,6 +25,15 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined)
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
+  const [term, setTerm] = useState(q)
+
+  // 输入即搜：停手 350ms 后发起查询，不需要回车确认
+  useEffect(() => {
+    const next = term.trim()
+    if (next === q) return
+    const timer = setTimeout(() => onQuery(next, by), 350)
+    return () => clearTimeout(timer)
+  }, [term, q, by])
 
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0
@@ -98,13 +107,10 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           <input
             className="input"
             type="search"
-            defaultValue={q}
+            value={term}
+            onChange={(event) => setTerm(event.target.value)}
             placeholder={tab === 'media' ? (by === 'media_id' ? '搜资源 ID' : '搜上传者 ID') : '搜片名'}
             style={{ width: 280 }}
-            onKeyDown={(event) => {
-              if (event.key !== 'Enter') return
-              onQuery((event.target as HTMLInputElement).value.trim(), by)
-            }}
           />
         </label>
 

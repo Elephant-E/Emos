@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -29,7 +29,7 @@ export function WatchlistDetailView({
   const id = watchId
   const navigate = useNavigate()
 
-  const [term, setTerm] = useState('')
+  const [term, setTerm] = useState(search.q)
   const [adding, setAdding] = useState(false)
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
@@ -47,6 +47,14 @@ export function WatchlistDetailView({
 
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
+
+  // 输入即搜：停手 350ms 后推进 URL
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => go({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
 
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
@@ -126,8 +134,8 @@ export function WatchlistDetailView({
           className="input"
           type="search"
           placeholder="在该片单里搜片名"
-          defaultValue={search.q}
-          onKeyDown={(e) => e.key === 'Enter' && go({ q: (e.target as HTMLInputElement).value.trim(), page: 1 })}
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
         />
         <span className="spacer" />
         {item?.is_edit_video ? (
@@ -320,6 +328,15 @@ function WatchMusicList({
   search: WatchDetailSearch
   onSearch: (patch: Partial<WatchDetailSearch>) => void
 }) {
+  const [term, setTerm] = useState(search.q)
+  useEffect(() => setTerm(search.q), [search.q])
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
+
   const navigate = useNavigate()
   const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
   const { removeSong } = useWatchMusicMutations(watchId)
@@ -342,11 +359,8 @@ function WatchMusicList({
           className="input"
           type="search"
           placeholder="搜歌名"
-          defaultValue={search.q}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter') return
-            onSearch({ q: (event.target as HTMLInputElement).value.trim(), page: 1 })
-          }}
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
         />
       </div>
 

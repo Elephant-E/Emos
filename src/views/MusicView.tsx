@@ -39,7 +39,13 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
-  const submit = () => onSearch({ q: term.trim(), page: 1 })
+  // 输入即搜：停手 350ms 后推进 URL
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
 
   return (
     <>
@@ -79,11 +85,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           placeholder="搜索名称"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
         />
-        <button className="btn btn--ghost" onClick={submit}>
-          搜索
-        </button>
       </div>
 
       {active.error ? <ErrorBlock error={active.error as Error & { status?: number }} onRetry={() => active.refetch()} /> : null}

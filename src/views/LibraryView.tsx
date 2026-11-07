@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { IconFilter, IconPlus } from '@/components/icons'
+import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { Pager } from '@/components/Pager'
@@ -27,6 +27,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const navigate = useNavigate()
   const [query, setQuery] = useState(search.q)
   useEffect(() => setQuery(search.q), [search.q])
+
+  // 输入即搜：停手 350ms 后把关键词推进 URL，不需要回车或点按钮
+  useEffect(() => {
+    const next = query.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [query, search.q])
 
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
@@ -82,12 +90,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           value={query}
           placeholder="搜索片名"
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onSearch({ q: query.trim(), page: 1 })}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter') return
+            onSearch({ q: query.trim(), page: 1 })
+          }}
         />
-        <button className="btn btn--ghost" onClick={() => onSearch({ q: query.trim(), type: '', page: 1 })}>
-          <IconFilter />
-          重置
-        </button>
         <button className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
           <IconPlus />
           新增入库
