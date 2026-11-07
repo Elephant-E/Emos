@@ -1009,6 +1009,19 @@ th.num .th-sort { flex-direction: row-reverse; }
 }
 
 /* 同一页面内切换筛选/分页时，内容淡入一次，避免旧列表被硬替换 */
+.table__expand > td {
+  padding: 0 !important;
+  background: rgba(255, 255, 255, 0.018);
+  border-top: 1px solid var(--line-soft);
+}
+.table__expand .sources {
+  padding: 14px 16px 16px 58px;
+  animation: content-in 160ms var(--ease);
+}
+.table tr.is-expanded > td {
+  background: rgba(255, 255, 255, 0.025);
+}
+
 .content-in {
   animation: content-in 160ms var(--ease);
 }

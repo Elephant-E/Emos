@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { IconDots } from '@/components/icons'
@@ -115,7 +116,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                     <td>
                       <div className="cell-title">
                         {row.image_poster_url || row.image_profile_url ? (
-                          <img className="poster-img" src={String(row.image_poster_url ?? row.image_profile_url)} alt="" loading="lazy" />
+                          <Poster src={String(row.image_poster_url ?? row.image_profile_url)} name={String(row.name ?? row.title ?? "?")} />
                         ) : (
                           <span className="thumb">{name.slice(0, 1)}</span>
                         )}

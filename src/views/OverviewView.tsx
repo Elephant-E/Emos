@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchStats } from '@/api/queries'
@@ -243,7 +244,7 @@ export function OverviewView() {
                     className="row"
                   >
                   {row.video_image_poster ? (
-                    <img className="poster-img" src={String(row.video_image_poster)} alt="" loading="lazy" />
+                    <Poster src={String(row.video_image_poster)} name={String(row.video_title ?? "?")} />
                   ) : (
                     <span className="thumb">{String(row.video_title ?? '?').slice(0, 1)}</span>
                   )}

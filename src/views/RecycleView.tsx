@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
@@ -80,10 +81,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           </span>
         }
       />
-
-      {tab === 'media' ? (
-        <p className="card-note card-note--inline">显示「—」的资源是他人上传的，只能查看，不能由你恢复。</p>
-      ) : null}
 
       <div className="toolbar">
         {tab === 'media' ? (
@@ -177,7 +174,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                             {busy === mediaId ? '恢复中…' : '恢复'}
                           </button>
                         ) : (
-                          <span className="muted" title="不是自己上传的资源，无法恢复">—</span>
+                          <span className="muted">只读</span>
                         )}
                       </td>
                     </tr>
@@ -205,7 +202,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       <td>
                         <div className="cell-title">
                           {row.video_image_poster ? (
-                            <img className="poster-img" src={String(row.video_image_poster)} alt="" loading="lazy" />
+                            <Poster src={String(row.video_image_poster)} name={String(row.video_title ?? "?")} />
                           ) : (
                             <span className="thumb">{title.slice(0, 1)}</span>
                           )}

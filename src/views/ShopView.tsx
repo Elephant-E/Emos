@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconLeft, IconPlus, IconRight } from '@/components/icons'
@@ -124,7 +125,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
                       <td>
                         <div className="cell-title">
                           {product.cover_url ? (
-                            <img className="poster-img" src={product.cover_url} alt="" />
+                            <Poster src={product.cover_url} name={product.name} />
                           ) : (
                             <span className="thumb">{product.name.slice(0, 1)}</span>
                           )}

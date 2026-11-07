@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots, IconFilter, IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
@@ -137,7 +138,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (
-                        <img className="poster-img" src={video.video_image_poster} alt="" loading="lazy" />
+                        <Poster src={video.video_image_poster} name={video.video_title} />
                       ) : (
                         <span className="thumb">{video.video_title.slice(0, 1)}</span>
                       )}

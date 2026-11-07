@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
@@ -91,7 +92,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                   <tr key={order.order_no}>
                     <td>
                       <div className="cell-title">
-                        {order.order_cover_url ? <img className="poster-img" src={order.order_cover_url} alt="" /> : <span className="thumb">{order.order_title.slice(0, 1)}</span>}
+                        <Poster src={order.order_cover_url} name={order.order_title} />
                         <span>
                           <span className="cell-title__name">{order.order_title}</span>
                           <span className="cell-title__code">

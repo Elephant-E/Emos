@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
@@ -104,7 +105,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td>
                       <div className="cell-title">
                         {item.video_image_poster ? (
-                          <img className="poster-img" src={item.video_image_poster} alt="" loading="lazy" />
+                          <Poster src={item.video_image_poster} name={String(item.video_title ?? "?")} />
                         ) : (
                           <span className="thumb">{item.video_title_display.slice(0, 1)}</span>
                         )}

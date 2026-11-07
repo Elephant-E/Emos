@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
@@ -132,7 +133,7 @@ export function VideoDetailView({
         <section className="detail-head">
           <div className="detail-head__row">
             {video.video_image_poster ? (
-              <img className="poster-img" style={{ width: 76, height: 108 }} src={video.video_image_poster} alt="" />
+              <Poster src={video.video_image_poster} name={video.video_title} />
             ) : null}
             <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>

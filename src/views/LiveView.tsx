@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
@@ -28,130 +29,16 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
   const channel = list.data?.items.find((item) => item.id === search.channel)
 
-  return (
-    <>
-      <PageHeader
-        crumb={['直播', channel?.title ?? '频道']}
-        title="直播"
-        tools={
-          <span className="stamp">
-            <i />
-            {list.isFetching ? '拉取中' : '已同步'}
-          </span>
-        }
-      />
-
-      <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="媒体库">
-          <button className="tab" role="tab" aria-selected={search.library === 0} onClick={() => onSearch({ library: 0, channel: 0, page: 1 })}>
-            全部
-          </button>
-          {(library.data ?? []).map((item) => (
-            <button
-              key={item.id}
-              className="tab"
-              role="tab"
-              aria-selected={search.library === item.id}
-              onClick={() => onSearch({ library: item.id, channel: 0, page: 1 })}
-            >
-              {item.title}
-            </button>
-          ))}
-        </div>
-        <span className="spacer" />
-        <button className="btn btn--primary" onClick={() => setCreating(true)}>
-          <IconPlus />
-          新增频道
-        </button>
-      </div>
-
-      {list.error ? <ErrorBlock error={list.error as Error & { status?: number }} onRetry={() => list.refetch()} /> : null}
-      {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-      {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
-
-      {list.data && list.data.items.length > 0 ? (
-        <>
-        <p className="card-note card-note--inline">你只能编辑自己创建的直播源，别人的源仅可查看。</p>
-        <div className="table-card content-in" key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: '34%' }}>频道</th>
-                <th style={{ width: '12%' }}>媒体库</th>
-                <th className="num" style={{ width: '10%' }}>源</th>
-                <th className="num" style={{ width: '12%' }}>排序</th>
-                <th className="num" style={{ width: '16%' }}>更新</th>
-                <th style={{ width: '16%', textAlign: 'right' }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.data.items.map((item) => {
-                const selected = item.id === search.channel
-                return (
-                  <tr key={item.id} onClick={() => onSearch({ channel: selected ? 0 : item.id })} style={{ cursor: 'pointer' }}>
-                    <td>
-                      <div className="cell-title">
-                        {item.image_poster_url ? <img className="poster-img" src={item.image_poster_url} alt="" /> : <span className="thumb">{item.title.slice(0, 1)}</span>}
-                        <span>
-                          <span className="cell-title__name">
-                            {item.title}
-                            {selected ? <span className="muted" style={{ fontSize: 11.5 }}> · 展开中</span> : null}
-                          </span>
-                          <span className="cell-title__code">
-                            {item.code}
-                            {item.tagline ? ` · ${item.tagline}` : ''}
-                          </span>
-                        </span>
-                      </div>
-                    </td>
-                    <td className="muted">{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</td>
-                    <td className="num">{item.media_count}</td>
-                    <td className="num">{item.sort}</td>
-                    <td className="num muted">{formatRelative(item.updated_at)}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      {item.is_can_edit ? (
-                        <button
-                          className="btn btn--quiet"
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            const ok = await confirmDialog({
-                              title: `删除频道「${item.title}」？`,
-                              message: '该频道下的所有直播源会一并删除。',
-                              hint: '观看端会立即不可用。',
-                              confirmText: '删除',
-                              danger: true,
-                            })
-                            if (!ok) return
-                            actions.removeChannel.mutate(item.id, { onSuccess: () => toast('已删除', 'success') })
-                          }}
-                        >
-                          删除
-                        </button>
-                      ) : (
-                        <span className="muted">—</span>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-          <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
-        </>
-      ) : null}
-
-      {channel ? (
-        <section className="cards cards--wide">
-          <article className="card">
+  const renderSources = () => {
+    if (!channel) return null
+    return (
+    <div className="sources">
+<article className="card">
             <div className="chart-head">
-              <div>
-                <p className="stat__label">直播源</p>
-                <p className="stat__value">
-                  {media.data?.total ?? 0}
-                  <small>个源</small>
-                </p>
-              </div>
+              <p className="stat__label" style={{ margin: 0 }}>
+                直播源
+                <span className="muted tnum-sm" style={{ marginLeft: 8, letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
+              </p>
               {channel.is_can_edit ? (
                 <button className="btn btn--ghost" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
                   新增源
@@ -198,7 +85,128 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               </ul>
             ) : null}
           </article>
-        </section>
+    </div>
+    )
+  }
+
+
+  return (
+    <>
+      <PageHeader
+        crumb={['直播', channel?.title ?? '频道']}
+        title="直播"
+        tools={
+          <span className="stamp">
+            <i />
+            {list.isFetching ? '拉取中' : '已同步'}
+          </span>
+        }
+      />
+
+      <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="媒体库">
+          <button className="tab" role="tab" aria-selected={search.library === 0} onClick={() => onSearch({ library: 0, channel: 0, page: 1 })}>
+            全部
+          </button>
+          {(library.data ?? []).map((item) => (
+            <button
+              key={item.id}
+              className="tab"
+              role="tab"
+              aria-selected={search.library === item.id}
+              onClick={() => onSearch({ library: item.id, channel: 0, page: 1 })}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+        <span className="spacer" />
+        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+          <IconPlus />
+          新增频道
+        </button>
+      </div>
+
+      {list.error ? <ErrorBlock error={list.error as Error & { status?: number }} onRetry={() => list.refetch()} /> : null}
+      {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
+      {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
+
+      {list.data && list.data.items.length > 0 ? (
+        <>
+        <div className="table-card content-in" key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th style={{ width: '34%' }}>频道</th>
+                <th style={{ width: '12%' }}>媒体库</th>
+                <th className="num" style={{ width: '10%' }}>源</th>
+                <th className="num" style={{ width: '12%' }}>排序</th>
+                <th className="num" style={{ width: '16%' }}>更新</th>
+                <th style={{ width: '16%', textAlign: 'right' }}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.data.items.map((item) => {
+                const selected = item.id === search.channel
+                return (
+                  <Fragment key={item.id}>
+                  <tr onClick={() => onSearch({ channel: selected ? 0 : item.id })} style={{ cursor: 'pointer' }} className={selected ? 'is-expanded' : undefined}>
+                    <td>
+                      <div className="cell-title">
+                        <Poster src={item.image_poster_url} name={item.title} />
+                        <span>
+                          <span className="cell-title__name">
+                            {item.title}
+                            {selected ? <span className="muted" style={{ fontSize: 11.5 }}> · 展开中</span> : null}
+                          </span>
+                          <span className="cell-title__code">
+                            {item.code}
+                            {item.tagline ? ` · ${item.tagline}` : ''}
+                          </span>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="muted">{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</td>
+                    <td className="num">{item.media_count}</td>
+                    <td className="num">{item.sort}</td>
+                    <td className="num muted">{formatRelative(item.updated_at)}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      {item.is_can_edit ? (
+                        <button
+                          className="btn btn--quiet"
+                          onClick={async (e) => {
+                            e.stopPropagation()
+                            const ok = await confirmDialog({
+                              title: `删除频道「${item.title}」？`,
+                              message: '该频道下的所有直播源会一并删除。',
+                              hint: '观看端会立即不可用。',
+                              confirmText: '删除',
+                              danger: true,
+                            })
+                            if (!ok) return
+                            actions.removeChannel.mutate(item.id, { onSuccess: () => toast('已删除', 'success') })
+                          }}
+                        >
+                          删除
+                        </button>
+                      ) : (
+                        <span className="muted">只读</span>
+                      )}
+                    </td>
+                  </tr>
+                  {selected ? (
+                    <tr className="table__expand">
+                      <td colSpan={6}>{renderSources()}</td>
+                    </tr>
+                  ) : null}
+                  </Fragment>
+                )
+              })}
+            </tbody>
+          </table>
+          <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
+        </div>
+        </>
       ) : null}
 
       {creating ? (

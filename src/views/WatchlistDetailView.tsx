@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
@@ -79,7 +80,7 @@ export function WatchlistDetailView({
       {item ? (
         <section className="detail-head">
           <div className="detail-head__row">
-            {item.image_poster_url ? <img className="poster-img" style={{ width: 56, height: 76 }} src={item.image_poster_url} alt="" /> : null}
+            <Poster src={item.image_poster_url} name={String(item.name ?? "?")} />
             <div style={{ display: 'grid', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
