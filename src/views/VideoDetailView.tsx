@@ -274,7 +274,7 @@ export function VideoDetailView({
                     <th>资源名</th>
                     <th className="num" style={{ width: 92 }}>大小</th>
                     <th style={{ width: 96 }}>上传者</th>
-                    <th style={{ width: 40 }} />
+                    <th style={{ width: 48 }} />
                   </tr>
                 </thead>
                 <tbody>
@@ -324,7 +324,7 @@ export function VideoDetailView({
                     <th>字幕</th>
                     <th style={{ width: 70 }}>格式</th>
                     <th style={{ width: 96 }}>上传者</th>
-                    <th style={{ width: 40 }} />
+                    <th style={{ width: 48 }} />
                   </tr>
                 </thead>
                 <tbody>

@@ -152,7 +152,6 @@ export function WatchlistDetailView({
                 <th style={{ width: '18%' }}>备注</th>
                 <th style={{ width: '14%', textAlign: 'right' }}>
                   操作
-                  {item && !item.is_edit_video ? <span className="th-hint">非维护者</span> : null}
                 </th>
               </tr>
             </thead>

@@ -83,7 +83,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                 <th style={{ width: '18%' }}>创建时间</th>
                 <th style={{ width: '12%', textAlign: 'right' }}>
                   操作
-                  <span className="th-hint">他人创建</span>
                 </th>
               </tr>
             </thead>

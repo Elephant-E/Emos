@@ -444,16 +444,6 @@
 
 .table-card .table thead th { background: #141311; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
-.th-hint {
-  display: block;
-  margin-top: 3px;
-  color: var(--fg-4);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0;
-  white-space: normal;
-  line-height: 1.3;
-}
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
 .table--fixed { table-layout: fixed; }
 .table--fixed .cell-title { min-width: 0; }
