@@ -50,13 +50,7 @@ export const clientApi = {
 
     emptyVideos: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/video/empty`, { method: 'DELETE' }),
     updateVideos: (watchId: number, items: Array<{ type: 'tmdb_tv' | 'tmdb_movie' | 'todb' | 'video_id'; value: string }>) =>
-      request<Array<{ id: number; title: string }>>(`/api/watch/${watchId}/video/update`, { method: 'POST', body: items }),
-
-    searchMusic: (watchId: number, params: { song_title?: string; page?: number; page_size?: number }) =>
-      request<ListResult<MusicSong>>(`/api/watch/${watchId}/music/search`, { query: params }),
-    addMusic: (watchId: number, songId: number, sort = 80, remark: string | null = null) =>
-      request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'POST', body: { sort, remark } }),
-    emptyMusic: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/empty`, { method: 'DELETE' }),
+      request<Array<{ id: number; title: string }>>(`/api/watch/${watchId}/video/update`, { method: 'POST', body: items }),    emptyMusic: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/empty`, { method: 'DELETE' }),
   },
   seek: {
     poll: (lastId?: number, pageSize = 10) => request<SeekItem[]>('/api/seek/poll', { query: { last_id: lastId, page_size: pageSize } }),

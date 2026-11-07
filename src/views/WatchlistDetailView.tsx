@@ -6,7 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
-import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -341,7 +341,10 @@ function WatchMusicList({
 
   const navigate = useNavigate()
   const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
-  const { removeSong } = useWatchMusicMutations(watchId)
+  const { addSong, removeSong } = useWatchMusicMutations(watchId)
+  const [addingSong, setAddingSong] = useState(false)
+  const [songTerm, setSongTerm] = useState('')
+  const songCandidates = useWatchMusicSearch(watchId, songTerm)
 
   return (
     <>
@@ -364,13 +367,22 @@ function WatchMusicList({
           value={term}
           onChange={(event) => setTerm(event.target.value)}
         />
+        {canEdit ? (
+          <>
+            <span className="spacer" />
+            <button className="btn btn--primary" onClick={() => { setSongTerm(''); setAddingSong(true) }}>
+              <IconPlus />
+              添加歌曲
+            </button>
+          </>
+        ) : null}
       </div>
 
       {songs.error ? <ErrorBlock error={songs.error as Error & { status?: number }} onRetry={() => songs.refetch()} /> : null}
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
 
       {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (
-        <EmptyBlock title="这个片单还没有歌" hint="在音乐页把喜欢的歌加进来。" />
+        <EmptyBlock title="这个片单还没有歌" />
       ) : null}
 
       {songs.data && songs.data.items.length > 0 ? (
@@ -380,7 +392,7 @@ function WatchMusicList({
               <tr>
                 <th style={{ width: canEdit ? '52%' : '72%' }}>歌曲</th>
                 <th className="num" style={{ width: '14%' }}>时长</th>
-                <th className="num" style={{ width: '14%' }}>收藏</th>
+                <th style={{ width: '20%' }}>艺人</th>
                 {canEdit ? <th style={{ width: '96px' }}>操作</th> : null}
               </tr>
             </thead>
@@ -408,7 +420,7 @@ function WatchMusicList({
                   <td className="num muted">
                     {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}
                   </td>
-                  <td className="num muted">{song.count_medias ?? 0}</td>
+                  <td className="muted" style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(song.person_artists ?? []).map((x) => x.name).join("/")}</td>
                   {canEdit ? (
                   <td onClick={(e) => e.stopPropagation()}>
                     <button
@@ -441,6 +453,37 @@ function WatchMusicList({
             onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
           />
         </div>
+      ) : null}
+      {addingSong ? (
+        <Modal title="添加歌曲" onClose={() => setAddingSong(false)} width={460}>
+          <label className="field">
+            <span>按歌名搜索</span>
+            <input className="input" autoFocus value={songTerm} placeholder="输入歌名" onChange={(e) => setSongTerm(e.target.value)} />
+          </label>
+          <div style={{ display: 'grid', gap: 6, maxHeight: 320, overflowY: 'auto' }}>
+            {songCandidates.isFetching ? <p className="muted">搜索中…</p> : null}
+            {(songCandidates.data?.items ?? []).map((sg) => (
+              <div key={sg.song_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                <Poster src={sg.image_poster_url} name={String(sg.name ?? '?')} />
+                <span style={{ display: 'grid', minWidth: 0 }}>
+                  <span className="ellipsis" style={{ fontSize: 13.5 }}>{sg.name}</span>
+                  <span className="muted" style={{ fontSize: 11.5 }}>{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>
+                </span>
+                <button
+                  className="btn btn--ghost"
+                  style={{ marginLeft: 'auto' }}
+                  onClick={() => addSong.mutate(sg.song_id, { onSuccess: () => toast(`已加入「${sg.name}」`, 'success') })}
+                  disabled={addSong.isPending}
+                >
+                  加入
+                </button>
+              </div>
+            ))}
+            {songTerm.trim() && !songCandidates.isFetching && (songCandidates.data?.items ?? []).length === 0 ? (
+              <p className="muted">没有找到「{songTerm}」</p>
+            ) : null}
+          </div>
+        </Modal>
       ) : null}
     </>
   )

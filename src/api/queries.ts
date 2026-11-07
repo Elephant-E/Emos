@@ -232,11 +232,23 @@ export function useWatchMusicMutations(watchId: number) {
     qc.invalidateQueries({ queryKey: ['watch', watchId] })
   }
   return {
+    addSong: useMutation({
+      mutationFn: (songId: number) => watchApi.addMusic(watchId, songId),
+      onSuccess: invalidate,
+    }),
     removeSong: useMutation({
       mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
       onSuccess: invalidate,
     }),
   }
+}
+
+export function useWatchMusicSearch(watchId: number, title: string) {
+  return useQuery({
+    queryKey: ['watch', watchId, 'musicSearch', title] as const,
+    queryFn: () => watchApi.searchMusic(watchId, { song_title: title, page_size: 8 }),
+    enabled: title.trim().length > 0,
+  })
 }
 
 export function useWatchSearch(watchId: number, title: string) {
@@ -686,10 +698,18 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (videoId: number) => watchApi.removeVideo(watchId, videoId),
     onSuccess: invalidate,
   })
+  const addMusic = useMutation({
+    mutationFn: (songId: number) => watchApi.addMusic(watchId, songId),
+    onSuccess: invalidate,
+  })
+  const removeMusic = useMutation({
+    mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
+    onSuccess: invalidate,
+  })
   const subscribe = useMutation({ mutationFn: () => watchApi.subscribe(watchId), onSuccess: invalidate })
   const toggleShow = useMutation({ mutationFn: () => watchApi.show(watchId), onSuccess: invalidate })
   const setDynamic = useMutation({ mutationFn: (url: string | null) => watchApi.dynamic(watchId, url), onSuccess: invalidate })
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
-  return { addVideo, removeVideo, subscribe, toggleShow, setDynamic, sort }
+  return { addVideo, removeVideo, addMusic, removeMusic, subscribe, toggleShow, setDynamic, sort }
 }

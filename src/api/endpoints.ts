@@ -124,6 +124,10 @@ export const watchApi = {
   music: (watchId: number, params: { song_title?: string; page?: number; page_size?: number }) =>
     request<ListResult<MusicSong>>(`/api/watch/${watchId}/music`, { query: params }),
   removeMusic: (watchId: number, songId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'DELETE' }),
+  searchMusic: (watchId: number, params: { song_title?: string; page?: number; page_size?: number }) =>
+    request<ListResult<MusicSong>>(`/api/watch/${watchId}/music/search`, { query: params }),
+  addMusic: (watchId: number, songId: number, sort = 80, remark: string | null = null) =>
+    request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'POST', body: { sort, remark } }),
 }
 
 export const lineApi = {

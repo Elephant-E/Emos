@@ -320,6 +320,13 @@ export async function mockRequest<T>(
   if (clean === '/api/video/sync') return [] as T
   if (/^\/api\/video\/\d+\/delete$/.test(clean)) return { carrot: 1, is_delete: true } as T
 
+  const watchMusicSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/music\/search$/)
+  if (watchMusicSearchMatch) {
+    const title = String(query.song_title ?? '').trim()
+    const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+  }
+
   const watchMusicMatch = clean.match(/^\/api\/watch\/(\d+)\/music$/)
   if (watchMusicMatch) {
     const title = String(query.song_title ?? '').trim()
