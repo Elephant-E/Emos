@@ -1044,6 +1044,7 @@
   transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .ep-chip:hover { color: var(--fg-2); border-color: var(--line); }
+.ep-chip__dot--seek { background: var(--c-yellow); top: 6px; right: auto; left: 6px; }
 .ep-chip__dot {
   position: absolute;
   top: 6px;

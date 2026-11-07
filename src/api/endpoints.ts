@@ -62,8 +62,11 @@ export const videoApi = {
   sync: (params: { tmdb_id?: number; todb_id?: number }) => request<Array<Record<string, unknown>>>('/api/video/sync', { method: 'PATCH', query: params }),
   remove: (videoId: number) => request<{ carrot: number; is_delete: boolean }>(`/api/video/${videoId}/delete`, { method: 'PUT' }),
   seasons: (videoId: number) => request<VideoSeason[]>(`/api/video/${videoId}/season`),
+  // with_seek 会带回每集的认领信息，用于在集号上标记「这集被求片」
   episodes: (videoId: number, seasonNumber?: number) =>
-    request<VideoEpisode[]>(`/api/video/${videoId}/episode`, { query: { season_number: seasonNumber } }),
+    request<VideoEpisode[]>(`/api/video/${videoId}/episode`, {
+      query: { season_number: seasonNumber, with_seek: true, with_seek_is_request: true },
+    }),
   persons: (params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) =>
     request<ListResult<VideoPerson>>('/api/video/persons', { query: params }),
 }

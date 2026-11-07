@@ -114,6 +114,18 @@ export interface VideoEpisode {
   parts_count: number
   medias_count: number
   subtitles_count: number
+  /** 该集的求片信息（with_seek 时才返回，无求片为 null） */
+  seek?: {
+    seek_id: number
+    status: string
+    upload_username: string | null
+    upload_expired_at: string | null
+    is_can_claim: boolean
+    request_count: number
+    seek_carrot: number
+    updated_at: string
+  } | null
+  with_seek_is_request?: boolean | null
 }
 
 export interface VideoPerson {

@@ -228,6 +228,7 @@ export function VideoDetailView({
                       onClick={() => pick(ep.season_number, ep.episode_number)}
                     >
                       {String(ep.episode_number).padStart(2, '0')}
+                      {ep.seek ? <span className="ep-chip__dot ep-chip__dot--seek" aria-hidden="true" /> : null}
                       {ep.medias_count > 0 ? <span className="ep-chip__dot" aria-hidden="true" /> : null}
                     </button>
                   )
@@ -243,6 +244,7 @@ export function VideoDetailView({
                     {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
                     {currentEpisode.runtime ? `${currentEpisode.runtime} 分` : '—'} ·{' '}
                     {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
+                    {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 萝卜` : ''}
                   </span>
                   {currentEpisode.episode_description ? (
                     <span className="ep-current__desc">{currentEpisode.episode_description}</span>
