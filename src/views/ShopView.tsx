@@ -94,20 +94,11 @@ export function ShopView({
         crumb={['商城', TABS.find((t) => t.key === tab)?.label ?? '商品']}
         title={seller.data?.name ?? '商城'}
         hint={seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
-        tools={
-          seller.data ? (
-            <span className="stamp">
-              <i />
-              {seller.data.is_self ? '我的店铺' : '他人店铺'}
-            </span>
-          ) : null
-        }
       />
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
 
       <div className="toolbar">
-        <span className="muted tnum-sm">{isSeller ? '只显示本店商品' : '仅可浏览，开店后可管理商品'}</span>
         <div className="row" style={{ marginLeft: 'auto', gap: 12 }}>
           <button className="btn btn--quiet" onClick={() => setPanel('categories')}>
             分类

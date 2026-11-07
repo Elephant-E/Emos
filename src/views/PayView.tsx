@@ -35,8 +35,8 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         title="支付"
         hint={base.data ? base.data.name : undefined}
         tools={
-          base.data ? (
-            <span className="head-note">{base.data.status === 'pass' ? '已开通' : base.data.status}</span>
+          base.data && base.data.status !== 'pass' ? (
+            <span className="head-note">{base.data.status}</span>
           ) : null
         }
       />

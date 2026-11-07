@@ -99,7 +99,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         hint={user ? `#${user.user_id}` : undefined}
         tools={
           <>
-            <span className="head-note">{user?.is_can_upload ? '可上传' : '无上传权限'}</span>
+            {user && !user.is_can_upload ? <span className="head-note">无上传权限</span> : null}
             <button
               className="btn btn--ghost"
               onClick={() =>

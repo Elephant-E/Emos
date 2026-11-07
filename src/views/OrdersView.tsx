@@ -41,9 +41,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       <PageHeader
         crumb={['订单']}
         title="订单"
-        tools={
-          <span className="head-note">{orders.isFetching ? '拉取中' : '商户视角'}</span>
-        }
+        tools={orders.isFetching ? <span className="head-note">拉取中</span> : null}
       />
 
       <div className="toolbar">
