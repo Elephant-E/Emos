@@ -64,7 +64,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     </span>
                     {row.is_can_edit ? (
                       <button
-                        className="btn btn--quiet"
+                        className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: '删除这个源？',
@@ -173,7 +173,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <td style={{ textAlign: 'right' }}>
                       {item.is_can_edit ? (
                         <button
-                          className="btn btn--quiet"
+                          className="btn btn--danger-text"
                           onClick={async (e) => {
                             e.stopPropagation()
                             const ok = await confirmDialog({

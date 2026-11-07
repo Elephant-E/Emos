@@ -189,7 +189,7 @@ export function WatchlistDetailView({
                   <td style={{ textAlign: 'right' }}>
                     {item?.is_edit_video ? (
                       <button
-                        className="btn btn--quiet"
+                        className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: '移出这个影片？',
@@ -333,7 +333,7 @@ function WatchMusicList({
         title={title}
         hint={songs.data ? `${formatThousand(songs.data.total)} 首` : undefined}
         tools={
-          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
+          <Link className="btn btn--danger-text" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
             返回列表
           </Link>
         }

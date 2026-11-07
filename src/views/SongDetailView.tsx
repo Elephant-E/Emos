@@ -41,7 +41,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               收藏
             </button>
             <button
-              className="btn btn--ghost"
+              className="btn btn--danger-text"
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '删除这首歌曲？',

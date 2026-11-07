@@ -90,7 +90,7 @@ export function LinesView() {
                   <td style={{ textAlign: 'right' }}>
                     {line.is_self ? (
                       <button
-                        className="btn btn--quiet"
+                        className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: `删除线路「${line.name}」？`,
