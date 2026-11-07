@@ -200,14 +200,14 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           title="新建片单"
           onClose={() => setCreating(false)}
           onSubmit={() => {
-            if (form.name.trim() && !create.isPending) create.mutate()
+            if (form.name.trim().length >= 2 && !create.isPending) create.mutate()
           }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setCreating(false)}>
                 取消
               </button>
-              <button className="btn btn--primary" type="submit" disabled={!form.name.trim() || create.isPending}>
+              <button className="btn btn--primary" type="submit" disabled={form.name.trim().length < 2 || create.isPending}>
                 创建
               </button>
             </>
