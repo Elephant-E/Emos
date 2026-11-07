@@ -31,8 +31,19 @@ type Token = { type?: string; file_id?: string; data?: { upload_url?: string } }
  * tusd 用 tus 协议，r2/local 直接 PUT 整个文件，其余（onedrive/google_drive/multipart）
  * 用分片凭证。
  */
-async function uploadObject(file: File, kind: string, onProgress: (ratio: number) => void): Promise<string> {
-  const raw = (await uploadApi.uploadToken(kind, file.type || 'application/octet-stream', file.name, file.size)) as Token
+async function uploadObject(
+  file: File,
+  kind: string,
+  onProgress: (ratio: number) => void,
+  fileStorage?: string,
+): Promise<string> {
+  const raw = (await uploadApi.uploadToken(
+    kind,
+    file.type || 'application/octet-stream',
+    file.name,
+    file.size,
+    fileStorage,
+  )) as Token
   const fileId = raw.file_id ?? ''
   const uploadUrl = raw.data?.upload_url ?? ''
   if (!fileId || !uploadUrl) throw new Error('服务端没有返回 file_id / upload_url')
@@ -73,6 +84,7 @@ export async function uploadAndSave(
   file: File,
   target: UploadTarget,
   onProgress: (ratio: number) => void,
+  fileStorage?: string,
 ): Promise<UploadResult> {
   if (USE_MOCK) {
     for (let i = 1; i <= 10; i += 1) {
@@ -83,7 +95,7 @@ export async function uploadAndSave(
     return { media_id: saved.media_id, carrot: saved.carrot }
   }
 
-  const fileId = await uploadObject(file, 'video', onProgress)
+  const fileId = await uploadObject(file, 'video', onProgress, fileStorage)
   const saved = await uploadApi.saveVideo(target.item_type, target.item_id, fileId)
   return { media_id: saved.media_id, carrot: saved.carrot }
 }
@@ -92,7 +104,8 @@ export async function uploadSubtitle(
   file: File,
   target: { item_type: string; item_id: number },
   onProgress: (ratio: number) => void,
+  fileStorage?: string,
 ): Promise<void> {
-  const fileId = await uploadObject(file, 'subtitle', onProgress)
+  const fileId = await uploadObject(file, 'subtitle', onProgress, fileStorage)
   await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
 }

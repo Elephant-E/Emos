@@ -11,6 +11,15 @@ import { formatSize } from '@/lib/format'
 import { USE_MOCK } from '@/api/client'
 import type { VideoItem } from '@/api/types'
 
+// 取自 wiki /api/upload：getUploadToken 的 file_storage
+const STORAGE_OPTIONS = [
+  { value: 'default', label: '默认' },
+  { value: 'global', label: '国际' },
+  { value: 'internal', label: '国内' },
+  { value: 'zn_r2_upload', label: 'Zn 存档服' },
+  { value: 'google_drive', label: '谷歌盘' },
+]
+
 type Status = 'recognizing' | 'need-target' | 'ready' | 'uploading' | 'done' | 'failed'
 
 interface QueueItem {
@@ -26,7 +35,10 @@ export function UploadView() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [over, setOver] = useState(false)
+  // 暂存区浏览用的盘（/api/upload/store/disk 返回，如 local_emos_1）
   const [storage, setStorage] = useState('')
+  // 上传文件落点（getUploadToken 的 file_storage），取值见 wiki
+  const [fileStorage, setFileStorage] = useState('default')
   const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
   const [term, setTerm] = useState('')
@@ -85,7 +97,7 @@ export function UploadView() {
     }
     patch(item.id, { status: 'uploading', progress: 0, message: undefined })
     try {
-      const result = await uploadAndSave(item.file, item.target, (ratio) => patch(item.id, { progress: ratio }))
+      const result = await uploadAndSave(item.file, item.target, (ratio) => patch(item.id, { progress: ratio }), fileStorage)
       patch(item.id, { status: 'done', progress: 1 })
       toast(`《${item.target.title}》入库完成，+${result.carrot} 胡萝卜`, 'success')
     } catch (err) {
@@ -117,8 +129,24 @@ export function UploadView() {
 
       <div className="toolbar">
         <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12.5, color: 'var(--fg-3)' }}>存储位置</span>
-          <select className="input" style={{ minWidth: 180 }} value={storage} onChange={(e) => setStorage(e.target.value)}>
+          <span style={{ fontSize: 12.5, color: 'var(--fg-3)' }}>上传落点</span>
+          <select
+            className="input"
+            style={{ minWidth: 150 }}
+            value={fileStorage}
+            onChange={(e) => setFileStorage(e.target.value)}
+            aria-label="上传落点"
+          >
+            {STORAGE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12.5, color: 'var(--fg-3)' }}>暂存盘</span>
+          <select className="input" style={{ minWidth: 150 }} value={storage} onChange={(e) => setStorage(e.target.value)} aria-label="暂存盘">
             {(disks.data ?? []).map((disk) => (
               <option key={disk} value={disk}>
                 {disk}
@@ -151,7 +179,7 @@ export function UploadView() {
         <IconUpload size={20} />
         <span>把视频拖到这里，或点击选择文件</span>
         <span className="muted" style={{ fontSize: 12 }}>
-          支持多选 · 8 MB 分片 · 单文件上限取决于存储
+          支持多选，单个文件的上限取决于存储
         </span>
       </div>
 

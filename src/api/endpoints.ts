@@ -51,10 +51,12 @@ export const uploadApi = {
     request<Array<{ file_name: string; file_size: number; mime_type: string }>>('/api/upload/store/file', { query: { path_type: pathType } }),
   archive: (payload: Record<string, unknown>) => request<{ media_id: string; carrot: number }>('/api/upload/store/archive', { method: 'POST', body: payload }),
   // file_size 为必填（字节），缺省会 422
-  uploadToken: (type: string, fileType: string, fileName: string, fileSize: number) =>
+  // file_storage 决定文件落到哪：global 国际 / internal 国内 / default 默认 /
+  // zn_r2_upload Zn 存档服 / google_drive 谷歌盘。不传就是 default
+  uploadToken: (type: string, fileType: string, fileName: string, fileSize: number, fileStorage?: string) =>
     request<Record<string, unknown>>('/api/upload/getUploadToken', {
       method: 'POST',
-      body: { type, file_type: fileType, file_name: fileName, file_size: fileSize },
+      body: { type, file_type: fileType, file_name: fileName, file_size: fileSize, file_storage: fileStorage },
     }),
 }
 
