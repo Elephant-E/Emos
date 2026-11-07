@@ -119,7 +119,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </p>
               <p className="stat__delta">
                 片单槽位 {user.slot_remaining}
-                <span> · 邀请名额 {caps.inviteRemaining === null ? '不限' : user.invite_remaining}</span>
+                <span> · 邀请名额 {user.invite_remaining}</span>
               </p>
             </article>
             <article className="card">
@@ -369,12 +369,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <article className="card">
               <p className="stat__label">邀请名额</p>
               <p className="stat__value">
-                {info.isLoading ? '—' : caps.inviteRemaining === null ? '∞' : caps.inviteRemaining}
-                <small>{caps.inviteRemaining === null ? '不限' : '个可用'}</small>
+                {info.isLoading ? '—' : caps.inviteRemaining}
+                <small>个可用</small>
               </p>
               <p className="stat__delta stat__delta--quiet">
                 已邀请 {info.data?.invite_count ?? 0} 人
-                {caps.inviteRemaining === null ? ' · 管理员不限名额' : ` · 加入于 ${formatDateTime(info.data?.invite_at)}`}
+                {info.data?.parent?.pseudonym
+                  ? ` · 邀请人 ${info.data.parent.pseudonym}`
+                  : ` · 加入于 ${formatDateTime(info.data?.invite_at)}`}
               </p>
             </article>
             <article className="card">
