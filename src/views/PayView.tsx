@@ -45,7 +45,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock
           title="还不是支付服务商"
-          hint="查单与收款需要服务商身份；下面的转赠胡萝卜不依赖它，可以正常用。"
+          hint="查单与收款需要服务商身份。"
           action={
             <button
               className="btn btn--primary"

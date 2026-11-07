@@ -387,9 +387,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   邀请
                 </button>
               </div>
-              <p className="state__hint note-left" style={{ marginTop: 10 }}>
-                对方的 ID 可以在他自己的账号页看到。
-              </p>
             </article>
           </section>
 

@@ -250,7 +250,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       {creating ? (
         <Modal
           title="新增频道"
-          hint="频道归属媒体库后，用户端才会出现在对应分类里。"
           onClose={() => setCreating(false)}
           onSubmit={submitChannel}
           footer={
@@ -298,7 +297,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       {addingSource && channel ? (
         <Modal
           title={`新增源 · ${channel.title}`}
-          hint="同一个频道可以有多个源，播放端会按顺序回退。"
           onClose={() => setAddingSource(false)}
           onSubmit={submitSource}
           footer={

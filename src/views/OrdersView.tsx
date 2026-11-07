@@ -175,7 +175,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       {remarking ? (
         <Modal
           title="订单备注"
-          hint="备注只有商户可见，用户看不到。"
           onClose={() => setRemarking(null)}
           footer={
             <>

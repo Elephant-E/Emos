@@ -260,7 +260,6 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       {creating ? (
         <Modal
           title="新建基金订单"
-          hint="活动码由活动方提供"
           width={400}
           onClose={() => setCreating(false)}
           onSubmit={() => {

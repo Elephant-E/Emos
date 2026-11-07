@@ -508,7 +508,6 @@ export function VideoDetailView({
       {moving ? (
         <Modal
           title={`移动资源 · ${moving.name}`}
-          hint="移动比删了重传省一次胡萝卜"
           width={460}
           onClose={() => setMoving(null)}
         >
