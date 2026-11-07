@@ -147,7 +147,7 @@ export function VideoDetailView({
                     {genre.name}
                   </span>
                 ))}
-                {video.seek_is_request ? (
+                {video.seek_is_request && video.request_count > 0 ? (
                   <span className="chip" style={{ color: 'var(--c-yellow)', borderColor: 'rgba(255,197,61,.4)' }}>
                     {video.request_count} 人求片
                   </span>

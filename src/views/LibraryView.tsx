@@ -117,11 +117,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th className="th-thumb" style={{ width: '46%' }}>片名</th>
-                <th style={{ width: '13%' }}>类型</th>
+                <th className="th-thumb" style={{ width: '42%' }}>片名</th>
+                <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '13%' }}>资源</th>
-                <th className="num" style={{ width: '12%' }}>求片</th>
-                <th className="num" style={{ width: '13%' }}>上映</th>
+                <th className="num" style={{ width: '11%' }}>求片</th>
+                <th className="num" style={{ width: '16%' }}>上映</th>
               </tr>
             </thead>
             <tbody>

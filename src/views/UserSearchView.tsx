@@ -51,7 +51,7 @@ export function UserSearchView() {
           查详情
         </button>
         <span className="spacer" />
-        <span className="head-note">封禁列表来自最近一周的记录</span>
+        <span className="head-note">仅列出正在封禁中的账号</span>
       </div>
 
       {bans.error ? <ErrorBlock error={bans.error as Error & { status?: number }} onRetry={() => bans.refetch()} /> : null}

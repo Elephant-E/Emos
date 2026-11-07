@@ -39,6 +39,15 @@ export function WatchlistDetailView({
   const candidates = useWatchSearch(id, term)
   const { addVideo, removeVideo, subscribe, toggleShow, setDynamic } = useWatchMutations(id)
 
+  // 输入即搜：停手 350ms 后推进 URL。
+  // 必须放在 early return 之前 —— 否则音乐片单会在第二帧少执行一个 hook 而崩溃。
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
+
   const item = watch.data?.items[0]
 
   if (item?.type === 'music') {
@@ -47,14 +56,6 @@ export function WatchlistDetailView({
 
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
-
-  // 输入即搜：停手 350ms 后推进 URL
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => go({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
 
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
