@@ -69,3 +69,17 @@
 1. ~~`is_can_restore`~~ —— 已确认前端用了：`RecycleView.tsx:158` 的 `row.is_can_restore !== false`，与契约一致。
 2. **`file_storage`**：上传是否应该跟随用户选的存储盘，还是固定默认盘。
 3. **`with_seek`**：剧集列表是否要显示「这集被求片」的状态。
+
+
+## 六、用户域顺带核对（我做的部分）
+
+`GET /api/user` 返回 25 个字段，UI 未使用的：
+
+| 字段 | 情况 |
+|---|---|
+| `is_have_emps` | 契约无注释，旧项目也没用过，含义不明 |
+| `is_show_watch_default` | 与 `is_show_empty` 同类设置，但**后端没有对应的写接口**（user 域写接口只有 showEmpty / pseudonym / sign / passwordReset / agreeUploadAgreement），只读不可改 |
+| `telegram_group_url` | TG 群链接，可以直接展示成「加入群组」入口，当前未用 |
+
+`GET /api/user/server/videoHistory`（已登录设备列表）与 `POST /api/user/server/videoLogout`（远程登出）
+两个端点有封装但未接入 UI —— 属于账号安全功能，值得做。
