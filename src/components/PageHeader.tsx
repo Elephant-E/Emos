@@ -23,6 +23,7 @@ const SECTION_PATH: Record<string, string> = {
   线路: '/lines',
   用户: '/users',
   资金: '/fund',
+  支付: '/fund',
   悄悄话: '/whisper',
   账号: '/account',
   回收站: '/recycle',
@@ -50,10 +51,10 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
             </>
           ) : null}
         </nav>
-        <h1 className="page-title">
-          {title}
+        <div className="page-title__row">
+          <h1 className="page-title">{title}</h1>
           {hint ? <span className="page-title__hint">{hint}</span> : null}
-        </h1>
+        </div>
       </div>
       {tools ? <div className="head-tools">{tools}</div> : null}
     </div>

@@ -122,7 +122,7 @@ export function VideoDetailView({
           title="找不到这部影片"
           hint="它可能已被删除（去回收站看看），或这个 ID 不存在。"
           action={
-            <Link className="btn btn--danger-text" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
+            <Link className="btn btn--ghost" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               回到媒体库
             </Link>
           }
@@ -133,7 +133,7 @@ export function VideoDetailView({
         <section className="detail-head">
           <div className="detail-head__row">
             {video.video_image_poster ? (
-              <Poster src={video.video_image_poster} name={video.video_title} />
+              <Poster src={video.video_image_poster} name={video.video_title} style={{ width: 76, height: 108 }} />
             ) : null}
             <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -227,6 +227,7 @@ export function VideoDetailView({
                       onClick={() => pick(ep.season_number, ep.episode_number)}
                     >
                       {String(ep.episode_number).padStart(2, '0')}
+                      {ep.medias_count > 0 ? <span className="ep-chip__dot" aria-hidden="true" /> : null}
                     </button>
                   )
                 })}
@@ -582,7 +583,7 @@ export function VideoDetailView({
             <input className="input" value={renamingSub.title} onChange={(e) => setRenamingSub({ ...renamingSub, title: e.target.value })} autoFocus />
           </label>
           <button
-            className="btn btn--danger-text"
+            className="btn btn--ghost"
             onClick={async () => {
               const ok = await confirmDialog({
                 title: '删除这条字幕？',

@@ -143,7 +143,10 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 <th className="num" style={{ width: '10%' }}>源</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
                 <th className="num" style={{ width: '16%' }}>更新</th>
-                <th style={{ width: '16%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '16%', textAlign: 'right' }}>
+                  操作
+                  <span className="th-hint">他人创建只读</span>
+                </th>
               </tr>
             </thead>
             <tbody>

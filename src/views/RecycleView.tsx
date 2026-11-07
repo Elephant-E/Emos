@@ -142,7 +142,10 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th className="num" style={{ width: '12%' }}>大小</th>
                   <th style={{ width: '14%' }}>存储</th>
                   <th className="num" style={{ width: '12%' }}>入库时间</th>
-                  <th style={{ width: '96px', textAlign: 'right' }}>操作</th>
+                  <th style={{ width: '96px', textAlign: 'right' }}>
+                    操作
+                    <span className="th-hint">他人上传只读</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -190,7 +193,10 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th style={{ width: '14%' }}>类型</th>
                   <th className="num" style={{ width: '14%' }}>toDB</th>
                   <th className="num" style={{ width: '16%' }}>上映</th>
-                  <th style={{ width: '96px', textAlign: 'right' }}>操作</th>
+                  <th style={{ width: '96px', textAlign: 'right' }}>
+                    操作
+                    <span className="th-hint">他人上传只读</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>

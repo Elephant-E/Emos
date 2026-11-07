@@ -201,6 +201,12 @@
   font-weight: 450;
   letter-spacing: 0;
 }
+.page-title__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
 .page-title__hint {
   color: var(--fg-3);
   margin-left: 10px;
@@ -216,6 +222,28 @@
   transition: color var(--t-fast) var(--ease);
 }
 .crumb__link:hover { color: var(--fg-2); }
+.page-title__row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.page-title__hint {
+  color: var(--fg-3);
+  margin-left: 10px;
+  font-weight: 450;
+  letter-spacing: 0;
+  font-size: 0.62em;
+  vertical-align: 0.28em;
+  white-space: nowrap;
+}
+.crumb__link {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--t-fast) var(--ease);
+}
+.crumb__link:hover { color: var(--fg-2); }
+
 .head-tools {
   display: flex;
   align-items: center;
@@ -411,7 +439,15 @@
 
 .table-card .table thead th { background: #141311; }
 .table .num { text-align: right; font-variant-numeric: tabular-nums; }
-.th-sort[aria-sort='descending'] svg,
+.th-hint {
+  display: block;
+  margin-top: 3px;
+  color: var(--fg-4);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
 .table tbody td {
   height: 38px;
   padding: 7px 20px;
@@ -438,6 +474,15 @@
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .cell-title__name { display: block; color: var(--fg); font-size: 13.5px; }
+.cell-sub {
+  display: block;
+  margin-top: 6px;
+  color: var(--fg-4);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .cell-title__code {
   display: block;
   margin-top: 1px;
@@ -584,29 +629,15 @@
   .rail__brand-name em,
   .rail__label,
   .rail__search,
-  .rail__foot > span:last-child,
+  .rail__account-name,
+  .rail__account-caret,
   .rail__item > span:not(.rail__ico),
   .rail__tail { display: none; }
   .rail__item { justify-content: center; height: 38px; }
   .rail__foot { justify-content: center; border-top: 0; }
   .page { padding: 16px 16px 32px; }
   .page__head { flex-direction: column; gap: 14px; }
-  .page-title__hint {
-  color: var(--fg-3);
-  margin-left: 10px;
-  font-weight: 450;
-  letter-spacing: 0;
-  font-size: 0.62em;
-  vertical-align: 0.28em;
-  white-space: nowrap;
-}
-.crumb__link {
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--t-fast) var(--ease);
-}
-.crumb__link:hover { color: var(--fg-2); }
-.head-tools { justify-content: flex-start; }
+  .head-tools { justify-content: flex-start; }
   .page-title { font-size: 30px; }
   .cards { grid-template-columns: minmax(0, 1fr) !important; }
   
@@ -765,6 +796,11 @@
   color: var(--fg-2);
   animation: toast-in var(--t-base) var(--ease);
 }
+
+.toast--success i { background: var(--c-green); }
+.toast--error i { background: var(--c-red); }
+.toast--error { border-color: rgba(242, 112, 74, 0.34); }
+.toast--info i { background: var(--c-blue, #6ea8fe); }
 
 .toast i {
   width: 6px;
@@ -1009,11 +1045,8 @@
 
 /* 切换筛选时旧数据还在，但必须让用户看出「这是旧的、正在取新的」，
    否则界面像是静默无响应，等数据到了再硬换一次 */
-.is-stale {
-  opacity: 0.45;
-  transition: opacity 120ms var(--ease);
-  pointer-events: none;
-}
+/* 旧数据变暗表示正在取新的；不用 0.45，那会让副文本掉到 2–3:1 不可读 */
+.is-stale { opacity: 0.72; transition: opacity 120ms var(--ease); }
 
 /* 集数可能上百，用固定高度的数字网格，高度不随集数增长 */
 .ep-grid {
@@ -1033,6 +1066,7 @@
   border-radius: 999px;
 }
 .ep-chip {
+  position: relative;
   height: 32px;
   border-radius: 8px;
   border: 1px solid var(--line-soft);
@@ -1044,6 +1078,15 @@
   transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .ep-chip:hover { color: var(--fg-2); border-color: var(--line); }
+.ep-chip__dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c-green);
+}
 .ep-chip.is-active {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.34);
@@ -1224,8 +1267,8 @@
   color: var(--fg-3);
 }
 .table .btn:hover { color: var(--fg); background: transparent; }
-.table .btn--danger-text { color: var(--c-red); }
-.table .btn--danger-text:hover { color: #fff; background: rgba(255, 92, 92, 0.16); }
+.table .btn--danger-text { color: var(--fg-3); }
+.table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 .table td.action-cell { white-space: nowrap; }
 .table .action-group { display: inline-flex; gap: 12px; }
 .table .row-menu { margin-right: -6px; }

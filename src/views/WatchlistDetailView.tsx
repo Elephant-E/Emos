@@ -166,7 +166,7 @@ export function WatchlistDetailView({
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (
-                        <img className="poster-img" src={video.video_image_poster} alt="" loading="lazy" />
+                        <Poster src={video.video_image_poster} name={String(video.video_title ?? "?")} />
                       ) : (
                         <span className="thumb">{video.video_title.slice(0, 1)}</span>
                       )}
@@ -246,7 +246,7 @@ export function WatchlistDetailView({
             {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
             {(candidates.data ?? []).map((c) => (
               <div key={c.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                {c.video_image_poster ? <img className="poster-img" src={c.video_image_poster} alt="" /> : null}
+                {c.video_image_poster ? <Poster src={c.video_image_poster} name={String(c.video_title ?? "?")} /> : null}
                 <span style={{ display: 'grid' }}>
                   <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
                   <span className="muted" style={{ fontSize: 11.5 }}>
@@ -333,7 +333,7 @@ function WatchMusicList({
         title={title}
         hint={songs.data ? `${formatThousand(songs.data.total)} 首` : undefined}
         tools={
-          <Link className="btn btn--danger-text" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
+          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
             返回列表
           </Link>
         }

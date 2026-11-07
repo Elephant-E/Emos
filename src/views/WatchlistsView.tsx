@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
@@ -133,7 +134,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td>
                     <div className="cell-title">
                       {watch.image_poster_url ? (
-                        <img className="poster-img" src={watch.image_poster_url} alt="" loading="lazy" />
+                        <Poster src={watch.image_poster_url} name={String(watch.name ?? "?")} />
                       ) : (
                         <span className="thumb">{watch.name.slice(0, 1)}</span>
                       )}

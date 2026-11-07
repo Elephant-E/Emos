@@ -67,7 +67,10 @@ export function LinesView() {
                 <th>地址</th>
                 <th style={{ width: '18%' }}>简介</th>
                 <th style={{ width: '18%' }}>创建时间</th>
-                <th style={{ width: '10%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '12%', textAlign: 'right' }}>
+                  操作
+                  <span className="th-hint">他人创建只读</span>
+                </th>
               </tr>
             </thead>
             <tbody>

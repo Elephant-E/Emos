@@ -109,11 +109,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 <th style={{ width: 40 }}>
                   <input className="cbx" type="checkbox" aria-label="全选本页" />
                 </th>
-                <th style={{ width: '34%' }}>片名</th>
-                <th style={{ width: '12%' }}>类型</th>
-                <th className="num" style={{ width: '14%' }}>资源</th>
-                <th className="num" style={{ width: '14%' }}>求片</th>
-                <th className="num" style={{ width: '14%' }}>上映</th>
+                <th style={{ width: '32%' }}>片名</th>
+                <th style={{ width: '18%' }}>类型</th>
+                <th className="num" style={{ width: '13%' }}>资源</th>
+                <th className="num" style={{ width: '12%' }}>求片</th>
+                <th className="num" style={{ width: '13%' }}>上映</th>
                 <th style={{ width: 44 }} />
               </tr>
             </thead>
@@ -156,6 +156,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                       <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                       {VIDEO_TYPE_LABEL[video.video_type]}
                     </span>
+                    {video.genres.length > 0 ? (
+                      <span className="cell-sub" title={video.genres.map((g) => g.name).join(' · ')}>
+                        {video.genres.slice(0, 2).map((g) => g.name).join(' · ')}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="num">
                     {video.medias_count} 个 · 字幕 {video.subtitles_count}
