@@ -179,7 +179,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {detailTarget ? (
         <Modal
           title={`求片详情 · ${detailTarget.video_title_display}`}
-          hint={`#${detailTarget.id} · ${detailTarget.status}`}
           width={460}
           onClose={() => setDetailTarget(null)}
         >
@@ -190,6 +189,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           {!detail.loading && detail.info ? (
             <dl className="kv">
               {[
+                ['__id', '求片编号'],
                 ['status', '状态'],
                 ['upload_username', '认领人'],
                 ['request_count', '求片人数'],
@@ -197,7 +197,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                 ['updated_at', '最近更新'],
                 ['upload_expired_at', '上传期限'],
               ]
-                .map(([key, label]) => [label, detail.info?.[key]] as const)
+                .map(([key, label]) => [label, key === '__id' ? detailTarget.id : detail.info?.[key]] as const)
                 .filter(([, v]) => v !== null && v !== undefined && v !== '')
                 .map(([label, v]) => (
                   <div key={label}>

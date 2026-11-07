@@ -468,10 +468,10 @@ export function VideoDetailView({
       ) : null}
 
       {subUploading ? (
-        <Modal title="上传字幕" hint="支持 srt / ass / vtt" width={460} onClose={() => setSubUploading(false)}>
+        <Modal title="上传字幕" width={460} onClose={() => setSubUploading(false)}>
           <div className="stack">
             <label className="btn btn--ghost" style={{ justifySelf: 'start', cursor: subBusy ? 'default' : 'pointer' }}>
-              {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '选择字幕文件'}
+              {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '选择字幕文件（srt / ass / vtt）'}
               <input
                 type="file"
                 hidden

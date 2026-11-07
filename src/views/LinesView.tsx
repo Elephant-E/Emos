@@ -142,7 +142,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
       {creating ? (
         <Modal
           title="新增线路"
-          hint="地址不要带尾部斜杠；名称建议用自己的 ID。"
           onClose={() => setCreating(false)}
           onSubmit={submitLine}
           footer={
@@ -161,11 +160,11 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           }
         >
           <label className="field">
-            <span>名称</span>
+            <span>名称（建议用自己 ID）</span>
             <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="@proxy" autoFocus />
           </label>
           <label className="field">
-            <span>地址</span>
+            <span>地址（不要带尾部斜杠）</span>
             <input className="input" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="http://proxy.local" />
           </label>
           <label className="field">

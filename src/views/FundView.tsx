@@ -292,7 +292,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       ) : null}
 
       {evidenceFor ? (
-        <Modal title="提交凭证" hint={String(evidenceFor.no ?? '')} width={460} onClose={() => setEvidenceFor(null)}>
+        <Modal title={`提交凭证 · ${String(evidenceFor.no ?? '')}`} width={460} onClose={() => setEvidenceFor(null)}>
           <div className="stack">
             <label className="field">
               <span>图片地址（每行一个）</span>

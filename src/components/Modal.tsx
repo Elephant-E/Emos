@@ -86,8 +86,10 @@ export function Modal({
             onSubmit?.()
           }}
         >
-          <div className="modal__body">{children}</div>
-          {hint ? <p className="modal__hint">{hint}</p> : null}
+          <div className="modal__body">
+            {children}
+            {hint ? <p className="modal__hint">{hint}</p> : null}
+          </div>
           {footer ? <div className="modal__foot">{footer}</div> : null}
         </form>
       </div>
