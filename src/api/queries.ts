@@ -149,11 +149,6 @@ export function useCarrot() {
   return useQuery({ queryKey: qk.carrot, queryFn: () => carrotApi.current(), staleTime: 60_000 })
 }
 
-export const ZONES: Array<{ type: VideoType | 'documentary'; label: string; color: string }> = [
-  { type: 'movie', label: '电影', color: 'var(--c-yellow)' },
-  { type: 'tv', label: '剧集', color: 'var(--c-green)' },
-]
-
 export function useTodos() {
   return useQuery({
     queryKey: ['todos'] as const,

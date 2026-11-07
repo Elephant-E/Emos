@@ -382,65 +382,6 @@ export interface MusicArtistRef {
   name: string
 }
 
-export interface MusicAlbum {
-  album_id: number
-  name: string
-  description: string | null
-  image_poster_url: string | null
-  image_background_url?: string | null
-  tagline: string | null
-  release_date: string | null
-  release_company: string | null
-  type?: string | null
-  rating: number | null
-  has_media?: boolean
-  person_artists: MusicArtistRef[]
-  count_song?: number
-}
-
-export interface MusicPersonItem {
-  person_id: number
-  name: string
-  original_name: string | null
-  tagline: string | null
-  biography: string | null
-  birthday: string | null
-  gender: number | null
-  birthplace: string | null
-  is_virtual: boolean
-  is_adult: boolean
-  image_profile_url: string | null
-}
-
-export interface MusicLyric {
-  lyric_id: number
-  type: string
-  language: string
-  content: string
-  name: string
-  created_at: string
-}
-
-export interface PayBase {
-  name: string
-  description: string
-  total_revenue: number
-  total_expenditure: number
-  notify_url: string | null
-  status: string
-}
-
-export interface PayOrder {
-  no: string
-  pay_way: string
-  pay_status: string
-  price_order: number
-  price_settle: number
-  order_name: string
-  time_payed: string | null
-  notify_status: string
-}
-
 export interface UserDetail {
   user_id: string
   username: string

@@ -49,36 +49,15 @@ export const IconShield = (p: IconProps) => (
     <path d="M8 2.2 3.4 4v4.1c0 2.9 1.9 4.7 4.6 5.7 2.7-1 4.6-2.8 4.6-5.7V4z" />
   </Svg>
 )
-export const IconChart = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M2.6 12.6V8.4M6.2 12.6V4.8M9.8 12.6V9.6M13.4 12.6V6.4" />
-  </Svg>
-)
 export const IconSearch = (p: IconProps) => (
   <Svg {...p}>
     <circle cx="6.5" cy="6.5" r="4.2" />
     <path d="m9.7 9.7 3.1 3.1" />
   </Svg>
 )
-export const IconPanel = (p: IconProps) => (
-  <Svg {...p}>
-    <rect x="2" y="3" width="12" height="10" rx="1.6" />
-    <path d="M6.6 3v10" />
-  </Svg>
-)
 export const IconChevron = (p: IconProps) => (
   <Svg {...p}>
     <path d="M5.4 3.6 8.8 7l-3.4 3.4" />
-  </Svg>
-)
-export const IconSort = (p: IconProps) => (
-  <Svg size={11} {...p}>
-    <path d="M3.4 4.4 5.5 2.3l2.1 2.1M3.4 6.6 5.5 8.7l2.1-2.1" />
-  </Svg>
-)
-export const IconArrowDown = (p: IconProps) => (
-  <Svg size={11} {...p}>
-    <path d="M2.6 4.2 5.5 7.1 8.4 4.2" />
   </Svg>
 )
 export const IconPlus = (p: IconProps) => (
@@ -89,12 +68,6 @@ export const IconPlus = (p: IconProps) => (
 export const IconFilter = (p: IconProps) => (
   <Svg size={13} {...p}>
     <path d="M1.8 3.4h9.4M3.4 6.5h6.2M5.2 9.6h2.6" />
-  </Svg>
-)
-export const IconExport = (p: IconProps) => (
-  <Svg size={13} {...p}>
-    <path d="M6.5 1.8v6.4M4.1 5.8l2.4 2.4 2.4-2.4" />
-    <path d="M2.2 9.4v1.2c0 .3.3.6.6.6h7.4c.3 0 .6-.3.6-.6V9.4" />
   </Svg>
 )
 export const IconLeft = (p: IconProps) => (
@@ -187,35 +160,5 @@ export const IconWallet = (p: IconProps) => (
   <Svg {...p}>
     <rect x="2" y="4.4" width="12" height="8.4" rx="1.6" />
     <path d="M2 7.4h12M10.6 10.6h1.2" />
-  </Svg>
-)
-
-export const IconCalendar = (p: IconProps) => (
-  <Svg {...p}>
-    <rect x="2.2" y="3.4" width="11.6" height="10.4" rx="1.6" />
-    <path d="M2.2 6.6h11.6M5.4 2.2v2.4M10.6 2.2v2.4" />
-    <path d="m6 9.6 1.4 1.4 2.6-2.8" />
-  </Svg>
-)
-
-export const IconCarrot = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M9.8 3.4c1.8-1 4 .2 3.6 2.2-.2 1-1 1.8-2 1.8" />
-    <path d="M11.4 7.4c0 3-2.6 5.6-6.4 6.2-.6.1-1-.4-.9-1C4.8 8.8 7.2 6 10 6" />
-    <path d="M6.6 9.4 9 11.8" />
-  </Svg>
-)
-
-export const IconLayers = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="m8 2.4 5.4 2.8L8 8 2.6 5.2z" />
-    <path d="m2.6 8.4 5.4 2.8 5.4-2.8M2.6 11.4 8 14.2l5.4-2.8" />
-  </Svg>
-)
-
-export const IconClock = (p: IconProps) => (
-  <Svg {...p}>
-    <circle cx="8" cy="8" r="5.8" />
-    <path d="M8 4.8V8l2.2 1.4" />
   </Svg>
 )
