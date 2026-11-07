@@ -145,7 +145,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th className="num" style={{ width: '12%' }}>大小</th>
                   <th style={{ width: '14%' }}>存储</th>
                   <th className="num" style={{ width: '12%' }}>入库时间</th>
-                  <th style={{ width: '96px', textAlign: 'right' }}>
+                  <th style={{ width: '96px' }}>
                     操作
                   </th>
                 </tr>
@@ -169,7 +169,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                       <td className="muted">{String(row.storage_title ?? '—')}</td>
                       <td className="num muted">{formatRelative(String(row.created_at ?? ''))}</td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td>
                         {canRestore ? (
                           <button
                             className="btn btn--quiet"
@@ -193,7 +193,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th style={{ width: '14%' }}>类型</th>
                   <th className="num" style={{ width: '14%' }}>TODB</th>
                   <th className="num" style={{ width: '16%' }}>上映</th>
-                  <th style={{ width: '96px', textAlign: 'right' }}>
+                  <th style={{ width: '96px' }}>
                     操作
                   </th>
                 </tr>
@@ -225,7 +225,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       </td>
                       <td className="num muted">{String(row.todb_id ?? '—')}</td>
                       <td className="num muted">{String(row.video_date_air ?? '—')}</td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td>
                         <button
                           className="btn btn--quiet"
                           disabled={busy === String(videoId)}

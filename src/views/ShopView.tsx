@@ -166,7 +166,7 @@ export function ShopView({
                     <th className="num" style={{ width: '12%' }}>库存</th>
                     <th className="num" style={{ width: '12%' }}>销量</th>
                     <th style={{ width: '14%' }}>状态</th>
-                    <th style={{ width: '16%', textAlign: 'right' }}>操作</th>
+                    <th style={{ width: '16%' }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,7 +197,7 @@ export function ShopView({
                           {product.is_up ? '已上架' : '已下架'}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td>
                         {isSeller ? (
                           <span className="action-group">
                             <button

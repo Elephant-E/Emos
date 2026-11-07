@@ -443,7 +443,7 @@
 }
 
 .table-card .table thead th { background: #141311; }
-.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.table .num { text-align: left; font-variant-numeric: tabular-nums; }
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
 .table--fixed { table-layout: fixed; }
 .table--fixed .cell-title { min-width: 0; }
@@ -1338,7 +1338,6 @@
 .card--secondary .stat__value { font-size: 30px; }
 
 .table--inset { margin-top: 10px; }
-.cell-right { text-align: right; }
 .note-left { text-align: left; }
 
 

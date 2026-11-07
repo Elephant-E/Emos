@@ -164,7 +164,7 @@ export function UploadView() {
                 <th style={{ width: '14%' }}>大小</th>
                 <th style={{ width: '22%' }}>目标</th>
                 <th style={{ width: '14%' }}>状态</th>
-                <th style={{ width: '10%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '10%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -198,7 +198,7 @@ export function UploadView() {
                       {STATUS[item.status].label}
                     </span>
                   </td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td>
                     {item.status === 'done' && item.target ? (
                       <a className="btn btn--quiet" href={`/media/${item.target.item_id}?season=1&episode=1`}>
                         查看
@@ -259,7 +259,7 @@ export function UploadView() {
                     <td style={{ color: 'var(--fg-2)' }}>{file.file_name}</td>
                     <td className="num muted">{formatSize(file.file_size)}</td>
                     <td className="muted">{file.mime_type}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       <button
                         className="row-menu"
                         aria-label="归档"

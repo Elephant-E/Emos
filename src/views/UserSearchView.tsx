@@ -66,7 +66,7 @@ export function UserSearchView() {
                 <th style={{ width: '34%' }}>用户</th>
                 <th style={{ width: '30%' }}>原因</th>
                 <th className="num" style={{ width: '18%' }}>封禁时间</th>
-                <th style={{ width: '96px', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '96px' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +85,7 @@ export function UserSearchView() {
                   </td>
                   <td className="muted ellipsis">{row.disable_reason ?? '—'}</td>
                   <td className="num muted">{formatRelative(row.created_at)}</td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td>
                     <button
                       className="btn btn--quiet"
                       disabled={actions.banChange.isPending}

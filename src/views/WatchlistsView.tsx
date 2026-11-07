@@ -117,7 +117,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 <th className="num" style={{ width: '11%' }}>影片</th>
                 <th className="num" style={{ width: '11%' }}>订阅</th>
                 <th className="num" style={{ width: '12%' }}>更新</th>
-                <th style={{ width: '88px', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '88px' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -160,7 +160,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num">{formatThousand(watch.video_count)}</td>
                   <td className="num">{formatThousand(watch.subscribe_count)}</td>
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
-                  <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                  <td onClick={(e) => e.stopPropagation()}>
                     {watch.is_self ? (
                       <button
                         className="btn btn--danger-text"

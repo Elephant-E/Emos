@@ -379,7 +379,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <th>用户</th>
                         <th style={{ width: 130 }}>邀请时间</th>
                         <th style={{ width: 130 }}>最近播放</th>
-                        <th className="cell-right" style={{ width: 96 }}>操作</th>
+                        <th style={{ width: 96 }}>操作</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -398,7 +398,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                           </td>
                           <td className="muted">{formatDateTime(row.invite_at as string)}</td>
                           <td className="muted">{formatDateTime(row.last_video_player as string)}</td>
-                          <td className="cell-right">
+                          <td>
                             <button
                               className="btn btn--quiet"
                               onClick={async () => {

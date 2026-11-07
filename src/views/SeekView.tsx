@@ -90,7 +90,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                 <th className="num" style={{ width: '10%' }}>求片数</th>
                 <th className="num" style={{ width: '10%' }}>悬赏</th>
                 <th className="num" style={{ width: '14%' }}>更新</th>
-                <th style={{ width: '12%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '12%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -129,7 +129,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num">{item.count_request}</td>
                     <td className="num">{item.seek_carrot == null ? '—' : formatThousand(item.seek_carrot)}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       <button
                         className="btn btn--quiet"
                         onClick={async () => {

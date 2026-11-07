@@ -65,7 +65,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                 <th style={{ width: '42%' }}>内容</th>
                 <th style={{ width: '18%' }}>{tab === 'receiver' ? '来自' : '发给'}</th>
                 <th style={{ width: '18%' }}>时间</th>
-                <th className="cell-right" style={{ width: '120px' }}>操作</th>
+                <th style={{ width: '120px' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +83,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                     </td>
                     <td className="muted">{String(peer)}</td>
                     <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
-                    <td className="cell-right">
+                    <td>
                       {tab === 'receiver' ? (
                         <button
                           className="btn btn--quiet"

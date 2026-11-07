@@ -220,7 +220,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                 <th className="num" style={{ width: '14%' }}>胡萝卜</th>
                 <th style={{ width: '18%' }}>状态</th>
                 <th style={{ width: '18%' }}>时间</th>
-                <th className="cell-right" style={{ width: '120px' }}>操作</th>
+                <th style={{ width: '120px' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -235,7 +235,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                     <td className="num">{row.tier_carrot == null ? '—' : formatThousand(Number(row.tier_carrot))}</td>
                     <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
                     <td className="muted tnum">{row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}</td>
-                    <td className="cell-right">
+                    <td>
                       <button
                         className="btn btn--quiet"
                         onClick={() => {

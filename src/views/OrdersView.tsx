@@ -78,7 +78,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 <th style={{ width: '12%' }}>支付</th>
                 <th style={{ width: '12%' }}>发货</th>
                 <th className="num" style={{ width: '12%' }}>下单时间</th>
-                <th style={{ width: '18%', textAlign: 'right' }}>操作</th>
+                <th style={{ width: '18%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -127,7 +127,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                       </span>
                     </td>
                     <td className="num muted">{formatDateTime(order.created_at)}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       <span className="action-group">
                         {!sent && paid ? (
                           <button

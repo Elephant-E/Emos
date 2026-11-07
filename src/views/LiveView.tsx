@@ -184,7 +184,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 <th className="num" style={{ width: '10%' }}>源</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
                 <th className="num" style={{ width: '16%' }}>更新</th>
-                <th style={{ width: '16%', textAlign: 'right' }}>
+                <th style={{ width: '16%' }}>
                   操作
                 </th>
               </tr>
@@ -214,7 +214,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <td className="num">{item.media_count}</td>
                     <td className="num">{item.sort}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       {item.is_can_edit ? (
                         <button
                           className="btn btn--danger-text"

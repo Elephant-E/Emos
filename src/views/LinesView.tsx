@@ -81,7 +81,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                 <th>地址</th>
                 <th style={{ width: '18%' }}>简介</th>
                 <th style={{ width: '18%' }}>创建时间</th>
-                <th style={{ width: '12%', textAlign: 'right' }}>
+                <th style={{ width: '12%' }}>
                   操作
                 </th>
               </tr>
@@ -103,7 +103,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                   </td>
                   <td className="muted">{line.tagline ?? '—'}</td>
                   <td className="muted">{formatDateTime(line.created_at)}</td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td>
                     {line.is_self ? (
                       <button
                         className="btn btn--danger-text"

@@ -149,7 +149,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                         <span className="muted">—</span>
                       )}
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td>
                       {isSong ? (
                         <button
                           className="row-menu"
