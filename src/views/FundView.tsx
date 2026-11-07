@@ -11,9 +11,9 @@ import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
 import { useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
 
-function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) => void }) {
+function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; pageSize: number; onPage: (page: number) => void; onPageSize: (size: number) => void }) {
   const carrot = useCarrot()
-  const history = useCarrotHistory(page, 20)
+  const history = useCarrotHistory(page, pageSize)
   const actions = useAccountMutations()
   const [transferring, setTransferring] = useState(false)
   const [transferTo, setTransferTo] = useState('')
@@ -62,7 +62,7 @@ function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) 
               ))}
             </tbody>
           </table>
-          <Pager total={history.data?.total ?? 0} page={page} pageSize={20} onPage={onPage} />
+          <Pager total={history.data?.total ?? 0} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} />
         </div>
       ) : null}
 
@@ -201,7 +201,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       <div className="content-in" key={tab}>
         {tab === 'merchant' ? <PayView embedded /> : null}
-        {tab === 'carrot' ? <CarrotSection page={page} onPage={onPage} /> : null}
+        {tab === 'carrot' ? <CarrotSection page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} /> : null}
       </div>
 
       {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
