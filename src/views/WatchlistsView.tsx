@@ -114,12 +114,11 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th style={{ width: '38%' }}>片单</th>
-                <th style={{ width: '12%' }}>可见性</th>
-                <th className="num" style={{ width: '12%' }}>影片</th>
-                <th className="num" style={{ width: '12%' }}>订阅</th>
+                <th style={{ width: '41%' }}>片单</th>
+                <th style={{ width: '13%' }}>可见性</th>
+                <th className="num" style={{ width: '11%' }}>影片</th>
+                <th className="num" style={{ width: '11%' }}>订阅</th>
                 <th className="num" style={{ width: '12%' }}>更新</th>
-                <th style={{ width: '10%' }}>作者</th>
                 <th style={{ width: '88px', textAlign: 'right' }}>操作</th>
               </tr>
             </thead>
@@ -188,7 +187,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                         删除
                       </button>
                     ) : (
-                      <span className="muted">—</span>
+                      <span className="muted">只读</span>
                     )}
                   </td>
                 </tr>
