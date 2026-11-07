@@ -179,7 +179,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '34%' }}>频道</th>
+                <th style={{ width: '34%' }} className="th-thumb">频道</th>
                 <th style={{ width: '12%' }}>媒体库</th>
                 <th className="num" style={{ width: '10%' }}>源</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>

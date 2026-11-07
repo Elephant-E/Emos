@@ -112,7 +112,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th style={{ width: '41%' }}>片单</th>
+                <th style={{ width: '41%' }} className="th-thumb">片单</th>
                 <th style={{ width: '13%' }}>可见性</th>
                 <th className="num" style={{ width: '11%' }}>影片</th>
                 <th className="num" style={{ width: '11%' }}>订阅</th>

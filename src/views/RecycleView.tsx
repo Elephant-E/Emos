@@ -134,7 +134,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
             <table className="table table--fixed">
               <thead>
                 <tr>
-                  <th style={{ width: '34%' }}>资源</th>
+                  <th style={{ width: '34%' }} className="th-thumb">资源</th>
                   <th style={{ width: '22%' }}>所属</th>
                   <th className="num" style={{ width: '12%' }}>大小</th>
                   <th style={{ width: '14%' }}>存储</th>

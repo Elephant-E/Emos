@@ -95,7 +95,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '40%' }}>{search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}</th>
+                <th style={{ width: '40%' }} className="th-thumb">{search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}</th>
                 <th style={{ width: '26%' }}>艺人</th>
                 <th className="num" style={{ width: '12%' }}>
                   {search.tab === 'songs' ? '时长' : '发行'}

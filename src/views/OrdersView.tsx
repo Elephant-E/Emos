@@ -73,7 +73,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '32%' }}>订单</th>
+                <th style={{ width: '32%' }} className="th-thumb">订单</th>
                 <th className="num" style={{ width: '10%' }}>金额</th>
                 <th style={{ width: '12%' }}>支付</th>
                 <th style={{ width: '12%' }}>发货</th>

@@ -161,7 +161,7 @@ export function ShopView({
               <table className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: '34%' }}>商品</th>
+                    <th style={{ width: '34%' }} className="th-thumb">商品</th>
                     <th className="num" style={{ width: '12%' }}>价格</th>
                     <th className="num" style={{ width: '12%' }}>库存</th>
                     <th className="num" style={{ width: '12%' }}>销量</th>

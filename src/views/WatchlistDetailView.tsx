@@ -150,7 +150,7 @@ export function WatchlistDetailView({
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '44%' }}>影片</th>
+                <th style={{ width: '44%' }} className="th-thumb">影片</th>
                 <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
                 <th style={{ width: item?.is_edit_video ? '18%' : '32%' }}>备注</th>

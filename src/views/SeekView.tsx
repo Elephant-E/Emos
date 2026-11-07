@@ -84,7 +84,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '32%' }}>求片</th>
+                <th style={{ width: '32%' }} className="th-thumb">求片</th>
                 <th style={{ width: '10%' }}>类型</th>
                 <th style={{ width: '12%' }}>状态</th>
                 <th className="num" style={{ width: '10%' }}>求片数</th>

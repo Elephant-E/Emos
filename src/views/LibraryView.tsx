@@ -113,7 +113,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 <th style={{ width: 40 }}>
                   <input className="cbx" type="checkbox" aria-label="全选本页" />
                 </th>
-                <th style={{ width: '36%' }}>片名</th>
+                <th style={{ width: '36%' }} className="th-thumb">片名</th>
                 <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '13%' }}>资源</th>
                 <th className="num" style={{ width: '12%' }}>求片</th>
