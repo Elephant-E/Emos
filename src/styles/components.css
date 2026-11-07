@@ -448,6 +448,11 @@
   letter-spacing: 0;
   white-space: nowrap;
 }
+/* 列宽按声明走，避免长文本把最后一列挤出卡片 */
+.table--fixed { table-layout: fixed; }
+.table--fixed .cell-title { min-width: 0; }
+.table--fixed td { overflow: hidden; }
+
 .table tbody td {
   height: 38px;
   padding: 7px 20px;

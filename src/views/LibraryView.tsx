@@ -103,14 +103,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <div className={`table-card content-in${isPlaceholderData ? ' is-stale' : ''}`} key={`${data.items.length}-${data.items[0]?.video_id}-${data.total}`}>
-          <table className="table">
+          <table className="table table--fixed">
             <thead>
               <tr>
                 <th style={{ width: 40 }}>
                   <input className="cbx" type="checkbox" aria-label="全选本页" />
                 </th>
-                <th style={{ width: '32%' }}>片名</th>
-                <th style={{ width: '18%' }}>类型</th>
+                <th style={{ width: '36%' }}>片名</th>
+                <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '13%' }}>资源</th>
                 <th className="num" style={{ width: '12%' }}>求片</th>
                 <th className="num" style={{ width: '13%' }}>上映</th>
@@ -147,6 +147,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                         <span className="cell-title__code">
                           #{video.video_id} · todb {video.todb_id}
                           {video.video_origin_title ? ` · ${video.video_origin_title}` : ''}
+                          {video.genres.length ? ` · ${video.genres.slice(0, 2).map((g) => g.name).join('/')}` : ''}
                         </span>
                       </span>
                     </div>
@@ -156,11 +157,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                       <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                       {VIDEO_TYPE_LABEL[video.video_type]}
                     </span>
-                    {video.genres.length > 0 ? (
-                      <span className="cell-sub" title={video.genres.map((g) => g.name).join(' · ')}>
-                        {video.genres.slice(0, 2).map((g) => g.name).join(' · ')}
-                      </span>
-                    ) : null}
                   </td>
                   <td className="num">
                     {video.medias_count} 个 · 字幕 {video.subtitles_count}
