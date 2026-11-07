@@ -544,33 +544,6 @@
   color: var(--fg);
 }
 .pager button:disabled { color: var(--fg-5); cursor: not-allowed; border-color: var(--line-soft); }
-.cbx {
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  margin: 0;
-  border-radius: 4px;
-  border: 1.5px solid var(--fg-5);
-  background: transparent;
-  display: grid;
-  place-items: center;
-  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
-}
-.cbx:hover { border-color: var(--fg-3); }
-.cbx:checked,
-.cbx:indeterminate { background: var(--fg); border-color: var(--fg); }
-.cbx:checked::after {
-  content: '';
-  width: 9px; height: 9px;
-  background: var(--on-light);
-  clip-path: polygon(14% 47%, 0 62%, 39% 100%, 100% 22%, 85% 8%, 38% 70%);
-}
-.cbx:indeterminate::after {
-  content: '';
-  width: 7px;
-  height: 1.5px;
-  background: var(--on-light);
-}
 .input {
   height: 32px;
   padding: 0 11px;

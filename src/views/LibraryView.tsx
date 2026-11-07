@@ -117,10 +117,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th style={{ width: 40 }}>
-                  <input className="cbx" type="checkbox" aria-label="全选本页" />
-                </th>
-                <th className="th-thumb" style={{ width: '42%' }}>片名</th>
+                <th className="th-thumb" style={{ width: '46%' }}>片名</th>
                 <th style={{ width: '13%' }}>类型</th>
                 <th className="num" style={{ width: '13%' }}>资源</th>
                 <th className="num" style={{ width: '12%' }}>求片</th>
@@ -142,9 +139,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   }}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td>
-                    <input className="cbx" type="checkbox" aria-label={`选择《${video.video_title}》`} />
-                  </td>
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (
