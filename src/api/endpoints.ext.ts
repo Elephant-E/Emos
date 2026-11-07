@@ -23,8 +23,6 @@ export const clientApi = {
   upload: {
     videoBase: (itemType: string, itemId: number) =>
       request<{ title: string; video_medias: VideoMedia[] }>('/api/upload/video/base', { query: { item_type: itemType, item_id: itemId } }),
-    saveInternal: (payload: { item_type: string; item_id: number; path_type: string; [k: string]: unknown }) =>
-      request<{ media_id: string; carrot: number }>('/api/upload/video/saveInternal', { method: 'POST', body: payload }),
     imageList: (params: { name?: string; date?: string }) =>
       request<ListResult<{ file_id: string; url: string; file_type: string; file_name: string; file_size: number; created_at: string }>>('/api/upload/image/list', { query: params }),
     deleteImage: (fileId: string) => request<{ is_delete: boolean }>('/api/upload/image/delete', { method: 'DELETE', query: { file_id: fileId } }),
@@ -32,11 +30,6 @@ export const clientApi = {
       request<{ carrot: number; media_id: string }>('/api/upload/music/save', { method: 'POST', body: { music_song_id: musicSongId, file_id: fileId } }),
     saveMusicHeadless: (payload: Record<string, unknown>) =>
       request<{ carrot: number; media_id: string }>('/api/upload/music/saveHeadless', { method: 'POST', body: payload }),
-    presign: (fileId: string, number: number) =>
-      request<Array<{ number: number; upload_url: string; upload_data: Record<string, string> }>>(`/api/upload/multipart/${fileId}/presign`, { method: 'POST', body: { number } }),
-    complete: (fileId: string, parts: Array<[number, string]>) =>
-      request<{ file_id: string }>(`/api/upload/multipart/${fileId}/complete`, { method: 'POST', body: { parts } }),
-    abort: (fileId: string) => request<unknown>(`/api/upload/multipart/${fileId}/abort`, { method: 'DELETE' }),
   },
   video: {
     tree: (params: { type?: string; title?: string; tmdb_id?: number; todb_id?: number; video_id?: number }) =>
