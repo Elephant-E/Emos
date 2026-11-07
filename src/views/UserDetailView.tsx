@@ -88,7 +88,7 @@ export function UserDetailView({ userId }: { userId: string }) {
               </p>
               <p className="stat__delta stat__delta--quiet">
                 {banned
-                  ? `于 ${formatRelative(banned.created_at)} 封禁`
+                  ? `该账号注册于 ${formatRelative(banned.created_at)}`
                   : bans.isLoading
                     ? '正在核对封禁列表'
                     : '以封禁列表为准，未被列出即可解封试探'}

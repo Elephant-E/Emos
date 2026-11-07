@@ -26,13 +26,17 @@ export const userApi = {
 }
 
 export const inviteApi = {
-  info: () => request<{ invite_at: string; invite_remaining: number; invite_count: number; parent: { pseudonym: string | null } }>('/api/invite/info'),
+  info: () => request<{ invite_at: string; invite_remaining: number; invite_count: number; parent: { user_id: string; pseudonym: string | null } }>('/api/invite/info'),
   history: (params: { username?: string; page?: number; page_size?: number; user_id?: string; telegram_user_id?: string }) =>
     request<ListResult<Record<string, unknown>>>('/api/invite/history', { query: params }),
   create: (inviteUserId: string, inviteRemark?: string | null) =>
     request<unknown>('/api/invite', { method: 'POST', body: { invite_user_id: inviteUserId, invite_remark: inviteRemark ?? null } }),
   revoke: (userId: string) => request<{ invite_remaining: number }>('/api/invite/revoke', { method: 'POST', body: { user_id: userId } }),
-  tree: () => request<Array<Record<string, unknown>>>('/api/invite/tree'),
+  // 返回的是全站扁平树（3000+ 节点），用 invite_user_id 是可以自己按需建子树的
+  tree: () =>
+    request<Array<{ user_id: string; username: string; invite_user_id: string | null; join_at: string; is_disabled?: boolean }>>(
+      '/api/invite/tree',
+    ),
 }
 
 export const uploadApi = {

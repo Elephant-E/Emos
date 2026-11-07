@@ -48,6 +48,31 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
   const user = session.data
 
+  // /api/invite/tree 是全站扁平树（3000+ 节点），不是「我的邀请关系」；
+  // 按 invite_user_id 从当前用户往下走，才是自己的下级
+  const myTree = (() => {
+    const all = tree.data ?? []
+    const me = user?.user_id
+    if (!me || all.length === 0) return []
+    const byParent = new Map<string, typeof all>()
+    for (const node of all) {
+      const parent = node.invite_user_id
+      if (!parent) continue
+      const list = byParent.get(parent)
+      if (list) list.push(node)
+      else byParent.set(parent, [node])
+    }
+    const out: Array<(typeof all)[number] & { depth: number }> = []
+    const walk = (uid: string, depth: number) => {
+      for (const child of byParent.get(uid) ?? []) {
+        out.push({ ...child, depth })
+        walk(child.user_id, depth + 1)
+      }
+    }
+    walk(me, 1)
+    return out
+  })()
+
   return (
     <>
       <PageHeader
@@ -428,28 +453,34 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             </article>
           </section>
 
-          {tree.data && tree.data.length > 0 ? (
+          {myTree.length > 0 ? (
             <section className="cards cards--wide" style={{ marginTop: 18 }}>
               <article className="card">
                 <div className="card-head">
-                  <p className="stat__label" style={{ margin: 0 }}>邀请关系</p>
-                  <span className="muted tnum-sm">共 {formatThousand(tree.data.length)} 人</span>
+                  <p className="stat__label" style={{ margin: 0 }}>我的邀请</p>
+                  <span className="muted tnum-sm">共 {formatThousand(myTree.length)} 人</span>
                 </div>
                 <ul className="stack--loose stack--top">
-                  {tree.data.slice(0, 40).map((node) => (
-                    <li key={String(node.user_id)} className="row text-sm">
-                      <Link to="/users/$userId" params={{ userId: String(node.user_id) }} style={{ color: 'var(--fg-2)' }}>
-                        {String(node.username)}
+                  {myTree.slice(0, 30).map((node) => (
+                    <li
+                      key={node.user_id}
+                      className="row text-sm"
+                      style={{ paddingLeft: (node.depth - 1) * 18 }}
+                    >
+                      <Link to="/users/$userId" params={{ userId: node.user_id }} style={{ color: 'var(--fg-2)' }}>
+                        {node.username}
                       </Link>
                       <span className="muted tnum-sm">
-                        {String(node.user_id)} · 加入 {formatDateTime(String(node.join_at))}
+                        {node.user_id} · 加入 {formatDateTime(node.join_at)}
                       </span>
                       {node.is_disabled ? <span className="badge badge--warn"><i />已禁用</span> : null}
                     </li>
                   ))}
                 </ul>
-                {tree.data.length > 40 ? (
-                  <p className="card-note" style={{ marginTop: 'var(--stack)' }}>只显示最近 40 人，更多请按用户 ID 查询。</p>
+                {myTree.length > 30 ? (
+                  <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+                    只列出前 30 位，完整名单见邀请记录。
+                  </p>
                 ) : null}
               </article>
             </section>

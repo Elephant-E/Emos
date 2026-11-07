@@ -73,8 +73,11 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                 const id = Number(row.whisper_id ?? index)
                 const peerUser = (row.sender_user ?? row.receiver_user) as { username?: string; id?: string } | undefined
                 const peer = peerUser?.username ?? '—'
-                const body = tab === 'receiver' ? row.sender_content : row.receiver_content
-                const reply = tab === 'receiver' ? row.receiver_content : row.sender_content
+                // 字段按角色命名，不随视角变：sender_content 永远是发起方写的，
+                // receiver_content 永远是接收方写的。sender tab 之前取反了，
+                // 结果「发出的」页把对方的回复当正文、把自己的话标成「回复：」。
+                const body = row.sender_content
+                const reply = row.receiver_content
                 return (
                   <tr key={id}>
                     <td>

@@ -68,7 +68,8 @@ export function useCapabilities(): Capabilities {
     canUpload: Boolean(data?.is_can_upload),
     canDown: Boolean(data?.is_can_down),
     slotRemaining: data?.slot_remaining ?? 0,
-    inviteRemaining: isAdmin ? null : (data?.invite_remaining ?? 0),
+    // 后端对管理员同样返回具体数字（当前 1），不要自己编一个「不限」
+    inviteRemaining: data?.invite_remaining ?? 0,
     sizeUpload: data?.size_upload ?? 0,
     signedToday: Boolean(data?.sign),
     isMerchant: Boolean(seller.data?.is_self) || isAdmin,
