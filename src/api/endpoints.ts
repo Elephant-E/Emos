@@ -1,15 +1,22 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, MessageResult, MusicSong, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
+  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, MessageResult, MusicSong, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
 
 const q = (o: Record<string, unknown>) => o
 
 export const sessionApi = {
+  check: () => request<SignCheck>('/api/sign/check'),
   profile: () => request<UserInfo>('/api/user'),
 }
 
 export const userApi = {
+  videoHistory: () =>
+    request<Array<{ device_client: string; device_name: string; device_id: string; device_version: string; last_used_at: string }>>(
+      '/api/user/server/videoHistory',
+    ),
+  videoLogout: (deviceId: string | null = null) =>
+    request<{ logout_count: number }>('/api/user/server/videoLogout', { method: 'POST', body: { device_id: deviceId } }),
   showEmpty: (isShowEmpty: boolean) => request<{ is_show_empty: boolean }>('/api/user/showEmpty', { method: 'PUT', body: { is_show_empty: isShowEmpty } }),
   pseudonym: (name: string) => request<{ pseudonym: string }>('/api/user/pseudonym', { method: 'PUT', query: { name } }),
   agreeUpload: () => request<unknown>('/api/user/agreeUploadAgreement', { method: 'PUT' }),
@@ -26,6 +33,8 @@ export const userApi = {
 }
 
 export const inviteApi = {
+  remark: (userId: string, remark: string) =>
+    request<unknown>('/api/invite/remark', { method: 'PUT', body: { user_id: userId, remark } }),
   info: () => request<{ invite_at: string; invite_remaining: number; invite_count: number; parent: { user_id: string; pseudonym: string | null } }>('/api/invite/info'),
   history: (params: { username?: string; page?: number; page_size?: number; user_id?: string; telegram_user_id?: string }) =>
     request<ListResult<Record<string, unknown>>>('/api/invite/history', { query: params }),
@@ -40,6 +49,15 @@ export const inviteApi = {
 }
 
 export const uploadApi = {
+  videoBase: (itemType: string, itemId: number) =>
+    request<{ title: string; video_medias: VideoMedia[] }>('/api/upload/video/base', {
+      query: { item_type: itemType, item_id: itemId },
+    }),
+  saveMusic: (musicSongId: number, fileId: string) =>
+    request<{ carrot: number; media_id: string }>('/api/upload/music/save', {
+      method: 'POST',
+      body: { music_song_id: musicSongId, file_id: fileId },
+    }),
   recognize: (fileName: string, provider = 'binary') =>
     request<MessageResult>('/api/upload/video/recognize', { query: { file_name: fileName, provider } }),
   saveVideo: (itemType: string, itemId: number, fileId: string) =>
@@ -79,6 +97,8 @@ export const uploadApi = {
 }
 
 export const videoApi = {
+  getVideoId: (params: { video_id_type: string; video_id_value: string; season_number?: number; episode_number?: number; tmdb_type?: string }) =>
+    request<Record<string, unknown>>('/api/video/getVideoId', { query: params }),
   list: (params: { page?: number; page_size?: number; title?: string; type?: VideoType; tmdb_id?: number; todb_id?: number; video_id?: number; only_delete?: boolean; with_media?: boolean }) =>
     request<ListResult<VideoItem>>('/api/video/list', { query: params }),
   search: (params: { title?: string; page?: number; page_size?: number; sort_by?: string; type?: VideoType }) =>
@@ -117,10 +137,19 @@ export const subtitleApi = {
 }
 
 export const recordApi = {
+  requests: (params: { page?: number; page_size?: number; user_id?: string }) =>
+    request<ListResult<Record<string, unknown>>>('/api/video/record/request', { query: params }),
+  /** mode: delete / complete；type: vl 影片 / vs 季 / ve 集 */
+  change: (mode: string, type: string, id: number) =>
+    request<{ count: number }>('/api/video/record/change', { method: 'PUT', query: { mode, type, id } }),
   list: (params: { page?: number; page_size?: number }) => request<ListResult<Record<string, unknown>>>('/api/video/record/list', { query: params }),
 }
 
 export const watchApi = {
+  maintainer: (watchId: number, maintainers: string[]) =>
+    request<{ maintainers_count: number }>(`/api/watch/${watchId}/maintainer`, { method: 'PUT', body: { maintainers } }),
+  emptyVideos: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/video/empty`, { method: 'DELETE' }),
+  emptyMusic: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/empty`, { method: 'DELETE' }),
   list: (params: { watch_id?: number; type?: 'video' | 'music'; name?: string; author_id?: string; author_username?: string; is_public?: boolean; is_self?: boolean; is_subscribe?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<WatchItem>>('/api/watch', { query: params }),
   createOrUpdate: (payload: { id?: number | null; type: 'video' | 'music'; name: string; description?: string; is_public?: boolean; point?: number; tags?: string[]; is_show_empty?: boolean; image_poster_url?: string | null }) =>
@@ -167,6 +196,11 @@ export interface SeekQuery {
 }
 
 export const seekApi = {
+  /** 增量拉取：比每 30 秒全量重查省得多 */
+  poll: (lastId?: number, pageSize = 10) =>
+    request<SeekItem[]>('/api/seek/poll', { query: { last_id: lastId, page_size: pageSize } }),
+  apply: (itemType: string, itemId: number) =>
+    request<{ seek_is_request: boolean }>('/api/seek/apply', { method: 'PUT', query: { item_type: itemType, item_id: itemId } }),
   // 后端要求 sort_by/sort_order 必填，缺省会 422
   list: (body: SeekQuery) =>
     request<ListResult<SeekItem>>('/api/seek', {
@@ -200,6 +234,9 @@ export const liveApi = {
 }
 
 export const payApi = {
+  update: (payload: Record<string, unknown>) => request<unknown>('/api/pay/update', { method: 'POST', body: payload }),
+  close: (no: string) => request<{ is_close: boolean }>('/api/pay/close', { method: 'PUT', query: { no } }),
+  userCarrot: (userId: string) => request<{ carrot: number }>('/api/pay/getUserCarrot', { query: { user_id: userId } }),
   base: () => request<{ name: string; description: string; total_revenue: number; total_expenditure: number; notify_url: string | null; status: string }>('/api/pay/base'),
   apply: (name: string, description: string) => request<unknown>('/api/pay/apply', { method: 'POST', body: { name, description } }),
   query: (no: string) => request<Record<string, unknown>>('/api/pay/query', { query: { no } }),
@@ -208,6 +245,12 @@ export const payApi = {
 }
 
 export const shopApi = {
+  sortCategory: (categoryId: number, sort: number) =>
+    request<{ sort: number }>('/api/shop/category/sort', { method: 'PUT', body: { category_id: categoryId, sort } }),
+  product: (productId: number) =>
+    request<ShopProduct & { category_name?: string; description?: string; exchange_way?: string }>('/api/shop/product/info', {
+      query: { product_id: productId },
+    }),
   sellerBase: (sellerId?: number) => request<ShopSeller>('/api/shop/seller/base', { query: { seller_id: sellerId } }),
   sellerApply: (name: string, description: string) => request<unknown>('/api/shop/seller/apply', { method: 'POST', body: { name, description } }),
   sellerUpdate: (payload: Record<string, unknown>) => request<{ name: string; description: string; cover: string; cover_url: string }>('/api/shop/seller/update', { method: 'POST', body: payload }),
@@ -239,6 +282,13 @@ export const banApi = {
 }
 
 export const musicApi = {
+  searchSongs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/search', { query: params }),
+  deleteMedia: (songId: number, mediaId: string, reason?: string) =>
+    request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
+  playUrl: (songId: number, mediaId: string) =>
+    request<{ url: string }>(`/api/music/song/${songId}/media/playUrl`, { query: { media_id: mediaId } }),
+  moveMedia: (songId: number, mediaId: string) =>
+    request<CarrotDelta>(`/api/music/song/${songId}/media/move`, { method: 'PUT', query: { media_id: mediaId } }),
   persons: (params: { person_id?: number; name?: string; page?: number; page_size?: number }) =>
     request<ListResult<Record<string, unknown>>>('/api/music/person/list', { query: params }),
   songs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/list', { query: params }),
@@ -263,6 +313,8 @@ export const fundApi = {
 }
 
 export const whisperApi = {
+  create: (payload: { receiver_user_id: string; content: string }) =>
+    request<{ whisper_id: number }>('/api/whisper/create', { method: 'POST', body: payload }),
   sender: () => request<Array<Record<string, unknown>>>('/api/whisper/sender'),
   receiver: () => request<Array<Record<string, unknown>>>('/api/whisper/receiver'),
   reply: (whisperId: number, content: string) => request<{ whisper_id: number }>('/api/whisper/reply', { method: 'POST', body: { whisper_id: whisperId, content } }),
