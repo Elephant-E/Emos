@@ -182,8 +182,8 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                             await watchApi.remove(watch.id)
                             toast('片单已删除', 'success')
                             void refetch()
-                          } catch {
-                            toast('删除失败', 'error')
+                          } catch (error) {
+                            toast(error instanceof Error ? error.message : '删除失败', 'error')
                           }
                         }}
                       >

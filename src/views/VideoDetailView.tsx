@@ -534,7 +534,7 @@ export function VideoDetailView({
                         setMoving(null)
                         void media.refetch()
                       })
-                      .catch(() => toast('移动失败', 'error'))
+                      .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
                   }
                 >
                   {ep.episode_id === currentEpisode?.episode_id ? '当前位置' : '移到这里'}

@@ -56,7 +56,7 @@ export function WatchlistDetailView({
         tools={
           item ? (
             <>
-              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success'), onError: () => toast('操作失败', 'error') })} disabled={subscribe.isPending}>
+              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success') })} disabled={subscribe.isPending}>
                 {item.is_subscribe ? '取消订阅' : '订阅'}
               </button>
               {item.is_self ? (

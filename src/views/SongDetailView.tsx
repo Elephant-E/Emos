@@ -34,7 +34,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               onClick={() =>
                 actions.favorite.mutate(
                   { type: 'mp', value: songId },
-                  { onSuccess: () => toast('已切换收藏', 'success'), onError: () => toast('操作失败', 'error') },
+                  { onSuccess: () => toast('已切换收藏', 'success') },
                 )
               }
             >

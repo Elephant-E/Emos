@@ -41,8 +41,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
     try {
       await actions.restoreMedia.mutateAsync(mediaId)
       toast('已恢复', 'success')
-    } catch {
-      toast('恢复失败，可能没有权限', 'error')
+    } catch (error) {
+      toast(error instanceof Error ? error.message : '恢复失败', 'error')
     } finally {
       setBusy(null)
     }
@@ -61,8 +61,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       const res = await actions.restoreVideo.mutateAsync(videoId)
       if (res?.is_delete) toast('这部影片仍是删除状态，请重试', 'error')
       else toast('已恢复', 'success')
-    } catch {
-      toast('恢复失败', 'error')
+    } catch (error) {
+      toast(error instanceof Error ? error.message : '恢复失败', 'error')
     } finally {
       setBusy(null)
     }
