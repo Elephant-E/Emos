@@ -72,12 +72,12 @@ export const IconFilter = (p: IconProps) => (
 )
 export const IconLeft = (p: IconProps) => (
   <Svg size={12} {...p}>
-    <path d="M7.2 2.6 3.8 6l3.4 3.4" />
+    <path d="M10 3.5 5.5 8l4.5 4.5" />
   </Svg>
 )
 export const IconRight = (p: IconProps) => (
   <Svg size={12} {...p}>
-    <path d="M4.8 2.6 8.2 6l-3.4 3.4" />
+    <path d="M6 3.5 10.5 8 6 12.5" />
   </Svg>
 )
 export const IconDots = (p: IconProps) => (

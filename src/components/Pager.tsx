@@ -46,16 +46,17 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 
 
         <div className="pager">
           <button disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="上一页">
-            <IconLeft />
+            <IconLeft size={16} strokeWidth={1.9} />
           </button>
           <button aria-current="page">{page}</button>
           <button disabled={page >= totalPages} onClick={() => onPage(page + 1)} aria-label="下一页">
-            <IconRight />
+            <IconRight size={16} strokeWidth={1.9} />
           </button>
         </div>
 
         {totalPages > 5 ? (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span className="muted" style={{ fontSize: 12 }}>跳至</span>
             <input
               className="input"
               style={{ height: 28, width: 56, textAlign: 'center', fontSize: 12.5, minWidth: 0 }}
