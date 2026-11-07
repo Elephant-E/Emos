@@ -5,7 +5,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
-import { useShopCategories, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
+import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
@@ -43,6 +43,7 @@ export function ShopView({
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
   const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId)
+  const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
@@ -94,20 +95,60 @@ export function ShopView({
         crumb={['商城', TABS.find((t) => t.key === tab)?.label ?? '商品']}
         title={seller.data?.name ?? '商城'}
         hint={seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
+        tools={
+          isSeller ? (
+            <>
+              <button className="btn btn--ghost" onClick={() => setPanel('categories')}>
+                分类
+              </button>
+              <button className="btn btn--ghost" onClick={() => setPanel('seller')}>
+                店铺
+              </button>
+            </>
+          ) : null
+        }
       />
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
 
-      <div className="toolbar">
-        <div className="row" style={{ marginLeft: 'auto', gap: 12 }}>
-          <button className="btn btn--quiet" onClick={() => setPanel('categories')}>
-            分类
-          </button>
-          <button className="btn btn--quiet" onClick={() => setPanel('seller')}>
-            店铺
-          </button>
-        </div>
-      </div>
+      {isSeller && tab === 'products' && !panel ? (
+        <section className="cards cards--4" style={{ marginBottom: 18 }}>
+          <article className="card">
+            <p className="stat__label">待发货</p>
+            <p className="stat__value">
+              {counts.ordersPending ?? '—'}
+              <small>单</small>
+            </p>
+            <p className="stat__delta stat__delta--quiet">
+              {counts.ordersPending ? '需要处理' : '都发完了'}
+            </p>
+          </article>
+          <article className="card">
+            <p className="stat__label">在售商品</p>
+            <p className="stat__value">
+              {counts.productsOnSale ?? '—'}
+              <small>件</small>
+            </p>
+            <p className="stat__delta stat__delta--quiet">共 {counts.productsAll ?? '—'} 件</p>
+          </article>
+          <article className="card">
+            <p className="stat__label">订单</p>
+            <p className="stat__value">
+              {counts.ordersAll ?? '—'}
+              <small>单</small>
+            </p>
+            <p className="stat__delta stat__delta--quiet">开店以来</p>
+          </article>
+          <article className="card">
+            <p className="stat__label">销量</p>
+            <p className="stat__value">
+              {counts.salesTotal ?? '—'}
+              <small>件</small>
+            </p>
+            <p className="stat__delta stat__delta--quiet">{counts.salesCapped ? '前 200 件累计' : '全部商品累计'}</p>
+          </article>
+        </section>
+      ) : null}
 
       {true ? (
         <>

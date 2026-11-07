@@ -413,7 +413,8 @@ export async function mockRequest<T>(
       { product_id: 1001, category_id: 1001, cover_url: poster('shop2'), name: '一年会员兑换码', price: 198, price_origin: 268, stock: 500, sales: 61, is_up: true, up_time: '2026-10-18 09:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-10-28T09:00:00Z' },
       { product_id: 1002, category_id: 1000, cover_url: poster('shop3'), name: '亚克力立牌', price: 39, price_origin: 59, stock: 0, sales: 240, is_up: false, up_time: null, time_start: null, time_end: null, user_buy_max: 3, sort: 60, updated_at: '2026-09-30T09:00:00Z' },
     ]
-    const filtered = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    let filtered = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    if (query.is_up !== undefined) filtered = filtered.filter((r) => r.is_up === (String(query.is_up) === '1' || query.is_up === true))
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
   }
   if (clean === '/api/shop/product/up') return { is_up: true } as T

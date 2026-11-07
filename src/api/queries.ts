@@ -414,6 +414,48 @@ export function useShopProducts(page: number, sellerId: number, categoryId: numb
   })
 }
 
+/** 只取 total 的轻量查询：page_size 传 1，不拉列表 */
+export function useShopCounts(sellerId: number) {
+  const enabled = sellerId > 0
+  const productsAll = useQuery({
+    queryKey: ['shop', 'count', 'products', sellerId] as const,
+    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 1 }),
+    enabled,
+  })
+  const productsOnSale = useQuery({
+    queryKey: ['shop', 'count', 'onSale', sellerId] as const,
+    queryFn: () => shopApi.products({ seller_id: sellerId, is_up: true, page: 1, page_size: 1 }),
+    enabled,
+  })
+  const ordersAll = useQuery({
+    queryKey: ['shop', 'count', 'orders', sellerId] as const,
+    queryFn: () => shopApi.ordersShop({ page: 1, page_size: 1 }),
+    enabled,
+  })
+  const ordersPending = useQuery({
+    queryKey: ['shop', 'count', 'pending', sellerId] as const,
+    queryFn: () => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: true, is_delivery: false }),
+    enabled,
+  })
+  // 没有销量统计接口，只能把商品拉回来自己加
+  const salesRows = useQuery({
+    queryKey: ['shop', 'count', 'sales', sellerId] as const,
+    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 200 }),
+    enabled,
+  })
+  const salesTotal = salesRows.data?.items.reduce((sum, p) => sum + (p.sales ?? 0), 0)
+  const salesCapped = (salesRows.data?.total ?? 0) > 200
+  return {
+    productsAll: productsAll.data?.total,
+    productsOnSale: productsOnSale.data?.total,
+    ordersAll: ordersAll.data?.total,
+    ordersPending: ordersPending.data?.total,
+    salesTotal,
+    salesCapped,
+    isLoading: productsAll.isLoading || productsOnSale.isLoading || ordersAll.isLoading || ordersPending.isLoading,
+  }
+}
+
 export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean }, pageSize = 10) {
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
