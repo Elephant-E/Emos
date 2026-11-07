@@ -1,97 +1,120 @@
-# 上传协议（按 wiki.emos.best/api/upload 校对）
+# 上传：三条不同的路
 
-## 上传分三类
+上传不是一个功能。按旧项目（`a01e9a0` 的 `uploader.js` / `uploadStorage.js` /
+`ImageUploader.vue`）的划分，它们是三件互不相干的事。
 
-| type | 说明 |
-|---|---|
-| `video` | 片源。需要先知道往哪部影片/哪一集入库 |
-| `subtitle` | 字幕。只要拿到目标集 id 即可直接保存 |
-| `image` | 图片。用于封面一类 |
+| | 做什么 | 落点 | 代码 |
+|---|---|---|---|
+| **资源上传** | 视频、字幕，必须绑到某部影片的某一集 | `upload/video/save`、`upload/subtitle/save` | 上传页 |
+| **图床** | 图片，传一次到处引用 | `upload/image/list` | `ImagePicker` 组件 |
+| **临时上传** | 换一个能直接用的直链，不入库 | `temporary.emos.best/upload` | `uploadTemporary()` |
 
-## 三步
+---
+
+## 一、资源上传
+
+### 三步
 
 ```
-getUploadToken → 按返回的 type 选上传方式 → save
+getUploadToken → 按返回的 type 上传 → save
 ```
 
-### 1. getUploadToken
-
-`POST /api/upload/getUploadToken`
+`getUploadToken` 请求体：
 
 ```json5
 {
-  "type": "video",          // video / subtitle / image
+  "type": "video",            // video 视频 / subtitle 字幕 / image 图片 / music 音乐
   "file_type": "video/mp4",
   "file_name": "demo.mp4",
-  "file_size": 250817,      // 字节，必填，缺了 422
-  "file_storage": "default" // 见下
+  "file_size": 250817,        // 字节，必填，缺了 422
+  "file_storage": "zn_r2_upload"
 }
 ```
 
-`file_storage` 决定落点：
+### 存储落点只暴露两个
 
-| 值 | 含义 |
+旧项目 `uploadStorage.js` 的原话：
+
+| 值 | 状态 |
 |---|---|
-| `default` | 默认 |
-| `global` | 国际 |
-| `internal` | 国内 |
-| `zn_r2_upload` | Zn 存档服 R2 |
-| `google_drive` | 谷歌盘 |
+| `global` | 已停用 |
+| `internal` | 已停用 |
+| `default` | 已停用（后端不再分配可用存储设备） |
+| `zn_r2_upload` | **可用**，默认选它 |
+| `google_drive` | **可用**，不支持国内直传，有 CORS 限制 |
 
-实测：该实例对五个取值（含非法值）都返回 200 且 `type: tusd`，
-即目前统一走 tusd，参数未生效；仍按契约传。
-
-返回：
-
-```json5
-{ "type": "onedrive", "file_id": "xWDKXEMv2E", "data": { "upload_url": "url" } }
-```
-
-`type` 决定上传方式：
+### 返回的 type 决定怎么传
 
 | type | 方式 |
 |---|---|
-| `tusd` | tus 协议（本实例），用 tus-js-client，metadata 带 user_id + file_id |
-| `r2` / `local` | 直接 PUT 整个文件 |
-| `onedrive` | PUT + `Content-Range`，分片需 320 KB 整数倍 |
+| `tusd` | tus 协议（本实例用的就是这个），tus-js-client，metadata 带 user_id + file_id |
+| `multipart` | presign → 逐片 PUT（拿 ETag）→ complete；失败 abort |
+| `onedrive` | PUT + `Content-Range`，分片必须是 320 KB 整数倍 |
 | `google_drive` | 同上，分片 256 KB 整数倍、最小 5 MB |
-| `multipart` | 分片凭证 → 逐片 PUT → complete |
+| `r2` / `local` | 整文件 PUT |
 
-### 2. 视频要先取基本信息
-
-`GET /api/upload/video/base?item_type=&item_id=`
-
-`item_type` 只有两种：电影 `vl`、电视剧集 `ve`。
-
-返回的 `title` 就是入库后显示的名字，剧集形如
-`【我推的孩子】 - S01E03 - 漫画原作的电视剧`。
-
-### 3. 保存
+### 保存
 
 ```
 POST /api/upload/video/save     { item_type, item_id, file_id } → { count, carrot, media_id }
 POST /api/upload/subtitle/save  { item_type, item_id, file_id } → { carrot, subtitle_id }
 ```
 
-视频保存可能返回 422「视频正在合并中 请等待1分钟后再保存试下」——这是正常的等待信号，不是失败。
+`item_type`：电影 `vl`、电视剧集 `ve`。
 
-## 暂存区是另一件事
+视频保存可能返回 422「视频正在合并中 请等待1分钟后再保存试下」——这是正常的等待信号。
 
-`GET /api/upload/store/disk` 返回的是**暂存区在哪些盘上**（`local_emos_1` 这类），
-`GET /api/upload/store/file?path_type=` 列暂存文件，`POST /api/upload/store/archive`
-把暂存文件归档到某部影片。
+上传前可以用 `GET /api/upload/video/base?item_type=&item_id=` 拿到准确的
+入库标题，剧集形如 `【我推的孩子】 - S01E03 - 漫画原作的电视剧`。
 
-它和 `file_storage` 不是一个概念：前者是「已上传但还没入库的文件在哪」，
-后者是「这次上传要落到哪」。界面上是两个独立的下拉。
+---
 
-## 已实测
+## 二、图床（图片）
 
+图片不需要绑定任何东西，传上去就进图库，需要的地方选一张、拿直链。
+
+```tsx
+<ImagePicker
+  label="封面"
+  value={form.cover_url}
+  onChange={(url) => setForm({ ...form, cover_url: url })}
+/>
 ```
-POST /api/upload/getUploadToken           200
-POST https://file.emos.best/files/        201   tus 创建
-PATCH https://file.emos.best/files/...    200   tus 分片
-POST /api/upload/subtitle/save            200
-DELETE /api/video/subtitle/delete         {"carrot":1}
+
+弹窗里三件事：按文件名搜索、点选、删图；底部可以上传新图。
+上传走 `uploadImage()`（内部就是 `getUploadToken(type=image)` + 上传）。
+
+目前接了两处：
+
+| 位置 | 字段 |
+|---|---|
+| 商品表单 | `cover_url` |
+| 片单表单 | `image_poster_url` |
+
+---
+
+## 三、临时上传
+
+独立服务，不属于入库体系：
+
+```ts
+POST https://temporary.emos.best/upload
+FormData: file + emos_id
+Header:   Authorization: Bearer <token>
+→ { url }
 ```
 
-字幕列表需要 `video_list_id` **和** `video_episode_id` 同时给。
+单文件 80MB 以内。旧项目里这个只给红包封面用。
+
+当前后台没有对应功能，能力先在 `uploadTemporary()` 里备着。
+
+---
+
+## 暂存区是第四件事
+
+`GET /api/upload/store/disk` 返回暂存区在哪些盘上（`local_emos_1` 这类），
+`GET /api/upload/store/file?path_type=` 列暂存文件，
+`POST /api/upload/store/archive` 把暂存文件归档到某部影片。
+
+它和上面三个都不一样：**文件已经传上去了，只是还没入库**。界面上「暂存盘」
+下拉只用于浏览暂存区，不要和「上传落点」混成一个概念。
