@@ -108,7 +108,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         <span>
                           <span className="cell-title__name">{item.video_title_display}</span>
                           <span className="cell-title__code">
-                            {item.item_id} · todb {item.todb_id}
+                            {item.item_id} · TODB {item.todb_id}
                             {item.upload_username ? ` · 认领 ${item.upload_username}` : ''}
                           </span>
                         </span>

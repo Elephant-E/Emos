@@ -185,7 +185,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                 <tr>
                   <th style={{ width: '46%' }}>影片</th>
                   <th style={{ width: '14%' }}>类型</th>
-                  <th className="num" style={{ width: '14%' }}>toDB</th>
+                  <th className="num" style={{ width: '14%' }}>TODB</th>
                   <th className="num" style={{ width: '16%' }}>上映</th>
                   <th style={{ width: '96px', textAlign: 'right' }}>
                     操作

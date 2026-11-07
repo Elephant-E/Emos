@@ -161,7 +161,7 @@ export function VideoDetailView({
                 </div>
                 <div className="detail-stat">
                   <b>{video.todb_id}</b>
-                  <span>toDB</span>
+                  <span>TODB</span>
                 </div>
                 <div className="detail-stat">
                   <b>{video.tmdb_id ?? '—'}</b>
