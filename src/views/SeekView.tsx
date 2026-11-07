@@ -79,7 +79,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (
-        <EmptyBlock title="这个状态下没有求片" />
+        <EmptyBlock title="这个状态下没有求片" hint="求片由用户在客户端发起，可切到「全部」查看历史。" />
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (

@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useMyWatchlistRecent, useSession, useTodos, useWatchStats } from '@/api/queries'
+import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand, realmOf } from '@/lib/format'
@@ -34,7 +34,6 @@ export function OverviewView() {
   const watching = useContinueWatching()
   const stats = useWatchStats(1)
   const carrotHistory = useCarrotHistory(1, 3)
-  const myWatches = useMyWatchlistRecent(3)
   const todos = useTodos()
   const todoItems = [
     { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page: 1, page_size: 20, tab: 'default' as const } },
@@ -116,7 +115,10 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards cards--4 cards--todos" style={{ marginTop: 16 }}>
+        <section
+        className="cards cards--todos"
+        style={{ marginTop: 16, gridTemplateColumns: `repeat(${Math.max(1, todoItems.length)}, minmax(0, 1fr))` }}
+      >
           {todoItems.map((item) => (
             <Link key={item.label} className="card todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
@@ -135,7 +137,7 @@ export function OverviewView() {
       ) : null}
 
       <section className="cards cards--4" style={{ marginTop: 16 }}>
-        <article className="card card--stat">
+        <article className="card card--stat card--secondary">
           <p className="stat__label">
             签到
             <button
@@ -186,7 +188,7 @@ export function OverviewView() {
           </p>
         </article>
 
-        <Link className="card card--stat todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
+        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
           <p className="stat__label">片单槽位</p>
           <p className="stat__value">
             {ready ? caps.slotRemaining : '—'}
@@ -197,7 +199,7 @@ export function OverviewView() {
           </p>
         </Link>
 
-        <Link className="card card--stat todo" to="/upload">
+        <Link className="card card--stat card--secondary todo" to="/upload">
           <p className="stat__label">我的上传</p>
           <p className="stat__value">
             {!ready ? '—' : formatSize(caps.sizeUpload)}
@@ -333,51 +335,6 @@ export function OverviewView() {
         </article>
       </section>
 
-      <section className="cards cards--1">
-        <article className="card">
-          <div className="card-head">
-            <p className="stat__label">我的片单</p>
-            <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
-              全部
-            </Link>
-          </div>
-
-          {myWatches.isLoading ? <div className="skeleton" style={{ height: 72, marginTop: 12 }} /> : null}
-          {myWatches.error ? (
-            <p className="state__hint note-block">
-              片单暂时取不到，稍后再看～
-            </p>
-          ) : null}
-
-          {myWatches.data && myWatches.data.length === 0 ? (
-            <p className="state__hint note-block">
-              还没有自己的片单，建一个把想看的攒起来～
-            </p>
-          ) : null}
-
-          <ul className="stack--loose stack--top">
-            {(myWatches.data ?? []).map((watch) => (
-              <li key={watch.id}>
-                <Link
-                  to="/watchlists/$watchId"
-                  params={{ watchId: String(watch.id) }}
-                  search={{ page: 1, page_size: 20, q: '' }}
-                  className="row text-sm"
-                >
-                  <span className="text-body ellipsis" style={{ flex: 1 }}>
-                    {watch.name}
-                  </span>
-                  <span className="muted tnum" style={{ fontSize: 11.5 }}>{watch.video_count} 部</span>
-                  <span className="muted" style={{ fontSize: 11.5, width: 62, textAlign: 'right' }}>
-                    {watch.updated_at ? watch.updated_at.slice(5, 10) : ''}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </article>
-
-      </section>
       {signing ? (
         <Modal
           title="今日签到"
