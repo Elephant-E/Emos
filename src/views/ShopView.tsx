@@ -210,7 +210,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
       ) : null}
 
       {panel === 'categories' ? (
-        <Modal title="分类管理" width={600} onClose={() => setPanel(null)}>
+        <Modal title="分类管理" width={560} onClose={() => setPanel(null)}>
           <>
             <div className="chart-head">
               <p className="stat__label" style={{ margin: 0 }}>分类</p>
@@ -273,7 +273,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
       ) : null}
 
       {panel === 'seller' ? (
-        <Modal title="店铺设置" width={600} onClose={() => setPanel(null)}>
+        <Modal title="店铺设置" width={560} onClose={() => setPanel(null)}>
           <>
             <p className="stat__label">店铺信息</p>
             {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
@@ -321,7 +321,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
         <Modal
           title={editing.product_id ? '编辑商品' : '新增商品'}
           hint="库存为 0 时自动售罄"
-          width={520}
+          width={460}
           onClose={() => setEditing(null)}
           footer={
             <>

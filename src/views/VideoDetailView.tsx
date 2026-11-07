@@ -506,7 +506,7 @@ export function VideoDetailView({
         <Modal
           title={`移动资源 · ${moving.name}`}
           hint="移动比删了重传省一次胡萝卜"
-          width={520}
+          width={460}
           onClose={() => setMoving(null)}
         >
           <div className="tabs" style={{ overflowX: 'auto', flexWrap: 'nowrap' }}>

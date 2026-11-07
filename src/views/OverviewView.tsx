@@ -343,7 +343,7 @@ export function OverviewView() {
       {signing ? (
         <Modal
           title="今日签到"
-          width={420}
+          width={400}
           onClose={() => setSigning(false)}
         >
           <div className="stack">

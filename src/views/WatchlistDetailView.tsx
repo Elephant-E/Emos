@@ -231,7 +231,7 @@ export function WatchlistDetailView({
       ) : null}
 
       {adding ? (
-        <Modal title="添加影片" onClose={() => setAdding(false)} width={520}>
+        <Modal title="添加影片" onClose={() => setAdding(false)} width={460}>
           <label className="field">
             <span>按片名搜索</span>
             <input

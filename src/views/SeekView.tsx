@@ -183,7 +183,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         <Modal
           title={`求片详情 · ${detailTarget.video_title_display}`}
           hint={`#${detailTarget.id} · ${detailTarget.status}`}
-          width={520}
+          width={460}
           onClose={() => setDetailTarget(null)}
         >
           {detail.loading ? <p className="card-note">读取中…</p> : null}

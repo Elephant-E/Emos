@@ -277,7 +277,7 @@ export function UploadView() {
       </section>
 
       {archiving ? (
-        <Modal title={`归档到影片 · ${archiving.file_name}`} onClose={() => setArchiving(null)} width={520}>
+        <Modal title={`归档到影片 · ${archiving.file_name}`} onClose={() => setArchiving(null)} width={460}>
           <label className="field">
             <span>按片名搜索</span>
             <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
@@ -319,7 +319,7 @@ export function UploadView() {
       ) : null}
 
       {picking ? (
-        <Modal title={`选择影片 · ${picking.file.name}`} onClose={() => setPicking(null)} width={520}>
+        <Modal title={`选择影片 · ${picking.file.name}`} onClose={() => setPicking(null)} width={460}>
           <label className="field">
             <span>按片名搜索</span>
             <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
