@@ -182,7 +182,7 @@
 | 项 | 原因 | 影响 |
 |---|---|---|
 | 支付模块 | 该实例未部署（`/api/pay/base` 404） | 支付服务 tab 显示「未部署」，非代码问题 |
-| 78 个 API 封装未被 UI 触达 | 属客户端功能（抽奖/红包/短视频/支付），保留 typed client 覆盖 | 无运行时影响，不按死代码处理 |
+| ~~78 个 API 封装未被 UI 触达~~ | **已处理**：拆到 `endpoints.ext.ts` 的 `clientApi`（55 个方法，按域分组）；`endpoints.ts` 只剩 UI 真正调用的 117 个 | 需要时从 `clientApi.upload.presign` 这类路径取用 |
 | 极少数弹层是「选择型」而非「表单型」 | 归档/选片弹层靠点选行提交，回车语义不适用 | 已补 footer 取消键，结构统一 |
 | `.tabs` 与 `.seg` 视觉接近 | 两者分别用于页面级切换与页内二元筛选，选中态都用填充 pill | 订单页两个筛选组相邻时可辨识度偏低，属主观判断 |
 | 账号的 Telegram 绑定 | 本轮误用 DELETE 探针导致解绑 | 用户在 Telegram 打开 `https://t.me/emospg_bot?start=bind_2o0bMmyb6B` 可重新绑定 |
