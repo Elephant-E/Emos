@@ -179,10 +179,10 @@ export function VideoDetailView({
       ) : null}
 
       {video ? (
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 0.85fr) minmax(0, 1.15fr)', gap: 18, marginTop: 18 }}>
-        <article className="card" style={{ padding: '18px 20px' }}>
+      <div className="detail-body">
+        <article className="card card--tight">
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>季与集</p>
+            <p className="stat__label">季与集</p>
             <span className="muted tnum-sm">
               共 {seasons.data?.length ?? 0} 季 · 本季 {seasonEpisodes.length} 集
             </span>
@@ -251,10 +251,10 @@ export function VideoDetailView({
           ) : null}
         </article>
 
-        <div style={{ display: 'grid', gap: 18 }}>
-          <article className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <p className="stat__label" style={{ margin: 0 }}>
+        <div className="detail-col">
+          <article className="card card--tight">
+            <div className="detail-head">
+              <p className="stat__label">
                 资源
               </p>
               <span className="muted" style={{ fontSize: 12 }}>
@@ -287,7 +287,7 @@ export function VideoDetailView({
                         </td>
                         <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td>
                           {row.is_self_upload || caps.isAdmin ? (
                             <button
                               className="row-menu"
@@ -306,7 +306,7 @@ export function VideoDetailView({
             ) : null}
           </article>
 
-          <article className="card" style={{ padding: '18px 20px' }}>
+          <article className="card card--tight">
             <div className="card-head">
               <p className="stat__label">字幕</p>
               <button className="btn btn--quiet" onClick={() => setSubUploading(true)}>
@@ -335,7 +335,7 @@ export function VideoDetailView({
                         </td>
                         <td className="muted">{String(row.subtitle_codec)}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                        <td style={{ textAlign: 'right' }}>
+                        <td>
                           {row.is_self_upload || caps.isAdmin ? (
                             <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
                               <IconDots />
@@ -355,23 +355,23 @@ export function VideoDetailView({
       ) : null}
 
       {video && persons.data && persons.data.items.length > 0 ? (
-        <article className="card" style={{ marginTop: 18, padding: '18px 20px' }}>
+        <article className="card card--tight" style={{ marginTop: 18 }}>
           <p className="stat__label">演职员</p>
-          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginTop: 10 }}>
+          <div className="person-grid">
             {persons.data.items.slice(0, 8).map((person) => (
-              <div key={person.id} style={{ display: 'grid', gap: 6, width: 84 }}>
+              <div key={person.id} className="person-card">
                 {person.image_profile ? (
                   <img
                     src={`https://image.theotherdb.org/original/${person.image_profile}`}
                     alt=""
                     loading="lazy"
-                    style={{ width: 84, height: 112, objectFit: 'cover', borderRadius: 8 }}
+                    className="person-card__poster"
                   />
                 ) : (
-                  <div style={{ width: 84, height: 112, borderRadius: 8, background: 'var(--raised)' }} />
+                  <div className="person-card__poster person-card__poster--empty" />
                 )}
-                <span style={{ fontSize: 12.5, color: 'var(--fg-2)' }}>{person.name}</span>
-                <span style={{ fontSize: 11, color: 'var(--fg-4)' }}>
+                <span className="person-card__name">{person.name}</span>
+                <span className="person-card__role">
                   {person.job ?? (person.title ? `饰 ${person.title}` : '')}
                 </span>
               </div>
@@ -409,7 +409,7 @@ export function VideoDetailView({
             <span>资源名</span>
             <input className="input" value={renaming.name} onChange={(e) => setRenaming({ ...renaming, name: e.target.value })} autoFocus />
           </label>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="pick-tabs">
             <button
               className="btn btn--ghost"
               onClick={() =>
@@ -511,14 +511,13 @@ export function VideoDetailView({
           width={460}
           onClose={() => setMoving(null)}
         >
-          <div className="tabs" style={{ overflowX: 'auto', flexWrap: 'nowrap' }}>
+          <div className="tabs pick-tabs__scroll">
             {(seasons.data ?? []).map((s) => (
               <button
                 key={s.season_id}
-                className="tab"
+                className="tab pick-tabs__item"
                 role="tab"
                 aria-selected={s.season_number === moveSeason}
-                style={{ flex: 'none' }}
                 onClick={() => setMoveSeason(s.season_number)}
               >
                 {s.season_title || `第 ${s.season_number} 季`}
@@ -526,11 +525,11 @@ export function VideoDetailView({
             ))}
           </div>
 
-          <div style={{ display: 'grid', gap: 4, maxHeight: 320, overflowY: 'auto' }}>
+          <div className="pick-list">
             {(moveEpisodes.data ?? []).map((ep) => (
-              <div key={ep.episode_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 2px' }}>
-                <span className="tnum muted" style={{ width: 26 }}>{String(ep.episode_number).padStart(2, '0')}</span>
-                <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div key={ep.episode_id} className="pick-row">
+                <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
+                <span className="pick-row__title">
                   {ep.episode_title}
                 </span>
                 <button

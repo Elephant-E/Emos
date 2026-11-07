@@ -5,15 +5,6 @@ const MOCK_MODE = import.meta.env.VITE_MOCK ?? ''
 export const USE_FIXTURES = MOCK_MODE === 'fixtures'
 export const USE_MOCK = MOCK_MODE === '1' || USE_FIXTURES
 export const TOKEN_KEY = 'emos_admin_token'
-/**
- * 502/504 不一定是「没执行」：上游返回空 body 的 200 时，网关会判成失败并回 502，
- * 而写操作其实已经落库。这类响应需要按「可能成功」处理（刷新列表，让用户看到真实状态）。
- */
-export function isGatewayFalseNegative(error: unknown): boolean {
-  const status = (error as { status?: number } | null)?.status
-  return status === 502 || status === 504
-}
-
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY)
@@ -126,6 +117,15 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
     }
   }
   if (!res.ok) {
+    // 网关误报：上游已经返回 200（动作已完成），只是 body 为空，网关把它判成失败
+    // 并包成 502。这种情况按成功处理 —— 写操作确实生效了，让业务层当成功走。
+    const upstreamFailed =
+      payload && typeof payload === 'object' && 'message' in payload
+        ? String((payload as Record<string, unknown>).message ?? '')
+        : ''
+    if (res.status === 502 && upstreamFailed === 'API 请求失败: 200') {
+      return {} as T
+    }
     const msg =
       (payload && typeof payload === 'object' && ('message' in payload || 'msg' in payload)
         ? String((payload as Record<string, unknown>).message ?? (payload as Record<string, unknown>).msg)

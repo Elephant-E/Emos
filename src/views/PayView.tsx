@@ -3,7 +3,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
-import { isGatewayFalseNegative } from '@/api/client'
 import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -63,13 +62,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                   toast('已提交申请，等待审核', 'success')
                   void base.refetch()
                 } catch (error) {
-                  // 该接口在上游返回空 body 的 200 时会被网关判成 502，但申请其实已经落库
-                  if (isGatewayFalseNegative(error)) {
-                    toast('已提交，正在刷新状态', 'info')
-                    void base.refetch()
-                  } else {
-                    toast(error instanceof Error ? error.message : '提交失败', 'error')
-                  }
+                  toast(error instanceof Error ? error.message : '提交失败', 'error')
                 }
               }}
             >
