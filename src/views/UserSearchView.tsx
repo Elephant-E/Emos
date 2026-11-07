@@ -20,7 +20,6 @@ export function UserSearchView() {
       <PageHeader
         crumb={['用户', '查询']}
         title="查用户"
-        hint="按用户 ID 进入"
         tools={
           <Link className="btn btn--ghost" to="/account" search={{ tab: 'ban' }}>
             封禁列表

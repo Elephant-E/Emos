@@ -105,7 +105,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
           title="还没有片单"
-          hint="片单是给别人看的内容合集，创建后可以公开分享，也能让别人订阅。"
           action={<button className="btn btn--primary" onClick={() => setCreating(true)}>新建片单</button>}
         />
       ) : null}

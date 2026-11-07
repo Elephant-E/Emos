@@ -453,7 +453,7 @@ export function VideoDetailView({
       ) : null}
 
       {subUploading ? (
-        <Modal title="上传字幕" hint="支持 srt / ass / vtt，挂到当前这一集。" width={460} onClose={() => setSubUploading(false)}>
+        <Modal title="上传字幕" hint="支持 srt / ass / vtt" width={460} onClose={() => setSubUploading(false)}>
           <div className="stack">
             <label className="btn btn--ghost" style={{ justifySelf: 'start', cursor: subBusy ? 'default' : 'pointer' }}>
               {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '选择字幕文件'}
@@ -492,7 +492,7 @@ export function VideoDetailView({
       {moving ? (
         <Modal
           title={`移动资源 · ${moving.name}`}
-          hint="传错集会扣两次胡萝卜，用这个把它挪到正确的位置。"
+          hint="移动比删了重传省一次胡萝卜"
           width={520}
           onClose={() => setMoving(null)}
         >

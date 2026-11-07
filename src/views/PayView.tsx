@@ -47,7 +47,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock
           title="这个实例没有开通支付服务商"
-          hint="/api/pay/base 返回 404，说明后端没有部署支付模块。转账与查单在这里不可用。"
+          hint="这个实例没有部署支付服务，转账与查单不可用。"
           action={
             <button
               className="btn btn--primary"

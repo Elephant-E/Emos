@@ -319,7 +319,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
       {editing ? (
         <Modal
           title={editing.product_id ? '编辑商品' : '新增商品'}
-          hint="上架后可被用户下单；库存为 0 时自动售罄。"
+          hint="库存为 0 时自动售罄"
           width={520}
           onClose={() => setEditing(null)}
           footer={

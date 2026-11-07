@@ -381,7 +381,6 @@ export function OverviewView() {
       {signing ? (
         <Modal
           title="今日签到"
-          hint="说点什么会有额外的随机胡萝卜，留空也能签。"
           width={420}
           onClose={() => setSigning(false)}
         >

@@ -144,7 +144,7 @@ export function WatchlistDetailView({
       {videos.isLoading ? <LoadingBlock bare rows={6} columns={4} /> : null}
 
       {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
-        <EmptyBlock title="片单里还没有影片" hint="点「添加影片」，按片名搜索后加入。" />
+        <EmptyBlock title="片单里还没有影片" />
       ) : null}
 
       {!videos.isLoading && videos.data && videos.data.items.length > 0 ? (

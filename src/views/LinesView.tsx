@@ -57,7 +57,7 @@ export function LinesView() {
       <p className="card-note card-note--inline">显示「—」的线路由其他人创建，只能查看。</p>
       {lines.error ? <ErrorBlock error={lines.error as Error & { status?: number }} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
-      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" hint="线路用于客户端反代，地址不需要尾部斜杠。" /> : null}
+      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" hint="用于客户端反代" /> : null}
       {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title="没有匹配的线路" hint={`「${term}」没有结果。`} /> : null}
 
       {paged.length > 0 ? (

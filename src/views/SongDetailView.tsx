@@ -109,7 +109,7 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" hint="上传音频后会出现在这里。" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <table className="table">
                 <thead>

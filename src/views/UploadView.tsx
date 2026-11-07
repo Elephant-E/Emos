@@ -240,7 +240,7 @@ export function UploadView() {
 
           {storeFiles.error ? <ErrorBlock bare error={storeFiles.error as Error & { status?: number }} onRetry={() => storeFiles.refetch()} /> : null}
           {!storeFiles.error && storeFiles.data && storeFiles.data.length === 0 ? (
-            <EmptyBlock bare title="暂存区是空的" hint="上传完成的文件会先落在这里，再入库到具体影片。" />
+            <EmptyBlock bare title="暂存区是空的" hint="入库前会先落在这里" />
           ) : null}
           {storeFiles.data && storeFiles.data.length > 0 ? (
             <table className="table" style={{ marginTop: 12 }}>
