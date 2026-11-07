@@ -420,6 +420,8 @@ export async function mockRequest<T>(
     return { name: String(body.name ?? ''), description: String(body.description ?? ''), cover: '', cover_url: '' } as T
   }
   if (clean === '/api/shop/order/shop/order') {
+    // ?nonadmin 用于在 mock 下预览普通用户视角（这两个接口对普通用户 403）
+    if (new URLSearchParams(location.search).has('nonadmin')) throw Object.assign(new Error('无权限'), { status: 403 })
     const rows = [
       { user: { username: 'lin' }, order_no: '20261101093012shopA1', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'pay', urge_number: 0, buy_number: 1, time_pay: '2026-11-01 09:31:00', time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-11-01T09:30:12Z' },
       { user: { username: 'zhou' }, order_no: '20261030201455shopB2', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'pay', urge_number: 2, buy_number: 1, time_pay: '2026-10-30 20:15:00', time_delivery: '2026-10-31 09:00:00', time_urge: '2026-10-31 08:00:00', remark_shop: '已发邮箱', remark_user: null, created_at: '2026-10-30T20:14:55Z' },
@@ -468,6 +470,8 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/ban/list') {
+    // ?nonadmin 用于在 mock 下预览普通用户视角（这两个接口对普通用户 403）
+    if (new URLSearchParams(location.search).has('nonadmin')) throw Object.assign(new Error('无权限'), { status: 403 })
     return [
       { user_id: 'e0E4MKO96s', username: 'dajun7095', avatar: null, invite_user_id: 'eK98JXQ9Ms', invite_pseudonym: '咸鱼翻身计划', invite_at: '2026-01-22 17:39:27', telegram_user_id: '6181680957', disable_reason: '请求数异常', created_at: '2026-01-21T15:27:08.000000Z' },
     ] as T

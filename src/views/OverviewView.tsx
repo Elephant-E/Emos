@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchStats } from '@/api/queries'
+import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand, realmOf } from '@/lib/format'
@@ -41,6 +41,9 @@ export function OverviewView() {
     { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
     { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
   ].filter((item) => (item.value ?? 0) > 0)
+  // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡
+  const showWatchlists = todoItems.length === 0
+  const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' })
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
 
@@ -116,10 +119,7 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section
-        className="cards cards--todos"
-        style={{ marginTop: 16, gridTemplateColumns: `repeat(${Math.max(1, todoItems.length)}, minmax(0, 1fr))` }}
-      >
+        <section className="cards cards--todos" style={{ marginTop: 16 }}>
           {todoItems.map((item) => (
             <Link key={item.label} className="card todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
@@ -339,6 +339,45 @@ export function OverviewView() {
           </div>
         </article>
       </section>
+
+      {showWatchlists ? (
+        <section className="cards cards--wide">
+          <article className="card">
+            <div className="card-head">
+              <p className="stat__label" style={{ margin: 0 }}>我的片单</p>
+              <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video' }}>
+                全部
+              </Link>
+            </div>
+
+            {myWatchlists.isLoading ? <div className="skeleton" style={{ height: 64, marginTop: 12 }} /> : null}
+            {!myWatchlists.isLoading && (myWatchlists.data?.items.length ?? 0) === 0 ? (
+              <p className="card-note" style={{ marginTop: 12 }}>
+                还没有自己的片单，去片单页建一个。
+              </p>
+            ) : null}
+
+            <ul className="stack--loose stack--top">
+              {(myWatchlists.data?.items ?? []).map((w) => (
+                <li key={w.id}>
+                  <Link
+                    to="/watchlists/$watchId"
+                    params={{ watchId: String(w.id) }}
+                    search={{ page: 1, page_size: 20, q: '' }}
+                    className="row text-sm"
+                  >
+                    <span className="text-body ellipsis" style={{ flex: 1 }}>{w.name}</span>
+                    <span className="muted tnum-sm">{w.video_count} 部</span>
+                    <span className="muted tnum-sm" style={{ width: 62, textAlign: 'right' }}>
+                      {w.updated_at ? w.updated_at.slice(5, 10) : ''}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </article>
+        </section>
+      ) : null}
 
       {signing ? (
         <Modal
