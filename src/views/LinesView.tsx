@@ -21,6 +21,20 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
 
+  const submitLine = () => {
+    if (!form.name.trim() || !form.url.trim() || !form.tagline.trim() || actions.create.isPending) return
+    actions.create.mutate(
+      { name: form.name.trim(), url: form.url.trim(), tagline: form.tagline.trim() },
+      {
+        onSuccess: () => {
+          toast('线路已创建', 'success')
+          setCreating(false)
+          setForm({ name: '', url: '', tagline: '' })
+        },
+      },
+    )
+  }
+
   const rows = (lines.data ?? []).filter((line) => {
     const q = search.q.trim().toLowerCase()
     if (!q) return true
@@ -133,6 +147,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           title="新增线路"
           hint="地址不要带尾部斜杠；名称建议用自己的 ID。"
           onClose={() => setCreating(false)}
+          onSubmit={submitLine}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setCreating(false)}>
@@ -140,19 +155,8 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!form.name.trim() || !form.url.trim()}
-                onClick={() =>
-                  actions.create.mutate(
-                    { name: form.name.trim(), url: form.url.trim(), tagline: form.tagline.trim() || undefined },
-                    {
-                      onSuccess: () => {
-                        toast('线路已创建', 'success')
-                        setCreating(false)
-                        setForm({ name: '', url: '', tagline: '' })
-                      },
-                    },
-                  )
-                }
+                disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
+                onClick={submitLine}
               >
                 创建
               </button>
@@ -168,7 +172,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
             <input className="input" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="http://proxy.local" />
           </label>
           <label className="field">
-            <span>一句话简介</span>
+            <span>一句话简介（必填）</span>
             <input className="input" value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="三网绕路" />
           </label>
         </Modal>

@@ -464,6 +464,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           title="重置永久密码"
           hint="重置后所有已登录设备需要重新登录。"
           onClose={() => setResetting(false)}
+          onSubmit={() => { if (newPassword.trim() && !actions.resetPassword.isPending) actions.resetPassword.mutate(newPassword.trim()) }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setResetting(false)}>
@@ -499,6 +500,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           title="邀请用户"
           hint="邀请名额有限，撤销邀请会返还名额。"
           onClose={() => setInviting(false)}
+          onSubmit={() => { if (inviteId.trim() && !actions.invite.isPending) actions.invite.mutate({ id: inviteId.trim(), remark: inviteRemark.trim() }) }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setInviting(false)}>

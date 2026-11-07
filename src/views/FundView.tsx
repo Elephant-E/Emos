@@ -71,6 +71,7 @@ function CarrotSection({ page, onPage }: { page: number; onPage: (page: number) 
           title="转赠胡萝卜"
           hint="单次 2 – 6000 个，转账后不可撤回。"
           onClose={() => setTransferring(false)}
+          onSubmit={() => { if (transferTo.trim() && transferAmount >= 2 && !actions.transfer.isPending) actions.transfer.mutate({ userId: transferTo.trim(), carrot: transferAmount }) }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setTransferring(false)}>

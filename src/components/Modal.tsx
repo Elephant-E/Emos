@@ -8,6 +8,7 @@ export function Modal({
   children,
   footer,
   onClose,
+  onSubmit,
   width = 460,
 }: {
   title: string
@@ -15,6 +16,8 @@ export function Modal({
   children: ReactNode
   footer?: ReactNode
   onClose: () => void
+  /** 传了它，弹层内按回车等于提交 */
+  onSubmit?: () => void
   width?: number
 }) {
   const boxRef = useRef<HTMLDivElement>(null)
@@ -35,6 +38,11 @@ export function Modal({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && onSubmit && !(event.target as HTMLElement)?.closest('textarea')) {
+        event.preventDefault()
+        onSubmit()
+        return
+      }
       if (event.key === 'Escape') {
         event.stopPropagation()
         // 确认框叠在弹层之上，此时 Esc 只应关掉确认框
@@ -61,7 +69,7 @@ export function Modal({
       document.removeEventListener('keydown', onKeyDown)
       previous?.focus?.()
     }
-  }, [onClose])
+  }, [onClose, onSubmit])
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -72,9 +80,16 @@ export function Modal({
             ✕
           </button>
         </div>
-        <div className="modal__body">{children}</div>
-        {hint ? <p className="modal__hint">{hint}</p> : null}
-        {footer ? <div className="modal__foot">{footer}</div> : null}
+        <form
+          onSubmit={(event) => {
+            event.preventDefault()
+            onSubmit?.()
+          }}
+        >
+          <div className="modal__body">{children}</div>
+          {hint ? <p className="modal__hint">{hint}</p> : null}
+          {footer ? <div className="modal__foot">{footer}</div> : null}
+        </form>
       </div>
     </div>
   )
