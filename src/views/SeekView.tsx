@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -26,6 +27,7 @@ const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[
 
 export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (patch: Partial<SeekSearch>) => void }) {
   const qc = useQueryClient()
+  const navigate = useNavigate()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
   const [detailTarget, setDetailTarget] = useState<SeekItem | null>(null)
   const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean; error?: boolean }>({ info: null, history: [], loading: false })
@@ -97,7 +99,30 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               {data.items.map((item) => {
                 const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
                 return (
-                  <tr key={item.id}>
+                  <tr
+                    key={item.id}
+                    tabIndex={item.video_list_id ? 0 : undefined}
+                    role={item.video_list_id ? 'link' : undefined}
+                    style={item.video_list_id ? { cursor: 'pointer' } : undefined}
+                    onClick={() => {
+                      if (!item.video_list_id) return
+                      navigate({
+                        to: '/media/$videoId',
+                        params: { videoId: String(item.video_list_id) },
+                        search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+                      })
+                    }}
+                    onKeyDown={(e) => {
+                      if (!item.video_list_id) return
+                      if (e.key !== 'Enter' && e.key !== ' ') return
+                      e.preventDefault()
+                      navigate({
+                        to: '/media/$videoId',
+                        params: { videoId: String(item.video_list_id) },
+                        search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+                      })
+                    }}
+                  >
                     <td>
                       <div className="cell-title">
                         {item.video_image_poster ? (
@@ -129,9 +154,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num">{item.seek_carrot == null ? '—' : formatThousand(item.seek_carrot)}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
+                      <span className="action-group">
                       <button
                         className="btn btn--quiet"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation()
                           setDetailTarget(item)
                           setDetail({ info: null, history: [], loading: true })
                           try {
@@ -145,26 +172,30 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                           }
                         }}
                       >
-                        详情
+                        求片详情
                       </button>
                       {item.status === 'upload' ? (
-                        <a className="btn btn--quiet" href="/upload">
+                        <a className="btn btn--quiet" href="/upload" onClick={(e) => e.stopPropagation()}>
                           去上传
                         </a>
                       ) : item.is_can_claim && item.status === 'default' ? (
                         <button
                           className="btn btn--ghost"
                           aria-busy={claim.isPending && claim.variables === item.id}
-                          onClick={() => claim.mutate(item.id)}
+                          onClick={(e) => { e.stopPropagation(); claim.mutate(item.id) }}
                           disabled={claim.isPending && claim.variables === item.id}
                         >
                           认领
                         </button>
                       ) : (
-                        <button className="btn btn--quiet" onClick={() => { setUrgeTarget(item); setCarrot(10) }}>
+                        <button
+                          className="btn btn--quiet"
+                          onClick={(e) => { e.stopPropagation(); setUrgeTarget(item); setCarrot(10) }}
+                        >
                           催片
                         </button>
                       )}
+                      </span>
                     </td>
                   </tr>
                 )
