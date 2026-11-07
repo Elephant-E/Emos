@@ -154,11 +154,13 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                       )}
                       <span>
                         <span className="cell-title__name">{video.video_title}</span>
-                        <span className="cell-title__code">
-                          #{video.video_id} · TODB {video.todb_id}
-                          {video.video_origin_title ? ` · ${video.video_origin_title}` : ''}
-                          {video.genres.length ? ` · ${video.genres.slice(0, 2).map((g) => g.name).join('/')}` : ''}
-                        </span>
+                        {(() => {
+                          const sub = [
+                            video.video_origin_title,
+                            video.genres.length ? video.genres.slice(0, 2).map((g) => g.name).join('/') : null,
+                          ].filter(Boolean)
+                          return sub.length ? <span className="cell-title__code">{sub.join(' · ')}</span> : null
+                        })()}
                       </span>
                     </div>
                   </td>

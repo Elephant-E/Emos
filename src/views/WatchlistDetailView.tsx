@@ -399,10 +399,9 @@ function WatchMusicList({
                 >
                   <td>
                     <span className="cell-title__name">{song.name}</span>
-                    <span className="cell-title__code">
-                      #{song.song_id}
-                      {song.description ? ` · ${song.description.slice(0, 40)}` : ''}
-                    </span>
+                    {song.description ? (
+                      <span className="cell-title__code">{song.description.slice(0, 40)}</span>
+                    ) : null}
                   </td>
                   <td className="num muted">
                     {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}

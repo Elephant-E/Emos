@@ -203,10 +203,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                             {item.title}
                             {selected ? <span className="muted" style={{ fontSize: 11.5 }}> · 展开中</span> : null}
                           </span>
-                          <span className="cell-title__code">
-                            {item.code}
-                            {item.tagline ? ` · ${item.tagline}` : ''}
-                          </span>
+                          {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
                         </span>
                       </div>
                     </td>

@@ -94,7 +94,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                       <span className="thumb">{line.name.slice(0, 1)}</span>
                       <span>
                         <span className="cell-title__name">{line.name}</span>
-                        <span className="cell-title__code">#{line.id}{line.is_self ? ' · 我的' : ''}</span>
+                        {line.is_self ? <span className="cell-title__code">我的</span> : null}
                       </span>
                     </div>
                   </td>

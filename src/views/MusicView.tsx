@@ -128,10 +128,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                         )}
                         <span>
                           <span className="cell-title__name">{name}</span>
-                          <span className="cell-title__code">
-                            #{id}
-                            {row.tagline ? ` · ${String(row.tagline)}` : ''}
-                          </span>
+                          {row.tagline ? <span className="cell-title__code">{String(row.tagline)}</span> : null}
                         </span>
                       </div>
                     </td>

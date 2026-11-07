@@ -213,7 +213,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                           )}
                           <span>
                             <span className="cell-title__name">{title}</span>
-                            <span className="cell-title__code">#{videoId}</span>
+  
                           </span>
                         </div>
                       </td>

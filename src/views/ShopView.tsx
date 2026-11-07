@@ -181,10 +181,9 @@ export function ShopView({
                           )}
                           <span>
                             <span className="cell-title__name">{product.name}</span>
-                            <span className="cell-title__code">
-                              #{product.product_id} · 排序 {product.sort}
-                              {product.up_time ? ` · 上架 ${formatDateTime(product.up_time)}` : ''}
-                            </span>
+                            {product.up_time ? (
+                              <span className="cell-title__code">上架 {formatDateTime(product.up_time)}</span>
+                            ) : null}
                           </span>
                         </div>
                       </td>
