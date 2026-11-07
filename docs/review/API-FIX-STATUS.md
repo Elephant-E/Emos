@@ -15,7 +15,7 @@
 | V3 | `saveInternal` 契约注明废弃、multipart 三件套不适用 tusd | ✅ `40c5a40` |
 | V4 | `video/search` 缺 `with_genre` 等 5 个可选字段 | ⬜ |
 | V5 | `getUploadToken` 缺 `file_storage` | ✅ `7deabba` |
-| V6 | 图片上传（`type: image`）无入口 | ⬜ |
+| V6 | 图片上传（`type: image`）无入口 | ✅ `c8835ee`（ImagePicker 图床组件） |
 
 ---
 
@@ -27,7 +27,7 @@
 |---|---|---|
 | C1-01 | 片单影片分页错位（后端固定 15，Pager 用 20，尾部 1250 部翻不到） | ✅ `28aa9fa` |
 | C1-02 | 歌曲收藏 `item_type` 用 `mp`（歌手），应为 `ms` | ✅ `28aa9fa` |
-| C1-03 | **歌单只能减不能加**：`watchApi` 无 addMusic/searchMusic，音乐页也无「加入歌单」入口 | ✅ `a815960` |
+| C1-03 | **歌单只能减不能加** | ✅ `a815960` |
 | C1-04 | `tags` 可能为 null，列表页 `.length` 整页崩 | ✅ `28aa9fa` |
 | C1-05 | 直播源类型给了 flv/mp4，后端只接受 m3u8 | ✅ `28aa9fa` |
 
@@ -35,10 +35,10 @@
 
 | # | 问题 | 状态 |
 |---|---|---|
-| C2-01 | 片单没有编辑入口，`id` 永远不传 → 建好后名称/简介/标签/门槛/封面全改不了 | ⬜ |
+| C2-01 | 片单没有编辑入口，`id` 永远不传 | ✅ `5cf9b2b`（抽出 WatchlistForm，详情页可编辑） |
 | C2-02 | 直播频道「代号 code」必填但不生效（回读为 null） | ⬜ |
 | C2-03 | 新建片单缺封面 `image_poster_url` 与 `is_show_empty` 开关（`point` 已补） | 🟡 `67e69e2` 只补了 point |
-| C2-04 | 直播 `page_size` 被忽略（固定 15），且源列表没有 Pager → 源 >15 的频道后半看不到 | ⬜ |
+| C2-04 | 直播源列表无分页 | ✅ `f0fe6a4` |
 | C2-05 | 音乐片单「收藏」列取的 `count_medias` 不在该接口响应里，恒为 0 | ✅ 改成「艺人」列 |
 | C2-06 | 求片页没有任何筛选（`video_type` / `upload_self` / `video_title` / `with_user` 都没传） | ⬜ |
 | C2-07 | 音乐列表 52 万首无任何过滤（`has_media` / `is_favorite` 等全未用） | ⬜ |
@@ -67,7 +67,7 @@
 | S1-2 | `carrotApi.transfer` 的 6000 上界后端没实现（6001 直接成功），前端只有 input max | ⬜ |
 | S1-3 | 提交报销凭证不校验 `images`，失败无提示 | ✅ `28aa9fa` |
 | S1-4 | 订单页看不到买家备注与数量，`price_order` 被当「金额」 | ✅ `cf9bf4b` |
-| S1-5 | 基金订单表漏了「实付金额」`tier_price` 与 `order_title` | ⬜ |
+| S1-5 | 基金订单漏 `tier_price` 与 `order_title` | ✅ `1aa9a90` |
 | S1-6 | `payApi.base` 的 404 被当成「实例没部署支付模块」，还把转赠卡片一起隐藏 | ✅ `28aa9fa` |
 
 ### P2（8 项）
@@ -114,10 +114,10 @@
 | 域 | 总数 | 已修 | 部分 | 未修 |
 |---|---|---|---|---|
 | 视频 | 6 | 4 | 0 | 2 |
-| 内容 | 24 | 6 | 1 | 17 |
+| 内容 | 24 | 9 | 1 | 14 |
 | 商业 | 23 | 6 | 0 | 17 |
 | 用户 | 17 | 6 | 0 | 11 |
-| **合计** | **70** | **22** | **1** | **47** |
+| **合计** | **70** | **26** | **1** | **43** |
 
 ## 未修项的性质分类
 
@@ -143,3 +143,15 @@
 
 **D. 死代码与类型**
 - 各类 P3
+
+
+---
+
+## 补丁清理（用户点名要处理）
+
+| 项 | 处理 |
+|---|---|
+| `meta.wantsOwnError` | ✅ `9d9b24f` 删除。502 假失败改在 HTTP 层翻译成成功，业务层不需要知道 |
+| `isGatewayFalseNegative` | ✅ 同上，函数删除 |
+| `VideoDetailView` 46 处内联 style | ✅ 降到 23 处，抽了 detail-body / card--tight / detail-head / person-grid / pick-list 等类；保留的只有列宽与运行时值 |
+| `endpoints.ext.ts`（46 个方法零引用） | ✅ `94e77d0` 有用能力搬回主文件，用户侧流程删掉，文件删除 |
