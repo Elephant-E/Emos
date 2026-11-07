@@ -7,7 +7,7 @@ import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
-import { useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
+import { useCapabilities, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -48,6 +48,7 @@ export function VideoDetailView({
     }
   }, [seasonEpisodes.length, episode])
 
+  const caps = useCapabilities()
   const media = useMediaList({
     video_list_id: videoId,
     video_season_id: currentEpisode?.season_id,
@@ -289,7 +290,7 @@ export function VideoDetailView({
                         <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td style={{ textAlign: 'right' }}>
-                          {row.is_self_upload ? (
+                          {row.is_self_upload || caps.isAdmin ? (
                             <button
                               className="row-menu"
                               aria-label="操作"
@@ -337,7 +338,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.subtitle_codec)}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td style={{ textAlign: 'right' }}>
-                          {row.is_self_upload ? (
+                          {row.is_self_upload || caps.isAdmin ? (
                             <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
                               <IconDots />
                             </button>
@@ -381,7 +382,7 @@ export function VideoDetailView({
 
       {renaming ? (
         <Modal
-          title="重命名资源"
+          title="编辑资源"
           onClose={() => setRenaming(null)}
           footer={
             <>
@@ -557,7 +558,7 @@ export function VideoDetailView({
 
       {renamingSub ? (
         <Modal
-          title="重命名字幕"
+          title="编辑字幕"
           onClose={() => setRenamingSub(null)}
           footer={
             <>
