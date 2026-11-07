@@ -101,7 +101,12 @@ export function ShopView({
             </div>
             <span className="spacer" />
             {isSeller ? (
-              <button className="btn btn--primary" onClick={() => setEditing({ stock: 100, price_origin: 0, sort: 80, category_id: categories.data?.[0]?.category_id })}>
+              <button
+                className="btn btn--primary"
+                disabled={!categories.data?.length}
+                title={categories.data?.length ? undefined : '先创建至少一个分类'}
+                onClick={() => setEditing({ stock: 100, price_origin: 0, sort: 80, category_id: categories.data?.[0]?.category_id })}
+              >
                 <IconPlus />
                 新增商品
               </button>
@@ -325,7 +330,7 @@ export function ShopView({
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!editing.name?.trim()}
+                disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id)}
                 onClick={() =>
                   actions.saveProduct.mutate(
                     {
