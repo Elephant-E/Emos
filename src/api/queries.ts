@@ -172,14 +172,13 @@ export function useTodos() {
 }
 
 export function useVideoPage(params: { page: number; page_size: number; title?: string; type?: VideoType }) {
-  return useQuery({ queryKey: qk.videos(params), queryFn: () => videoApi.list(params), placeholderData: (prev) => prev })
+  return useQuery({ queryKey: qk.videos(params), queryFn: () => videoApi.list(params) })
 }
 
 export function useSeekPage(params: { page: number; page_size: number; status: SeekStatus[]; sort_by?: SeekQuery['sort_by'] }) {
   return useQuery({
     queryKey: qk.seeks(params),
     queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
-    placeholderData: (prev) => prev,
     refetchInterval: 30_000,
   })
 }
@@ -197,7 +196,6 @@ export function useWatchPage(
   return useQuery({
     queryKey: qk.watches(params),
     queryFn: () => watchApi.list(params),
-    placeholderData: (prev) => prev,
     enabled,
   })
 }
@@ -214,7 +212,6 @@ export function useWatchVideos(watchId: number, params: { page: number; page_siz
   return useQuery({
     queryKey: qk.watchVideos(watchId, params),
     queryFn: () => watchApi.videos(watchId, params),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -222,7 +219,6 @@ export function useWatchMusic(watchId: number, params: { page: number; page_size
   return useQuery({
     queryKey: ['watch', watchId, 'music', params] as const,
     queryFn: () => watchApi.music(watchId, params),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -329,7 +325,6 @@ export function useInviteHistory(page: number, pageSize = 10) {
   return useQuery({
     queryKey: ['invite', 'history', page] as const,
     queryFn: () => inviteApi.history({ page, page_size: pageSize }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -341,7 +336,6 @@ export function useCarrotHistory(page: number, pageSize = 10) {
   return useQuery({
     queryKey: ['carrot', 'history', page] as const,
     queryFn: () => carrotApi.history({ page, page_size: pageSize }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -402,7 +396,6 @@ export function useShopProducts(page: number, sellerId: number, categoryId: numb
         sort_order: 'asc',
       }),
     enabled: Boolean(sellerId),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -410,7 +403,6 @@ export function useShopOrders(page: number, filter: { is_pay?: boolean; is_deliv
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
     queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -440,7 +432,6 @@ export function useLiveList(page: number, libraryId: number, pageSize = 10) {
   return useQuery({
     queryKey: ['live', 'list', page, libraryId] as const,
     queryFn: () => liveApi.list({ page, page_size: pageSize, library_id: libraryId || undefined }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -485,7 +476,6 @@ export function useMusicSongs(page: number, term: string, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'songs', page, term] as const,
     queryFn: () => musicApi.songs({ page, page_size: pageSize, name: term || undefined }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -493,7 +483,6 @@ export function useMusicAlbums(page: number, term: string, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'albums', page, term] as const,
     queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -501,7 +490,6 @@ export function useMusicPersons(page: number, term: string, pageSize = 20) {
   return useQuery({
     queryKey: ['music', 'persons', page, term] as const,
     queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -556,7 +544,6 @@ export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'me
       }
       return { items: res.items ?? [], total: res.total ?? 0, page_size: res.page_size ?? pageSize }
     },
-    placeholderData: (prev) => prev,
   })
 }
 
@@ -564,7 +551,6 @@ export function useDeletedVideos(page: number, pageSize = 20, q?: string) {
   return useQuery({
     queryKey: ['recycle', 'video', page, pageSize, q ?? ''] as const,
     queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize, title: q || undefined }),
-    placeholderData: (prev) => prev,
   })
 }
 

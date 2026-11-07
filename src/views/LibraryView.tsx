@@ -39,7 +39,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
-  const { data, isLoading, error, refetch, isFetching, isPlaceholderData } = useVideoPage({
+  const { data, isLoading, error, refetch, isFetching } = useVideoPage({
     page: search.page,
     page_size: search.page_size,
     title: search.q || undefined,
@@ -113,7 +113,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className={`table-card content-in${isPlaceholderData ? ' is-stale' : ''}`} key={`${data.items.length}-${data.items[0]?.video_id}-${data.total}`}>
+        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.video_id}-${data.total}`}>
           <table className="table table--fixed">
             <thead>
               <tr>

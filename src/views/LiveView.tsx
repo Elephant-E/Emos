@@ -175,7 +175,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
       {list.data && list.data.items.length > 0 ? (
         <>
-        <div className={`table-card content-in${list.isPlaceholderData ? ' is-stale' : ''}`} key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
+        <div className="table-card content-in" key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
           <table className="table">
             <thead>
               <tr>

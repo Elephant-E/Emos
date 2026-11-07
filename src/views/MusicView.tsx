@@ -93,7 +93,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       {active.data && active.data.items.length === 0 ? <EmptyBlock title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'} /> : null}
 
       {active.data && active.data.items.length > 0 ? (
-        <div className={`table-card content-in${active.isPlaceholderData ? ' is-stale' : ''}`} key={`${search.tab}-${active.data.items.length}-${(active.data.items[0] as Record<string, unknown>)?.song_id ?? (active.data.items[0] as Record<string, unknown>)?.album_id ?? (active.data.items[0] as Record<string, unknown>)?.person_id}`}>
+        <div className="table-card content-in" key={`${search.tab}-${active.data.items.length}-${(active.data.items[0] as Record<string, unknown>)?.song_id ?? (active.data.items[0] as Record<string, unknown>)?.album_id ?? (active.data.items[0] as Record<string, unknown>)?.person_id}`}>
           <table className="table">
             <thead>
               <tr>

@@ -34,7 +34,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const [form, setForm] = useState({ name: '', description: '', is_public: true, point: 0, tags: '' })
 
   const session = useSession()
-  const { data, isLoading, isPlaceholderData, error, refetch } = useWatchPage({
+  const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
     page_size: search.page_size,
     type: search.type,
@@ -108,7 +108,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className={`table-card content-in${isPlaceholderData ? ' is-stale' : ''}`} key={`${data.items.length}-${data.items[0]?.id}-${data.total}`}>
+        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.id}-${data.total}`}>
           <table className="table table--fixed">
             <thead>
               <tr>

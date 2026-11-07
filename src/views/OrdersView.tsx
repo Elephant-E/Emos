@@ -69,7 +69,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" hint="筛选项在上方，也可清空条件看全部。" /> : null}
 
       {orders.data && orders.data.items.length > 0 ? (
-        <div className={`table-card content-in${orders.isPlaceholderData ? ' is-stale' : ''}`} key={`${orders.data.items.length}-${orders.data.items[0]?.order_no}-${orders.data.total}`}>
+        <div className="table-card content-in" key={`${orders.data.items.length}-${orders.data.items[0]?.order_no}-${orders.data.total}`}>
           <table className="table">
             <thead>
               <tr>

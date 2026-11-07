@@ -133,7 +133,6 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const orders = useQuery({
     queryKey: ['fund', 'orders', page, pageSize] as const,
     queryFn: () => fundApi.orders({ page, page_size: pageSize }),
-    placeholderData: (prev) => prev,
   })
 
   const [creating, setCreating] = useState(false)

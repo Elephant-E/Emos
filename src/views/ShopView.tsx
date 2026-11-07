@@ -157,7 +157,7 @@ export function ShopView({
           ) : null}
 
           {products.data && products.data.items.length > 0 ? (
-            <div className={`table-card content-in${products.isPlaceholderData ? ' is-stale' : ''}`} key={`${products.data.items.length}-${products.data.items[0]?.product_id}-${products.data.total}`}>
+            <div className="table-card content-in" key={`${products.data.items.length}-${products.data.items[0]?.product_id}-${products.data.total}`}>
               <table className="table">
                 <thead>
                   <tr>
