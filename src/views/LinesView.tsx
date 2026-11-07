@@ -55,8 +55,8 @@ export function LinesView() {
 
       {lines.error ? <ErrorBlock error={lines.error as Error & { status?: number }} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
-      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" hint="用于客户端反代" /> : null}
-      {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title="没有匹配的线路" hint={`「${term}」没有结果。`} /> : null}
+      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
+      {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title={`没有匹配「${term}」的线路`} /> : null}
 
       {paged.length > 0 ? (
         <div className="table-card">

@@ -47,7 +47,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             </div>
 
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="新增一个 m3u8 或 flv 地址即可播放。" /> : null}
+            {media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8 / flv" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>

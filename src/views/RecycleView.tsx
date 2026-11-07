@@ -127,7 +127,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       {!active.error && !active.isLoading && rows.length === 0 ? (
         <EmptyBlock
           title="回收站是空的"
-          hint={tab === 'media' ? '删除的资源会先落在这里。' : '删除的影片会先落在这里。'}
+          
         />
       ) : null}
 

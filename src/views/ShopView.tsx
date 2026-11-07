@@ -103,7 +103,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
           {products.error ? <ErrorBlock error={products.error as Error & { status?: number }} onRetry={() => products.refetch()} /> : null}
           {products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
           {products.data && products.data.items.length === 0 ? (
-            <EmptyBlock title="这个分类还没有商品" hint={isSeller ? '点右上角新增商品。' : '店铺还没上架商品。'} />
+            <EmptyBlock title="这个分类还没有商品" />
           ) : null}
 
           {products.data && products.data.items.length > 0 ? (

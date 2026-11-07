@@ -152,7 +152,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
 
       {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (
-        <EmptyBlock title="还没有基金订单" hint="用活动码新建，再在客户端兑换" />
+        <EmptyBlock title="还没有基金订单" />
       ) : null}
 
       {tab === 'orders' && rows.length > 0 ? (
