@@ -498,6 +498,21 @@ export async function mockRequest<T>(
   if (clean === '/api/user/passwordReset') return {} as T
   if (clean === '/api/user/sign') return { sign_index: 1, earn_point: 2, continuous_days: 7 } as T
 
+  if (/\/api\/music\/song\/\d+\/lyric\/list$/.test(clean)) {
+    return [
+      {
+        lyric_id: 9001,
+        type: 'text',
+        language: 'zh-CN',
+        name: '简体中文',
+        content: '抬头的一片天\n是男儿的一片天\n曾经在满天的星光下\n做梦的少年',
+        created_at: '2026-10-20T10:00:00Z',
+      },
+    ] as T
+  }
+  if (/\/api\/music\/song\/\d+\/lyric\/create$/.test(clean)) return { lyric_id: 9002, carrot: 2 } as T
+  if (/\/api\/music\/song\/\d+\/lyric\/delete$/.test(clean)) return { carrot: 2 } as T
+
   if (clean === '/api/upload/image/list') {
     const name = String(query.name ?? '').trim()
     const rows = Array.from({ length: 8 }, (_, i) => ({

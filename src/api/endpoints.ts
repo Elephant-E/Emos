@@ -247,6 +247,10 @@ export const musicApi = {
   rating: (type: string, value: number, rating: number) => request<{ rating: number | null }>('/api/music/rating', { method: 'PUT', query: { type, value, rating } }),
   sync: (type: string, value: string) => request<{ type: string; value: string }>('/api/music/sync', { method: 'PATCH', query: { type, value } }),
   lyrics: (songId: number) => request<Array<Record<string, unknown>>>(`/api/music/song/${songId}/lyric/list`),
+  createLyric: (songId: number, payload: { type: string; language: string; content: string }) =>
+    request<{ lyric_id: number; carrot: number }>(`/api/music/song/${songId}/lyric/create`, { method: 'POST', body: payload }),
+  deleteLyric: (songId: number, lyricId: number) =>
+    request<{ carrot: number }>(`/api/music/song/${songId}/lyric/delete`, { method: 'DELETE', query: { lyric_id: lyricId } }),
   media: (songId: number) => request<Array<Record<string, unknown>>>(`/api/music/song/${songId}/media/list`),
   deleteSong: (songId: number) => request<CarrotDelta>(`/api/music/song/${songId}/delete`, { method: 'DELETE' }),
 }

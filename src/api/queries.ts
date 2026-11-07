@@ -637,6 +637,14 @@ export function useMusicMutations(songId = 0) {
     rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
     sync: useMutation({ mutationFn: (p: { type: string; value: string }) => musicApi.sync(p.type, p.value), onSuccess: invalidate }),
     deleteSong: useMutation({ mutationFn: () => musicApi.deleteSong(songId), onSuccess: invalidate }),
+    createLyric: useMutation({
+      mutationFn: (p: { type: string; language: string; content: string }) => musicApi.createLyric(songId, p),
+      onSuccess: invalidate,
+    }),
+    deleteLyric: useMutation({
+      mutationFn: (lyricId: number) => musicApi.deleteLyric(songId, lyricId),
+      onSuccess: invalidate,
+    }),
   }
 }
 

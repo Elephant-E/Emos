@@ -80,9 +80,7 @@ export const clientApi = {
   },
   music: {
     searchSongs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/search', { query: params }),
-    syncSpotifyArtist: (artistId: string) => request<unknown>('/api/music/syncSpotifyArtist', { method: 'PATCH', body: { artist_id: artistId } }),
-    createLyric: (songId: number, payload: Record<string, unknown>) => request<{ lyric_id: number; carrot: number }>(`/api/music/song/${songId}/lyric/create`, { method: 'POST', body: payload }),
-    deleteLyric: (songId: number, lyricId: number) => request<CarrotDelta>(`/api/music/song/${songId}/lyric/delete`, { method: 'DELETE', query: { lyric_id: lyricId } }),
+    syncSpotifyArtist: (artistId: string) => request<unknown>('/api/music/syncSpotifyArtist', { method: 'PATCH', body: { artist_id: artistId } }),    deleteLyric: (songId: number, lyricId: number) => request<CarrotDelta>(`/api/music/song/${songId}/lyric/delete`, { method: 'DELETE', query: { lyric_id: lyricId } }),
     deleteMedia: (songId: number, mediaId: string, reason?: string) => request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
     playUrl: (songId: number, mediaId: string) => request<{ url: string }>(`/api/music/song/${songId}/media/playUrl`, { query: { media_id: mediaId } }),
     moveMedia: (songId: number, mediaId: string) => request<CarrotDelta>(`/api/music/song/${songId}/media/move`, { method: 'PUT', query: { media_id: mediaId } }),

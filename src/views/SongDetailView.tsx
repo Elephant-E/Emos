@@ -6,6 +6,7 @@ import { useMusicMutations, useSong, useSongLyrics, useSongMedia } from '@/api/q
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize } from '@/lib/format'
+import { Modal } from '@/components/Modal'
 
 export function SongDetailView({ songId }: { songId: number }) {
   const song = useSong(songId)
@@ -13,6 +14,8 @@ export function SongDetailView({ songId }: { songId: number }) {
   const media = useSongMedia(songId)
   const actions = useMusicMutations(songId)
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
+  const [adding, setAdding] = useState(false)
+  const [lyricForm, setLyricForm] = useState({ type: 'text', language: 'zh-CN', content: '' })
 
   return (
     <>
@@ -75,7 +78,24 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             {lyrics.error ? <ErrorBlock bare error={lyrics.error as Error & { status?: number }} onRetry={() => lyrics.refetch()} /> : null}
             {lyrics.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
-            {lyrics.data && lyrics.data.length === 0 ? <EmptyBlock bare title="还没有歌词" hint="可在上传页或客户端提交歌词。" /> : null}
+            {lyrics.data && lyrics.data.length === 0 ? (
+              <EmptyBlock
+                bare
+                title="还没有歌词"
+                action={
+                  <button className="btn btn--primary" onClick={() => setAdding(true)}>
+                    添加歌词
+                  </button>
+                }
+              />
+            ) : null}
+            {(lyrics.data ?? []).length > 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <button className="btn btn--ghost" onClick={() => setAdding(true)}>
+                  添加歌词
+                </button>
+              </div>
+            ) : null}
             {(lyrics.data ?? []).map((row, index) => (
               <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 18 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
@@ -141,6 +161,61 @@ export function SongDetailView({ songId }: { songId: number }) {
             ) : null}
           </article>
         </section>
+      ) : null}
+
+      {adding ? (
+        <Modal
+          title="添加歌词"
+          width={560}
+          onClose={() => setAdding(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setAdding(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={!lyricForm.content.trim() || actions.createLyric.isPending}
+                onClick={() =>
+                  actions.createLyric.mutate(lyricForm, {
+                    onSuccess: (res) => {
+                      toast(`已添加歌词${res.carrot ? `，+${res.carrot} 胡萝卜` : ''}`, 'success')
+                      setAdding(false)
+                      setLyricForm({ type: 'text', language: 'zh-CN', content: '' })
+                    },
+                  })
+                }
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>语言</span>
+            <select
+              className="input"
+              value={lyricForm.language}
+              onChange={(e) => setLyricForm({ ...lyricForm, language: e.target.value })}
+            >
+              <option value="zh-CN">简体中文</option>
+              <option value="zh-TW">繁體中文</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+              <option value="ko">한국어</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>歌词内容</span>
+            <textarea
+              className="input"
+              style={{ minHeight: 220, resize: 'vertical' }}
+              value={lyricForm.content}
+              placeholder="直接粘贴歌词文本，换行会原样保留"
+              onChange={(e) => setLyricForm({ ...lyricForm, content: e.target.value })}
+            />
+          </label>
+        </Modal>
       ) : null}
     </>
   )
