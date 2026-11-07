@@ -6,6 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
+import { WatchlistForm } from '@/components/WatchlistForm'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -31,13 +32,14 @@ export function WatchlistDetailView({
 
   const [term, setTerm] = useState(search.q)
   const [adding, setAdding] = useState(false)
+  const [editing, setEditing] = useState(false)
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const candidates = useWatchSearch(id, term)
-  const { addVideo, removeVideo, subscribe, toggleShow, setDynamic } = useWatchMutations(id)
+  const { addVideo, removeVideo, subscribe, toggleShow, setDynamic, update } = useWatchMutations(id)
 
   // 输入即搜：停手 350ms 后推进 URL。
   // 必须放在 early return 之前 —— 否则音乐片单会在第二帧少执行一个 hook 而崩溃。
@@ -74,6 +76,9 @@ export function WatchlistDetailView({
               </button>
               {item.is_self ? (
                 <>
+                  <button className="btn btn--ghost" onClick={() => setEditing(true)}>
+                    编辑
+                  </button>
                   <button className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
                     {item.user_is_show ? '隐藏' : '显示'}
                   </button>
@@ -311,6 +316,33 @@ export function WatchlistDetailView({
             填了地址后，片单会按该地址定期同步内容；清空即关闭。
           </p>
         </Modal>
+      ) : null}
+
+      {editing && item ? (
+        <WatchlistForm
+          initial={{
+            name: item.name,
+            description: item.description ?? '',
+            is_public: item.is_public,
+            point: item.carrot ?? 0,
+            tags: (item.tags ?? []).join(' '),
+            image_poster_url: item.image_poster_url ?? null,
+          }}
+          submitLabel="保存"
+          pending={update.isPending}
+          onClose={() => setEditing(false)}
+          onSubmit={(values) =>
+            update.mutate(
+              { ...values, type: item.type, is_show_empty: item.is_show_empty },
+              {
+                onSuccess: () => {
+                  toast('已保存', 'success')
+                  setEditing(false)
+                },
+              },
+            )
+          }
+        />
       ) : null}
     </>
   )

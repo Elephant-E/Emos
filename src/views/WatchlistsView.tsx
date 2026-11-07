@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { ImagePicker } from '@/components/ImagePicker'
+import { WatchlistForm } from '@/components/WatchlistForm'
+import type { WatchlistFormValues } from '@/components/WatchlistForm'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
@@ -32,10 +32,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
   const [removing, setRemoving] = useState(false)
-  const [form, setForm] = useState<{ name: string; description: string; is_public: boolean; point: number; tags: string; image_poster_url: string | null }>({
-    name: '', description: '', is_public: true, point: 0, tags: '', image_poster_url: null,
-  })
-
   const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
@@ -46,25 +42,23 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   })
 
   const create = useMutation({
-    mutationFn: () =>
+    mutationFn: (values: WatchlistFormValues) =>
       watchApi.createOrUpdate({
         type: search.type,
-        name: form.name.trim(),
-        description: form.description.trim() || undefined,
-        is_public: form.is_public,
-        point: form.point,
-        tags: form.tags.split(/[,，\s]+/).filter(Boolean),
-        image_poster_url: form.image_poster_url,
+        name: values.name,
+        description: values.description.trim() || undefined,
+        is_public: values.is_public,
+        point: values.point,
+        tags: values.tags.split(/[,，\s]+/).filter(Boolean),
+        image_poster_url: values.image_poster_url,
         // 后端要求该字段必填，缺省会 422 is show empty 不能为空
         is_show_empty: true,
       }),
     onSuccess: () => {
       toast('片单已创建', 'success')
       setCreating(false)
-      setForm({ name: '', description: '', is_public: true, point: 0, tags: '', image_poster_url: null })
       qc.invalidateQueries({ queryKey: ['watches'] })
     },
-    onError: (err) => toast(err instanceof Error ? err.message : '创建失败', 'error'),
   })
 
 
@@ -209,57 +203,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       ) : null}
 
       {creating ? (
-        <Modal
-          title="新建片单"
+        <WatchlistForm
+          submitLabel="创建"
+          pending={create.isPending}
           onClose={() => setCreating(false)}
-          onSubmit={() => {
-            if (form.name.trim().length >= 2 && !create.isPending) create.mutate()
-          }}
-          footer={
-            <>
-              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
-                取消
-              </button>
-              <button className="btn btn--primary" type="submit" disabled={form.name.trim().length < 2 || create.isPending}>
-                创建
-              </button>
-            </>
-          }
-        >
-          <label className="field">
-            <span>名称</span>
-            <input className="input" value={form.name} maxLength={100} onChange={(e) => setForm({ ...form, name: e.target.value })} autoFocus />
-          </label>
-          <label className="field">
-            <span>简介</span>
-            <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-          </label>
-          <ImagePicker
-            label="封面"
-            hint="从图库选一张，或直接上传"
-            value={form.image_poster_url}
-            onChange={(url) => setForm({ ...form, image_poster_url: url })}
-          />
-          <label className="field">
-            <span>标签（逗号或空格分隔）</span>
-            <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
-          </label>
-          <label className="field">
-            <span>订阅所需胡萝卜（0 为免费，最高 50000）</span>
-            <input
-              className="input tnum"
-              type="number"
-              min={0}
-              max={50000}
-              value={form.point}
-              onChange={(e) => setForm({ ...form, point: Math.min(50000, Math.max(0, Number(e.target.value) || 0)) })}
-            />
-          </label>
-          <label className="switch">
-            <input type="checkbox" checked={form.is_public} onChange={(e) => setForm({ ...form, is_public: e.target.checked })} />
-            公开片单
-          </label>
-        </Modal>
+          onSubmit={(values) => create.mutate(values)}
+        />
       ) : null}
     </>
   )

@@ -708,7 +708,32 @@ export function useWatchMutations(watchId: number) {
   const subscribe = useMutation({ mutationFn: () => watchApi.subscribe(watchId), onSuccess: invalidate })
   const toggleShow = useMutation({ mutationFn: () => watchApi.show(watchId), onSuccess: invalidate })
   const setDynamic = useMutation({ mutationFn: (url: string | null) => watchApi.dynamic(watchId, url), onSuccess: invalidate })
+  // 编辑：POST /api/watch 带 id 就是更新
+  const update = useMutation({
+    mutationFn: (v: {
+      type: 'video' | 'music'
+      is_show_empty: boolean
+      name: string
+      description: string
+      is_public: boolean
+      point: number
+      tags: string
+      image_poster_url: string | null
+    }) =>
+      watchApi.createOrUpdate({
+        id: watchId,
+        type: v.type,
+        name: v.name,
+        description: v.description.trim() || undefined,
+        is_public: v.is_public,
+        point: v.point,
+        tags: v.tags.split(/[,，\s]+/).filter(Boolean),
+        image_poster_url: v.image_poster_url,
+        is_show_empty: v.is_show_empty,
+      }),
+    onSuccess: invalidate,
+  })
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
-  return { addVideo, removeVideo, addMusic, removeMusic, subscribe, toggleShow, setDynamic, sort }
+  return { addVideo, removeVideo, addMusic, removeMusic, subscribe, toggleShow, setDynamic, sort, update }
 }
