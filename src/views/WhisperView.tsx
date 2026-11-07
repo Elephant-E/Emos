@@ -114,6 +114,20 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           onSubmit={() => {
             if (content.trim() && !reply.isPending) reply.mutate({ id: Number(replyTarget.whisper_id), content: content.trim() })
           }}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setReplyTarget(null)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                type="submit"
+                disabled={!content.trim() || reply.isPending}
+              >
+                {reply.isPending ? '发送中…' : '发送'}
+              </button>
+            </>
+          }
         >
           <div className="stack">
             <p className="card-note">{String(replyTarget.sender_content ?? '')}</p>
@@ -124,18 +138,6 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
               onChange={(event) => setContent(event.target.value)}
               placeholder="写点什么"
             />
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button className="btn btn--ghost" onClick={() => setReplyTarget(null)}>
-                取消
-              </button>
-              <button
-                className="btn btn--primary"
-                disabled={!content.trim() || reply.isPending}
-                onClick={() => reply.mutate({ id: Number(replyTarget.whisper_id), content: content.trim() })}
-              >
-                {reply.isPending ? '发送中…' : '发送'}
-              </button>
-            </div>
           </div>
         </Modal>
       ) : null}
