@@ -345,6 +345,9 @@ export function OverviewView() {
           title="今日签到"
           width={400}
           onClose={() => setSigning(false)}
+          onSubmit={() => {
+            if (!sign.isPending) sign.mutate(signNote.trim() || undefined)
+          }}
         >
           <div className="stack">
             <input
@@ -362,7 +365,7 @@ export function OverviewView() {
               <button className="btn btn--ghost" onClick={() => setSigning(false)}>
                 取消
               </button>
-              <button className="btn btn--primary" disabled={sign.isPending} onClick={() => sign.mutate(signNote.trim() || undefined)}>
+              <button className="btn btn--primary" type="submit" disabled={sign.isPending}>
                 {sign.isPending ? '签到中…' : '签到'}
               </button>
             </div>

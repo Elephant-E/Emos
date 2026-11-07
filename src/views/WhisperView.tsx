@@ -107,7 +107,14 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       ) : null}
 
       {replyTarget ? (
-        <Modal title="回复悄悄话" width={460} onClose={() => setReplyTarget(null)}>
+        <Modal
+          title="回复悄悄话"
+          width={460}
+          onClose={() => setReplyTarget(null)}
+          onSubmit={() => {
+            if (content.trim() && !reply.isPending) reply.mutate({ id: Number(replyTarget.whisper_id), content: content.trim() })
+          }}
+        >
           <div className="stack">
             <p className="card-note">{String(replyTarget.sender_content ?? '')}</p>
             <textarea
