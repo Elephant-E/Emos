@@ -27,7 +27,7 @@
 |---|---|---|
 | C1-01 | 片单影片分页错位（后端固定 15，Pager 用 20，尾部 1250 部翻不到） | ✅ `28aa9fa` |
 | C1-02 | 歌曲收藏 `item_type` 用 `mp`（歌手），应为 `ms` | ✅ `28aa9fa` |
-| C1-03 | **歌单只能减不能加**：`watchApi` 无 addMusic/searchMusic，音乐页也无「加入歌单」入口 | ✅ `f76b774` |
+| C1-03 | **歌单只能减不能加**：`watchApi` 无 addMusic/searchMusic，音乐页也无「加入歌单」入口 | ✅ `a815960` |
 | C1-04 | `tags` 可能为 null，列表页 `.length` 整页崩 | ✅ `28aa9fa` |
 | C1-05 | 直播源类型给了 flv/mp4，后端只接受 m3u8 | ✅ `28aa9fa` |
 
