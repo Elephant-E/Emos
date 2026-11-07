@@ -257,7 +257,15 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       ) : null}
 
       {creating ? (
-        <Modal title="新建基金订单" hint="活动码由活动方提供" width={400} onClose={() => setCreating(false)}>
+        <Modal
+          title="新建基金订单"
+          hint="活动码由活动方提供"
+          width={400}
+          onClose={() => setCreating(false)}
+          onSubmit={() => {
+            if (code.trim() && Number(carrot) > 0 && !create.isPending) create.mutate()
+          }}
+        >
           <div className="stack">
             <label className="field">
               <span>活动码</span>
@@ -273,8 +281,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               </button>
               <button
                 className="btn btn--primary"
+                type="submit"
                 disabled={!code.trim() || Number(carrot) <= 0 || create.isPending}
-                onClick={() => create.mutate()}
               >
                 {create.isPending ? '创建中…' : '创建'}
               </button>

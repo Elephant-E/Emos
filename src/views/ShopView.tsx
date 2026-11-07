@@ -49,6 +49,19 @@ export function ShopView({
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
+  const createCategory = () => {
+    if (!newCategory.trim() || actions.createCategory.isPending) return
+    actions.createCategory.mutate(
+      { name: newCategory.trim(), sort: 80 },
+      {
+        onSuccess: () => {
+          toast('分类已创建', 'success')
+          setNewCategory('')
+        },
+      },
+    )
+  }
+
   const saveProduct = () => {
     const categoryId = editing?.category_id ?? categories.data?.[0]?.category_id
     if (!editing?.name?.trim() || !categoryId || actions.saveProduct.isPending) return
@@ -234,7 +247,15 @@ export function ShopView({
       ) : null}
 
       {panel === 'categories' ? (
-        <Modal title="分类管理" width={560} onClose={() => setPanel(null)}>
+        <Modal
+          title="分类管理"
+          width={560}
+          onClose={() => setPanel(null)}
+          onSubmit={() => {
+            // 只有在新增分类输入框有内容时才让它承担回车
+            if (newCategory.trim()) createCategory()
+          }}
+        >
           <>
             <div className="chart-head">
               <p className="stat__label" style={{ margin: 0 }}>分类</p>
@@ -244,17 +265,7 @@ export function ShopView({
                   <button
                     className="btn btn--ghost"
                     disabled={!newCategory.trim()}
-                    onClick={() =>
-                      actions.createCategory.mutate(
-                        { name: newCategory.trim(), sort: 80 },
-                        {
-                          onSuccess: () => {
-                            toast('分类已创建', 'success')
-                            setNewCategory('')
-                          },
-                        },
-                      )
-                    }
+                    onClick={createCategory}
                   >
                     新增
                   </button>
