@@ -3,6 +3,8 @@ import { TOKEN_KEY, getToken, setToken } from '@/api/client'
 export interface Account {
   user_id: string
   username: string
+  /** 笔名，优先于 username 显示 */
+  pseudonym?: string | null
   avatar?: string | null
   token: string
 }

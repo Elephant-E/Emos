@@ -93,7 +93,9 @@ export function Sidebar({ user }: { user?: UserInfo }) {
 
   useEffect(() => {
     if (!user?.user_id) return
-    setAccounts(rememberAccount({ user_id: user.user_id, username: user.username, avatar: user.avatar }))
+    setAccounts(
+      rememberAccount({ user_id: user.user_id, username: user.username, pseudonym: user.pseudonym, avatar: user.avatar }),
+    )
   }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
@@ -162,7 +164,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
           onClick={() => setMenuOpen((v) => !v)}
         >
           <Avatar url={user?.avatar} name={user?.pseudonym || user?.username || '?'} />
-          <span className="rail__account-name">{user?.username || '未登录'}</span>
+          <span className="rail__account-name">{user?.pseudonym || user?.username || '未登录'}</span>
           <span className="rail__account-caret">▾</span>
         </button>
 
@@ -180,14 +182,14 @@ export function Sidebar({ user }: { user?: UserInfo }) {
                       if (switchAccount(account.user_id)) location.reload()
                     }}
                   >
-                    <Avatar url={account.avatar} name={account.username} size={22} />
-                    <span>{account.username}</span>
+                    <Avatar url={account.avatar} name={account.pseudonym || account.username} size={22} />
+                    <span>{account.pseudonym || account.username}</span>
                     {current ? <span className="rail__menu-flag">当前</span> : null}
                   </button>
                   {!current ? (
                     <button
                       className="rail__menu-remove"
-                      aria-label={`移除 ${account.username}`}
+                      aria-label={`移除 ${account.pseudonym || account.username}`}
                       onClick={() => setAccounts(forgetAccount(account.user_id))}
                     >
                       ✕
