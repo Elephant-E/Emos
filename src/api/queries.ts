@@ -434,10 +434,19 @@ export function useShopCategories(sellerId?: number) {
   })
 }
 
-export function useShopProducts(page: number, categoryId: number, pageSize = 12) {
+export function useShopProducts(page: number, sellerId: number, categoryId: number, pageSize = 12) {
   return useQuery({
-    queryKey: ['shop', 'products', page, categoryId] as const,
-    queryFn: () => shopApi.products({ page, page_size: pageSize, category_id: categoryId || undefined, sort_by: 'sort', sort_order: 'asc' }),
+    queryKey: ['shop', 'products', sellerId, page, categoryId] as const,
+    queryFn: () =>
+      shopApi.products({
+        seller_id: sellerId || undefined,
+        page,
+        page_size: pageSize,
+        category_id: categoryId || undefined,
+        sort_by: 'sort',
+        sort_order: 'asc',
+      }),
+    enabled: Boolean(sellerId),
     placeholderData: (prev) => prev,
   })
 }

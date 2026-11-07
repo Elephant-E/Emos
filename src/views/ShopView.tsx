@@ -33,7 +33,7 @@ export function ShopView({ tab }: { tab: Tab; onTab?: (tab: Tab) => void }) {
   const categories = useShopCategories(seller.data?.seller_id)
   const [categoryId, setCategoryId] = useState(0)
   const [page, setPage] = useState(1)
-  const products = useShopProducts(page, categoryId)
+  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId)
   const actions = useShopMutations()
 
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)

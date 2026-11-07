@@ -142,16 +142,6 @@
   background: currentColor;
   box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
 }
-.rail__foot {
-  margin-top: auto;
-  padding: 14px 10px 0;
-  border-top: 1px solid var(--line-soft);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--fg-3);
-  font-size: 12.5px;
-}
 .avatar img {
   width: 100%;
   height: 100%;
@@ -805,6 +795,7 @@
 .modal-overlay--decision { background: rgba(5, 4, 3, 0.74); }
 
 .confirm {
+  animation: modal-in var(--t-enter) var(--ease);
   width: 424px;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
@@ -879,11 +870,13 @@
 
 .rail__foot {
   position: relative;
-  display: block;
   flex: none;
-  padding: 12px 8px 0;
   margin-top: auto;
+  padding: 12px 8px 0;
+  border-top: 1px solid var(--line-soft);
   background: var(--panel);
+  color: var(--fg-3);
+  font-size: 12.5px;
 }
 
 .rail__account {
@@ -1085,10 +1078,6 @@
 }
 
 .modal,
-.confirm {
-  animation: modal-in var(--t-enter) var(--ease);
-}
-
 .rail__menu {
   animation: overlay-in 140ms var(--ease);
 }
@@ -1399,8 +1388,6 @@
 }
 
 .login__aside,
-.login__panel { position: relative; }
-
 .login__aside { display: grid; gap: 22px; max-width: 560px; }
 
 .login__mark {
@@ -1439,6 +1426,7 @@
 
 
 .login__panel {
+  position: relative;
   display: grid;
   gap: 16px;
   justify-items: stretch;
