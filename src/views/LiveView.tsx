@@ -27,6 +27,43 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   const [addingSource, setAddingSource] = useState(false)
   const [source, setSource] = useState({ name: '', path_type: 'm3u8', path_url: '' })
 
+  const submitSource = () => {
+    if (!channel || !source.name.trim() || !source.path_url.trim() || actions.addMedia.isPending) return
+    actions.addMedia.mutate(
+      {
+        live_list_id: channel.id,
+        name: source.name.trim(),
+        path_type: source.path_type,
+        path_url: source.path_url.trim(),
+      },
+      {
+        onSuccess: () => {
+          toast('源已添加', 'success')
+          setAddingSource(false)
+        },
+      },
+    )
+  }
+
+  const submitChannel = () => {
+    if (!form.title.trim() || !form.code.trim() || actions.saveChannel.isPending) return
+    actions.saveChannel.mutate(
+      {
+        live_library_id: form.library,
+        title: form.title.trim(),
+        code: form.code.trim(),
+        description: form.description.trim() || null,
+      },
+      {
+        onSuccess: () => {
+          toast('频道已创建', 'success')
+          setCreating(false)
+          setForm({ title: '', code: '', library: search.library || 100, description: '' })
+        },
+      },
+    )
+  }
+
   const channel = list.data?.items.find((item) => item.id === search.channel)
 
   const renderSources = () => {
@@ -223,6 +260,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           title="新增频道"
           hint="频道归属媒体库后，用户端才会出现在对应分类里。"
           onClose={() => setCreating(false)}
+          onSubmit={submitChannel}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setCreating(false)}>
@@ -231,23 +269,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               <button
                 className="btn btn--primary"
                 disabled={!form.title.trim() || !form.code.trim()}
-                onClick={() =>
-                  actions.saveChannel.mutate(
-                    {
-                      live_library_id: form.library,
-                      title: form.title.trim(),
-                      code: form.code.trim(),
-                      description: form.description.trim() || null,
-                    },
-                    {
-                      onSuccess: () => {
-                        toast('频道已创建', 'success')
-                        setCreating(false)
-                        setForm({ title: '', code: '', library: search.library || 100, description: '' })
-                      },
-                    },
-                  )
-                }
+                onClick={submitChannel}
               >
                 创建
               </button>
@@ -286,6 +308,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           title={`新增源 · ${channel.title}`}
           hint="同一个频道可以有多个源，播放端会按顺序回退。"
           onClose={() => setAddingSource(false)}
+          onSubmit={submitSource}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setAddingSource(false)}>
@@ -294,22 +317,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               <button
                 className="btn btn--primary"
                 disabled={!source.name.trim() || !source.path_url.trim()}
-                onClick={() =>
-                  actions.addMedia.mutate(
-                    {
-                      live_list_id: channel.id,
-                      name: source.name.trim(),
-                      path_type: source.path_type,
-                      path_url: source.path_url.trim(),
-                    },
-                    {
-                      onSuccess: () => {
-                        toast('源已添加', 'success')
-                        setAddingSource(false)
-                      },
-                    },
-                  )
-                }
+                onClick={submitSource}
               >
                 添加
               </button>

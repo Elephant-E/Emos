@@ -49,6 +49,30 @@ export function ShopView({
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
+  const saveProduct = () => {
+    const categoryId = editing?.category_id ?? categories.data?.[0]?.category_id
+    if (!editing?.name?.trim() || !categoryId || actions.saveProduct.isPending) return
+    actions.saveProduct.mutate(
+      {
+        product_id: editing.product_id ?? null,
+        category_id: categoryId,
+        name: editing.name,
+        cover_url: editing.cover_url ?? null,
+        price: editing.price ?? null,
+        price_origin: editing.price_origin ?? 0,
+        stock: editing.stock ?? 0,
+        sort: editing.sort ?? 80,
+        is_up: editing.is_up ?? false,
+      },
+      {
+        onSuccess: () => {
+          toast('已保存', 'success')
+          setEditing(null)
+        },
+      },
+    )
+  }
+
   const isSeller = seller.data?.is_self
 
   return (
@@ -323,6 +347,7 @@ export function ShopView({
           hint="库存为 0 时自动售罄"
           width={460}
           onClose={() => setEditing(null)}
+          onSubmit={saveProduct}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setEditing(null)}>
@@ -331,27 +356,7 @@ export function ShopView({
               <button
                 className="btn btn--primary"
                 disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id)}
-                onClick={() =>
-                  actions.saveProduct.mutate(
-                    {
-                      product_id: editing.product_id ?? null,
-                      category_id: editing.category_id ?? categories.data?.[0]?.category_id,
-                      name: editing.name,
-                      cover_url: editing.cover_url ?? null,
-                      price: editing.price ?? null,
-                      price_origin: editing.price_origin ?? 0,
-                      stock: editing.stock ?? 0,
-                      sort: editing.sort ?? 80,
-                      is_up: editing.is_up ?? false,
-                    },
-                    {
-                      onSuccess: () => {
-                        toast('已保存', 'success')
-                        setEditing(null)
-                      },
-                    },
-                  )
-                }
+                onClick={saveProduct}
               >
                 保存
               </button>
