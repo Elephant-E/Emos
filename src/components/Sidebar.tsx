@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
@@ -56,18 +56,44 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   },
 ]
 
-export function Sidebar({ user }: { user?: UserInfo }) {
+function Avatar({ url, name, size }: { url?: string | null; name: string; size?: number }) {
+  const [failed, setFailed] = useState(false)
+  const showImage = Boolean(url) && !failed
+  return (
+    <span className="avatar" style={size ? { width: size, height: size, fontSize: size * 0.46 } : undefined}>
+      {showImage ? <img src={url ?? ''} alt="" onError={() => setFailed(true)} /> : (name || '?').slice(0, 1)}
+    </span>
+  )
+}
 
+export function Sidebar({ user }: { user?: UserInfo }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const initial = (user?.pseudonym || user?.username || '?').slice(0, 1)
   const navigate = useNavigate()
   const [term, setTerm] = useState('')
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
+  const footRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointerDown = (event: MouseEvent) => {
+      if (footRef.current?.contains(event.target as Node)) return
+      setMenuOpen(false)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
 
   useEffect(() => {
     if (!user?.user_id) return
-    setAccounts(rememberAccount({ user_id: user.user_id, username: user.pseudonym || user.username, avatar: user.avatar }))
+    setAccounts(rememberAccount({ user_id: user.user_id, username: user.username, avatar: user.avatar }))
   }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
@@ -100,6 +126,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
         </span>
       </label>
 
+      <div className="rail__scroll">
       {GROUPS.map((group) => (
         <div key={group.label}>
           <p className="rail__label">{group.label}</p>
@@ -125,16 +152,17 @@ export function Sidebar({ user }: { user?: UserInfo }) {
           </nav>
         </div>
       ))}
+      </div>
 
-      <div className="rail__foot">
+      <div className="rail__foot" ref={footRef}>
         <button
           className="rail__account"
           aria-expanded={menuOpen}
           aria-haspopup="menu"
           onClick={() => setMenuOpen((v) => !v)}
         >
-          <span className="avatar">{initial}</span>
-          <span className="rail__account-name">{user?.pseudonym || user?.username || '未登录'}</span>
+          <Avatar url={user?.avatar} name={user?.pseudonym || user?.username || '?'} />
+          <span className="rail__account-name">{user?.username || '未登录'}</span>
           <span className="rail__account-caret">▾</span>
         </button>
 
@@ -152,9 +180,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
                       if (switchAccount(account.user_id)) location.reload()
                     }}
                   >
-                    <span className="avatar" style={{ width: 22, height: 22, fontSize: 10.5 }}>
-                      {account.username.slice(0, 1)}
-                    </span>
+                    <Avatar url={account.avatar} name={account.username} size={22} />
                     <span>{account.username}</span>
                     {current ? <span className="rail__menu-flag">当前</span> : null}
                   </button>

@@ -10,8 +10,25 @@
   padding: 18px 14px 16px;
   background: var(--panel);
   border-right: 1px solid var(--line-soft);
-  overflow-y: auto;
+  overflow: hidden;
 }
+/* 只有中段滚动，品牌、搜索、账号始终留在原位 */
+.rail__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0 -6px;
+  padding: 0 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.rail__scroll::-webkit-scrollbar { width: 6px; }
+.rail__scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.rail__scroll::-webkit-scrollbar-track { background: transparent; }
 .rail__brand {
   display: flex;
   align-items: center;
@@ -135,7 +152,15 @@
   color: var(--fg-3);
   font-size: 12.5px;
 }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
 .avatar {
+  overflow: hidden;
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -860,7 +885,14 @@ th.num .th-sort { flex-direction: row-reverse; }
 .queue-name b { font-size: 13.5px; font-weight: 450; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .queue-name span { font-size: 11.5px; color: var(--fg-4); }
 
-.rail__foot { position: relative; display: block; padding: 12px 8px 0; }
+.rail__foot {
+  position: relative;
+  display: block;
+  flex: none;
+  padding: 12px 8px 0;
+  margin-top: auto;
+  background: var(--panel);
+}
 
 .rail__account {
   display: flex;
@@ -871,7 +903,7 @@ th.num .th-sort { flex-direction: row-reverse; }
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: var(--fg-3);
+  color: var(--fg-2);
   font-size: 12.5px;
   text-align: left;
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
@@ -895,6 +927,12 @@ th.num .th-sort { flex-direction: row-reverse; }
 
 .rail__menu-row { display: flex; align-items: center; gap: 2px; }
 
+.rail__menu-item span:not(.avatar):not(.rail__menu-flag) {
+  color: var(--fg-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .rail__menu-item {
   flex: 1;
   display: flex;
