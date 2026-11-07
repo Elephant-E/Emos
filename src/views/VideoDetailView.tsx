@@ -157,10 +157,6 @@ export function VideoDetailView({
               {video.video_origin_title ? <p className="detail-desc">{video.video_origin_title}</p> : null}
               <div className="detail-stats">
                 <div className="detail-stat">
-                  <b>#{video.video_id}</b>
-                  <span>系统 ID</span>
-                </div>
-                <div className="detail-stat">
                   <b>{video.todb_id}</b>
                   <span>TODB</span>
                 </div>
