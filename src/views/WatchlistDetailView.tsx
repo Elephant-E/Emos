@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -27,6 +27,7 @@ export function WatchlistDetailView({
   onSearch: (patch: Partial<WatchDetailSearch>) => void
 }) {
   const id = watchId
+  const navigate = useNavigate()
 
   const [term, setTerm] = useState('')
   const [adding, setAdding] = useState(false)
@@ -41,11 +42,14 @@ export function WatchlistDetailView({
   const item = watch.data?.items[0]
 
   if (item?.type === 'music') {
-    return <WatchMusicList watchId={id} title={item.name} search={search} onSearch={onSearch} />
+    return <WatchMusicList watchId={id} title={item.name} canEdit={item.is_edit_video} search={search} onSearch={onSearch} />
   }
 
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
+
+  const openVideo = (videoId: number) =>
+    navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
   return (
     <>
@@ -157,7 +161,19 @@ export function WatchlistDetailView({
             </thead>
             <tbody>
               {videos.data.items.map((video) => (
-                <tr key={video.video_id}>
+                <tr
+                  key={video.video_id}
+                  tabIndex={0}
+                  role="link"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => openVideo(video.video_id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      openVideo(video.video_id)
+                    }
+                  }}
+                >
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (
@@ -181,7 +197,7 @@ export function WatchlistDetailView({
                   </td>
                   <td className="num">{video.sort}</td>
                   <td className="muted">{video.remark ?? '—'}</td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
                     {item?.is_edit_video ? (
                       <button
                         className="btn btn--danger-text"
@@ -298,14 +314,17 @@ export function WatchlistDetailView({
 function WatchMusicList({
   watchId,
   title,
+  canEdit,
   search,
   onSearch,
 }: {
   watchId: number
   title: string
+  canEdit: boolean
   search: WatchDetailSearch
   onSearch: (patch: Partial<WatchDetailSearch>) => void
 }) {
+  const navigate = useNavigate()
   const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
   const { removeSong } = useWatchMusicMutations(watchId)
 
@@ -355,11 +374,21 @@ function WatchMusicList({
             </thead>
             <tbody>
               {songs.data.items.map((song: import('@/api/types').MusicSong) => (
-                <tr key={song.song_id}>
+                <tr
+                  key={song.song_id}
+                  tabIndex={0}
+                  role="link"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } })
+                    }
+                  }}
+                >
                   <td>
-                    <Link to="/music/song/$songId" params={{ songId: String(song.song_id) }} className="cell-title__name" style={{ color: 'var(--fg)' }}>
-                      {song.name}
-                    </Link>
+                    <span className="cell-title__name">{song.name}</span>
                     <span className="cell-title__code">
                       #{song.song_id}
                       {song.description ? ` · ${song.description.slice(0, 40)}` : ''}
@@ -369,7 +398,8 @@ function WatchMusicList({
                     {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}
                   </td>
                   <td className="num muted">{song.count_medias ?? 0}</td>
-                  <td className="cell-right">
+                  <td className="cell-right" onClick={(e) => e.stopPropagation()}>
+                    {canEdit ? (
                     <button
                       className="btn btn--danger-text"
                       disabled={removeSong.isPending && removeSong.variables === song.song_id}
@@ -386,6 +416,9 @@ function WatchMusicList({
                     >
                       移除
                     </button>
+                    ) : (
+                      <span className="muted">只读</span>
+                    )}
                   </td>
                 </tr>
               ))}

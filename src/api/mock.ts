@@ -1,4 +1,4 @@
-import type { ListResult, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
+import type { ListResult, MusicSong, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
 import { USE_FIXTURES } from './client'
 
 type Fixture = { method: string; pattern: string; name: string; body: unknown; re: RegExp }
@@ -105,6 +105,22 @@ const watches: WatchItem[] = [
     user_sort: 80, subscribe_count: 6, video_count: 31, maintainers: [], author: { username: 'zhou' },
     updated_at: '2026-10-28T18:20:00Z',
   },
+  {
+    subscribe_id: null, id: 1003, type: 'music' as const, name: '夜间通勤', description: '适合路上听的歌单',
+    is_public: true, carrot: 0, tags: ['通勤'], image_poster: null, image_poster_url: poster('watch4'),
+    is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: true,
+    user_sort: 80, subscribe_count: 12, video_count: 3, maintainers: [], author: { username: 'lin' },
+    updated_at: '2026-11-01T08:00:00Z',
+  },
+]
+
+const songs: MusicSong[] = [
+  { song_id: 2001, name: '夜航', image_poster_url: poster('song1'), description: '专辑《潮汐》第一首', tagline: null,
+    duration: 254, video_list_id: null, rating: 4.6, is_adult: false, count_medias: 2, person_artists: [{ name: '陈曦' }] },
+  { song_id: 2002, name: '雾中列车', image_poster_url: poster('song2'), description: null, tagline: null,
+    duration: 312, video_list_id: null, rating: 4.2, is_adult: false, count_medias: 1, person_artists: [{ name: '林一' }] },
+  { song_id: 2003, name: '晨间信号', image_poster_url: poster('song3'), description: null, tagline: null,
+    duration: 198, video_list_id: null, rating: null, is_adult: false, count_medias: 0, person_artists: [] },
 ]
 
 const watchVideos: WatchVideo[] = videos.slice(0, 6).map((v, i) => ({
@@ -303,6 +319,13 @@ export async function mockRequest<T>(
   if (clean === '/api/video/subtitle/delete') return { carrot: 1 } as T
   if (clean === '/api/video/sync') return [] as T
   if (/^\/api\/video\/\d+\/delete$/.test(clean)) return { carrot: 1, is_delete: true } as T
+
+  const watchMusicMatch = clean.match(/^\/api\/watch\/(\d+)\/music$/)
+  if (watchMusicMatch) {
+    const title = String(query.song_title ?? '').trim()
+    const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+  }
 
   const watchVideoMatch = clean.match(/^\/api\/watch\/(\d+)\/video$/)
   if (watchVideoMatch) {
