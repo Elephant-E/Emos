@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { IconDots, IconFilter, IconPlus } from '@/components/icons'
+import { IconFilter, IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { Pager } from '@/components/Pager'
@@ -113,12 +113,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 <th style={{ width: 40 }}>
                   <input className="cbx" type="checkbox" aria-label="全选本页" />
                 </th>
-                <th style={{ width: '36%' }} className="th-thumb">片名</th>
-                <th style={{ width: '12%' }}>类型</th>
+                <th className="th-thumb" style={{ width: '42%' }}>片名</th>
+                <th style={{ width: '13%' }}>类型</th>
                 <th className="num" style={{ width: '13%' }}>资源</th>
                 <th className="num" style={{ width: '12%' }}>求片</th>
                 <th className="num" style={{ width: '13%' }}>上映</th>
-                <th style={{ width: 44 }} />
               </tr>
             </thead>
             <tbody>
@@ -176,11 +175,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                     )}
                   </td>
                   <td className="num muted">{video.video_date_air ?? '—'}</td>
-                  <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
-                    <button className="row-menu" aria-label={`打开《${video.video_title}》详情`} onClick={() => openDetail(video.video_id)}>
-                      <IconDots />
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
