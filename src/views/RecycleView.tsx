@@ -132,7 +132,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       ) : null}
 
       {rows.length > 0 ? (
-        <div className="table-card content-in" key={`${tab}-${rows.length}-${String(rows[0]?.media_id ?? rows[0]?.video_id ?? "")}`}>
+        <div className={`table-card content-in${(tab === 'media' ? media.isPlaceholderData : videos.isPlaceholderData) ? ' is-stale' : ''}`} key={`${tab}-${rows.length}-${String(rows[0]?.media_id ?? rows[0]?.video_id ?? "")}`}>
           {tab === 'media' ? (
             <table className="table">
               <thead>

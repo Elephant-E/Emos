@@ -1022,6 +1022,14 @@ th.num .th-sort { flex-direction: row-reverse; }
   background: rgba(255, 255, 255, 0.025);
 }
 
+/* 切换筛选时旧数据还在，但必须让用户看出「这是旧的、正在取新的」，
+   否则界面像是静默无响应，等数据到了再硬换一次 */
+.is-stale {
+  opacity: 0.45;
+  transition: opacity 120ms var(--ease);
+  pointer-events: none;
+}
+
 .content-in {
   animation: content-in 160ms var(--ease);
 }
