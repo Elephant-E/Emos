@@ -56,11 +56,6 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   },
 ]
 
-const ZONES = [
-  { key: 'movie' as const, label: '电影', color: 'var(--c-yellow)' },
-  { key: 'tv' as const, label: '剧集', color: 'var(--c-green)' },
-]
-
 export function Sidebar({ user }: { user?: UserInfo }) {
 
   const pathname = useRouterState({ select: (s) => s.location.pathname })
@@ -130,23 +125,6 @@ export function Sidebar({ user }: { user?: UserInfo }) {
           </nav>
         </div>
       ))}
-
-      <p className="rail__label">内容分区</p>
-      <nav className="rail__nav">
-        {ZONES.map((zone) => (
-          <Link
-            key={zone.key}
-            to="/library"
-            search={{ page: 1, page_size: 20, q: '', type: zone.key }}
-            className="rail__item"
-          >
-            <span className="rail__ico">
-              <span className="rail__dot" style={{ color: zone.color }} />
-            </span>
-            <span>{zone.label}</span>
-          </Link>
-        ))}
-      </nav>
 
       <div className="rail__foot">
         <button
