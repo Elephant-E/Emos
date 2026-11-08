@@ -108,13 +108,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             {user && !user.is_can_upload ? <span className="head-note">无上传权限</span> : null}
             <button
               className="btn btn--ghost"
+              disabled={caps.signedToday || actions.sign.isPending}
               onClick={() =>
                 actions.sign.mutate(undefined, {
                   onSuccess: (res) => toast(`签到成功，+${res.earn_point} 胡萝卜`, 'success'),
                 })
               }
             >
-              签到
+              {caps.signedToday ? '今天已签' : '签到'}
             </button>
           </>
         }
@@ -291,6 +292,11 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   ) : user.telegram_bind_url ? (
                     <a className="btn btn--quiet" href={user.telegram_bind_url} target="_blank" rel="noreferrer">
                       去绑定
+                    </a>
+                  ) : null}
+                  {user.telegram_group_url ? (
+                    <a className="btn btn--quiet" href={user.telegram_group_url} target="_blank" rel="noreferrer">
+                      加入群组
                     </a>
                   ) : null}
                 </div>
