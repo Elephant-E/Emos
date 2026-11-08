@@ -44,6 +44,25 @@ export function SongDetailView({ songId }: { songId: number }) {
             >
               收藏
             </button>
+            <select
+              className="input"
+              style={{ width: 100, height: 30 }}
+              value={song.data?.rating ?? ''}
+              aria-label="评分"
+              onChange={(e) =>
+                actions.rating.mutate(
+                  { type: 'ms', value: songId, rating: Number(e.target.value) },
+                  { onSuccess: () => toast('已评分', 'success') },
+                )
+              }
+            >
+              <option value="">未评分</option>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n} 星
+                </option>
+              ))}
+            </select>
             <button
               className="btn btn--danger-text"
               onClick={async () => {
