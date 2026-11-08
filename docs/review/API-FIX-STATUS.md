@@ -154,3 +154,36 @@
 | `isGatewayFalseNegative` | ✅ 同上，函数删除 |
 | `VideoDetailView` 46 处内联 style | ✅ 降到 23 处，抽了 detail-body / card--tight / detail-head / person-grid / pick-list 等类；保留的只有列宽与运行时值 |
 | `endpoints.ext.ts`（46 个方法零引用） | ✅ `94e77d0` 有用能力搬回主文件，用户侧流程删掉，文件删除 |
+
+
+---
+
+## 本轮补充（2026-11-08）
+
+| 项 | 提交 |
+|---|---|
+| 求片页筛选（片名 / 类型 / 只看我认领的） | `fe7d63b` |
+| 音乐过滤（无资源 / 我收藏的）、片单搜索、订单与商品搜索 | `fe7d63b` |
+| 直播「代号」必填但无效 → 删除；源列表补上传者 | `92475f2` |
+| 邀请备注、求片到期、歌曲音质与主资源、匿名悄悄话 | `a43a4b6` |
+| 片单 `is_show_empty` 开关、转账 6000 上界 | `2071d82` |
+| candidate 显示题材、片单维护者、催片金额夹紧 | `f3e3057` |
+| 音乐三 tab 同步、「⋯」只留给多动作 | `3593540` |
+| 死代码（resetToken / 假 try-catch）与三处类型不符 | `fb823f1` |
+| 签到按钮反映已签、Telegram 群组入口 | `bc9c5de` |
+| 歌曲资源取播放地址与删除 | `0d2b5c7` |
+| 求片列表改增量探测（不再 30 秒全量重查） | `a8f77d8` |
+| 歌曲评分入口 | `f661590` |
+
+### 仍未做（P3，价值递减）
+
+| 项 | 说明 |
+|---|---|
+| C-02 订阅时传默认排序 | `subscribe(watchId, sort)` 支持但前端不传 |
+| C-03 片单内影片排序调整 | `sort` mutation 未接，需要拖拽或上下移交互 |
+| C-10 添加影片时设排序/备注 | 现在固定 sort=80、remark=null |
+| S-04 发货撤销 | 接口支持 `is_delivery: false`，未验证后端是否真撤销 |
+| S-05 商品上下架/排序切换 | `sort_by` / `sort_order` 硬编码为 sort/asc |
+| U-02 设备管理 | `videoHistory` / `videoLogout` 已封装，页面未接 |
+| U-05 播放记录管理 | `record.requests` / `change` 已封装，页面未接 |
+| U-06 代求片 | `seek.apply` 已封装，视频详情未接入口 |
