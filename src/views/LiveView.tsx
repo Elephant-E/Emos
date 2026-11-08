@@ -24,7 +24,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   const actions = useLiveMutations()
 
   const [creating, setCreating] = useState(false)
-  const [form, setForm] = useState({ title: '', code: '', library: 100, description: '' })
+  const [form, setForm] = useState({ title: '', library: 100, description: '' })
   const [addingSource, setAddingSource] = useState(false)
   const [source, setSource] = useState({ name: '', path_type: 'm3u8', path_url: '' })
 
@@ -47,19 +47,18 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   }
 
   const submitChannel = () => {
-    if (!form.title.trim() || !form.code.trim() || actions.saveChannel.isPending) return
+    if (!form.title.trim() || actions.saveChannel.isPending) return
     actions.saveChannel.mutate(
       {
         live_library_id: form.library,
         title: form.title.trim(),
-        code: form.code.trim(),
         description: form.description.trim() || null,
       },
       {
         onSuccess: () => {
           toast('频道已创建', 'success')
           setCreating(false)
-          setForm({ title: '', code: '', library: search.library || 100, description: '' })
+          setForm({ title: '', library: search.library || 100, description: '' })
         },
       },
     )
@@ -93,8 +92,11 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                   <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
                     <span className="muted" style={{ fontSize: 11.5 }}>{row.path_type.toUpperCase()}</span>
-                    <span className="muted" style={{ fontSize: 11.5, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span className="muted ellipsis" style={{ fontSize: 11.5, flex: 1, minWidth: 0 }}>
                       {row.path_url}
+                    </span>
+                    <span className="muted" style={{ fontSize: 11.5 }}>
+                      {row.pseudonym ?? '—'}
                     </span>
                     <span className={`badge ${row.status === 'normal' ? 'badge--ok' : 'badge--warn'}`}>
                       <i />
@@ -268,7 +270,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!form.title.trim() || !form.code.trim()}
+                disabled={!form.title.trim()}
                 onClick={submitChannel}
               >
                 创建
@@ -282,8 +284,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label className="field">
-              <span>代号</span>
-              <input className="input" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="cctv1" />
             </label>
             <label className="field">
               <span>媒体库</span>
