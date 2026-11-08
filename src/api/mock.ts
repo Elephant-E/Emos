@@ -231,6 +231,7 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
+  if (clean === '/api/seek/poll') return [] as T
   if (clean === '/api/seek') {
     const statuses = (body.status as string[] | undefined) ?? ['default', 'upload', 'complete']
     const rows = seeks.filter((s) => statuses.includes(s.status))

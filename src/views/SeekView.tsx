@@ -7,7 +7,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
-import { useSeekPage } from '@/api/queries'
+import { useSeekPage, useSeekPoll } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL, formatDateTime } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
@@ -53,6 +53,13 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
   })
+
+  const lastId = data?.items?.[0]?.id ?? 0
+  const poll = useSeekPoll(lastId)
+  useEffect(() => {
+    // 有新求片才让列表重查，否则每 30 秒白刷一次 2.4 万条的列表
+    if (poll.data && poll.data.length > 0) qc.invalidateQueries({ queryKey: ['seeks'] })
+  }, [poll.data])
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
   const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: () => { invalidate(); toast('已认领', 'success') } })
