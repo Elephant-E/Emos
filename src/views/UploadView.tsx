@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconDots, IconPlus, IconUpload } from '@/components/icons'
+import { IconPlus, IconUpload } from '@/components/icons'
 import { uploadApi, userApi, videoApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES, uploadAndSave, type UploadTarget } from '@/lib/uploader'
@@ -280,11 +280,10 @@ export function UploadView() {
                     <td className="muted">{file.mime_type}</td>
                     <td>
                       <button
-                        className="row-menu"
-                        aria-label="归档"
+                        className="btn btn--quiet"
                         onClick={() => setArchiving({ file_name: file.file_name })}
                       >
-                        <IconDots />
+                        归档
                       </button>
                     </td>
                   </tr>

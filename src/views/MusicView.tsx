@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
-import { IconDots } from '@/components/icons'
 import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { } from '@/lib/format'
@@ -161,23 +160,19 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                       )}
                     </td>
                     <td>
-                      {isSong ? (
-                        <button
-                          className="row-menu"
-                          aria-label="操作"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            actions.sync.mutate(
-                              { type: 'ms', value: String(id) },
-                              {
-                                onSuccess: () => toast('已触发同步', 'success'),
-                              },
-                            )
-                          }}
-                        >
-                          <IconDots />
-                        </button>
-                      ) : null}
+                      <button
+                        className="btn btn--quiet"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          actions.sync.mutate(
+                            // mp 歌手 / ms 歌曲 / ma 专辑，按当前 tab 决定
+                            { type: search.tab === 'albums' ? 'ma' : search.tab === 'persons' ? 'mp' : 'ms', value: String(id) },
+                            { onSuccess: () => toast('已触发同步', 'success') },
+                          )
+                        }}
+                      >
+                        同步
+                      </button>
                     </td>
                   </tr>
                 )
