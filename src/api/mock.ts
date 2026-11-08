@@ -506,6 +506,23 @@ export async function mockRequest<T>(
   if (clean === '/api/user/passwordReset') return {} as T
   if (clean === '/api/user/sign') return { sign_index: 1, earn_point: 2, continuous_days: 7 } as T
 
+  if (/\/api\/music\/song\/\d+\/media\/list$/.test(clean)) {
+    return [
+      {
+        media_id: '2g598yxqwqzr', name: 'sorakand 上传', file_suffix: 'flac', file_size: 42_000_000,
+        file_duration: 330, file_quality: 'lossless', meta_rate_bit: 900_000, is_primary: true,
+        user: { username: 'sorakand' },
+      },
+      {
+        media_id: '9b31xkq2mz', name: 'lin 上传', file_suffix: 'mp3', file_size: 13_767_777,
+        file_duration: 330, file_quality: 'high', meta_rate_bit: 320_000, is_primary: false,
+        user: { username: 'lin' },
+      },
+    ] as T
+  }
+  if (/\/api\/music\/song\/\d+\/media\/playUrl$/.test(clean)) return { url: 'https://music.emosstore.sbs/files/test/mock.flac' } as T
+  if (/\/api\/music\/song\/\d+\/media\/delete$/.test(clean)) return { carrot: -1 } as T
+
   if (/\/api\/music\/song\/\d+\/lyric\/list$/.test(clean)) {
     return [
       {

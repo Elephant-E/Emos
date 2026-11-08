@@ -610,6 +610,10 @@ export function useMusicMutations(songId = 0) {
       mutationFn: (lyricId: number) => musicApi.deleteLyric(songId, lyricId),
       onSuccess: invalidate,
     }),
+    deleteMedia: useMutation({
+      mutationFn: (mediaId: string) => musicApi.deleteMedia(songId, mediaId, '后台删除'),
+      onSuccess: invalidate,
+    }),
   }
 }
 

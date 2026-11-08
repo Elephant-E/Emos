@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
+import { musicApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize } from '@/lib/format'
@@ -139,6 +140,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                     <th className="num" style={{ width: 100 }}>大小</th>
                     <th style={{ width: 110 }}>码率</th>
                     <th style={{ width: 110 }}>上传者</th>
+                    <th style={{ width: 130 }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -163,6 +165,42 @@ export function SongDetailView({ songId }: { songId: number }) {
                         {row.meta_rate_bit ? `${Math.round(Number(row.meta_rate_bit) / 1000)} kbps` : '—'}
                       </td>
                       <td className="muted">{String((row.user as { username?: string } | undefined)?.username ?? '—')}</td>
+                      <td>
+                        <span className="action-group">
+                          <button
+                            className="btn btn--quiet"
+                            onClick={async () => {
+                              try {
+                                const res = await musicApi.playUrl(songId, String(row.media_id))
+                                await navigator.clipboard?.writeText(res.url)
+                                toast('播放地址已复制', 'success')
+                              } catch (error) {
+                                toast(error instanceof Error ? error.message : '取播放地址失败', 'error')
+                              }
+                            }}
+                          >
+                            播放地址
+                          </button>
+                          <button
+                            className="btn btn--danger-text"
+                            onClick={async () => {
+                              const ok = await confirmDialog({
+                                title: '删除这个资源？',
+                                message: '歌曲本身不会被删除，只删这一份音频。',
+                                hint: '会扣除相应胡萝卜。',
+                                confirmText: '删除',
+                                danger: true,
+                              })
+                              if (!ok) return
+                              actions.deleteMedia.mutate(String(row.media_id), {
+                                onSuccess: () => toast('已删除', 'success'),
+                              })
+                            }}
+                          >
+                            删除
+                          </button>
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
