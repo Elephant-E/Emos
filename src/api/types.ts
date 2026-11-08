@@ -218,6 +218,8 @@ export interface WatchVideoCandidate {
   video_date_air: string | null
   video_is_adult: boolean
   video_image_poster: string | null
+  /** with_genre 时才返回 */
+  genres?: Array<{ name: string }>
 }
 
 export type SeekStatus = 'default' | 'upload' | 'complete' | 'cancel' | 'forget'

@@ -318,9 +318,9 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               </button>
               <button
                 className="btn btn--primary"
-                disabled={urge.isPending}
+                disabled={urge.isPending || carrot < 1 || carrot > 5000}
                 onClick={() => {
-                  urge.mutate({ id: urgeTarget.id, carrot })
+                  urge.mutate({ id: urgeTarget.id, carrot: Math.min(5000, Math.max(1, carrot)) })
                   setUrgeTarget(null)
                 }}
               >

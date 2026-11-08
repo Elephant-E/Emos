@@ -253,7 +253,8 @@ export function useWatchMusicSearch(watchId: number, title: string) {
 export function useWatchSearch(watchId: number, title: string) {
   return useQuery({
     queryKey: qk.watchSearch(watchId, title),
-    queryFn: () => watchApi.searchVideos(watchId, { title }),
+    // with_genre 让候选行能显示题材，省一次补充请求
+    queryFn: () => watchApi.searchVideos(watchId, { title, with_genre: true }),
     enabled: title.trim().length > 0,
   })
 }

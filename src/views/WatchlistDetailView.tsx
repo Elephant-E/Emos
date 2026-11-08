@@ -126,9 +126,15 @@ export function WatchlistDetailView({
                   <span>更新</span>
                 </div>
                 <div className="detail-stat">
-                  <b>{item.author?.username ?? '—'}</b>
+                  <b>{item.author?.pseudonym || item.author?.username || '—'}</b>
                   <span>作者</span>
                 </div>
+                {item.maintainers?.length ? (
+                  <div className="detail-stat">
+                    <b>{item.maintainers.map((m) => m.pseudonym || m.username).filter(Boolean).join('/')}</b>
+                    <span>维护者</span>
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -262,6 +268,7 @@ export function WatchlistDetailView({
                   <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
                   <span className="muted" style={{ fontSize: 11.5 }}>
                     {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
+                    {c.genres?.length ? ` · ${c.genres.slice(0, 2).map((g) => g.name).join('/')}` : ''}
                   </span>
                 </span>
                 <button

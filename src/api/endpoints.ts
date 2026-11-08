@@ -162,7 +162,7 @@ export const watchApi = {
   dynamic: (watchId: number, url: string | null) => request<{ url: string | null }>(`/api/watch/${watchId}/dynamic`, { method: 'PUT', body: { url } }),
   videos: (watchId: number, params: { video_title?: string; page?: number; page_size?: number }) =>
     request<ListResult<WatchVideo>>(`/api/watch/${watchId}/video`, { query: params }),
-  searchVideos: (watchId: number, params: { title?: string; type?: VideoType }) =>
+  searchVideos: (watchId: number, params: { title?: string; type?: VideoType; with_genre?: boolean }) =>
     request<WatchVideoCandidate[]>(`/api/watch/${watchId}/video/search`, { query: params }),
   addVideo: (watchId: number, videoId: number, sort = 80, remark: string | null = null) =>
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'POST', body: { sort, remark } }),
