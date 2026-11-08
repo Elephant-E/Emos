@@ -32,7 +32,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
   const [showPassword, setShowPassword] = useState(false)
   const [pseudonym, setPseudonym] = useState('')
-  const [password, setPassword] = useState<{ password: number; second: number } | null>(null)
+  const [password, setPassword] = useState<{ password: number | null; second: number } | null>(null)
   const [resetting, setResetting] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [inviting, setInviting] = useState(false)

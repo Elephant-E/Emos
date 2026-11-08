@@ -372,7 +372,6 @@ export function useAccountMutations() {
     setShowEmpty: useMutation({ mutationFn: (value: boolean) => userApi.showEmpty(value), onSuccess: invalidate }),
     toggleOriginalImage: useMutation({ mutationFn: () => userApi.originalImage(), onSuccess: invalidate }),
     unbindTelegram: useMutation({ mutationFn: () => userApi.unbindTelegram(), onSuccess: invalidate }),
-    resetToken: useMutation({ mutationFn: () => userApi.resetToken() }),
     agreeUpload: useMutation({ mutationFn: () => userApi.agreeUpload(), onSuccess: invalidate }),
     agreeDown: useMutation({ mutationFn: () => userApi.agreeDown(), onSuccess: invalidate }),
     exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),
@@ -673,14 +672,7 @@ export function useUserInvite(userId: string) {
     queryKey: ['user', userId, 'invite'] as const,
     enabled: Boolean(userId),
     staleTime: 5 * 60_000,
-    queryFn: async () =>
-      (() => {
-        try {
-          return inviteApi.history({ user_id: userId, page: 1, page_size: 5 })
-        } catch {
-          return Promise.resolve(null)
-        }
-      })()
+    queryFn: () => inviteApi.history({ user_id: userId, page: 1, page_size: 5 })
         .then((res) => (res?.items?.[0] ?? null) as Record<string, unknown> | null)
         .catch(() => null),
   })

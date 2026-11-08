@@ -140,7 +140,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                   </div>
                   <div>
                     <dt>邀请人</dt>
-                    <dd>{info?.invite_user_id ?? banned?.invite_pseudonym ?? '—'}</dd>
+                    <dd>{banned?.invite_pseudonym ?? info?.invite_user_id ?? '—'}</dd>
                   </div>
                   <div>
                     <dt>注册时间</dt>

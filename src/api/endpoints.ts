@@ -22,13 +22,13 @@ export const userApi = {
   agreeUpload: () => request<unknown>('/api/user/agreeUploadAgreement', { method: 'PUT' }),
   agreeDown: () => request<unknown>('/api/user/agreeDownAgreement', { method: 'PUT' }),
   sign: (content?: string) => request<{ sign_index: number; earn_point: number; continuous_days: number }>('/api/user/sign', { method: 'PUT', query: { content } }),
-  passwordTemporary: () => request<{ password: number; second: number }>('/api/user/passwordTemporary'),
+  // must_otp 未启用时 password 为 null
+  passwordTemporary: () => request<{ password: number | null; second: number }>('/api/user/passwordTemporary'),
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),
   // 下面三个接口 Postman 未收录，旧项目在用；originalImage 是 toggle，
   // 请求体参数被忽略，返回翻转后的值。
   originalImage: () => request<{ is_original_image: boolean }>('/api/user/originalImage', { method: 'PUT', body: {} }),
   unbindTelegram: () => request<unknown>('/api/user/telegram', { method: 'DELETE' }),
-  resetToken: () => request<unknown>('/api/user/resetToken', { method: 'PUT' }),
   statsVideoHistory: (dates: string[]) => request<Array<Record<string, unknown>>>('/api/user/stats/video/history', { query: { dates } }),
 }
 

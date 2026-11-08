@@ -384,7 +384,7 @@ export function ShopView({
                   <button
                     className="btn btn--ghost"
                     style={{ marginTop: 16 }}
-                    onClick={() => setSellerForm({ name: seller.data!.name, description: seller.data!.description ?? '' })}
+                    onClick={() => setSellerForm({ name: seller.data!.name ?? '', description: seller.data!.description ?? '' })}
                   >
                     编辑店铺
                   </button>

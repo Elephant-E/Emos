@@ -343,7 +343,8 @@ export interface ShopProduct {
 
 export interface ShopSeller {
   seller_id: number
-  name: string
+  /** 未开店时后端返回 status: default，以下字段可能为 null */
+  name: string | null
   description: string | null
   cover_url: string | null
   status: string
