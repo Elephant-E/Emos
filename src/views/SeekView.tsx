@@ -183,6 +183,9 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         <i />
                         {st.label}
                       </span>
+                      {item.status === 'upload' && item.upload_expired_at ? (
+                        <span className="cell-title__code">{formatRelative(item.upload_expired_at)}到期</span>
+                      ) : null}
                     </td>
                     <td className="num">{item.count_request}</td>
                     <td className="num">{item.seek_carrot == null ? '—' : formatThousand(item.seek_carrot)}</td>

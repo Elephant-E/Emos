@@ -135,20 +135,29 @@ export function SongDetailView({ songId }: { songId: number }) {
                 <thead>
                   <tr>
                     <th>文件</th>
-                    <th style={{ width: 90 }}>格式</th>
-                    <th className="num" style={{ width: 110 }}>大小</th>
-                    <th style={{ width: 120 }}>码率</th>
-                    <th style={{ width: 120 }}>上传者</th>
+                    <th style={{ width: 140 }}>音质</th>
+                    <th className="num" style={{ width: 100 }}>大小</th>
+                    <th style={{ width: 110 }}>码率</th>
+                    <th style={{ width: 110 }}>上传者</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(media.data ?? []).map((row, index) => (
                     <tr key={String(row.media_id ?? index)}>
                       <td>
-                        <span className="cell-title__name">{String(row.name ?? '—')}</span>
-                        <span className="cell-title__code">{String(row.media_id ?? '')}</span>
+                        <span className="cell-title__name">
+                          {String(row.name ?? '—')}
+                          {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
+                        </span>
+                        <span className="cell-title__code">
+                          {String(row.media_id ?? '')}
+                          {row.file_duration ? ` · ${Math.floor(Number(row.file_duration) / 60)}:${String(Math.round(Number(row.file_duration) % 60)).padStart(2, '0')}` : ''}
+                        </span>
                       </td>
-                      <td className="muted">{String(row.file_suffix ?? '—')}</td>
+                      <td className="muted">
+                        {String(row.file_suffix ?? '—')}
+                        {row.file_quality === 'lossless' ? ' · 无损' : row.file_quality === 'high' ? ' · 高品质' : ''}
+                      </td>
                       <td className="num muted">{formatSize(row.file_size == null ? null : Number(row.file_size))}</td>
                       <td className="num muted">
                         {row.meta_rate_bit ? `${Math.round(Number(row.meta_rate_bit) / 1000)} kbps` : '—'}

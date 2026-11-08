@@ -84,7 +84,9 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                       <span className="cell-title__name">{String(body ?? '—')}</span>
                       {reply && reply !== body ? <span className="cell-title__code">回复：{String(reply)}</span> : null}
                     </td>
-                    <td className="muted">{String(peer)}</td>
+                    <td className="muted">
+                      {row.sender_is_anonymous ? '匿名' : String(peer)}
+                    </td>
                     <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
                     <td>
                       {tab === 'receiver' ? (

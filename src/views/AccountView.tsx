@@ -79,7 +79,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     const nameById = new Map<string, string>()
     for (const node of tree.data ?? []) nameById.set(node.user_id, node.username)
     const playedById = new Map<string, string | null>()
-    for (const row of inviteHistory.data?.items ?? []) playedById.set(String(row.user_id), (row.last_video_player as string) ?? null)
+    const remarkById = new Map<string, string>()
+    for (const row of inviteHistory.data?.items ?? []) {
+      playedById.set(String(row.user_id), (row.last_video_player as string) ?? null)
+      const remark = String(row.invite_remark ?? '').trim()
+      if (remark) remarkById.set(String(row.user_id), remark)
+    }
     return myTree.map((node) => ({
       userId: node.user_id,
       username: node.username,
@@ -88,6 +93,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       isDisabled: Boolean(node.is_disabled),
       invitedBy: node.depth > 1 ? (nameById.get(node.invite_user_id ?? '') ?? null) : null,
       lastPlayed: playedById.get(node.user_id) ?? null,
+      remark: remarkById.get(node.user_id) ?? '',
     }))
   })()
 
@@ -423,6 +429,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       <th>用户</th>
                       <th style={{ width: 130 }}>加入时间</th>
                       <th style={{ width: 130 }}>最近播放</th>
+                      <th style={{ width: 160 }}>备注</th>
                       <th style={{ width: 96 }}>操作</th>
                     </tr>
                   </thead>
@@ -442,10 +449,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                             {row.userId}
                             {row.invitedBy ? ` · 由 ${row.invitedBy} 邀请` : ''}
                             {row.isDisabled ? ' · 已禁用' : ''}
+                            {row.remark ? ` · 备注：${row.remark}` : ''}
                           </span>
                         </td>
                         <td className="muted">{formatDateTime(row.joinAt)}</td>
                         <td className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</td>
+                        <td className="muted">
+                          {row.remark ? <span className="ellipsis" title={row.remark}>{row.remark}</span> : '—'}
+                        </td>
                         <td>
                           {row.depth === 1 ? (
                             <button
