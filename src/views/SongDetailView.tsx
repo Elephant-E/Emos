@@ -29,7 +29,7 @@ export function SongDetailView({ songId }: { songId: number }) {
         }
         tools={
           <>
-            <Link className="btn btn--ghost" to="/music" search={{ page: 1, tab: 'songs', q: '' }}>
+            <Link className="btn btn--ghost" to="/music" search={{ page: 1, tab: 'songs', q: '', filter: '' }}>
               返回列表
             </Link>
             <button

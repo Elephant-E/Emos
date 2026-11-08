@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
-import type { SeekStatus, VideoType } from './types'
+import type { VideoType } from './types'
 
 export const qk = {
   session: ['session'] as const,
   carrot: ['carrot', 'current'] as const,
-  videos: (p: Record<string, unknown>) => ['videos', p] as const,
-  seeks: (p: Record<string, unknown>) => ['seeks', p] as const,
-  watches: (p: Record<string, unknown>) => ['watches', p] as const,
+  videos: (p: object) => ['videos', p] as const,
+  seeks: (p: object) => ['seeks', p] as const,
+  watches: (p: object) => ['watches', p] as const,
   watchVideos: (id: number, p: Record<string, unknown>) => ['watch', id, 'videos', p] as const,
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 }
@@ -176,7 +176,7 @@ export function useVideoPage(params: { page: number; page_size: number; title?: 
   return useQuery({ queryKey: qk.videos(params), queryFn: () => videoApi.list(params) })
 }
 
-export function useSeekPage(params: { page: number; page_size: number; status: SeekStatus[]; sort_by?: SeekQuery['sort_by'] }) {
+export function useSeekPage(params: SeekQuery) {
   return useQuery({
     queryKey: qk.seeks(params),
     queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
@@ -191,6 +191,7 @@ export function useWatchPage(
     type?: 'video' | 'music'
     is_self?: boolean
     is_subscribe?: boolean
+    name?: string
   },
   enabled = true,
 ) {
@@ -396,15 +397,16 @@ export function useShopCategories(sellerId?: number) {
   })
 }
 
-export function useShopProducts(page: number, sellerId: number, categoryId: number, pageSize = 12) {
+export function useShopProducts(page: number, sellerId: number, categoryId: number, pageSize = 12, name = '') {
   return useQuery({
-    queryKey: ['shop', 'products', sellerId, page, categoryId] as const,
+    queryKey: ['shop', 'products', sellerId, page, categoryId, name] as const,
     queryFn: () =>
       shopApi.products({
         seller_id: sellerId || undefined,
         page,
         page_size: pageSize,
         category_id: categoryId || undefined,
+        name: name || undefined,
         sort_by: 'sort',
         sort_order: 'asc',
       }),
@@ -454,7 +456,7 @@ export function useShopCounts(sellerId: number) {
   }
 }
 
-export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean }, pageSize = 10) {
+export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string }, pageSize = 10) {
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
     queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
@@ -528,10 +530,23 @@ export function useLineMutations() {
   }
 }
 
-export function useMusicSongs(page: number, term: string, enabled = true, pageSize = 20) {
+export function useMusicSongs(
+  page: number,
+  term: string,
+  enabled = true,
+  pageSize = 20,
+  filter: '' | 'no_media' | 'favorite' = '',
+) {
   return useQuery({
-    queryKey: ['music', 'songs', page, term] as const,
-    queryFn: () => musicApi.songs({ page, page_size: pageSize, name: term || undefined }),
+    queryKey: ['music', 'songs', page, term, filter] as const,
+    queryFn: () =>
+      musicApi.songs({
+        page,
+        page_size: pageSize,
+        name: term || undefined,
+        has_media: filter === 'no_media' ? false : undefined,
+        is_favorite: filter === 'favorite' ? true : undefined,
+      }),
     enabled,
   })
 }

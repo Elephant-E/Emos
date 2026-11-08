@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -14,6 +14,7 @@ export interface OrdersSearch {
   page: number
   pay: 'all' | 'paid' | 'unpaid'
   delivery: 'all' | 'sent' | 'pending'
+  q: string
 }
 
 const PAY_TABS: Array<{ key: OrdersSearch['pay']; label: string; filter: { is_pay?: boolean } }> = [
@@ -31,7 +32,21 @@ const DELIVERY_TABS: Array<{ key: OrdersSearch['delivery']; label: string; filte
 export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearch: (patch: Partial<OrdersSearch>) => void }) {
   const pay = PAY_TABS.find((t) => t.key === search.pay) ?? PAY_TABS[0]
   const delivery = DELIVERY_TABS.find((t) => t.key === search.delivery) ?? DELIVERY_TABS[0]
-  const orders = useShopOrders(search.page, { ...pay.filter, ...delivery.filter })
+  const [term, setTerm] = useState(search.q)
+  useEffect(() => setTerm(search.q), [search.q])
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
+
+  const orders = useShopOrders(search.page, {
+    ...pay.filter,
+    ...delivery.filter,
+    // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
+    ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
+  })
   const actions = useShopMutations()
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
 
@@ -45,6 +60,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       />
 
       <div className="toolbar">
+        <input
+          className="input"
+          type="search"
+          placeholder="订单号或商品名"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+        />
         <div className="tabs" role="tablist" aria-label="支付状态">
           {PAY_TABS.map((tab) => (
             <button key={tab.key} className="tab" role="tab" aria-selected={search.pay === tab.key} onClick={() => onSearch({ pay: tab.key, page: 1 })}>

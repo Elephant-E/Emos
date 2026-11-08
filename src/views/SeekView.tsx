@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
@@ -16,6 +16,9 @@ export interface SeekSearch {
   page: number
   page_size: number
   tab: 'all' | 'default' | 'upload' | 'complete'
+  q: string
+  type: '' | 'movie' | 'tv'
+  mine: boolean
 }
 
 const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[] }> = [
@@ -33,11 +36,22 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean; error?: boolean }>({ info: null, history: [], loading: false })
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
+  const [term, setTerm] = useState(search.q)
+  useEffect(() => setTerm(search.q), [search.q])
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
 
   const { data, isLoading, error, refetch, isFetching } = useSeekPage({
     page: search.page,
     page_size: search.page_size,
     status: statuses,
+    video_title: search.q || undefined,
+    video_type: search.type || undefined,
+    upload_self: search.mine || undefined,
   })
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
@@ -70,6 +84,28 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </button>
           ))}
         </div>
+        <input
+          className="input"
+          type="search"
+          placeholder="搜索片名"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+        />
+        <div className="seg" role="group" aria-label="类型">
+          <button aria-pressed={search.type === ''} onClick={() => onSearch({ type: '', page: 1 })}>
+            不限
+          </button>
+          <button aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie', page: 1 })}>
+            电影
+          </button>
+          <button aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv', page: 1 })}>
+            剧集
+          </button>
+        </div>
+        <label className="switch" style={{ marginLeft: 4 }}>
+          <input type="checkbox" checked={search.mine} onChange={(e) => onSearch({ mine: e.target.checked, page: 1 })} />
+          只看我认领的
+        </label>
       </div>
 
       {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}

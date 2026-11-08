@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
@@ -19,6 +19,7 @@ export interface WatchSearch {
   page_size: number
   scope: 'all' | 'self' | 'subscribed'
   type: 'video' | 'music'
+  q: string
 }
 
 const TABS: Array<{ key: WatchSearch['scope']; label: string }> = [
@@ -31,12 +32,23 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
+  const [term, setTerm] = useState(search.q)
+  useEffect(() => setTerm(search.q), [search.q])
+
+  // 输入即搜：停手 350ms 推进 URL
+  useEffect(() => {
+    const next = term.trim()
+    if (next === search.q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, search.q])
   const [removing, setRemoving] = useState(false)
   const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
     page_size: search.page_size,
     type: search.type,
+    name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
   })
@@ -80,7 +92,13 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             </button>
           ))}
         </div>
-        <span className="spacer" />
+        <input
+          className="input"
+          type="search"
+          placeholder="搜索片单名"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+        />
         <div className="seg" role="group" aria-label="片单类型">
           <button aria-pressed={search.type === 'video'} onClick={() => onSearch({ type: 'video', page: 1 })}>
             影视

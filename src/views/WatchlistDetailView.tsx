@@ -385,7 +385,7 @@ function WatchMusicList({
         title={title}
         hint={songs.data ? `${formatThousand(songs.data.total)} 首` : undefined}
         tools={
-          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music' }}>
+          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music', q: '' }}>
             返回列表
           </Link>
         }

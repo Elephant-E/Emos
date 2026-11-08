@@ -117,10 +117,16 @@ function AccountRoute() {
 const shopRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/shop',
-  validateSearch: (s: Record<string, unknown>): { tab: 'products' | 'categories' | 'seller'; page: number; category: number } => ({
+  validateSearch: (s: Record<string, unknown>): {
+    tab: 'products' | 'categories' | 'seller'
+    page: number
+    category: number
+    q: string
+  } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
     page: asPage(s.page),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
+    q: asString(s.q),
   }),
   component: ShopRoute,
 })
@@ -133,6 +139,7 @@ function ShopRoute() {
       tab={search.tab}
       page={search.page}
       categoryId={search.category}
+      q={search.q}
       onSearch={(patch) => navigate({ search: { ...search, ...patch } })}
     />
   )
@@ -141,10 +148,16 @@ function ShopRoute() {
 const ordersRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/orders',
-  validateSearch: (s: Record<string, unknown>): { page: number; pay: 'all' | 'paid' | 'unpaid'; delivery: 'all' | 'sent' | 'pending' } => ({
+  validateSearch: (s: Record<string, unknown>): {
+    page: number
+    pay: 'all' | 'paid' | 'unpaid'
+    delivery: 'all' | 'sent' | 'pending'
+    q: string
+  } => ({
     page: asPage(s.page),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
+    q: asString(s.q),
   }),
   component: OrdersRoute,
 })
@@ -229,10 +242,17 @@ function RecycleRoute() {
 const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
-  validateSearch: (s: Record<string, unknown>): { page: number; tab: 'songs' | 'albums' | 'persons'; q: string } => ({
+  validateSearch: (s: Record<string, unknown>): {
+    page: number
+    tab: 'songs' | 'albums' | 'persons'
+    q: string
+    /** songs tab 的过滤：空 / 无资源 / 我收藏的 */
+    filter: '' | 'no_media' | 'favorite'
+  } => ({
     page: asPage(s.page),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
     q: asString(s.q),
+    filter: s.filter === 'no_media' || s.filter === 'favorite' ? s.filter : '',
   }),
   component: MusicRoute,
 })
@@ -319,10 +339,20 @@ function UserRoute() {
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; tab: 'all' | 'default' | 'upload' | 'complete' } => ({
+  validateSearch: (s: Record<string, unknown>): {
+    page: number
+    page_size: number
+    tab: 'all' | 'default' | 'upload' | 'complete'
+    q: string
+    type: '' | 'movie' | 'tv'
+    mine: boolean
+  } => ({
     page: asPage(s.page),
     page_size: 20,
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
+    q: typeof s.q === 'string' ? s.q : '',
+    type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
+    mine: s.mine === true || s.mine === '1',
   }),
   component: SeekRoute,
 })
@@ -336,11 +366,18 @@ function SeekRoute() {
 const watchlistsRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; scope: 'all' | 'self' | 'subscribed'; type: 'video' | 'music' } => ({
+  validateSearch: (s: Record<string, unknown>): {
+    page: number
+    page_size: number
+    scope: 'all' | 'self' | 'subscribed'
+    type: 'video' | 'music'
+    q: string
+  } => ({
     page: asPage(s.page),
     page_size: 20,
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
     type: s.type === 'music' ? 'music' : 'video',
+    q: typeof s.q === 'string' ? s.q : '',
   }),
   component: WatchlistsRoute,
 })

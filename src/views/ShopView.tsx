@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -33,21 +33,31 @@ export function ShopView({
   tab,
   page,
   categoryId,
+  q,
   onSearch,
 }: {
   tab: Tab
   page: number
   categoryId: number
-  onSearch: (patch: { tab?: Tab; page?: number; category?: number }) => void
+  q: string
+  onSearch: (patch: { tab?: Tab; page?: number; category?: number; q?: string }) => void
 }) {
   const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
-  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId)
+  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId, 12, q)
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
+  const [term, setTerm] = useState(q)
+  useEffect(() => setTerm(q), [q])
+  useEffect(() => {
+    const next = term.trim()
+    if (next === q) return
+    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
+    return () => clearTimeout(timer)
+  }, [term, q])
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
@@ -170,6 +180,14 @@ export function ShopView({
               ))}
             </div>
             <span className="spacer" />
+            <input
+              className="input"
+              type="search"
+              placeholder="搜索商品名"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              style={{ minWidth: 170 }}
+            />
             {isSeller ? (
               <button
                 className="btn btn--primary"

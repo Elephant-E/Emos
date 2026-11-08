@@ -13,6 +13,7 @@ export interface MusicSearch {
   page: number
   tab: 'songs' | 'albums' | 'persons'
   q: string
+  filter: '' | 'no_media' | 'favorite'
 }
 
 const TABS: Array<{ key: MusicSearch['tab']; label: string }> = [
@@ -35,7 +36,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
   // 只查当前 tab，切过去时才请求 —— 三份一起请求的话切 tab 会直接命中缓存，
   // 既看不到加载态，也白拉了两份数据
-  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs')
+  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', 20, search.filter)
   const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums')
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons')
   const actions = useMusicMutations()
@@ -86,6 +87,19 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
+        {search.tab === 'songs' ? (
+          <div className="seg" role="group" aria-label="过滤">
+            <button aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '', page: 1 })}>
+              全部
+            </button>
+            <button aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media', page: 1 })}>
+              无资源
+            </button>
+            <button aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite', page: 1 })}>
+              我收藏的
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {active.error ? <ErrorBlock error={active.error as Error & { status?: number }} onRetry={() => active.refetch()} /> : null}
