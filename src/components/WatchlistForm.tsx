@@ -9,6 +9,8 @@ export interface WatchlistFormValues {
   point: number
   tags: string
   image_poster_url: string | null
+  /** 片单里没有内容时，是否仍然展示（后端必填，可存 false） */
+  is_show_empty: boolean
 }
 
 const EMPTY: WatchlistFormValues = {
@@ -18,6 +20,7 @@ const EMPTY: WatchlistFormValues = {
   point: 0,
   tags: '',
   image_poster_url: null,
+  is_show_empty: true,
 }
 
 /**
@@ -105,14 +108,24 @@ export function WatchlistForm({
           onChange={(e) => setForm({ ...form, point: Math.min(50000, Math.max(0, Number(e.target.value) || 0)) })}
         />
       </label>
-      <label className="switch">
-        <input
-          type="checkbox"
-          checked={form.is_public}
-          onChange={(e) => setForm({ ...form, is_public: e.target.checked })}
-        />
-        公开片单
-      </label>
+      <div style={{ display: 'flex', gap: 24 }}>
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={form.is_public}
+            onChange={(e) => setForm({ ...form, is_public: e.target.checked })}
+          />
+          公开片单
+        </label>
+        <label className="switch">
+          <input
+            type="checkbox"
+            checked={form.is_show_empty}
+            onChange={(e) => setForm({ ...form, is_show_empty: e.target.checked })}
+          />
+          内容为空时仍展示
+        </label>
+      </div>
     </Modal>
   )
 }

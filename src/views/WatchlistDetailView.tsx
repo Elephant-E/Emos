@@ -327,13 +327,14 @@ export function WatchlistDetailView({
             point: item.carrot ?? 0,
             tags: (item.tags ?? []).join(' '),
             image_poster_url: item.image_poster_url ?? null,
+            is_show_empty: item.is_show_empty,
           }}
           submitLabel="保存"
           pending={update.isPending}
           onClose={() => setEditing(false)}
           onSubmit={(values) =>
             update.mutate(
-              { ...values, type: item.type, is_show_empty: item.is_show_empty },
+              { ...values, type: item.type },
               {
                 onSuccess: () => {
                   toast('已保存', 'success')

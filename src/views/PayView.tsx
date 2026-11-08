@@ -154,7 +154,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             />
             <button
               className="btn btn--primary"
-              disabled={!transferTo.trim() || amount < 2 || sending}
+              disabled={!transferTo.trim() || amount < 2 || amount > 6000 || sending}
               onClick={async () => {
                 setSending(true)
                 try {

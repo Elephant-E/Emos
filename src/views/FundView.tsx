@@ -71,7 +71,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
           title="转赠胡萝卜"
           hint="单次 2 – 6000 个，转账后不可撤回。"
           onClose={() => setTransferring(false)}
-          onSubmit={() => { if (transferTo.trim() && transferAmount >= 2 && !actions.transfer.isPending) actions.transfer.mutate({ userId: transferTo.trim(), carrot: transferAmount }) }}
+          onSubmit={() => { if (transferTo.trim() && transferAmount >= 2 && transferAmount <= 6000 && !actions.transfer.isPending) actions.transfer.mutate({ userId: transferTo.trim(), carrot: transferAmount }) }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setTransferring(false)}>
@@ -79,7 +79,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!transferTo.trim() || transferAmount < 2 || actions.transfer.isPending}
+                disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending}
                 onClick={async () => {
                   const ok = await confirmDialog({
                     title: `转赠 ${transferAmount} 个胡萝卜？`,

@@ -64,7 +64,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         tags: values.tags.split(/[,，\s]+/).filter(Boolean),
         image_poster_url: values.image_poster_url,
         // 后端要求该字段必填，缺省会 422 is show empty 不能为空
-        is_show_empty: true,
+        is_show_empty: values.is_show_empty,
       }),
     onSuccess: () => {
       toast('片单已创建', 'success')
