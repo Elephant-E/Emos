@@ -21,6 +21,5 @@ export function useDebounced(
     const timer = setTimeout(() => onSettle(next), delay)
     return () => clearTimeout(timer)
     // onSettle 每次渲染都是新函数，不该进依赖，否则每敲一键都重新计时
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, delay, current])
 }
