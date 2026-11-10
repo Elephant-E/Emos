@@ -7,7 +7,7 @@ import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
-import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
+import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations, useVideoPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -85,7 +85,16 @@ export function VideoDetailView({
   const [subProgress, setSubProgress] = useState(0)
   const [subBusy, setSubBusy] = useState(false)
   const [moveSeason, setMoveSeason] = useState<number>(season)
-  const moveEpisodes = useEpisodes(videoId, moveSeason)
+  // 移动目标不限于当前影片：先搜到目标影片，再选季/集（电影直接落到影片级）
+  const [moveVideo, setMoveVideo] = useState<{ id: number; title: string; type: 'movie' | 'tv' } | null>(null)
+  const [moveTerm, setMoveTerm] = useState('')
+  const [moveKeyword, setMoveKeyword] = useState('')
+  const moveTargetId = moveVideo?.id ?? videoId
+  const moveSearch = useVideoPage({ page: 1, page_size: 6, title: moveKeyword || undefined })
+  const moveSeasons = useSeasons(moveTargetId)
+  const moveEpisodes = useEpisodes(moveTargetId, moveSeason)
+  // 换目标影片后季号要归位，否则会停在上一个影片的季上
+  useEffect(() => setMoveSeason(1), [moveTargetId])
 
   const video = detail.data
 
@@ -490,7 +499,7 @@ export function VideoDetailView({
                 setRenaming(null)
               }}
             >
-              移到其他集
+              移到其他位置
             </button>
             <button
               className="btn btn--danger"
@@ -560,48 +569,133 @@ export function VideoDetailView({
         <Modal
           title={`移动资源 · ${moving.name}`}
           width={460}
-          onClose={() => setMoving(null)}
+          onClose={() => {
+            setMoving(null)
+            setMoveVideo(null)
+            setMoveTerm('')
+            setMoveKeyword('')
+          }}
         >
-          <div className="tabs pick-tabs__scroll">
-            {(seasons.data ?? []).map((s) => (
-              <button
-                key={s.season_id}
-                className="tab pick-tabs__item"
-                role="tab"
-                aria-selected={s.season_number === moveSeason}
-                onClick={() => setMoveSeason(s.season_number)}
-              >
-                {s.season_title || `第 ${s.season_number} 季`}
-              </button>
-            ))}
-          </div>
+          <label className="field">
+            <span>目标影片</span>
+            <input
+              className="input"
+              type="search"
+              placeholder="搜片名，留空则在当前影片里移动"
+              value={moveTerm}
+              onChange={(e) => {
+                setMoveTerm(e.target.value)
+                const next = e.target.value.trim()
+                setTimeout(() => setMoveKeyword(next), 300)
+                if (!next) setMoveVideo(null)
+              }}
+            />
+          </label>
 
-          <div className="pick-list">
-            {(moveEpisodes.data ?? []).map((ep) => (
-              <div key={ep.episode_id} className="pick-row">
-                <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
-                <span className="pick-row__title">
-                  {ep.episode_title}
-                </span>
-                <button
-                  className="btn btn--quiet"
-                  disabled={ep.episode_id === currentEpisode?.episode_id}
-                  onClick={() =>
-                    mediaApi
-                      .move(moving.mediaId, 've', ep.episode_id)
-                      .then(() => {
-                        toast('已移动', 'success')
-                        setMoving(null)
-                        void media.refetch()
-                      })
-                      .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
-                  }
-                >
-                  {ep.episode_id === currentEpisode?.episode_id ? '当前位置' : '移到这里'}
-                </button>
+          {moveVideo ? (
+            <p className="card-note" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>目标：{moveVideo.title}</span>
+              <button
+                className="btn btn--quiet"
+                onClick={() => {
+                  setMoveVideo(null)
+                  setMoveTerm('')
+                  setMoveKeyword('')
+                }}
+              >
+                换一部
+              </button>
+            </p>
+          ) : moveKeyword ? (
+            <div className="pick-list">
+              {(moveSearch.data?.items ?? []).map((v) => (
+                <div key={v.video_id} className="pick-row">
+                  <span className="pick-row__title">{v.video_title}</span>
+                  <span className="muted" style={{ fontSize: 12 }}>{v.video_type === 'movie' ? '电影' : '剧集'}</span>
+                  <button
+                    className="btn btn--quiet"
+                    onClick={() => {
+                      setMoveVideo({ id: v.video_id, title: v.video_title, type: v.video_type === 'movie' ? 'movie' : 'tv' })
+                      setMoveKeyword('')
+                    }}
+                  >
+                    选它
+                  </button>
+                </div>
+              ))}
+              {!moveSearch.isLoading && (moveSearch.data?.items ?? []).length === 0 ? (
+                <p className="card-note">没有找到「{moveKeyword}」</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* 电影没有季集，资源直接挂在影片上；剧集要选到集 */}
+          {!moveKeyword && moveVideo?.type === 'movie' ? (
+            <button
+              className="btn btn--primary"
+              style={{ marginTop: 'var(--stack)' }}
+              onClick={() =>
+                mediaApi
+                  .move(moving.mediaId, 'vl', moveVideo.id)
+                  .then(() => {
+                    toast(`已移到《${moveVideo.title}》`, 'success')
+                    setMoving(null)
+                    setMoveVideo(null)
+                    void media.refetch()
+                  })
+                  .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
+              }
+            >
+              移到这部影片
+            </button>
+          ) : null}
+
+          {!moveKeyword && (!moveVideo || moveVideo.type !== 'movie') ? (
+            <>
+              <div className="tabs pick-tabs__scroll">
+                {(moveSeasons.data ?? []).map((s) => (
+                  <button
+                    key={s.season_id}
+                    className="tab pick-tabs__item"
+                    role="tab"
+                    aria-selected={s.season_number === moveSeason}
+                    onClick={() => setMoveSeason(s.season_number)}
+                  >
+                    {s.season_title || `第 ${s.season_number} 季`}
+                  </button>
+                ))}
               </div>
-            ))}
-          </div>
+
+              <div className="pick-list">
+                {(moveEpisodes.data ?? []).map((ep) => {
+                  const samePlace = !moveVideo && ep.episode_id === currentEpisode?.episode_id
+                  return (
+                    <div key={ep.episode_id} className="pick-row">
+                      <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
+                      <span className="pick-row__title">{ep.episode_title}</span>
+                      <button
+                        className="btn btn--quiet"
+                        disabled={samePlace}
+                        onClick={() =>
+                          mediaApi
+                            .move(moving.mediaId, 've', ep.episode_id)
+                            .then(() => {
+                              toast('已移动', 'success')
+                              setMoving(null)
+                              setMoveVideo(null)
+                              void media.refetch()
+                            })
+                            .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
+                        }
+                      >
+                        {samePlace ? '当前位置' : '移到这里'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          ) : null}
         </Modal>
       ) : null}
 

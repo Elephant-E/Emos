@@ -435,6 +435,7 @@ export async function mockRequest<T>(
   }
 
   if (clean === '/api/video/media/playUrl') return { url: 'http://emos.local/play/mock' } as T
+  if (clean === '/api/video/media/move') return { carrot: 0 } as T
   if (clean === '/api/video/media/rename') return { carrot: 1 } as T
   if (clean === '/api/video/media/delete') return { carrot: 3 } as T
   if (clean === '/api/video/subtitle/rename') return { carrot: 1 } as T
