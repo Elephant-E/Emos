@@ -106,6 +106,13 @@ const watches: WatchItem[] = [
     updated_at: '2026-10-28T18:20:00Z',
   },
   {
+    subscribe_id: null, id: 1004, type: 'video' as const, name: '只看一遍的', description: '自己留着，不公开',
+    is_public: false, carrot: 0, tags: [], image_poster: null, image_poster_url: null,
+    is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: false,
+    user_sort: 70, subscribe_count: 0, video_count: 0, maintainers: [], author: { username: '陈曦' },
+    updated_at: '2026-11-08T10:00:00Z',
+  },
+  {
     subscribe_id: null, id: 1003, type: 'music' as const, name: '夜间通勤', description: '适合路上听的歌单',
     is_public: true, carrot: 0, tags: ['通勤'], image_poster: null, image_poster_url: poster('watch4'),
     is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: true,
@@ -270,7 +277,8 @@ export async function mockRequest<T>(
   }
 
   if (clean === '/api/watch') {
-    let rows = watches
+    // 真机后端不会把别人的私密片单返回给当前账号
+    let rows = watches.filter((w) => w.is_public || w.is_self)
     if (query.watch_id) rows = rows.filter((w) => w.id === Number(query.watch_id))
     if (query.type) rows = rows.filter((w) => w.type === query.type)
     if (query.name) rows = rows.filter((w) => w.name.includes(String(query.name)))
