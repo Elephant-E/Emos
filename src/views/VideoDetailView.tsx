@@ -7,7 +7,7 @@ import { Modal } from '@/components/Modal'
 import { IconDots, IconLeft } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
-import { useCapabilities, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
+import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -49,6 +49,7 @@ export function VideoDetailView({
   }, [seasonEpisodes.length, episode])
 
   const caps = useCapabilities()
+  const seekApply = useSeekApply()
   const media = useMediaList({
     video_list_id: videoId,
     video_season_id: currentEpisode?.season_id,
@@ -92,6 +93,32 @@ export function VideoDetailView({
                 onClick={() => actions.syncVideo.mutate(undefined, { onSuccess: () => toast('已触发同步', 'success') })}
               >
                 同步
+              </button>
+            ) : null}
+            {video ? (
+              <button
+                className="btn btn--ghost"
+                disabled={seekApply.isPending}
+                onClick={async () => {
+                  // 电影按整部（vl）求，剧集按当前这一集（ve）求；正片季的季号是 0
+                  const isMovie = season === 0
+                  const itemType = isMovie ? 'vl' : 've'
+                  const itemId = isMovie ? video.video_id : currentEpisode?.episode_id
+                  if (!itemId) return
+                  const ok = await confirmDialog({
+                    title: '代为发起求片？',
+                    message: isMovie ? `为《${video.video_title}》发起求片。` : `为第 ${episode} 集发起求片。`,
+                    hint: '求片会挂到求片列表，其他用户看到后可以认领上传。',
+                    confirmText: '发起',
+                  })
+                  if (!ok) return
+                  seekApply.mutate(
+                    { item_type: itemType, item_id: Number(itemId) },
+                    { onSuccess: () => toast('已发起求片', 'success') },
+                  )
+                }}
+              >
+                求片
               </button>
             ) : null}
             {video ? (

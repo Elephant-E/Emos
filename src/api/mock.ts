@@ -239,6 +239,7 @@ export async function mockRequest<T>(
   }
 
   if (clean === '/api/seek/poll') return [] as T
+  if (clean === '/api/seek/apply') return { seek_is_request: true } as T
   if (clean === '/api/seek') {
     const statuses = (body.status as string[] | undefined) ?? ['default', 'upload', 'complete']
     const rows = seeks.filter((s) => statuses.includes(s.status))
