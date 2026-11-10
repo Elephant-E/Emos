@@ -502,13 +502,13 @@
   border: 0;
   border-radius: 7px;
   background: transparent;
-  color: var(--fg-5);
-  opacity: 0.55;
+  color: var(--fg-4);
+  opacity: 0.75;
   transition: opacity var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
     color var(--t-fast) var(--ease);
 }
 .row-menu:focus-visible { opacity: 1; }
-.row-menu:hover { color: var(--fg-2); }
+.row-menu:hover { opacity: 1; color: var(--fg-2); }
 .table-foot {
   display: flex;
   align-items: center;

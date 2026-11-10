@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -230,9 +230,13 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         求片详情
                       </button>
                       {item.status === 'upload' ? (
-                        <a className="btn btn--quiet" href="/upload" onClick={(e) => e.stopPropagation()}>
+                        <Link
+                          className="btn btn--quiet"
+                          to="/upload"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           去上传
-                        </a>
+                        </Link>
                       ) : item.is_can_claim && item.status === 'default' ? (
                         <button
                           className="btn btn--ghost"

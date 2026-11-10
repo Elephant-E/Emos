@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
@@ -236,9 +237,14 @@ export function UploadView() {
                   </td>
                   <td>
                     {item.status === 'done' && item.target ? (
-                      <a className="btn btn--quiet" href={`/media/${item.target.item_id}?season=1&episode=1`}>
+                      <Link
+                        className="btn btn--quiet"
+                        to="/media/$videoId"
+                        params={{ videoId: String(item.target.item_id) }}
+                        search={{ season: 1, episode: 1 }}
+                      >
                         查看
-                      </a>
+                      </Link>
                     ) : item.status === 'uploading' ? (
                       <span className="muted">{Math.round(item.progress * 100)}%</span>
                     ) : (
