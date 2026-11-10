@@ -93,7 +93,7 @@ export function VideoDetailView({
   const [moveKeyword, setMoveKeyword] = useState('')
   const moveSearchTimer = useRef<number | undefined>(undefined)
   const moveTargetId = moveVideo?.id ?? videoId
-  const moveSearch = useVideoPage({ page: 1, page_size: 6, title: moveKeyword || undefined })
+  const moveSearch = useVideoPage({ page: 1, page_size: 6, title: moveKeyword || undefined, enabled: Boolean(moveKeyword) })
   const moveSeasons = useSeasons(moveTargetId)
   const moveEpisodes = useEpisodes(moveTargetId, moveSeason)
   // 换目标影片后季号要归位，否则会停在上一个影片的季上

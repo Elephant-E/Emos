@@ -75,7 +75,7 @@ export function ShopView({
     mine && Boolean(seller.data?.seller_id),
   )
   // 卡片视图用滚动加载；表格视图仍分页
-  const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true })
+  const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true, enabled: !mine })
   const browseItems = browse.data?.pages.flatMap((p) => p.items) ?? []
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()

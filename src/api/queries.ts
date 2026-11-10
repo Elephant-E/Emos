@@ -197,10 +197,6 @@ export function useSeekPage(params: SeekQuery) {
   })
 }
 
-/**
- * 求片增量探测：每 30 秒只拉比 lastId 新的条目，有变化才让列表重查。
- * 原来是对 2.4 万条的列表做全量重查，等于每 30 秒让后端重新排序分页一次。
- */
 export function useUserRecords(userId: string) {
   return useQuery({
     queryKey: ['user', userId, 'records'] as const,
@@ -217,6 +213,10 @@ export function useSeekApply() {
   })
 }
 
+/**
+ * 求片增量探测：每 30 秒只拉比 lastId 新的条目，有变化才让列表重查。
+ * 原来是对 2.4 万条的列表做全量重查，等于每 30 秒让后端重新排序分页一次。
+ */
 export function useSeekPoll(lastId: number) {
   return useQuery({
     queryKey: ['seek', 'poll', lastId] as const,
@@ -505,10 +505,12 @@ export function useShopProductsInfinite(params: {
   sortBy?: '' | 'sales' | 'price'
   onlyUp?: boolean
   pageSize?: number
+  enabled?: boolean
 }) {
-  const { sellerId, categoryId = 0, name = '', sortBy = '', onlyUp = false, pageSize = 24 } = params
+  const { sellerId, categoryId = 0, name = '', sortBy = '', onlyUp = false, pageSize = 24, enabled = true } = params
   return useInfiniteQuery({
     queryKey: ['shop', 'productsInfinite', sellerId, categoryId, name, sortBy, onlyUp] as const,
+    enabled,
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       shopApi.products({
@@ -878,10 +880,7 @@ export function useWatchMutations(watchId: number) {
   }
 
   const addVideo = useMutation({
-    mutationFn: (p: number | { videoId: number; sort?: number }) =>
-      typeof p === 'number'
-        ? watchApi.addVideo(watchId, p)
-        : watchApi.addVideo(watchId, p.videoId, p.sort ?? 80),
+    mutationFn: (p: { videoId: number; sort?: number }) => watchApi.addVideo(watchId, p.videoId, p.sort ?? 80),
     onSuccess: invalidate,
   })
   const removeVideo = useMutation({
@@ -910,8 +909,6 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (userIds: string[]) => watchApi.maintainer(watchId, userIds),
     onSuccess: invalidate,
   })
-  const emptyVideos = useMutation({ mutationFn: () => watchApi.emptyVideos(watchId), onSuccess: invalidate })
-  const emptyMusic = useMutation({ mutationFn: () => watchApi.emptyMusic(watchId), onSuccess: invalidate })
   const update = useMutation({
     mutationFn: (v: {
       type: 'video' | 'music'
@@ -940,6 +937,6 @@ export function useWatchMutations(watchId: number) {
 
   return {
     addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic,
-    subscribe, toggleShow, setDynamic, sort, update, setMaintainers, emptyVideos, emptyMusic,
+    subscribe, toggleShow, setDynamic, sort, update, setMaintainers,
   }
 }
