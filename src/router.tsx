@@ -6,7 +6,6 @@ import { LibraryView } from '@/views/LibraryView'
 import { SeekView } from '@/views/SeekView'
 import { WatchlistsView } from '@/views/WatchlistsView'
 import { WatchlistDetailView } from '@/views/WatchlistDetailView'
-import { PlaceholderView } from '@/views/PlaceholderView'
 import { LoginView } from '@/views/LoginView'
 import { UploadView } from '@/views/UploadView'
 import { VideoDetailView } from '@/views/VideoDetailView'
@@ -434,17 +433,6 @@ function WatchDetailRoute() {
   )
 }
 
-const placeholders: Array<{ path: string; title: string; note: string }> = [
-]
-
-const placeholderRoutes = placeholders.map((item) =>
-  createRoute({
-    getParentRoute: () => appLayout,
-    path: item.path,
-    component: () => <PlaceholderView title={item.title} note={item.note} />,
-  }),
-)
-
 const routeTree = rootRoute.addChildren([
   loginRoute,
   appLayout.addChildren([
@@ -469,7 +457,6 @@ const routeTree = rootRoute.addChildren([
     userDetailRoute,
     watchlistsRoute,
     watchlistDetailRoute,
-    ...placeholderRoutes,
   ]),
 ])
 

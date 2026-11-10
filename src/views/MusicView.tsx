@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -98,7 +98,12 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
       {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-      {active.data && active.data.items.length === 0 ? <EmptyBlock title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'} /> : null}
+      {active.data && active.data.items.length === 0 ? (
+        <EmptyBlock
+          title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'}
+          action={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+        />
+      ) : null}
 
       {active.data && active.data.items.length > 0 ? (
         <div className="table-card content-in" key={`${search.tab}-${active.data.items.length}-${(active.data.items[0] as Record<string, unknown>)?.song_id ?? (active.data.items[0] as Record<string, unknown>)?.album_id ?? (active.data.items[0] as Record<string, unknown>)?.person_id}`}>

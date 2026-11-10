@@ -79,7 +79,7 @@ export function WatchlistForm({
       {initial ? null : (
         <div className="field">
           <span>类型</span>
-          <div className="seg seg--bare" role="group" aria-label="片单类型">
+          <div className="seg" role="group" aria-label="片单类型">
             <button type="button" aria-pressed={form.type === 'video'} onClick={() => setForm({ ...form, type: 'video' })}>
               影视
             </button>
