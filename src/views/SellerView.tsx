@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useShopProductsInfinite, useShopSeller } from '@/api/queries'
+import { useShopCategories, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 
 /**
  * 别人的店铺。从商品详情点店名进来，看这一家在卖什么。
@@ -12,9 +12,12 @@ import { useShopProductsInfinite, useShopSeller } from '@/api/queries'
  */
 export function SellerView({ sellerId }: { sellerId: number }) {
   const seller = useShopSeller(sellerId)
+  const [categoryId, setCategoryId] = useState(0)
+  const [sort, setSort] = useState<'' | 'sales' | 'price'>('')
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
-  const query = useShopProductsInfinite({ sellerId, onlyUp: true })
+  const categories = useShopCategories(sellerId)
+  const query = useShopProductsInfinite({ sellerId, categoryId, sortBy: sort, onlyUp: true })
   const products = query.data?.pages.flatMap((p) => p.items) ?? []
 
   return (
@@ -38,6 +41,39 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       />
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
+
+      {categories.data && categories.data.length > 0 ? (
+        <div className="toolbar">
+          <div className="tabs" role="tablist" aria-label="分类">
+            <button className="tab" role="tab" aria-selected={categoryId === 0} onClick={() => setCategoryId(0)}>
+              全部
+            </button>
+            {categories.data.map((category) => (
+              <button
+                key={category.category_id}
+                className="tab"
+                role="tab"
+                aria-selected={categoryId === category.category_id}
+                onClick={() => setCategoryId(category.category_id)}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+          <span className="spacer" />
+          <div className="seg" role="group" aria-label="排序">
+            <button aria-pressed={sort === ''} onClick={() => setSort('')}>
+              默认
+            </button>
+            <button aria-pressed={sort === 'sales'} onClick={() => setSort('sales')}>
+              销量
+            </button>
+            <button aria-pressed={sort === 'price'} onClick={() => setSort('price')}>
+              价格
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {seller.data?.cover_url ? (
         <div className="seller-banner">
