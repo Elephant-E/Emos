@@ -10,6 +10,7 @@ import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations, useVideoPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { promptDialog } from '@/ui/prompt'
 import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface DetailSearch {
@@ -505,15 +506,17 @@ export function VideoDetailView({
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
-                const ok = await confirmDialog({
+                // 接口要求 reason，写死「后台删除」等于没写；让操作的人自己说明
+                const reason = await promptDialog({
                   title: '删除这个资源？',
-                  message: '删除后播放端立刻不可用。',
-                  hint: '会扣除相应胡萝卜，删除后可到回收站恢复。',
-                  danger: true,
+                  message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
+                  label: '删除理由',
+                  defaultValue: '后台删除',
+                  placeholder: '会记录在删除记录里',
                   confirmText: '删除',
                 })
-                if (ok) {
-                  actions.removeMedia.mutate(renaming.mediaId, {
+                if (reason !== null) {
+                  actions.removeMedia.mutate({ mediaId: renaming.mediaId, reason }, {
                     onSuccess: (res) => {
                       toast(`已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`, 'success')
                       setRenaming(null)
@@ -731,15 +734,15 @@ export function VideoDetailView({
           <button
             className="btn btn--ghost"
             onClick={async () => {
-              const ok = await confirmDialog({
+              const reason = await promptDialog({
                 title: '删除这条字幕？',
-                message: '观看端将不再显示这条字幕。',
-                hint: '会扣除 1 个胡萝卜，可重新上传。',
-                danger: true,
+                message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜，可重新上传。',
+                label: '删除理由',
+                defaultValue: '后台删除',
                 confirmText: '删除',
               })
-              if (!ok) return
-              actions.removeSubtitle.mutate(renamingSub.id, {
+              if (reason === null) return
+              actions.removeSubtitle.mutate({ subtitleId: renamingSub.id, reason }, {
                 onSuccess: () => {
                   toast('已删除字幕', 'success')
                   setRenamingSub(null)

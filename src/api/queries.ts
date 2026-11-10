@@ -356,10 +356,16 @@ export function useVideoMutations(videoId: number) {
     removeVideo: useMutation({ mutationFn: () => videoApi.remove(videoId), onSuccess: invalidate }),
     playUrl: useMutation({ mutationFn: (mediaId: string) => mediaApi.playUrl(mediaId) }),
     renameMedia: useMutation({ mutationFn: (p: { mediaId: string; name: string }) => mediaApi.rename(p.mediaId, p.name), onSuccess: invalidate }),
-    removeMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.remove(mediaId), onSuccess: invalidate }),
+    removeMedia: useMutation({
+      mutationFn: (p: { mediaId: string; reason: string }) => mediaApi.remove(p.mediaId, p.reason),
+      onSuccess: invalidate,
+    }),
     syncMetadata: useMutation({ mutationFn: (mediaId: string) => mediaApi.syncMetadata(mediaId), onSuccess: invalidate }),
     renameSubtitle: useMutation({ mutationFn: (p: { id: string; title: string }) => subtitleApi.rename(p.id, p.title), onSuccess: invalidate }),
-    removeSubtitle: useMutation({ mutationFn: (id: string) => subtitleApi.remove(id), onSuccess: invalidate }),
+    removeSubtitle: useMutation({
+      mutationFn: (p: { subtitleId: string; reason: string }) => subtitleApi.remove(p.subtitleId, p.reason),
+      onSuccess: invalidate,
+    }),
   }
 }
 
@@ -757,7 +763,7 @@ export function useMusicMutations(songId = 0) {
       onSuccess: invalidate,
     }),
     deleteMedia: useMutation({
-      mutationFn: (mediaId: string) => musicApi.deleteMedia(songId, mediaId, '后台删除'),
+      mutationFn: (p: { mediaId: string; reason: string }) => musicApi.deleteMedia(songId, p.mediaId, p.reason),
       onSuccess: invalidate,
     }),
   }

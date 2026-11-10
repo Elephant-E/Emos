@@ -7,6 +7,7 @@ import { musicApi } from '@/api/endpoints'
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { promptDialog } from '@/ui/prompt'
 import { formatDateTime, formatSize } from '@/lib/format'
 import { Modal } from '@/components/Modal'
 
@@ -237,17 +238,18 @@ export function SongDetailView({ songId }: { songId: number }) {
                           <button
                             className="btn btn--danger-text"
                             onClick={async () => {
-                              const ok = await confirmDialog({
+                              const reason = await promptDialog({
                                 title: '删除这个资源？',
-                                message: '歌曲本身不会被删除，只删这一份音频。',
-                                hint: '会扣除相应胡萝卜。',
+                                message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
+                                label: '删除理由',
+                                defaultValue: '后台删除',
                                 confirmText: '删除',
-                                danger: true,
                               })
-                              if (!ok) return
-                              actions.deleteMedia.mutate(String(row.media_id), {
-                                onSuccess: () => toast('已删除', 'success'),
-                              })
+                              if (reason === null) return
+                              actions.deleteMedia.mutate(
+                                { mediaId: String(row.media_id), reason },
+                                { onSuccess: () => toast('已删除', 'success') },
+                              )
                             }}
                           >
                             删除

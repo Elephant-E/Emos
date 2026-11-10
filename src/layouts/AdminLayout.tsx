@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { useSession } from '@/api/queries'
 import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
+import { PromptHost } from '@/ui/prompt'
 
 export function AdminLayout() {
   const { data } = useSession()
@@ -24,6 +25,7 @@ export function AdminLayout() {
       </main>
       <ToastHost />
       <ConfirmHost />
+      <PromptHost />
     </div>
   )
 }
