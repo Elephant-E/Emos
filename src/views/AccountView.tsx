@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
-import { ErrorBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import {
   useAccountMutations,
@@ -10,6 +10,7 @@ import {
   useInviteHistory,
   useInviteInfo,
   useInviteTree,
+  useVideoDevices,
   useSession,
 } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -25,6 +26,7 @@ const TABS: Array<{ key: Tab; label: string }> = [
 
 export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   const session = useSession()
+  const devices = useVideoDevices()
   const carrot = useCarrot()
   const info = useInviteInfo()
   const actions = useAccountMutations()
@@ -217,6 +219,69 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 </div>
               </dl>
               {user.must_otp ? <p className="card-note" style={{ marginTop: 'var(--stack)' }}>该密码是一次性密码，登录后请改永久密码。</p> : null}
+            </article>
+          </section>
+
+          <section className="cards cards--wide">
+            <article className="card">
+              <div className="detail-head">
+                <p className="stat__label">已登录设备</p>
+                {devices.data && devices.data.length > 0 ? (
+                  <button
+                    className="btn btn--ghost"
+                    disabled={actions.logoutDevice.isPending}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: '让所有设备下线？',
+                        message: '包括你正在用的这一台，之后需要在播放器里重新登录。',
+                        confirmText: '全部下线',
+                        danger: true,
+                      })
+                      if (!ok) return
+                      actions.logoutDevice.mutate(null, { onSuccess: () => toast('已全部下线', 'success') })
+                    }}
+                  >
+                    全部下线
+                  </button>
+                ) : null}
+              </div>
+              {devices.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
+              {devices.data && devices.data.length === 0 ? (
+                <EmptyBlock bare title="没有登录中的设备" />
+              ) : null}
+              {devices.data && devices.data.length > 0 ? (
+                <table className="table table--inset">
+                  <thead>
+                    <tr>
+                      <th>设备</th>
+                      <th style={{ width: 150 }}>最后使用</th>
+                      <th style={{ width: 96 }}>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {devices.data.map((device) => (
+                      <tr key={device.device_id}>
+                        <td>
+                          <span className="cell-title__name">{device.device_name || '未命名设备'}</span>
+                          <span className="cell-title__code">
+                            {device.device_client} {device.device_version}
+                          </span>
+                        </td>
+                        <td className="muted">{device.last_used_at ? formatDateTime(device.last_used_at) : '—'}</td>
+                        <td>
+                          <button
+                            className="btn btn--quiet"
+                            disabled={actions.logoutDevice.isPending}
+                            onClick={() => actions.logoutDevice.mutate(device.device_id, { onSuccess: () => toast('已下线', 'success') })}
+                          >
+                            下线
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : null}
             </article>
           </section>
 

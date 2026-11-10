@@ -390,6 +390,11 @@ export function useAccountMutations() {
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
     sign: useMutation({ mutationFn: (content?: string) => userApi.sign(content), onSuccess: invalidate }),
+    // 传 null 表示把该账号在所有设备上踢下线
+    logoutDevice: useMutation({
+      mutationFn: (deviceId: string | null) => userApi.videoLogout(deviceId),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ['user', 'devices'] }),
+    }),
     invite: useMutation({ mutationFn: (payload: { id: string; remark: string }) => inviteApi.create(payload.id, payload.remark || null), onSuccess: invalidate }),
     revoke: useMutation({ mutationFn: (userId: string) => inviteApi.revoke(userId), onSuccess: invalidate }),
     transfer: useMutation({ mutationFn: (payload: { userId: string; carrot: number }) => carrotApi.transfer(payload.userId, payload.carrot), onSuccess: invalidate }),
@@ -680,6 +685,14 @@ export function useUserPayInfo(userId: string) {
         throw error
       }
     },
+  })
+}
+
+export function useVideoDevices() {
+  return useQuery({
+    queryKey: ['user', 'devices'] as const,
+    queryFn: () => userApi.videoHistory(),
+    staleTime: 60_000,
   })
 }
 

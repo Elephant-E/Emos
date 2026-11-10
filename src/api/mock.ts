@@ -215,6 +215,13 @@ export async function mockRequest<T>(
   const body = (opts.body ?? {}) as Record<string, unknown>
 
   if (clean === '/api/sign/check') return { is_sign: true, user_id: user.user_id } as T
+  if (clean === '/api/user/server/videoHistory') {
+    return [
+      { device_client: 'SenPlayer', device_name: 'MacBook Pro', device_id: 'dev_1', device_version: '5.7.4', last_used_at: '2026-11-07T21:00:00Z' },
+      { device_client: 'Infuse', device_name: 'iPad Air', device_id: 'dev_2', device_version: '8.0.2', last_used_at: '2026-11-05T09:20:00Z' },
+    ] as T
+  }
+  if (clean === '/api/user/server/videoLogout') return { logout_count: 1 } as T
   if (clean === '/api/user/base') return { user_id: user.user_id, username: user.username, avatar: null } as T
   if (clean === '/api/user') return user as T
   if (clean === '/api/carrot/current') return { carrot: user.carrot } as T
