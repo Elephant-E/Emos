@@ -271,17 +271,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           onSubmit={() => {
             if (code.trim() && Number(carrot) > 0 && !create.isPending) create.mutate()
           }}
-        >
-          <div className="stack">
-            <label className="field">
-              <span>活动码</span>
-              <input className="input" value={code} onChange={(e) => setCode(e.target.value)} placeholder="fund_activity_code" />
-            </label>
-            <label className="field">
-              <span>胡萝卜</span>
-              <input className="input tnum" type="number" min={1} value={carrot} onChange={(e) => setCarrot(e.target.value)} />
-            </label>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          footer={
+            <>
               <button className="btn btn--ghost" onClick={() => setCreating(false)}>
                 取消
               </button>
@@ -292,7 +283,18 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               >
                 {create.isPending ? '创建中…' : '创建'}
               </button>
-            </div>
+            </>
+          }
+        >
+          <div className="stack">
+            <label className="field">
+              <span>活动码</span>
+              <input className="input" value={code} onChange={(e) => setCode(e.target.value)} placeholder="fund_activity_code" />
+            </label>
+            <label className="field">
+              <span>胡萝卜</span>
+              <input className="input tnum" type="number" min={1} value={carrot} onChange={(e) => setCarrot(e.target.value)} />
+            </label>
           </div>
         </Modal>
       ) : null}
@@ -302,17 +304,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           title={`提交凭证 · ${String(evidenceFor.no ?? evidenceFor.order_no ?? '')}`}
           width={460}
           onClose={() => setEvidenceFor(null)}
-        >
-          <div className="stack">
-            <label className="field">
-              <span>图片地址（每行一个）</span>
-              <textarea className="input" rows={3} value={images} onChange={(e) => setImages(e.target.value)} placeholder="https://..." />
-            </label>
-            <label className="field">
-              <span>备注</span>
-              <textarea className="input" rows={2} value={remark} onChange={(e) => setRemark(e.target.value)} />
-            </label>
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          footer={
+            <>
               <button className="btn btn--ghost" onClick={() => setEvidenceFor(null)}>
                 取消
               </button>
@@ -327,7 +320,18 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               >
                 {submitEvidence.isPending ? '提交中…' : '提交'}
               </button>
-            </div>
+            </>
+          }
+        >
+          <div className="stack">
+            <label className="field">
+              <span>图片地址（每行一个）</span>
+              <textarea className="input" rows={3} value={images} onChange={(e) => setImages(e.target.value)} placeholder="https://..." />
+            </label>
+            <label className="field">
+              <span>备注</span>
+              <textarea className="input" rows={2} value={remark} onChange={(e) => setRemark(e.target.value)} />
+            </label>
           </div>
         </Modal>
       ) : null}

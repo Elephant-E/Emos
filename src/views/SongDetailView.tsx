@@ -103,6 +103,14 @@ export function SongDetailView({ songId }: { songId: number }) {
       {tab === 'lyrics' ? (
         <section className="cards cards--wide">
           <article className="card">
+            <div className="card-head">
+              <p className="stat__label">歌词</p>
+              {(lyrics.data ?? []).length > 0 ? (
+                <button className="btn btn--quiet" onClick={() => setAdding(true)}>
+                  添加歌词
+                </button>
+              ) : null}
+            </div>
             {lyrics.error ? <ErrorBlock bare error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
             {lyrics.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
             {lyrics.data && lyrics.data.length === 0 ? (
@@ -115,13 +123,6 @@ export function SongDetailView({ songId }: { songId: number }) {
                   </button>
                 }
               />
-            ) : null}
-            {(lyrics.data ?? []).length > 0 ? (
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button className="btn btn--ghost" onClick={() => setAdding(true)}>
-                  添加歌词
-                </button>
-              </div>
             ) : null}
             {(lyrics.data ?? []).map((row, index) => (
               <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 18 }}>

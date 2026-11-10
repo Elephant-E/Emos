@@ -27,7 +27,37 @@ export function ProductDetailModal({
   const offShelf = p ? !p.is_up : false
 
   return (
-    <Modal title="商品详情" width={560} onClose={onClose}>
+    <Modal
+      title="商品详情"
+      width={560}
+      onClose={onClose}
+      footer={
+        p ? (
+          <>
+            <button className="btn btn--ghost" onClick={onClose}>
+              关闭
+            </button>
+            <button
+              className="btn btn--primary"
+              disabled={soldOut || offShelf || actions.createOrder.isPending}
+              onClick={() =>
+                actions.createOrder.mutate(
+                  { productId, buyNumber, remark: remark.trim() || null },
+                  {
+                    onSuccess: (res) => {
+                      onBought()
+                      toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
+                    },
+                  },
+                )
+              }
+            >
+              {actions.createOrder.isPending ? '下单中…' : soldOut ? '已售罄' : offShelf ? '已下架' : '立即购买'}
+            </button>
+          </>
+        ) : null
+      }
+    >
       {product.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
       {p ? (
         <>
@@ -89,29 +119,6 @@ export function ProductDetailModal({
               <span>备注（给商户看）</span>
               <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
             </label>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
-            <button className="btn btn--ghost" onClick={onClose}>
-              关闭
-            </button>
-            <button
-              className="btn btn--primary"
-              disabled={soldOut || offShelf || actions.createOrder.isPending}
-              onClick={() =>
-                actions.createOrder.mutate(
-                  { productId, buyNumber, remark: remark.trim() || null },
-                  {
-                    onSuccess: (res) => {
-                      onBought()
-                      toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
-                    },
-                  },
-                )
-              }
-            >
-              {actions.createOrder.isPending ? '下单中…' : soldOut ? '已售罄' : offShelf ? '已下架' : '立即购买'}
-            </button>
           </div>
         </>
       ) : null}

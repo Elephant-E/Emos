@@ -394,6 +394,16 @@ export function OverviewView() {
           onSubmit={() => {
             if (!sign.isPending) sign.mutate(signNote.trim() || undefined)
           }}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setSigning(false)}>
+                取消
+              </button>
+              <button className="btn btn--primary" type="submit" disabled={sign.isPending}>
+                {sign.isPending ? '签到中…' : '签到'}
+              </button>
+            </>
+          }
         >
           <div className="stack">
             <input
@@ -407,14 +417,6 @@ export function OverviewView() {
                 if (event.key === 'Enter') sign.mutate(signNote.trim() || undefined)
               }}
             />
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button className="btn btn--ghost" onClick={() => setSigning(false)}>
-                取消
-              </button>
-              <button className="btn btn--primary" type="submit" disabled={sign.isPending}>
-                {sign.isPending ? '签到中…' : '签到'}
-              </button>
-            </div>
           </div>
         </Modal>
       ) : null}
