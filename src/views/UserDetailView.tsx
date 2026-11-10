@@ -85,14 +85,16 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">账号状态</p>
               <p className="stat__value" style={{ color: banned ? 'var(--c-red)' : undefined }}>
-                <span className="stat__word">{banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}</span>
+                <span className="stat__word" style={{ fontSize: 20 }}>
+                  {banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
+                </span>
               </p>
               <p className="stat__delta stat__delta--quiet">
                 {banned
                   ? `该账号注册于 ${formatRelative(banned.created_at)}`
                   : bans.isLoading
                     ? '正在核对封禁列表'
-                    : '以封禁列表为准，未被列出即可解封试探'}
+                    : '未出现在封禁列表中'}
               </p>
             </article>
 
@@ -115,7 +117,9 @@ export function UserDetailView({ userId }: { userId: string }) {
 
             <article className="card card--stat">
               <p className="stat__label">邀请关系</p>
-              <p className="stat__value">{invited ? '由我邀请' : '—'}</p>
+              <p className="stat__value">
+                <span className="stat__word" style={{ fontSize: 20 }}>{invited ? '由我邀请' : '—'}</span>
+              </p>
               <p className="stat__delta stat__delta--quiet">
                 {invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
               </p>
