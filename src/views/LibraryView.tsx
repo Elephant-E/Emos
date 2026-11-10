@@ -103,7 +103,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         </button>
       </div>
 
-      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
+      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (

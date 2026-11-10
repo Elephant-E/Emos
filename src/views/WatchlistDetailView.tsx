@@ -115,7 +115,7 @@ export function WatchlistDetailView({
         }
       />
 
-      {watch.error ? <ErrorBlock error={watch.error as Error & { status?: number }} onRetry={() => watch.refetch()} /> : null}
+      {watch.error ? <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} /> : null}
 
       {item ? (
         <section className="detail-head">
@@ -185,7 +185,7 @@ export function WatchlistDetailView({
         ) : null}
       </div>
 
-      {videos.error ? <ErrorBlock error={videos.error as Error & { status?: number }} onRetry={() => videos.refetch()} /> : null}
+      {videos.error ? <ErrorBlock error={videos.error} onRetry={() => videos.refetch()} /> : null}
       {videos.isLoading ? <LoadingBlock bare rows={6} columns={4} /> : null}
 
       {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
@@ -621,7 +621,7 @@ function WatchMusicList({
         ) : null}
       </div>
 
-      {songs.error ? <ErrorBlock error={songs.error as Error & { status?: number }} onRetry={() => songs.refetch()} /> : null}
+      {songs.error ? <ErrorBlock error={songs.error} onRetry={() => songs.refetch()} /> : null}
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
 
       {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (

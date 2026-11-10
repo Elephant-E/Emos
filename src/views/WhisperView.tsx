@@ -73,7 +73,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
         </div>
       </div>
 
-      {list.error ? <ErrorBlock error={list.error as Error & { status?: number }} onRetry={() => list.refetch()} /> : null}
+      {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={3} /> : null}
 
       {!list.isLoading && !list.error && rows.length === 0 ? (

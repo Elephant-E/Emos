@@ -114,7 +114,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         </button>
       </div>
 
-      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
+      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={5} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (

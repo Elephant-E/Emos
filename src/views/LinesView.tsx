@@ -64,7 +64,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         </button>
       </div>
 
-      {lines.error ? <ErrorBlock error={lines.error as Error & { status?: number }} onRetry={() => lines.refetch()} /> : null}
+      {lines.error ? <ErrorBlock error={lines.error} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
       {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
       {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title={`没有匹配「${search.q}」的线路`} /> : null}

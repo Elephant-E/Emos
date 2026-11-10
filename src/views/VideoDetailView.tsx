@@ -179,7 +179,7 @@ export function VideoDetailView({
         }
       />
 
-      {detail.error ? <ErrorBlock error={detail.error as Error & { status?: number }} onRetry={() => detail.refetch()} /> : null}
+      {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
       {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
 
       {!detail.isLoading && !detail.error && !video ? (
@@ -326,7 +326,7 @@ export function VideoDetailView({
               </span>
             </div>
 
-            {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
+            {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="这一集还没有资源" hint="去上传页把文件入库到这里。" /> : null}
 

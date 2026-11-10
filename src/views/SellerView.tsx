@@ -49,7 +49,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
         }
       />
 
-      {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
+      {seller.error ? <ErrorBlock error={seller.error} onRetry={() => seller.refetch()} /> : null}
 
       {categories.data && categories.data.length > 0 ? (
         <div className="toolbar">
@@ -91,7 +91,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
           </div>
         </div>
       ) : null}
-      {query.error ? <ErrorBlock error={query.error as Error & { status?: number }} onRetry={() => query.refetch()} /> : null}
+      {query.error ? <ErrorBlock error={query.error} onRetry={() => query.refetch()} /> : null}
 
       {query.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
 

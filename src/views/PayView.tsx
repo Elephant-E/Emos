@@ -77,7 +77,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         />
       ) : null}
       {base.error && (base.error as { status?: number }).status !== 404 ? (
-        <ErrorBlock error={base.error as Error & { status?: number }} onRetry={() => base.refetch()} />
+        <ErrorBlock error={base.error} onRetry={() => base.refetch()} />
       ) : null}
 
       <section className="cards" style={base.error ? { display: 'none' } : undefined}>

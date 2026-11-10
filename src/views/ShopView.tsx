@@ -162,7 +162,7 @@ export function ShopView({
         }
       />
 
-      {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
+      {seller.error ? <ErrorBlock error={seller.error} onRetry={() => seller.refetch()} /> : null}
 
       {mine && isSeller && tab === 'products' && !panel ? (
         <section className="cards cards--4" style={{ marginBottom: 18 }}>
@@ -257,7 +257,7 @@ export function ShopView({
           </div>
 
           {mine && products.error ? (
-            <ErrorBlock error={products.error as Error & { status?: number }} onRetry={() => products.refetch()} />
+            <ErrorBlock error={products.error} onRetry={() => products.refetch()} />
           ) : null}
           {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
           {mine && products.data && products.data.items.length === 0 ? (
@@ -266,7 +266,7 @@ export function ShopView({
 
           {/* 全站视图走 browse（滚动加载），它的加载与空态之前完全没接 */}
           {!mine && browse.error ? (
-            <ErrorBlock error={browse.error as Error & { status?: number }} onRetry={() => browse.refetch()} />
+            <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
           ) : null}
           {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
           {!mine && !browse.isLoading && browseItems.length === 0 ? (

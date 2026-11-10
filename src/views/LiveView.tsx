@@ -180,7 +180,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         </button>
       </div>
 
-      {list.error ? <ErrorBlock error={list.error as Error & { status?: number }} onRetry={() => list.refetch()} /> : null}
+      {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
       {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
 

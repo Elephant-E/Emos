@@ -17,14 +17,12 @@ export function ImagePicker({
   value,
   onChange,
   label = '图片',
-  hint,
   width = 120,
   height = 120,
 }: {
   value?: string | null
   onChange: (url: string | null) => void
   label?: string
-  hint?: string
   width?: number | string
   height?: number | string
 }) {
@@ -58,7 +56,6 @@ export function ImagePicker({
             <span>选择{label}</span>
           </button>
         )}
-        {hint ? <span className="image-picker__hint">{hint}</span> : null}
       </div>
 
       {open ? (

@@ -106,7 +106,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         </div>
       </div>
 
-      {orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
+      {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
       {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" /> : null}
 

@@ -71,7 +71,7 @@ export function UserDetailView({ userId }: { userId: string }) {
         }
       />
 
-      {pay.error ? <ErrorBlock error={pay.error as Error & { status?: number }} onRetry={() => pay.refetch()} /> : null}
+      {pay.error ? <ErrorBlock error={pay.error} onRetry={() => pay.refetch()} /> : null}
 
       {limited ? (
         <p className="card-note" style={{ marginTop: 4 }}>

@@ -103,7 +103,7 @@ export function SongDetailView({ songId }: { songId: number }) {
       {tab === 'lyrics' ? (
         <section className="cards cards--wide">
           <article className="card">
-            {lyrics.error ? <ErrorBlock bare error={lyrics.error as Error & { status?: number }} onRetry={() => lyrics.refetch()} /> : null}
+            {lyrics.error ? <ErrorBlock bare error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
             {lyrics.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
@@ -154,7 +154,7 @@ export function SongDetailView({ songId }: { songId: number }) {
       {tab === 'media' ? (
         <section className="cards cards--wide">
           <article className="card">
-            {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
+            {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             <div className="card-head">
               <p className="stat__label">资源</p>

@@ -115,7 +115,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         </label>
       </div>
 
-      {error ? <ErrorBlock error={error as Error & { status?: number }} onRetry={() => refetch()} /> : null}
+      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (

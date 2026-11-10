@@ -134,7 +134,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         </div>
       </div>
 
-      {session.error ? <ErrorBlock error={session.error as Error & { status?: number }} onRetry={() => session.refetch()} /> : null}
+      {session.error ? <ErrorBlock error={session.error} onRetry={() => session.refetch()} /> : null}
 
       {tab === 'profile' && user ? (
         <>

@@ -122,7 +122,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         </div>
       </div>
 
-      {active.error ? <ErrorBlock error={active.error as Error & { status?: number }} onRetry={() => active.refetch()} /> : null}
+      {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
       {!active.error && !active.isLoading && rows.length === 0 ? (

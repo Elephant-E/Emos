@@ -281,7 +281,7 @@ export function UploadView() {
             </span>
           </div>
 
-          {storeFiles.error ? <ErrorBlock bare error={storeFiles.error as Error & { status?: number }} onRetry={() => storeFiles.refetch()} /> : null}
+          {storeFiles.error ? <ErrorBlock bare error={storeFiles.error} onRetry={() => storeFiles.refetch()} /> : null}
           {!storeFiles.error && storeFiles.data && storeFiles.data.length === 0 ? (
             <EmptyBlock bare title="暂存区是空的" />
           ) : null}

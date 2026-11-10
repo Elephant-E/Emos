@@ -205,7 +205,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
         {tab === 'carrot' ? <CarrotSection page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} /> : null}
       </div>
 
-      {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error as Error & { status?: number }} onRetry={() => orders.refetch()} /> : null}
+      {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
 
       {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (

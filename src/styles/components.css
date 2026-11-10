@@ -1690,7 +1690,6 @@
   transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .image-picker__empty:hover { border-color: var(--line-hot); color: var(--fg-3); }
-.image-picker__hint { font-size: 11.5px; color: var(--fg-4); }
 
 .image-picker__grid {
   display: grid;

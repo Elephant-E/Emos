@@ -42,12 +42,14 @@ export function EmptyBlock({ title, hint, action, bare = false }: EmptyBlockProp
   )
 }
 interface ErrorBlockProps {
-  error: Error & { status?: number }
+  error: unknown
   onRetry?: () => void
   bare?: boolean
 }
 export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
-  const timedOut = error.status === 0
+  const status = (error as { status?: number } | null)?.status
+  const message = error instanceof Error ? error.message : ''
+  const timedOut = status === 0
   return (
     <div className={bare ? undefined : 'table-card'}>
       <div className="state">
@@ -55,7 +57,7 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
           <IconAlert />
         </span>
         <p className="state__title">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
-        {!timedOut && error.message ? <p className="state__hint">{error.message}</p> : null}
+        {!timedOut && message ? <p className="state__hint">{message}</p> : null}
         <div className="state__actions">
           {onRetry ? (
             <button className="btn btn--ghost" onClick={onRetry}>

@@ -101,7 +101,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         ) : null}
       </div>
 
-      {active.error ? <ErrorBlock error={active.error as Error & { status?: number }} onRetry={() => active.refetch()} /> : null}
+      {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
       {active.data && active.data.items.length === 0 ? <EmptyBlock title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'} /> : null}
 

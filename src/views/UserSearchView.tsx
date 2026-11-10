@@ -54,7 +54,7 @@ export function UserSearchView() {
         <span className="head-note">仅列出正在封禁中的账号</span>
       </div>
 
-      {bans.error ? <ErrorBlock error={bans.error as Error & { status?: number }} onRetry={() => bans.refetch()} /> : null}
+      {bans.error ? <ErrorBlock error={bans.error} onRetry={() => bans.refetch()} /> : null}
       {bans.isLoading ? <LoadingBlock rows={4} columns={3} /> : null}
       {!bans.isLoading && !bans.error && rows.length === 0 ? <EmptyBlock title="没有封禁中的用户" /> : null}
 

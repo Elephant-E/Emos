@@ -2,7 +2,7 @@
 
 - **仓库**：`emos.club`（React 18 + TS + TanStack，暗色管理台）
 - **角度**：只审「界面结构 / 样式层」。代码质量（死代码、缓存、endpoint、类型）另有一份 `refactor-audit-code.md`，本文件不重复其结论，只在必要处互相引用。
-- **基线**：`68de9df`（今晚收工点）→ 写报告时 HEAD 为 `fe7ed8c`。期间有并行改动落了两个 refactor 提交（`8f332d1` 清死代码与重复写法、`fe7ed8c` 抽「清空搜索」），**行号以 `fe7ed8c` + 工作区为准**；已被它们处理掉的项在下文标注【已处理】。
+- **基线**：`68de9df`（今晚收工点）→ 写作期间 HEAD 连续前进到 `8a2c189`。并行的三个提交（`8f332d1` 清死代码与重复写法、`fe7ed8c` 抽「清空搜索」、`8a2c189` 修审查发现的真问题）已经吃掉了本文件的一部分发现，**已被处理处标注【已处理】，不重复计入分档**。行号以 `8a2c189` 为准；`ImagePicker` / `PageHeader` 仍有未提交改动。
 - **方式**：只读。`git log --since="2026-11-10 18:00"` 94 个提交逐条对照；`VITE_MOCK=1 npx vite --port 5288` 起服务，逐路由取 `getComputedStyle` 与 `getBoundingClientRect` 实测（数据见第 5 节附录）。**未改 `src/`**。
 - **判断标准**：这个项目要的是克制、留白、不要多余 hover。下面所有建议都刻意避开「加动效 / 加 hover / 加组件库 / 加花活」，能用 3 行 CSS 解决的不建议抽组件。
 
@@ -17,6 +17,20 @@
    - `.btn--danger-text` 自带 `height:20px + font-size:12.5px`，混进 `.action-group` 后**基线和兄弟按钮差 12px**（实测 `bottom 244 vs 256`），订单/商城/直播/片单四处的操作列都毛边。
    - `components.css:1127` 的 `.badge,` 后跟一个空行再跟 `.btn[aria-busy]`，逗号没删干净 → 选择器列表变成 `.badge, .btn[aria-busy='true']`，**全站每个 `.badge` 都是 `opacity: 0.6`**（实测）。「已支付 / 待发货 / 3 人求 / 已上架」全部偏淡，这是今晚最容易被误认为「配色改了」的回归。
 4. **今晚改动确实带出新的不一致**，集中在三处：表格内动作按钮基线、工具栏的对齐与高度（32px vs 36px 随页抖动）、以及「影视片单详情 vs 音乐片单详情」因为整段复制而生的功能分叉（音乐片单**没有订阅/编辑/维护者/隐藏/动态抓取五个按钮**）。
+
+### 已被并行提交处理掉的（不必重复做）
+
+写作期间 HEAD 从 `68de9df` 前进到 `8a2c189`，下面这些原来的发现已经修了，本文件不再计入分档：
+
+| 原问题 | 处理 |
+|---|---|
+| `.card-head` 里 10 处内联 `style={{margin:0}}` | `8f332d1` 由 CSS 规则接管 |
+| `muted + fontSize:11.5` 重复十余处 | `8f332d1` 抽 `.meta-sm` |
+| 文字型统计值内联 `fontSize:20`（两处） | `8f332d1` 抽 `.stat__word--sm` |
+| 四个列表页各写一遍「清空搜索」 | `fe7ed8c` 抽 `ClearSearchButton` |
+| `{true ? (…)}` 包裹、`data-fallback` 无 CSS 消费、`.tag-input` 死守卫、`mediaApi` 信封嗅探 | `8a2c189` |
+
+> 行号取自 `8a2c189`。仓库仍在被并行修改（`ImagePicker.tsx`、`PageHeader.tsx` 有未提交改动），若偏移请按「结构 + 附近的代码特征」定位，每一条都带了可搜索的特征串。
 
 ---
 
@@ -40,10 +54,10 @@
 | `views/FundView.tsx:27` | 同上 | `<button btn--quiet>转赠` |
 | `views/PayView.tsx:99` | 同上 | `<button btn--quiet>编辑` |
 | `views/SongDetailView.tsx:159` | 同上 | `<button btn--quiet>上传音频`（+ 隐藏 `<input type=file>`） |
-| `views/VideoDetailView.tsx:247` | 同上 | `<span className="muted tnum-sm">共 N 季` |
-| `views/VideoDetailView.tsx:319` | 同上 | `<span className="muted">当前集名` |
-| `views/VideoDetailView.tsx:372` | 同上 | `<button btn--quiet>上传字幕`（+ 隐藏 input） |
-| `views/ShopView.tsx:404` | **`chart-head`** | `.row-input`（输入 + 新增分类） |
+| `views/VideoDetailView.tsx:248` | 同上 | `<span className="muted tnum-sm">共 N 季` |
+| `views/VideoDetailView.tsx:320` | 同上 | `<span className="muted">当前集名` |
+| `views/VideoDetailView.tsx:373` | 同上 | `<button btn--quiet>上传字幕`（+ 隐藏 input） |
+| `views/ShopView.tsx:393` | **`chart-head`** | `.row-input`（输入 + 新增分类） |
 | `views/LiveView.tsx:76` | **`chart-head`** | `<button btn--ghost>新增源` |
 | `views/UploadView.tsx:271` | **`chart-head`** | `<span className="muted">` ；左侧是两行（label + value） |
 
@@ -88,7 +102,7 @@ export function CardHead({ title, note, action }: { title: ReactNode; note?: Rea
 | `views/WhisperView.tsx:66` | 手写 2 个 | 缺 `aria-label` |
 | `views/LiveView.tsx:160` | 手写「全部」+ map 动态库 | |
 | `views/SellerView.tsx:56` | 手写「全部」+ map 分类 | |
-| `views/ShopView.tsx:212` | 手写「全部分类」+ map | **没有 `role="tablist"` / `role="tab"`**，只有 `aria-selected` |
+| `views/ShopView.tsx:210` | 手写「全部分类」+ map | **没有 `role="tablist"` / `role="tab"`**，只有 `aria-selected` |
 
 **建议**：`components/Tabs.tsx`（约 22 行），`items: Array<{key,label}>`、`value`、`onChange`、`label`（aria-label）。动态 tab（分类/媒体库）由调用方先 map 成 items。
 
@@ -104,13 +118,13 @@ export function CardHead({ title, note, action }: { title: ReactNode; note?: Rea
 | `views/WatchlistsView.tsx:144` | `${items.length}-${items[0]?.id}-${total}` |
 | `views/SeekView.tsx:139` | `${items.length}-${items[0]?.id}-${data.total ?? items.length}` |
 | `views/OrdersView.tsx:114` | `${items.length}-${items[0]?.order_no}-${total}` |
-| `views/ShopView.tsx:291` | `${items.length}-${items[0]?.product_id}-${total}` |
+| `views/ShopView.tsx:289` | `${items.length}-${items[0]?.product_id}-${total}` |
 | `views/LiveView.tsx:189` | `${items.length}-${items[0]?.id}-${total}` |
 | `views/MusicView.tsx:109` | `${tab}-${items.length}-${song_id ?? album_id ?? person_id}` |
 | `views/RecycleView.tsx:139` | `${tab}-${rows.length}-${media_id ?? video_id}` |
 | `views/UserSearchView.tsx:62` | `rows.length` ← **不完整**：翻页时条数相同则不重新淡入 |
 | `views/FundView.tsx:44` | `${rows.length}-${page}` |
-| `views/ShopView.tsx:291` / `WatchlistDetailView.tsx:196,632` | 有 `<Pager>`，无 key |
+| `views/ShopView.tsx:289` / `WatchlistDetailView.tsx:196,632` | 有 `<Pager>`，无 key |
 
 九个公式里有一个是错的（`UserSearchView`）。这个 `key` 的存在目的只有一个：让 `.content-in` 的 160ms 淡入重新触发。
 
@@ -144,7 +158,7 @@ export function CardHead({ title, note, action }: { title: ReactNode; note?: Rea
 | 写法 | 位置 | 后果 |
 |---|---|---|
 | A. `footer={<>取消 + primary</>}` | 25 处（`Modal.tsx:127` 渲染为 `.modal__foot`） | 正确：吸底、有上边框 |
-| B. `footer={仅 取消}` | `UploadView.tsx:320,371`（选择型） | 正确 |
+| B. `footer={仅 取消}` | `UploadView.tsx:325,375`（选择型） | 正确 |
 | C. `footer={取消 + danger + primary}` | `OrdersView.tsx:274`（取消 / 删除订单 / 保存） | 三个按钮挤在 footer，删除混在编辑弹窗里 |
 | D. **不用 footer，在 body 里手搓 `<div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>`** | `FundView.tsx:284`、`FundView.tsx:315`、`OverviewView.tsx:410`、`ProductModals.tsx:94` | footer **跟着 body 滚动**、**没有上分隔线**、外层多一层 `.stack`（`.modal__body` 本身已是 `grid; gap:14px`） |
 | E. `footer` 里放非确认动作 | `ImagePicker.tsx:124`（上传图片 / 使用这张） | 语义上是工具条不是 footer，但与 D 的视觉位置相同，可以先不动 |
@@ -156,14 +170,14 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 
 ### 1.6 「搜索 → 选一条」候选列表 ——5 份，其中 4 份手写
 
-`components.css:1773-1787` 已经有 `.pick-list / .pick-row / .pick-row__num / .pick-row__title / .pick-tabs`，但只有**一处**在用（`VideoDetailView.tsx:621-707` 移动资源弹窗）。手写的四份：
+`components.css:1773-1787` 已经有 `.pick-list / .pick-row / .pick-row__num / .pick-row__title / .pick-tabs`，但只有**一处**在用（`VideoDetailView.tsx:613-707` 移动资源弹窗）。手写的四份：
 
 | 文件:行 | 容器 | 行结构 |
 |---|---|---|
 | `WatchlistDetailView.tsx:318-362` | `style={{display:'grid',gap:6,maxHeight:320,overflowY:'auto'}}` | `display:flex,gap:10,padding:'6px 0'` + `Poster` + 两行字 + 「加入」 |
 | `WatchlistDetailView.tsx:701-730` | 同上 | 同上（`Poster` + 歌名 + 艺人） |
-| `UploadView.tsx:320-369` | `gap:4`（**只有这里 gap 是 4**） | 同上，无 Poster |
-| `UploadView.tsx:371-412` | `gap:4` | 同上，无 Poster |
+| `UploadView.tsx:320-370` | `gap:4`（**只有这里 gap 是 4**） | 同上，无 Poster |
+| `UploadView.tsx:371-413` | `gap:4` | 同上，无 Poster |
 
 四份连空态文案都一样（`没有找到「{term}」`）。
 
@@ -214,9 +228,9 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 |---|---|---|
 | `components.css:1352-1357` | `.table--inset`（margin-top 10 + 首末列去 24px 内边距 + th-thumb 43px） | 正确解 |
 | `AccountView.tsx:254, 508`、`UserDetailView.tsx:207` | `className="table table--inset"` | ✅ |
-| `VideoDetailView.tsx:333, 404` | `className="table" style={{marginTop: 10}}` | ❌ 只抄了 margin，没抄 padding |
+| `VideoDetailView.tsx:334, 405` | `className="table" style={{marginTop: 10}}` | ❌ 只抄了 margin，没抄 padding |
 | `UploadView.tsx:289` | `style={{marginTop: 12}}` | ❌ |
-| `VideoDetailView.tsx:444` | `<article className="card card--tight" style={{marginTop: 18}}>` | ❌ 应走 `.cards + section` 或容器间距 |
+| `VideoDetailView.tsx:445` | `<article className="card card--tight" style={{marginTop: 18}}>` | ❌ 应走 `.cards + section` 或容器间距 |
 | `SongDetailView.tsx:190` | `className="table"`（无 margin） | ❌ |
 
 **实测**：`/media/1` 的资源表，表头文字左边缘 `x=767`，卡片标题「资源」`x=745` —— **差 22px**（卡片 padding 20 + 单元格 padding 24 − 1px 边框）。同一页「季与集」卡没有表格，所以只有下半页毛边。`AccountView` 的设备表因为用了 `.table--inset` 就没有这个问题。
@@ -229,7 +243,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 
 | 文件:行 | 结构 |
 |---|---|
-| `ShopView.tsx:423-467` | `<ul style={{display:'grid',gap:2,marginTop:12}}>` + `<li style={{display:'flex',alignItems:'center',gap:12,padding:'9px 2px',borderBottom:'1px solid var(--line-soft)'}}>` |
+| `ShopView.tsx:412-456` | `<ul style={{display:'grid',gap:2,marginTop:12}}>` + `<li style={{display:'flex',alignItems:'center',gap:12,padding:'9px 2px',borderBottom:'1px solid var(--line-soft)'}}>` |
 | `LiveView.tsx:92-128` | 同上，`padding:'10px 2px'` |
 
 两处的 `padding` 一个 9px 一个 10px，其余逐字相同；都没有表头，列靠 `spacer` + 固定宽度对齐。
@@ -243,7 +257,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | 位置 | 写法 |
 |---|---|
 | `LiveView.tsx:298` | `gridTemplateColumns: '1fr 1fr', gap: 12` |
-| `ShopView.tsx:548` | `gridTemplateColumns: '1fr 1fr', gap: 12` |
+| `ShopView.tsx:536` | `gridTemplateColumns: '1fr 1fr', gap: 12` |
 | `LiveView.tsx:343` | `gridTemplateColumns: '120px 1fr', gap: 12` |
 | `ProductModals.tsx:76` | `gridTemplateColumns: '120px 1fr', gap: 12, marginTop: 14` |
 
@@ -311,7 +325,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 .card--stat .stat__label .btn--quiet { height: 20px; padding: 0; border: 0; font-size: 12.5px; }
 ```
 
-然后把 `AccountView.tsx:232` 改成 `btn--quiet`（若确实想要可点感，则给它 `btn--ghost` 并让卡片头 `min-height: 32px`——但那会改动 15 个卡片的行高，不建议一次性做）。这样「卡片头动作 = 文字型」成为唯一写法，`.btn--ghost` 不再在此处静默降级。
+然后把 `AccountView.tsx:232` 改成 `btn--quiet`（若确实想要可点感，则给它 `btn--ghost` 并让卡片头 `min-height: 32px`——但那会改动 18 个卡片的行高，不建议一次性做）。这样「卡片头动作 = 文字型」成为唯一写法，`.btn--ghost` 不再在此处静默降级。
 
 ### 2.3 `.btn--danger-text` 的 `height: 20px` + `font-size: 12.5px`（`components.css:1286-1290`）
 
@@ -358,7 +372,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 
 **正解**：改成 `var(--raised)`。一行。
 
-### 2.7 工具栏间距的两个补丁互相抵消（`ShopView.tsx:169, 210`）
+### 2.7 工具栏间距的两个补丁互相抵消（`ShopView.tsx:168, 208`）
 
 ```tsx
 <section className="cards cards--4" style={{ marginBottom: 18 }}>   // 169
@@ -385,7 +399,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | /orders | **36** | 是 |
 | /shop | **36** | 是 |
 
-`.seg` 是 `3+28+3+2px 边框 = 36`，`.input`/`.btn` 是 32。于是带筛选的页面整行下移 2px、下方表格也跟着下移 4px。单看一页察觉不到，跨页切换能看到标题下方那块留白在跳。
+`.seg` 是 `3+28+3+2px 边框 = 36`，`.input`/`.btn` 是 32。于是带筛选的页面工具栏高 36、其余 32 —— 同一位置的表格整体低 4px，跨页切换时标题下方那块留白会跳一下。单看一页察觉不到。
 
 **正解**：`.seg { padding: 2px; }`（→34）或把内层 button 降到 26px（→32），让三种控件同高。**不要**给 `.toolbar` 定死高度（会把 seg 裁掉）。
 
@@ -398,10 +412,10 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | `RecycleView.tsx:111` | `width: 280` |
 | `UploadView.tsx:144,158` | `minWidth: 150`（×2） |
 | `SongDetailView.tsx:54` | `width: 108, minWidth: 0, height: 30` |
-| `ShopView.tsx:235`、`SellerView.tsx:79` | `minWidth: 170`（同一种搜索框，两处都写） |
+| `ShopView.tsx:233`、`SellerView.tsx:79` | `minWidth: 170`（同一种搜索框，两处都写） |
 | `UserSearchView.tsx:41` | `maxWidth: 280` |
 | `PayView.tsx:167` | `maxWidth: 100`（数字） |
-| `ShopView.tsx:407` | `maxWidth: 320`（row-input 容器） |
+| `ShopView.tsx:396` | `maxWidth: 320`（row-input 容器） |
 
 **掩盖**：`.input` 的 200px 基准是给「工具栏里的搜索框」定的，一旦放进 select / 数字框 / 弹窗表单就得逐个改。
 
@@ -417,9 +431,9 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | 值 | 位置 | 它想表达什么 | 正解 |
 |---|---|---|---|
 | `height: 116` | `WatchlistForm.tsx:98`（ImagePicker 封面槽） | 「片单封面槽」的比例 | 改 `aspectRatio: '2.4'`（或给 ImagePicker 加 `ratio` prop），高度由宽度推 |
-| `width:76, height:108` | `VideoDetailView.tsx:200`（`<Poster style>`） | 详情页头封面 | 用 `.poster-img.detail-head__poster`（72×96，另外两处详情页已用）——**同一元素现在 72×96 与 76×108 并存** |
+| `width:76, height:108` | `VideoDetailView.tsx:201`（`<Poster style>`） | 详情页头封面 | 用 `.poster-img.detail-head__poster`（72×96，另外两处详情页已用）——**同一元素现在 72×96 与 76×108 并存** |
 | `height:30` | `SongDetailView.tsx:54`（评分 select） | 比 32 矮一点 | 删，用默认 32 |
-| `width:72, height:26, padding:'0 6px', fontSize:12.5` | `WatchlistDetailView.tsx:248`、`ShopView.tsx:434` | 表格内的行内数字输入 | `.table .input` 里已有 `min-width:0`，把尺寸也写进去（`.table .input { width:72px; height:22px; font-size:13px }`），两处内联删掉 |
+| `width:72, height:26, padding:'0 6px', fontSize:12.5` | `WatchlistDetailView.tsx:248`、`ShopView.tsx:422` | 表格内的行内数字输入 | `.table .input` 里已有 `min-width:0`，把尺寸也写进去（`.table .input { width:72px; height:22px; font-size:13px }`），两处内联删掉 |
 | `fontSize: 20` | `UserDetailView.tsx:88,121`、`PlaceholderView.tsx:28`、`router.tsx:33` | 文字型统计值 / 标题 | 已由 `8f332d1` 抽 `.stat__word--sm`【已处理】；`PlaceholderView`/`router` 两处随该文件删除（见 3.3） |
 | `paddingLeft: 24 + (depth-1)*20` | `AccountView.tsx:521` | 邀请树的层级缩进 | **表格单元格的 24px 内边距漏进了 JS**。正解：`<td>` 里放 `<span style={{marginLeft: (depth-1)*20}}>` 或给行加 `data-depth` + CSS `padding-left: calc(24px + var(--indent))`。至少把 24 变成 `var(--cell-pad)` |
 | 柱状图 `width:18, height:h, borderRadius:3, background:'rgba(52,211,153,.85)'` + `h = 8..44` + `height:60` + `fontSize:10` | `OverviewView.tsx:302-318` | 7 根周柱 | 抽 `.bars / .bars > span / .bar / .bar__label`，颜色用 `var(--c-green)`（`rgba(52,211,153,.85)` 就是 `--c-green` 加了透明度，硬编码会导致改主题时这一处不变） |
@@ -466,8 +480,14 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | 商品封面兜底（`ProductTile.tsx:36-41`、`ProductModals.tsx:36-43,162-169`） | `<Poster>`（全站 11 处在用） | 见下 |
 | 层级缩进（`AccountView.tsx:521`） | — | 见 2.10 |
 
-**商品封面**值得单说：三处都写了 `onError → e.currentTarget.style.display='none' + parentElement.setAttribute('data-fallback', 首字)`，而 `[data-fallback]` **没有任何 CSS 消费**（全项目 grep 只有这三处写入）。结果是：图片挂掉后**既没有图也没有首字**，只剩一块空底色——`<Poster>` 早就是为这件事写的（`useState(failed)` + 退 `.thumb`）。三处换 `<Poster>` 即可，其中 `ProductTile` 需要方形槽，传 `style={{borderRadius:0}}` 或给 `Poster` 加 `variant`。
-（`refactor-audit-code.md` 的 M5 已从「代码」角度记过同一件事，这里是从「视觉结果」补一刀：它现在是看得见的空洞。）
+**商品封面**：三处（`ProductTile.tsx:36-41`、`ProductModals.tsx:36-43`、`:162-169`）都写了 `onError → e.currentTarget.style.display='none' + parentElement.setAttribute('data-fallback', 首字)`。
+**【已处理】** `8a2c189` 补了 `.product-tile__cover[data-fallback]::after { content: attr(data-fallback) }`，兜底首字现在真的会显示（三处容器类名相同，都被这一条覆盖）。
+
+剩下的仍是「同一件事写三遍」：`<Poster>` 早就是为这件事写的（`useState(failed)` + 退 `.thumb`，全站 11 处在用）。三种方案按克制程度排序：
+1. **保持现状**（写属性 + 一条 `::after`）——已能工作，只是三份复制 + 一个隐式契约（谁设的 `data-fallback`，谁会 `::after`）；
+2. 三处换 `<Poster>`，并补 `.product-tile__cover .thumb { width:100%; height:100%; border:0; background:transparent; font-size:30px }` 让方形槽里的首字块撑满；
+3. 只把「取首字 + 挂属性」抽成一个 6 行的 `useCoverFallback()`。
+三者选一即可，**不建议**同时保留 `::after` 和 `<Poster>` 两套兜底。
 
 ### 3.2 参数膨胀 / 该拆
 
@@ -477,7 +497,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | `Pager` | 6 props + 5 处内联尺寸 + 页码跳转 | **可接受**，是这 13 个列表页里唯一已经抽干净的组件。不必再动 |
 | `ProductGrid` | 7 props（`products/hasMore/loadingMore/loadError/onLoadMore/onOpen/onBuy`） | 可接受，但 `onOpen/onBuy` 是同一份数据流；若 1.13 的 `StatCard` 落了，可顺手把这两个合成 `onAction` |
 | `ProductDetailModal` / `BuyModal` | 两个弹窗各自维护 `buyNumber/remark/createOrder/disabled`，重复约 50 行（`refactor-audit-code.md` S15 已记） | 从 UI 角度：两者的差别只有「要不要展示封面/库存/店铺」。建议 `BuyModal` 保留为轻量卡片入口，`ProductDetailModal` 内联一个 `<OrderForm>`（数量 + 备注 + 提交）给两者共用 |
-| `ShopView`（639 行） | 2 个视图（卡片网格 / 管理表格）+ 3 个弹窗（分类/店铺/商品） | **该拆**：`ShopProductsPanel`、`ShopCategoryModal`、`ShopSellerModal`。`{true ? (…) : null}` 还在（`ShopView.tsx:208`，`refactor-audit-code.md` M1） |
+| `ShopView`（639 行） | 2 个视图（卡片网格 / 管理表格）+ 3 个弹窗（分类/店铺/商品） | **该拆**：`ShopProductsPanel`、`ShopCategoryModal`、`ShopSellerModal`。（`{true ? (…) : null}` 那层壳已由 `8a2c189` 删除） |
 | `WatchlistDetailView`（733 行） | 2 个页面 + 4 个弹窗 | **该拆**，见 1.7 |
 | `FundView`（336 行） | 3 个 tab 塞在一个文件，其中「支付服务」是 `PayView embedded` | 可接受（组合而非复制），但两个弹窗手搓 footer（1.5） |
 | `ImagePicker` | `width/height` 数字 prop，调用点传 `height={116}` | 把 `height` 换成 `ratio`（默认方图），片单封面传 `ratio={2.4}` |
@@ -573,7 +593,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | # | 事项 | 处数 | 预计净变化 | 一致性收益 |
 |---|---|---|---|---|
 | H1 | 修 `.badge,` 悬空逗号（2.5） | 1 行 CSS | −1 | 全站状态色恢复原亮度 |
-| H2 | 卡片头抽 `<CardHead>` + 合并 `.chart-head`（1.1） | 18 | −35 行 | 15 个卡片的头彻底一致 |
+| H2 | 卡片头抽 `<CardHead>` + 合并 `.chart-head`（1.1） | 18 | −35 行 | 18 个卡片的头彻底一致 |
 | H3 | 表格内按钮尺寸统一，`.btn--danger-text` 只留颜色（2.3） | 6 页 | ±0 | 操作列基线不再毛边 |
 | H4 | 片单详情两份合并（1.7） | 2 | −90~110 行 | 音乐片单拿回 5 个动作、修掉空艺人格、分页器一致 |
 | H5 | `.table--inset` 迁 5 处（1.8） | 5 | −5 行 | 卡片内表格左边缘对齐标题 |
@@ -595,7 +615,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | M8 | MusicView / LinesView 补清空出口（1.4） | 2 行 |
 | M9 | 直播展开区去三层表面（4.10） | 3–5 行 CSS |
 | M10 | 删 `PlaceholderView.tsx` + placeholder 管道（3.3） | −42 行，含一份重复的 LoginView |
-| M11 | 商品封面 3 处换 `<Poster>`（3.1） | 修「图挂了只剩空洞」 |
+| M11 | 商品封面兜底三份合一（3.1） | 视觉缺口已由 `8a2c189` 修掉；剩下是三份复制 + `::after` 与 `<Poster>` 两套兜底并存 |
 | M12 | `.input` 宽度收敛（2.9） | 8 处覆盖 → 2 个上下文 + 2 个尺寸类 |
 
 ### 5.3 不值得动（明确说明理由，避免下一轮被当成 TODO）

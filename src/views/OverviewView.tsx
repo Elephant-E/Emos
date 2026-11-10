@@ -136,7 +136,7 @@ export function OverviewView() {
       ) : null}
 
       {session.error ? (
-        <ErrorBlock error={session.error as Error & { status?: number }} onRetry={() => session.refetch()} />
+        <ErrorBlock error={session.error} onRetry={() => session.refetch()} />
       ) : null}
 
       <section className="cards cards--4" style={{ marginTop: 16 }}>
@@ -227,7 +227,7 @@ export function OverviewView() {
           {watching.isLoading ? <div className="skeleton" style={{ height: 96 }} /> : null}
 
           {watching.error ? (
-            <ErrorBlock bare error={watching.error as Error & { status?: number }} onRetry={() => watching.refetch()} />
+            <ErrorBlock bare error={watching.error} onRetry={() => watching.refetch()} />
           ) : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
@@ -281,7 +281,7 @@ export function OverviewView() {
           <div className="card-body">
 
           {stats.error ? (
-            <ErrorBlock bare error={stats.error as Error & { status?: number }} onRetry={() => stats.refetch()} />
+            <ErrorBlock bare error={stats.error} onRetry={() => stats.refetch()} />
           ) : null}
 
           {!stats.data && !stats.error ? (
