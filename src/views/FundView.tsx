@@ -25,7 +25,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
       <section className="cards cards--wide">
         <article className="card" style={{ maxWidth: 380 }}>
           <div className="card-head">
-            <p className="stat__label" style={{ margin: 0 }}>胡萝卜余额</p>
+            <p className="stat__label">胡萝卜余额</p>
             <button className="btn btn--quiet" disabled={!carrot.data || carrot.data.carrot < 2} onClick={() => setTransferring(true)}>
               转赠
             </button>

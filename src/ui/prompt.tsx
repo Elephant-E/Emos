@@ -18,12 +18,6 @@ interface Pending extends PromptOptions {
 }
 
 let open: ((options: PromptOptions) => Promise<string | null>) | null = null
-let openCount = 0
-
-/** 和 confirmDialog 一样叠在弹层之上，Esc 只关它自己 */
-export function isPromptOpen(): boolean {
-  return openCount > 0
-}
 
 /** 需要输入内容的确认框，例如「删除理由」 */
 export function promptDialog(options: PromptOptions): Promise<string | null> {
@@ -43,7 +37,6 @@ export function PromptHost() {
   useEffect(() => {
     open = (options) =>
       new Promise<string | null>((resolve) => {
-        openCount += 1
         const next: Pending = { ...options, resolve }
         current.current = next
         setValue(options.defaultValue ?? '')
@@ -56,7 +49,6 @@ export function PromptHost() {
 
   const settle = (result: string | null) => {
     if (!current.current) return
-    openCount = Math.max(0, openCount - 1)
     current.current.resolve(result)
     current.current = null
     setPending(null)

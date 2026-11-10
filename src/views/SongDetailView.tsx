@@ -127,7 +127,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 18 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
                   <span style={{ color: 'var(--fg-2)' }}>{String(row.type ?? 'text').toUpperCase()}</span>
-                  <span className="muted" style={{ fontSize: 11.5 }}>
+                  <span className="meta-sm">
                     {String(row.language ?? '—')} · {String(row.name ?? '—')} · {formatDateTime(String(row.created_at ?? ''))}
                   </span>
                 </div>
@@ -157,7 +157,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             <div className="card-head">
-              <p className="stat__label" style={{ margin: 0 }}>资源</p>
+              <p className="stat__label">资源</p>
               <button className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
               </button>

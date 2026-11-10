@@ -172,7 +172,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           <section className="cards cards--wide">
             <article className="card">
               <div className="card-head">
-                <p className="stat__label" style={{ margin: 0 }}>客户端登录</p>
+                <p className="stat__label">客户端登录</p>
                 <span className="muted tnum-sm">在播放器里填这些地址</span>
               </div>
               <dl className="kv" style={{ marginTop: 'var(--stack)' }}>
@@ -500,7 +500,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <section className="cards cards--wide" style={{ marginTop: 18 }}>
               <article className="card">
                 <div className="card-head">
-                  <p className="stat__label" style={{ margin: 0 }}>我的邀请</p>
+                  <p className="stat__label">我的邀请</p>
                   <span className="muted tnum-sm">
                     直接 {myTree.filter((n) => n.depth === 1).length} · 合计 {formatThousand(myTree.length)} 人
                   </span>

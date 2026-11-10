@@ -333,7 +333,7 @@ export function WatchlistDetailView({
                 {c.video_image_poster ? <Poster src={c.video_image_poster} name={String(c.video_title ?? "?")} /> : null}
                 <span style={{ display: 'grid' }}>
                   <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
-                  <span className="muted" style={{ fontSize: 11.5 }}>
+                  <span className="meta-sm">
                     {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
                     {c.genres?.length ? ` · ${c.genres.slice(0, 2).map((g) => g.name).join('/')}` : ''}
                   </span>
@@ -710,7 +710,7 @@ function WatchMusicList({
                 <Poster src={sg.image_poster_url} name={String(sg.name ?? '?')} />
                 <span style={{ display: 'grid', minWidth: 0 }}>
                   <span className="ellipsis" style={{ fontSize: 13.5 }}>{sg.name}</span>
-                  <span className="muted" style={{ fontSize: 11.5 }}>{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>
+                  <span className="meta-sm">{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>
                 </span>
                 <button
                   className="btn btn--ghost"

@@ -1180,6 +1180,8 @@
 
 .card--stat > .stat__label { line-height: 1.3; }
 
+.stat__word--sm { font-size: 20px; }
+
 .stat__word {
   font-size: 24px;
   font-weight: 500;
@@ -1201,6 +1203,8 @@
   min-height: 20px;
 }
 
+
+.card-head .stat__label { margin: 0; }
 
 .card-head {
   display: flex;
@@ -1318,7 +1322,6 @@
 .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .stack { display: grid; gap: var(--stack); }
-.stack--tight { display: grid; gap: 8px; }
 .stack--loose { display: grid; gap: 10px; }
 .stack--top { margin-top: var(--stack); }
 
@@ -1764,8 +1767,6 @@
 }
 .person-card__photo.is-empty img { display: none; }
 .person-card__photo.is-empty .person-card__initial { display: block; }
-.person-card__poster { width: 84px; height: 112px; border-radius: 8px; object-fit: cover; }
-.person-card__poster--empty { background: var(--raised); }
 .person-card__name { font-size: 12.5px; color: var(--fg-2); }
 .person-card__role { font-size: 11px; color: var(--fg-4); }
 
@@ -1901,3 +1902,6 @@
   cursor: pointer;
 }
 .tag-field__remove:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }
+
+/* 次要的小字：灰色、11.5px。这个组合在各页面重复了十几次 */
+.meta-sm { font-size: 11.5px; color: var(--fg-4); }

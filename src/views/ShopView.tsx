@@ -402,7 +402,7 @@ export function ShopView({
         >
           <>
             <div className="chart-head">
-              <p className="stat__label" style={{ margin: 0 }}>分类</p>
+              <p className="stat__label">分类</p>
               {isSeller ? (
                 <div className="row-input" style={{ maxWidth: 320 }}>
                   <input className="input" placeholder="新分类名称" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} maxLength={20} />
@@ -424,7 +424,6 @@ export function ShopView({
                 {categories.data.map((category) => (
                   <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
-                    <span className="muted" style={{ fontSize: 11.5 }}>#{category.category_id}</span>
                     <span className="spacer" />
                     {isSeller ? (
                       <input
@@ -443,7 +442,7 @@ export function ShopView({
                         }}
                       />
                     ) : (
-                      <span className="muted" style={{ fontSize: 11.5 }}>排序 {category.sort}</span>
+                      <span className="meta-sm">排序 {category.sort}</span>
                     )}
                     {isSeller ? (
                       <button

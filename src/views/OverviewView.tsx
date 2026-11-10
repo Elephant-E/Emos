@@ -351,7 +351,7 @@ export function OverviewView() {
         <section className="cards cards--wide">
           <article className="card">
             <div className="card-head">
-              <p className="stat__label" style={{ margin: 0 }}>我的片单</p>
+              <p className="stat__label">我的片单</p>
               <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video', q: '' }}>
                 全部
               </Link>

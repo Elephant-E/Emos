@@ -74,7 +74,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     <div className="sources">
 <article className="card">
             <div className="chart-head">
-              <p className="stat__label" style={{ margin: 0 }}>
+              <p className="stat__label">
                 直播源
                 <span className="muted tnum-sm" style={{ marginLeft: 8, letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
               </p>
@@ -93,11 +93,11 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 {media.data.items.map((row) => (
                   <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
-                    <span className="muted" style={{ fontSize: 11.5 }}>{row.path_type.toUpperCase()}</span>
-                    <span className="muted ellipsis" style={{ fontSize: 11.5, flex: 1, minWidth: 0 }}>
+                    <span className="meta-sm">{row.path_type.toUpperCase()}</span>
+                    <span className="meta-sm ellipsis" style={{ flex: 1, minWidth: 0 }}>
                       {row.path_url}
                     </span>
-                    <span className="muted" style={{ fontSize: 11.5 }}>
+                    <span className="meta-sm">
                       {row.pseudonym ?? '—'}
                     </span>
                     <span className={`badge ${row.status === 'normal' ? 'badge--ok' : 'badge--warn'}`}>
@@ -223,7 +223,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         <span>
                           <span className="cell-title__name">
                             {item.title}
-                            {selected ? <span className="muted" style={{ fontSize: 11.5 }}> · 展开中</span> : null}
+                            {selected ? <span className="meta-sm"> · 展开中</span> : null}
                           </span>
                           {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
                         </span>

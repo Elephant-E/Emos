@@ -337,7 +337,6 @@ export function UploadView() {
             {(candidates.data?.items ?? []).map((video: VideoItem) => (
               <div key={video.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
                 <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>{video.video_title}</span>
-                <span className="muted" style={{ fontSize: 11.5 }}>#{video.video_id}</span>
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
@@ -388,9 +387,6 @@ export function UploadView() {
             {(candidates.data?.items ?? []).map((video: VideoItem) => (
               <div key={video.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
                 <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>{video.video_title}</span>
-                <span className="muted" style={{ fontSize: 11.5 }}>
-                  #{video.video_id}
-                </span>
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}

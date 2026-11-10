@@ -299,7 +299,7 @@ export function VideoDetailView({
                   <span className="ep-current__title">
                     {currentEpisode.episode_title || `第 ${currentEpisode.episode_number} 集`}
                   </span>
-                  <span className="muted" style={{ fontSize: 11.5 }}>
+                  <span className="meta-sm">
                     {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
                     {currentEpisode.runtime ? `${currentEpisode.runtime} 分钟` : '—'} ·{' '}
                     {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕

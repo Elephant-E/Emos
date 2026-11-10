@@ -85,7 +85,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">账号状态</p>
               <p className="stat__value" style={{ color: banned ? 'var(--c-red)' : undefined }}>
-                <span className="stat__word" style={{ fontSize: 20 }}>
+                <span className="stat__word stat__word--sm">
                   {banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
                 </span>
               </p>
@@ -118,7 +118,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">邀请关系</p>
               <p className="stat__value">
-                <span className="stat__word" style={{ fontSize: 20 }}>{invited ? '由我邀请' : '—'}</span>
+                <span className="stat__word stat__word--sm">{invited ? '由我邀请' : '—'}</span>
               </p>
               <p className="stat__delta stat__delta--quiet">
                 {invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
@@ -129,7 +129,7 @@ export function UserDetailView({ userId }: { userId: string }) {
           <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
             <article className="card">
               <div className="card-head">
-                <p className="stat__label" style={{ margin: 0 }}>资料</p>
+                <p className="stat__label">资料</p>
               </div>
               <div className="card-body">
                 <dl className="kv">
@@ -165,7 +165,7 @@ export function UserDetailView({ userId }: { userId: string }) {
 
             <article className="card">
               <div className="card-head">
-                <p className="stat__label" style={{ margin: 0 }}>最近活跃</p>
+                <p className="stat__label">最近活跃</p>
                 <Link className="btn btn--quiet" to="/account" search={{ tab: 'invite' }}>
                   邀请记录
                 </Link>
@@ -196,7 +196,7 @@ export function UserDetailView({ userId }: { userId: string }) {
           <section className="cards cards--wide">
             <article className="card">
               <div className="card-head">
-                <p className="stat__label" style={{ margin: 0 }}>最近播放</p>
+                <p className="stat__label">最近播放</p>
                 <span className="muted tnum-sm">近一周</span>
               </div>
               {records.isLoading ? <LoadingBlock bare rows={3} columns={4} /> : null}
