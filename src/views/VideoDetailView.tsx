@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -82,9 +82,9 @@ export function VideoDetailView({
   const [renaming, setRenaming] = useState<{ mediaId: string; name: string } | null>(null)
   const [renamingSub, setRenamingSub] = useState<{ id: string; title: string } | null>(null)
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
-  const [subUploading, setSubUploading] = useState(false)
   const [subProgress, setSubProgress] = useState(0)
   const [subBusy, setSubBusy] = useState(false)
+  const subInputRef = useRef<HTMLInputElement>(null)
   const [moveSeason, setMoveSeason] = useState<number>(season)
   // 移动目标不限于当前影片：先搜到目标影片，再选季/集（电影直接落到影片级）
   const [moveVideo, setMoveVideo] = useState<{ id: number; title: string; type: 'movie' | 'tv' } | null>(null)
@@ -364,9 +364,33 @@ export function VideoDetailView({
           <article className="card card--tight">
             <div className="card-head">
               <p className="stat__label">字幕</p>
-              <button className="btn btn--quiet" onClick={() => setSubUploading(true)}>
-                上传字幕
+              <button className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
+                {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '上传字幕'}
               </button>
+              <input
+                ref={subInputRef}
+                type="file"
+                accept=".srt,.ass,.ssa,.vtt,text/plain"
+                hidden
+                disabled={subBusy}
+                onChange={async (event) => {
+                  const file = event.target.files?.[0]
+                  event.target.value = ''
+                  if (!file || !currentEpisode) return
+                  setSubBusy(true)
+                  setSubProgress(0)
+                  try {
+                    await uploadSubtitle(file, { item_type: 've', item_id: currentEpisode.episode_id }, setSubProgress)
+                    toast('字幕已上传', 'success')
+                    void subtitles.refetch()
+                  } catch (error) {
+                    toast(error instanceof Error ? error.message : '上传失败', 'error')
+                  } finally {
+                    setSubBusy(false)
+                    setSubProgress(0)
+                  }
+                }}
+              />
             </div>
             {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
@@ -527,43 +551,6 @@ export function VideoDetailView({
             >
               删除
             </button>
-          </div>
-        </Modal>
-      ) : null}
-
-      {subUploading ? (
-        <Modal title="上传字幕" width={460} onClose={() => setSubUploading(false)}>
-          <div className="stack">
-            <label className="btn btn--ghost" style={{ justifySelf: 'start', cursor: subBusy ? 'default' : 'pointer' }}>
-              {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '选择字幕文件（srt / ass / vtt）'}
-              <input
-                type="file"
-                hidden
-                accept=".srt,.ass,.ssa,.vtt,text/plain"
-                disabled={subBusy}
-                onChange={async (event) => {
-                  const file = event.target.files?.[0]
-                  if (!file || !currentEpisode) return
-                  setSubBusy(true)
-                  setSubProgress(0)
-                  try {
-                    await uploadSubtitle(file, { item_type: 've', item_id: currentEpisode.episode_id }, setSubProgress)
-                    toast('字幕已上传', 'success')
-                    setSubUploading(false)
-                    void subtitles.refetch()
-                  } catch (error) {
-                    toast(error instanceof Error ? error.message : '上传失败', 'error')
-                  } finally {
-                    setSubBusy(false)
-                  }
-                }}
-              />
-            </label>
-            {subBusy ? (
-              <span className="progress-line">
-                <i style={{ transform: `scaleX(${subProgress.toFixed(3)})` }} />
-              </span>
-            ) : null}
           </div>
         </Modal>
       ) : null}
