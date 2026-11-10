@@ -405,21 +405,22 @@ export function VideoDetailView({
           <div className="person-grid">
             {persons.data.items.slice(0, 8).map((person) => (
               <div key={person.id} className="person-card">
-                {person.image_profile ? (
-                  <img
-                    src={`https://image.theotherdb.org/original/${person.image_profile}`}
-                    alt=""
-                    loading="lazy"
-                    className="person-card__poster"
-                    onError={(e) => {
-                      // 拼出来的地址，缺图时退成首字，别留裂图
-                      e.currentTarget.style.display = 'none'
-                      e.currentTarget.parentElement?.setAttribute('data-fallback', person.name.slice(0, 1))
-                    }}
-                  />
-                ) : (
-                  <div className="person-card__poster person-card__poster--empty" />
-                )}
+                <span className={`person-card__photo${person.image_profile ? '' : ' is-empty'}`}>
+                  {person.image_profile ? (
+                    <img
+                      src={`https://image.theotherdb.org/original/${person.image_profile}`}
+                      alt=""
+                      loading="lazy"
+                      onError={(e) => {
+                        // 地址是拼出来的，缺图时把槽切到「首字」状态，而不是隐藏 img 后留个洞
+                        e.currentTarget.parentElement?.classList.add('is-empty')
+                      }}
+                    />
+                  ) : null}
+                  <span className="person-card__initial" aria-hidden>
+                    {person.name.slice(0, 1)}
+                  </span>
+                </span>
                 <span className="person-card__name">{person.name}</span>
                 <span className="person-card__role">
                   {JOB_LABEL[person.job ?? ''] ?? person.job ?? (person.title ? `饰 ${person.title}` : '')}
