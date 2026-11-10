@@ -624,8 +624,7 @@
   .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab { flex: none; white-space: nowrap; }
-  .chart-head { flex-direction: column; gap: 10px; }
-  .legend { padding-top: 0; }
+    .legend { padding-top: 0; }
 }
 
 .modal-overlay {
@@ -1300,13 +1299,6 @@
   background: var(--surface-2);
 }
 
-.chart-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 24px;
-}
 
 /* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
 .cards--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }

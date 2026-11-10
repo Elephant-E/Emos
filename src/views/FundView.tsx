@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -24,12 +25,11 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
     <>
       <section className="cards cards--wide">
         <article className="card" style={{ maxWidth: 380 }}>
-          <div className="card-head">
-            <p className="stat__label">胡萝卜余额</p>
+          <CardHead title="胡萝卜余额">
             <button className="btn btn--quiet" disabled={!carrot.data || carrot.data.carrot < 2} onClick={() => setTransferring(true)}>
               转赠
             </button>
-          </div>
+          </CardHead>
           <p className="stat__value" style={{ marginTop: 8 }}>
             {carrot.data ? formatThousand(carrot.data.carrot) : '—'}
             <small>个</small>

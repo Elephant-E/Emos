@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -96,8 +97,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           </p>
         </article>
         <article className="card">
-          <div className="card-head">
-            <p className="stat__label">回调地址</p>
+          <CardHead title="回调地址">
             <button
               className="btn btn--quiet"
               onClick={() =>
@@ -110,7 +110,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             >
               编辑
             </button>
-          </div>
+          </CardHead>
           <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--fg-2)', wordBreak: 'break-all' }}>
             {base.data?.notify_url || '未配置'}
           </p>

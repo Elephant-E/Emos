@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
@@ -103,14 +104,13 @@ export function SongDetailView({ songId }: { songId: number }) {
       {tab === 'lyrics' ? (
         <section className="cards cards--wide">
           <article className="card">
-            <div className="card-head">
-              <p className="stat__label">歌词</p>
+            <CardHead title="歌词">
               {(lyrics.data ?? []).length > 0 ? (
                 <button className="btn btn--quiet" onClick={() => setAdding(true)}>
                   添加歌词
                 </button>
               ) : null}
-            </div>
+            </CardHead>
             {lyrics.error ? <ErrorBlock bare error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
             {lyrics.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
             {lyrics.data && lyrics.data.length === 0 ? (
@@ -157,8 +157,7 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            <div className="card-head">
-              <p className="stat__label">资源</p>
+            <CardHead title="资源">
               <button className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
               </button>
@@ -185,7 +184,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                   }
                 }}
               />
-            </div>
+            </CardHead>
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <table className="table table--inset">

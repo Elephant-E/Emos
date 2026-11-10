@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
@@ -128,9 +129,8 @@ export function UserDetailView({ userId }: { userId: string }) {
 
           <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
             <article className="card">
-              <div className="card-head">
-                <p className="stat__label">资料</p>
-              </div>
+              <CardHead title="资料">
+              </CardHead>
               <div className="card-body">
                 <dl className="kv">
                   <div>
@@ -164,12 +164,11 @@ export function UserDetailView({ userId }: { userId: string }) {
             </article>
 
             <article className="card">
-              <div className="card-head">
-                <p className="stat__label">最近活跃</p>
+              <CardHead title="最近活跃">
                 <Link className="btn btn--quiet" to="/account" search={{ tab: 'invite' }}>
                   邀请记录
                 </Link>
-              </div>
+              </CardHead>
               <div className="card-body">
                 <dl className="kv">
                   <div>
@@ -195,10 +194,9 @@ export function UserDetailView({ userId }: { userId: string }) {
 
           <section className="cards cards--wide">
             <article className="card">
-              <div className="card-head">
-                <p className="stat__label">最近播放</p>
+              <CardHead title="最近播放">
                 <span className="muted tnum-sm">近一周</span>
-              </div>
+              </CardHead>
               {records.isLoading ? <LoadingBlock bare rows={3} columns={4} /> : null}
               {records.data && (records.data.items ?? []).length === 0 ? (
                 <EmptyBlock bare title="近一周没有播放记录" />

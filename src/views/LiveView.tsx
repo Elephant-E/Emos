@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -73,17 +74,20 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     return (
     <div className="sources">
 <article className="card">
-            <div className="chart-head">
-              <p className="stat__label">
-                直播源
-                <span className="muted tnum-sm" style={{ marginLeft: 8, letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
-              </p>
+            <CardHead
+              title={
+                <>
+                  直播源
+                  <span className="muted tnum-sm" style={{ marginLeft: 8, letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
+                </>
+              }
+            >
               {channel.is_can_edit ? (
-                <button className="btn btn--ghost" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
+                <button className="btn btn--quiet" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
                   新增源
                 </button>
               ) : null}
-            </div>
+            </CardHead>
 
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}

@@ -269,7 +269,7 @@ export function UploadView() {
 
       <section className="cards cards--wide" style={{ marginTop: 22 }}>
         <article className="card">
-          <div className="chart-head">
+          <div className="card-head">
             <div>
               <p className="stat__label">暂存区</p>
               <p className="stat__value">

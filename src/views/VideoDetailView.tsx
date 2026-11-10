@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -245,12 +246,11 @@ export function VideoDetailView({
       {video ? (
       <div className="detail-body">
         <article className="card card--tight">
-          <div className="card-head">
-            <p className="stat__label">季与集</p>
+          <CardHead title="季与集">
             <span className="muted tnum-sm">
               共 {seasons.data?.length ?? 0} 季 · 本季 {seasonEpisodes.length} 集
             </span>
-          </div>
+          </CardHead>
 
           {seasons.isLoading ? <div className="skeleton" style={{ height: 34, marginTop: 12 }} /> : null}
           {seasons.data && seasons.data.length > 0 ? (
@@ -317,14 +317,11 @@ export function VideoDetailView({
 
         <div className="detail-col">
           <article className="card card--tight">
-            <div className="card-head">
-              <p className="stat__label">
-                资源
-              </p>
+            <CardHead title="资源">
               <span className="muted" style={{ fontSize: 12 }}>
                 {currentEpisode?.episode_title ?? ''}
               </span>
-            </div>
+            </CardHead>
 
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
@@ -370,8 +367,7 @@ export function VideoDetailView({
           </article>
 
           <article className="card card--tight">
-            <div className="card-head">
-              <p className="stat__label">字幕</p>
+            <CardHead title="字幕">
               <button className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
                 {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '上传字幕'}
               </button>
@@ -399,7 +395,7 @@ export function VideoDetailView({
                   }
                 }}
               />
-            </div>
+            </CardHead>
             {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
               <table className="table table--inset" style={{ marginTop: 10 }}>

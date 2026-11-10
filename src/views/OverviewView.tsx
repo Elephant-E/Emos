@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
@@ -216,12 +217,11 @@ export function OverviewView() {
 
       <section className="cards cards--2">
         <article className="card">
-          <div className="card-head">
-            <p className="stat__label">继续观看</p>
+          <CardHead title="继续观看">
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               去媒体库
             </Link>
-          </div>
+          </CardHead>
 
           <div className="card-body">
           {watching.isLoading ? <div className="skeleton" style={{ height: 96 }} /> : null}
@@ -274,9 +274,8 @@ export function OverviewView() {
         </article>
 
         <article className="card">
-          <div className="card-head">
-            <p className="stat__label">我的近况</p>
-          </div>
+          <CardHead title="我的近况">
+          </CardHead>
 
           <div className="card-body">
 
@@ -350,12 +349,11 @@ export function OverviewView() {
       {showWatchlists ? (
         <section className="cards cards--wide">
           <article className="card">
-            <div className="card-head">
-              <p className="stat__label">我的片单</p>
+            <CardHead title="我的片单">
               <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video', q: '' }}>
                 全部
               </Link>
-            </div>
+            </CardHead>
 
             {myWatchlists.isLoading ? <div className="skeleton" style={{ height: 64, marginTop: 12 }} /> : null}
             {!myWatchlists.isLoading && (myWatchlists.data?.items.length ?? 0) === 0 ? (

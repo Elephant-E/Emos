@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -171,10 +172,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
           <section className="cards cards--wide">
             <article className="card">
-              <div className="card-head">
-                <p className="stat__label">客户端登录</p>
+              <CardHead title="客户端登录">
                 <span className="muted tnum-sm">在播放器里填这些地址</span>
-              </div>
+              </CardHead>
               <dl className="kv" style={{ marginTop: 'var(--stack)' }}>
                 {[
                   ['视频服', user.server_video],
@@ -225,11 +225,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
           <section className="cards cards--wide">
             <article className="card">
-              <div className="card-head">
-                <p className="stat__label">已登录设备</p>
+              <CardHead title="已登录设备">
                 {devices.data && devices.data.length > 0 ? (
                   <button
-                    className="btn btn--ghost"
+                    className="btn btn--quiet"
                     disabled={actions.logoutDevice.isPending}
                     onClick={async () => {
                       const ok = await confirmDialog({
@@ -245,7 +244,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     全部下线
                   </button>
                 ) : null}
-              </div>
+              </CardHead>
               {devices.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
               {devices.data && devices.data.length === 0 ? (
                 <EmptyBlock bare title="没有登录中的设备" />
@@ -499,12 +498,11 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           {myTree.length > 0 ? (
             <section className="cards cards--wide" style={{ marginTop: 18 }}>
               <article className="card">
-                <div className="card-head">
-                  <p className="stat__label">我的邀请</p>
+                <CardHead title="我的邀请">
                   <span className="muted tnum-sm">
                     直接 {myTree.filter((n) => n.depth === 1).length} · 合计 {formatThousand(myTree.length)} 人
                   </span>
-                </div>
+                </CardHead>
                 <table className="table table--inset">
                   <thead>
                     <tr>

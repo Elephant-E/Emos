@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -390,8 +391,7 @@ export function ShopView({
           }}
         >
           <>
-            <div className="chart-head">
-              <p className="stat__label">分类</p>
+            <CardHead title="分类">
               {isSeller ? (
                 <div className="row-input" style={{ maxWidth: 320 }}>
                   <input className="input" placeholder="新分类名称" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} maxLength={20} />
@@ -404,7 +404,7 @@ export function ShopView({
                   </button>
                 </div>
               ) : null}
-            </div>
+            </CardHead>
 
             {categories.isLoading ? <LoadingBlock bare rows={3} columns={2} /> : null}
             {categories.data && categories.data.length === 0 ? <EmptyBlock bare title="还没有分类" /> : null}
