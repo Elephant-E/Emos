@@ -121,16 +121,26 @@ export function ShopView({
         title={mine ? (seller.data?.name ?? '商城') : '商城'}
         hint={mine && seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
         tools={
-          isSeller && mine ? (
-            <>
-              <button className="btn btn--ghost" onClick={() => setPanel('categories')}>
-                分类
+          <>
+            <div className="seg" role="group" aria-label="范围">
+              <button aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
+                全部商品
               </button>
-              <button className="btn btn--ghost" onClick={() => setPanel('seller')}>
-                店铺
+              <button aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
+                我的店铺
               </button>
-            </>
-          ) : null
+            </div>
+            {isSeller && mine ? (
+              <>
+                <button className="btn btn--ghost" onClick={() => setPanel('categories')}>
+                  分类
+                </button>
+                <button className="btn btn--ghost" onClick={() => setPanel('seller')}>
+                  店铺
+                </button>
+              </>
+            ) : null}
+          </>
         }
       />
 
@@ -179,14 +189,6 @@ export function ShopView({
       {true ? (
         <>
           <div className="toolbar" style={{ marginTop: 0 }}>
-            <div className="tabs" role="tablist" aria-label="范围">
-              <button className="tab" role="tab" aria-selected={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
-                全部商品
-              </button>
-              <button className="tab" role="tab" aria-selected={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
-                我的店铺
-              </button>
-            </div>
             {mine ? (
               <div className="tabs">
                 <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
