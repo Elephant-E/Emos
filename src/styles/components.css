@@ -1311,7 +1311,7 @@
 .card--stat > .stat__delta { margin-top: 0; }
 
 /* 固定 3 列：待办 1–2 条时卡片不会被拉伸到整行，3 条时正好铺满 */
-.cards--todos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cards--todos { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .cards--todos .stat__value { font-size: 30px; }
 /* 一屏只留一个主数字，其余降一档，避免 6 个 42px 抢焦点 */
 .card--secondary .stat__value { font-size: 30px; }
