@@ -7,6 +7,7 @@ import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { WatchlistForm } from '@/components/WatchlistForm'
+import type { WatchItem } from '@/api/types'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -57,7 +58,15 @@ export function WatchlistDetailView({
   const item = watch.data?.items[0]
 
   if (item?.type === 'music') {
-    return <WatchMusicList watchId={id} title={item.name} canEdit={item.is_edit_video} search={search} onSearch={onSearch} />
+    return (
+      <WatchMusicList
+        watchId={id}
+        item={item}
+        canEdit={item.is_edit_video}
+        search={search}
+        onSearch={onSearch}
+      />
+    )
   }
 
 
@@ -110,7 +119,11 @@ export function WatchlistDetailView({
       {item ? (
         <section className="detail-head">
           <div className="detail-head__row">
-            <Poster src={item.image_poster_url} name={String(item.name ?? "?")} />
+            <Poster
+              src={item.image_poster_url}
+              name={String(item.name ?? '?')}
+              className="poster-img detail-head__poster"
+            />
             <div style={{ display: 'grid', gap: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
@@ -505,17 +518,18 @@ export function WatchlistDetailView({
 
 function WatchMusicList({
   watchId,
-  title,
+  item,
   canEdit,
   search,
   onSearch,
 }: {
   watchId: number
-  title: string
+  item: WatchItem
   canEdit: boolean
   search: WatchDetailSearch
   onSearch: (patch: Partial<WatchDetailSearch>) => void
 }) {
+  const title = item.name
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
   useEffect(() => {
@@ -544,6 +558,49 @@ function WatchMusicList({
           </Link>
         }
       />
+
+      <section className="detail-head">
+        <div className="detail-head__row">
+          <Poster
+            src={item.image_poster_url}
+            name={String(item.name ?? '?')}
+            className="poster-img detail-head__poster"
+          />
+          <div style={{ display: 'grid', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
+                <i />
+                {item.is_public ? '公开' : '私密'}
+              </span>
+              {(item.tags ?? []).map((tag) => (
+                <span key={tag} className="chip">
+                  {tag}
+                </span>
+              ))}
+              {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
+            </div>
+            {item.description ? <p className="detail-desc">{item.description}</p> : null}
+            <div className="detail-stats">
+              <div className="detail-stat">
+                <b>{formatThousand(songs.data?.total ?? 0)}</b>
+                <span>首</span>
+              </div>
+              <div className="detail-stat">
+                <b>{formatThousand(item.subscribe_count)}</b>
+                <span>订阅</span>
+              </div>
+              <div className="detail-stat">
+                <b>{formatRelative(item.updated_at)}</b>
+                <span>更新</span>
+              </div>
+              <div className="detail-stat">
+                <b>{item.author?.pseudonym || item.author?.username || '—'}</b>
+                <span>作者</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="toolbar">
         <input

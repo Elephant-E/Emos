@@ -1276,6 +1276,13 @@
 }
 .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 
+/* 详情页头部的封面：列表缩略图 30×40 拿到这里比旁边的字还矮 */
+.poster-img.detail-head__poster {
+  width: 72px;
+  height: 96px;
+  border-radius: 8px;
+}
+
 .poster-img {
   width: 30px;
   height: 40px;
