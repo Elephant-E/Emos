@@ -93,6 +93,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             </button>
           ))}
         </div>
+        <span className="spacer" />
         <input
           className="input"
           type="search"

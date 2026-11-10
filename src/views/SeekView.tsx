@@ -91,6 +91,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </button>
           ))}
         </div>
+        <span className="spacer" />
         <input
           className="input"
           type="search"
