@@ -528,7 +528,7 @@ export function VideoDetailView({
               onClick={() => {
                 setMoveSeason(season)
                 setMoving({ mediaId: renaming.mediaId, name: renaming.name })
-                setRenaming(null)
+                // 不关「编辑资源」：移动弹窗关掉后要能回到它
               }}
             >
               移到其他位置

@@ -1,7 +1,22 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { isConfirmOpen } from '@/ui/confirm'
-import { isPromptOpen } from '@/ui/prompt'
+
+/**
+ * 弹层可以叠：例如「编辑资源」上再开「移动资源」。
+ * 只有最上层响应 Esc 和点击遮罩，下层的等它关掉再继续。
+ */
+const modalStack: string[] = []
+function pushModal(id: string) {
+  modalStack.push(id)
+}
+function popModal(id: string) {
+  const i = modalStack.lastIndexOf(id)
+  if (i >= 0) modalStack.splice(i, 1)
+}
+function isTopModal(id: string) {
+  return modalStack[modalStack.length - 1] === id
+}
 
 export function Modal({
   title,
@@ -22,6 +37,13 @@ export function Modal({
   width?: number
 }) {
   const boxRef = useRef<HTMLDivElement>(null)
+  const idRef = useRef(`modal-${Math.random().toString(36).slice(2)}`)
+
+  useEffect(() => {
+    const id = idRef.current
+    pushModal(id)
+    return () => popModal(id)
+  }, [])
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
@@ -47,10 +69,11 @@ export function Modal({
         return
       }
       if (event.key === 'Escape') {
+        // 叠着的时候只关最上面那层
+        if (!isTopModal(idRef.current)) return
         event.stopPropagation()
         // 确认框叠在弹层之上，此时 Esc 只应关掉确认框
-        // 二级弹层（确认框 / 输入理由）开着时，Esc 只该关掉那一层
-        if (isConfirmOpen() || isPromptOpen()) return
+        if (isConfirmOpen()) return
         onClose()
         return
       }
@@ -76,7 +99,14 @@ export function Modal({
   }, [onClose, onSubmit])
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="modal-overlay"
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) return
+        if (!isTopModal(idRef.current)) return
+        onClose()
+      }}
+    >
       <div className="modal" ref={boxRef} style={{ width }} role="dialog" aria-modal="true" aria-label={title}>
         <div className="modal__head">
           <h2 className="modal__title">{title}</h2>
