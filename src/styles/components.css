@@ -1698,3 +1698,64 @@
 .pick-tabs { display: flex; gap: 8px; }
 .pick-tabs__scroll { overflow-x: auto; flex-wrap: nowrap; }
 .pick-tabs__item { flex: none; }
+
+
+/* ── 商品卡片网格（浏览用，不是管理表格）──────────────── */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+.product-tile {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+.product-tile__cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-5);
+  font-size: 30px;
+  overflow: hidden;
+}
+/* 绝对定位撑满，否则图片按原始比例把卡片顶高，比例约束形同虚设 */
+.product-tile__cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.product-tile__body { padding: 12px 14px 14px; display: grid; gap: 6px; }
+.product-tile__name {
+  font-size: 13.5px;
+  color: var(--fg);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.product-tile__price { display: flex; align-items: baseline; gap: 8px; }
+.product-tile__price b { font-size: 15px; font-weight: 550; color: var(--fg); }
+.product-tile__price s { font-size: 11.5px; color: var(--fg-5); }
+.product-tile__meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--fg-4); }
+.product-tile__off {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  /* 封面底色不确定，徽标要自带底，否则浅色图上看不见 */
+  background: rgba(0, 0, 0, 0.68);
+  padding: 2px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(2px);
+}

@@ -243,7 +243,37 @@ export function ShopView({
             <EmptyBlock title="这个分类还没有商品" />
           ) : null}
 
-          {products.data && products.data.items.length > 0 ? (
+          {products.data && products.data.items.length > 0 && !mine ? (
+            <div className="product-grid content-in">
+              {products.data.items.map((product) => (
+                <article key={product.product_id} className="product-tile">
+                  <div className="product-tile__cover">
+                    {product.cover_url ? (
+                      <img src={product.cover_url} alt={product.name} loading="lazy" />
+                    ) : (
+                      product.name.slice(0, 1)
+                    )}
+                    {product.is_up ? null : <span className="badge badge--off product-tile__off"><i />已下架</span>}
+                  </div>
+                  <div className="product-tile__body">
+                    <span className="product-tile__name">{product.name}</span>
+                    <div className="product-tile__price">
+                      <b>{product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`}</b>
+                      {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
+                        <s>{formatThousand(product.price_origin)}</s>
+                      ) : null}
+                    </div>
+                    <div className="product-tile__meta">
+                      <span>销量 {formatThousand(product.sales)}</span>
+                      {product.stock > 0 ? <span>库存 {formatThousand(product.stock)}</span> : <span>已售罄</span>}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+
+          {products.data && products.data.items.length > 0 && mine ? (
             <div className="table-card content-in" key={`${products.data.items.length}-${products.data.items[0]?.product_id}-${products.data.total}`}>
               <table className="table">
                 <thead>
