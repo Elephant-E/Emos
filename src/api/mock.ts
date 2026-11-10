@@ -308,13 +308,13 @@ export async function mockRequest<T>(
   if (episodeMatch) {
     const video = videos.find((v) => v.video_id === Number(episodeMatch[1]))
     const seasonNumber = Number(query.season_number ?? 1)
-    const count = video?.video_type === 'movie' ? 1 : 4
+    const count = video?.video_type === 'movie' ? 1 : 18
     return Array.from({ length: count }, (_, i) => ({
       item_id: `ve-${seasonNumber}-${i + 1}`,
       season_id: 100 + Math.max(0, seasonNumber - 1),
       season_number: seasonNumber,
       episode_id: 500 + i,
-      episode_title: video?.video_type === 'movie' ? '正片' : `第 ${i + 1} 集`,
+      episode_title: video?.video_type === 'movie' ? '正片' : (i === 0 ? '这集vlog我们拍了十年，致最美好的青春（上）——记一次说走就走的旅行' : `第 ${i + 1} 集`),
       episode_number: i + 1,
       episode_description: null,
       video_image_poster: video?.video_image_poster ?? null,
