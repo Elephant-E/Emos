@@ -422,9 +422,16 @@ export function useShopCategories(sellerId?: number) {
   })
 }
 
-export function useShopProducts(page: number, sellerId: number, categoryId: number, pageSize = 12, name = '') {
+export function useShopProducts(
+  page: number,
+  sellerId: number,
+  categoryId: number,
+  pageSize = 12,
+  name = '',
+  sortBy: '' | 'sales' | 'price' = '',
+) {
   return useQuery({
-    queryKey: ['shop', 'products', sellerId, page, categoryId, name] as const,
+    queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy] as const,
     queryFn: () =>
       shopApi.products({
         seller_id: sellerId || undefined,
@@ -432,8 +439,9 @@ export function useShopProducts(page: number, sellerId: number, categoryId: numb
         page_size: pageSize,
         category_id: categoryId || undefined,
         name: name || undefined,
-        sort_by: 'sort',
-        sort_order: 'asc',
+        // 后端只认这几个；updated_at / created_at 会 422
+        sort_by: sortBy || 'sort',
+        sort_order: sortBy ? 'desc' : 'asc',
       }),
     enabled: Boolean(sellerId),
   })

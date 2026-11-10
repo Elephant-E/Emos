@@ -122,11 +122,13 @@ const shopRoute = createRoute({
     page: number
     category: number
     q: string
+    sort: '' | 'sales' | 'price'
   } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
     page: asPage(s.page),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
     q: asString(s.q),
+    sort: s.sort === 'sales' || s.sort === 'price' ? s.sort : '',
   }),
   component: ShopRoute,
 })
@@ -140,6 +142,7 @@ function ShopRoute() {
       page={search.page}
       categoryId={search.category}
       q={search.q}
+      sort={search.sort}
       onSearch={(patch) => navigate({ search: { ...search, ...patch } })}
     />
   )

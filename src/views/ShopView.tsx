@@ -34,18 +34,20 @@ export function ShopView({
   page,
   categoryId,
   q,
+  sort,
   onSearch,
 }: {
   tab: Tab
   page: number
   categoryId: number
   q: string
-  onSearch: (patch: { tab?: Tab; page?: number; category?: number; q?: string }) => void
+  sort: '' | 'sales' | 'price'
+  onSearch: (patch: { tab?: Tab; page?: number; category?: number; q?: string; sort?: '' | 'sales' | 'price' }) => void
 }) {
   const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
-  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId, 12, q)
+  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId, 12, q, sort)
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
@@ -180,6 +182,17 @@ export function ShopView({
               ))}
             </div>
             <span className="spacer" />
+            <div className="seg" role="group" aria-label="排序">
+              <button aria-pressed={sort === ''} onClick={() => onSearch({ sort: '', page: 1 })}>
+                默认
+              </button>
+              <button aria-pressed={sort === 'sales'} onClick={() => onSearch({ sort: 'sales', page: 1 })}>
+                销量
+              </button>
+              <button aria-pressed={sort === 'price'} onClick={() => onSearch({ sort: 'price', page: 1 })}>
+                价格
+              </button>
+            </div>
             <input
               className="input"
               type="search"
