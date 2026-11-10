@@ -127,6 +127,13 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
       {!active.error && !active.isLoading && rows.length === 0 ? (
         <EmptyBlock
+          action={
+            q ? (
+              <button className="btn btn--ghost" onClick={() => onQuery('', by)}>
+                清空搜索
+              </button>
+            ) : undefined
+          }
           title={q ? `没有找到「${q}」` : '回收站是空的'}
           
         />

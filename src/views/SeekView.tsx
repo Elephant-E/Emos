@@ -121,6 +121,13 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
       {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
+          action={
+            search.q ? (
+              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', page: 1 })}>
+                清空搜索
+              </button>
+            ) : undefined
+          }
           title={
             search.q
               ? `没有找到「${search.q}」`
