@@ -512,7 +512,14 @@ export async function mockRequest<T>(
           { product_id: 2000, category_id: 1000, cover_url: poster('shop3'), name: '别家的立牌', price: 45, price_origin: 60, stock: 12, sales: 33, is_up: true, up_time: '2026-10-01 10:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 80, updated_at: '2026-10-01T10:00:00Z' },
           { product_id: 2001, category_id: 1001, cover_url: poster('shop1'), name: '别家的海报', price: 88, price_origin: 120, stock: 5, sales: 9, is_up: true, up_time: '2026-09-20 10:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-09-20T10:00:00Z' },
         ]
-    let filtered = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    const bulk = query.seller_id ? [] : Array.from({ length: 40 }, (_, i) => ({
+      product_id: 3000 + i, category_id: 1000, cover_url: poster('shop' + ((i % 3) + 1)),
+      name: `${['限量徽章', '亚克力钥匙扣', '明信片套装', '帆布袋', '贴纸包'][i % 5]} ${i + 1}`, price: 10 + i, price_origin: 20 + i, stock: 100 - i,
+      sales: i * 3, is_up: true, up_time: '2026-10-01 10:00:00', time_start: null, time_end: null,
+      user_buy_max: 99, sort: 80, updated_at: '2026-10-01T10:00:00Z',
+    }))
+    let filtered: typeof rows = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    filtered = [...filtered, ...bulk]
     filtered = [...filtered, ...otherRows]
     if (query.is_up !== undefined) filtered = filtered.filter((r) => r.is_up === (String(query.is_up) === '1' || query.is_up === true))
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
