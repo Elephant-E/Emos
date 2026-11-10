@@ -346,6 +346,14 @@ export async function mockRequest<T>(
   if (clean === '/api/video/sync') return [] as T
   if (/^\/api\/video\/\d+\/delete$/.test(clean)) return { carrot: 1, is_delete: true } as T
 
+  const watchMaintainerMatch = clean.match(/^\/api\/watch\/(\d+)\/maintainer$/)
+  if (watchMaintainerMatch) {
+    const list = (body.maintainers as unknown[]) ?? []
+    return { maintainers_count: list.length } as T
+  }
+  const watchEmptyMatch = clean.match(/^\/api\/watch\/(\d+)\/video\/empty$/)
+  if (watchEmptyMatch) return { count: 0 } as T
+
   const watchMusicSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/music\/search$/)
   if (watchMusicSearchMatch) {
     const title = String(query.song_title ?? '').trim()

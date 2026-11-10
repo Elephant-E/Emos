@@ -34,13 +34,15 @@ export function WatchlistDetailView({
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(false)
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; sort: number; remark: string } | null>(null)
+  const [maintainerOpen, setMaintainerOpen] = useState(false)
+  const [maintainerIds, setMaintainerIds] = useState('')
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const candidates = useWatchSearch(id, term)
-  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update } = useWatchMutations(id)
+  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers } = useWatchMutations(id)
 
   // 输入即搜：停手 350ms 后推进 URL。
   // 必须放在 early return 之前 —— 否则音乐片单会在第二帧少执行一个 hook 而崩溃。
@@ -79,6 +81,15 @@ export function WatchlistDetailView({
                 <>
                   <button className="btn btn--ghost" onClick={() => setEditing(true)}>
                     编辑
+                  </button>
+                  <button
+                    className="btn btn--ghost"
+                    onClick={() => {
+                      setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean).join(' '))
+                      setMaintainerOpen(true)
+                    }}
+                  >
+                    维护者
                   </button>
                   <button className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
                     {item.user_is_show ? '隐藏' : '显示'}
@@ -368,6 +379,50 @@ export function WatchlistDetailView({
         </Modal>
       ) : null}
 
+
+
+      {maintainerOpen && item ? (
+        <Modal
+          title="设置维护者"
+          onClose={() => setMaintainerOpen(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setMaintainerOpen(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={setMaintainers.isPending}
+                onClick={() =>
+                  setMaintainers.mutate(
+                    maintainerIds.split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean),
+                    {
+                      onSuccess: () => {
+                        toast('已保存', 'success')
+                        setMaintainerOpen(false)
+                      },
+                    },
+                  )
+                }
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>维护者用户 ID（空格或逗号分隔，留空即清除）</span>
+            <textarea
+              className="input"
+              style={{ minHeight: 80 }}
+              value={maintainerIds}
+              onChange={(e) => setMaintainerIds(e.target.value)}
+              placeholder="e1000Xs e1001Xs"
+              autoFocus
+            />
+          </label>
+        </Modal>
+      ) : null}
 
       {remarkFor ? (
         <Modal
