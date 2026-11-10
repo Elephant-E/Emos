@@ -4,7 +4,7 @@ import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
-import { IconPlus } from '@/components/icons'
+import { IconBag, IconPlus } from '@/components/icons'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProducts, useShopSeller } from '@/api/queries'
 import { shopApi } from '@/api/endpoints'
 import { ImagePicker } from '@/components/ImagePicker'
@@ -278,21 +278,23 @@ export function ShopView({
                       {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
                         <s>{formatThousand(product.price_origin)}</s>
                       ) : null}
+                    </div>
+                    <div className="product-tile__meta">
+                      <span>销量 {formatThousand(product.sales)}</span>
+                      {product.stock > 0 ? <span>库存 {formatThousand(product.stock)}</span> : <span>已售罄</span>}
+                      {/* 右下角图标：这里是「买」，不是「加入购物车」（没有购物车） */}
                       <button
-                        className="btn btn--quiet"
-                        style={{ marginLeft: 'auto', flex: 'none' }}
+                        className="product-tile__buy"
+                        aria-label={`购买 ${product.name}`}
+                        title={product.stock <= 0 ? '已售罄' : '购买'}
                         disabled={product.stock <= 0 || !product.is_up}
                         onClick={(e) => {
                           e.stopPropagation()
                           setBuyTarget(product)
                         }}
                       >
-                        购买
+                        <IconBag size={14} />
                       </button>
-                    </div>
-                    <div className="product-tile__meta">
-                      <span>销量 {formatThousand(product.sales)}</span>
-                      {product.stock > 0 ? <span>库存 {formatThousand(product.stock)}</span> : <span>已售罄</span>}
                     </div>
                   </div>
                 </article>
