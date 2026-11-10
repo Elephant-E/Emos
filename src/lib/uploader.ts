@@ -204,6 +204,27 @@ export async function uploadSubtitle(
 }
 
 /**
+ * 歌曲：音频传上去之后绑到某首歌上（POST /api/upload/music/save）。
+ * 和视频/字幕一样是「入库」，只是不需要预先选季集，只要知道 song_id。
+ */
+export async function uploadSong(
+  file: File,
+  songId: number,
+  onProgress: (ratio: number) => void,
+  fileStorage?: string,
+): Promise<{ media_id: string; carrot: number }> {
+  if (USE_MOCK) {
+    for (let i = 1; i <= 8; i += 1) {
+      await new Promise((r) => setTimeout(r, 80))
+      onProgress(i / 8)
+    }
+    return { media_id: `mock-music-${Date.now()}`, carrot: 1 }
+  }
+  const fileId = await uploadObject(file, 'music', onProgress, fileStorage)
+  return await uploadApi.saveMusic(songId, fileId)
+}
+
+/**
  * 图片：传上去之后直接进图库（GET /api/upload/image/list 能查到），
  * 返回的 file_id 就是图库里那一张的标识。
  */

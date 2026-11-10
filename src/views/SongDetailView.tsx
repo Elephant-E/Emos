@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { musicApi } from '@/api/endpoints'
+import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize } from '@/lib/format'
@@ -16,6 +17,9 @@ export function SongDetailView({ songId }: { songId: number }) {
   const actions = useMusicMutations(songId)
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
   const [adding, setAdding] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [lyricForm, setLyricForm] = useState({ type: 'text', language: 'zh-CN', content: '' })
 
   return (
@@ -149,6 +153,34 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <button className="btn btn--ghost" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="audio/*"
+                hidden
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ''
+                  if (!file) return
+                  setUploading(true)
+                  setProgress(0)
+                  try {
+                    const res = await uploadSong(file, songId, setProgress)
+                    toast(`已上传，+${res.carrot} 胡萝卜`, 'success')
+                    media.refetch()
+                  } catch (error) {
+                    toast(error instanceof Error ? error.message : '上传失败', 'error')
+                  } finally {
+                    setUploading(false)
+                    setProgress(0)
+                  }
+                }}
+              />
+            </div>
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <table className="table">

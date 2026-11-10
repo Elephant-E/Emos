@@ -303,6 +303,7 @@ export async function mockRequest<T>(
     })) as T
   }
 
+  if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
     const id = Number(query.item_id ?? 0)
     const video = videos.find((v) => v.video_id === id)
