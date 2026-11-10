@@ -166,7 +166,7 @@ const seeks: SeekItem[] = videos.map((v, i) => ({
   video_image_poster: v.video_image_poster,
   video_image_backdrop: null,
   tmdb_url: v.tmdb_url,
-  upload_username: i % 3 === 1 ? 'lin' : null,
+  upload_username: i % 3 === 1 ? (i % 6 === 1 ? '陈曦' : 'lin') : null,
   is_can_claim: i % 3 !== 2,
   item_id: `vl-${i + 1}`,
   seek_carrot: [120, 80, 60, 200, 40, 90, 150, 20][i] ?? 0,

@@ -7,10 +7,10 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
-import { useSeekPage, useSeekPoll } from '@/api/queries'
+import { useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL, formatDateTime } from '@/lib/format'
+import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
@@ -33,8 +33,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
-  const [detailTarget, setDetailTarget] = useState<SeekItem | null>(null)
-  const [detail, setDetail] = useState<{ info: Record<string, unknown> | null; history: Array<Record<string, unknown>>; loading: boolean; error?: boolean }>({ info: null, history: [], loading: false })
+  const session = useSession()
+  const myNames = [session.data?.pseudonym, session.data?.username].filter(Boolean) as string[]
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
   const [term, setTerm] = useState(search.q)
@@ -69,7 +69,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     onSuccess: () => {
       invalidate()
       toast('已撤回认领', 'success')
-      setDetailTarget(null)
     },
   })
 
@@ -157,6 +156,9 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             <tbody>
               {data.items.map((item) => {
                 const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
+                // 认领人名字对上当前账号才显示「撤回」
+                const isMine =
+                  Boolean(item.upload_username) && myNames.includes(String(item.upload_username))
                 return (
                   <tr
                     key={item.id}
@@ -217,33 +219,35 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
                       <span className="action-group">
-                      <button
-                        className="btn btn--quiet"
-                        onClick={async (e) => {
-                          e.stopPropagation()
-                          setDetailTarget(item)
-                          setDetail({ info: null, history: [], loading: true })
-                          try {
-                            const [info, history] = await Promise.all([
-                              seekApi.query(item.id),
-                              seekApi.history(item.id),
-                            ])
-                            setDetail({ info, history: history ?? [], loading: false })
-                          } catch {
-                            setDetail({ info: null, history: [], loading: false, error: true })
-                          }
-                        }}
-                      >
-                        求片详情
-                      </button>
                       {item.status === 'upload' ? (
-                        <Link
-                          className="btn btn--quiet"
-                          to="/upload"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          去上传
-                        </Link>
+                        <>
+                          <Link
+                            className="btn btn--quiet"
+                            to="/upload"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            去上传
+                          </Link>
+                          {isMine ? (
+                            <button
+                              className="btn btn--quiet"
+                              disabled={cancelClaim.isPending}
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                const ok = await confirmDialog({
+                                  title: '撤回这个认领？',
+                                  message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
+                                  confirmText: '撤回',
+                                  danger: true,
+                                })
+                                if (!ok) return
+                                cancelClaim.mutate(item.id)
+                              }}
+                            >
+                              撤回
+                            </button>
+                          ) : null}
+                        </>
                       ) : item.is_can_claim && item.status === 'default' ? (
                         <button
                           className="btn btn--ghost"
@@ -270,78 +274,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           </table>
           <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
         </div>
-      ) : null}
-
-      {detailTarget ? (
-        <Modal
-          title={`求片详情 · ${detailTarget.video_title_display}`}
-          width={460}
-          onClose={() => setDetailTarget(null)}
-        >
-          {detail.loading ? <p className="card-note">读取中…</p> : null}
-
-          {detail.error ? <p className="card-note">详情取不到，稍后再试～</p> : null}
-
-          {!detail.loading && detail.info ? (
-            <dl className="kv">
-              {[
-                ['__id', '求片编号'],
-                ['status', '状态'],
-                ['upload_username', '认领人'],
-                ['request_count', '求片人数'],
-                ['seek_carrot', '悬赏'],
-                ['updated_at', '最近更新'],
-                ['upload_expired_at', '上传期限'],
-              ]
-                .map(([key, label]) => [label, key === '__id' ? detailTarget.id : detail.info?.[key]] as const)
-                .filter(([, v]) => v !== null && v !== undefined && v !== '')
-                .map(([label, v]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>
-                      {label === '状态'
-                        ? (SEEK_STATUS[String(v) as SeekStatus] ?? SEEK_STATUS.default).label
-                        : label === '最近更新' || label === '上传期限'
-                          ? formatDateTime(String(v))
-                          : String(v)}
-                    </dd>
-                  </div>
-                ))}
-            </dl>
-          ) : null}
-
-          <p className="stat__label" style={{ marginTop: 'var(--stack)' }}>投票记录</p>
-          {!detail.loading && detail.history.length === 0 ? <p className="card-note">还没有人投票。</p> : null}
-          <ul className="stack--tight">
-            {detail.history.map((row, index) => (
-              <li key={index} className="row row--baseline" style={{ display: 'flex' }}>
-                <span className="text-body">{String(row.username ?? '—')}</span>
-                <span className="muted meta-end">{String(row.carrot)} 胡萝卜</span>
-                <span className="muted tnum-sm">{formatRelative(String(row.created_at))}</span>
-              </li>
-            ))}
-          </ul>
-
-          {detailTarget.status === 'upload' ? (
-            <button
-              className="btn btn--danger-text"
-              style={{ marginTop: 'var(--stack)' }}
-              disabled={cancelClaim.isPending}
-              onClick={async () => {
-                const ok = await confirmDialog({
-                  title: '撤回这个认领？',
-                  message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
-                  confirmText: '撤回',
-                  danger: true,
-                })
-                if (!ok) return
-                cancelClaim.mutate(detailTarget.id)
-              }}
-            >
-              {cancelClaim.isPending ? '撤回中…' : '撤回认领'}
-            </button>
-          ) : null}
-        </Modal>
       ) : null}
 
       {urgeTarget ? (
