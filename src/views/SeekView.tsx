@@ -304,7 +304,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             <input className="input" type="number" min={1} max={5000} value={carrot} onChange={(e) => setCarrot(Number(e.target.value))} />
           </label>
           <p className="state__hint" style={{ textAlign: 'left' }}>
-            催片会从你的余额里扣除对应胡萝卜，上传者完成后按规则结算。
+            提交后立即从余额扣除。
           </p>
         </Modal>
       ) : null}

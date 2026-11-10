@@ -44,7 +44,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
     const ok = await confirmDialog({
       title: '恢复这个资源？',
       message: `「${label}」会回到原来的影片下，播放端立即可见。`,
-      hint: '恢复可能消耗胡萝卜，具体以后端返回为准。',
+      hint: '恢复会扣除胡萝卜，金额见恢复后的提示。',
       confirmText: '恢复',
     })
     if (!ok) return

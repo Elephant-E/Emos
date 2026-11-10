@@ -188,7 +188,7 @@ export function UploadView() {
         <IconUpload size={20} />
         <span>把视频拖到这里，或点击选择文件</span>
         <span className="muted" style={{ fontSize: 12 }}>
-          支持多选，单个文件的上限取决于存储
+          支持多选，单个文件大小由所选存储决定
         </span>
       </div>
 

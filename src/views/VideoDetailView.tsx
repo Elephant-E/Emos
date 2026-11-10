@@ -137,7 +137,7 @@ export function VideoDetailView({
                   const ok = await confirmDialog({
                     title: '代为发起求片？',
                     message: isMovie ? `为《${video.video_title}》发起求片。` : `为第 ${episode} 集发起求片。`,
-                    hint: '求片会挂到求片列表，其他用户看到后可以认领上传。',
+                    hint: '会出现在求片列表，其他用户可以认领上传。',
                     confirmText: '发起',
                   })
                   if (!ok) return
