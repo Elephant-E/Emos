@@ -41,7 +41,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
     setPhase('checking')
     setMessage('')
     try {
-      await request('/api/user', { token: trimmed, silent401: true, signal: AbortSignal.timeout(12_000) })
+      await request('/api/sign/check', { token: trimmed, silent401: true, signal: AbortSignal.timeout(12_000) })
       localStorage.setItem(TOKEN_KEY, trimmed)
       onDone()
     } catch (error) {

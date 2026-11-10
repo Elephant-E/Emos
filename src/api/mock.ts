@@ -238,6 +238,7 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
+  if (clean === '/api/whisper/create') return { whisper_id: 9001 } as T
   if (clean === '/api/video/record/request') {
     return {
       page: 1, page_size: 10, total: 24,

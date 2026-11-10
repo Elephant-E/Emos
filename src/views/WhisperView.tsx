@@ -21,6 +21,9 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
   const qc = useQueryClient()
   const list = useWhispers(tab)
   const [replyTarget, setReplyTarget] = useState<Row | null>(null)
+  const [composing, setComposing] = useState(false)
+  const [composeTo, setComposeTo] = useState('')
+  const [composeBody, setComposeBody] = useState('')
   const [content, setContent] = useState('')
 
   const reply = useMutation({
@@ -33,11 +36,31 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
     },
   })
 
+  const create = useMutation({
+    mutationFn: (payload: { receiver_user_id: string; content: string }) => whisperApi.create(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['whisper'] })
+      toast('已发起', 'success')
+      setComposing(false)
+      setComposeTo('')
+      setComposeBody('')
+    },
+  })
+
   const rows = (list.data ?? []) as Row[]
 
   return (
     <>
-      <PageHeader crumb={['悄悄话', tab === 'receiver' ? '收到的' : '发出的']} title="悄悄话" hint={list.data ? `${rows.length} 条` : undefined} />
+      <PageHeader
+        crumb={['悄悄话', tab === 'receiver' ? '收到的' : '发出的']}
+        title="悄悄话"
+        hint={list.data ? `${rows.length} 条` : undefined}
+        tools={
+          <button className="btn btn--primary" onClick={() => setComposing(true)}>
+            发起
+          </button>
+        }
+      />
 
       <div className="toolbar">
         <div className="tabs" role="tablist">
@@ -54,7 +77,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       {list.isLoading ? <LoadingBlock rows={6} columns={3} /> : null}
 
       {!list.isLoading && !list.error && rows.length === 0 ? (
-        <EmptyBlock title={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'} hint="悄悄话在客户端或机器人里发起。" />
+        <EmptyBlock title={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'} />
       ) : null}
 
       {rows.length > 0 ? (
@@ -144,6 +167,41 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
               placeholder="写点什么"
             />
           </div>
+        </Modal>
+      ) : null}
+
+      {composing ? (
+        <Modal
+          title="发起悄悄话"
+          onClose={() => setComposing(false)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setComposing(false)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={!composeTo.trim() || !composeBody.trim() || create.isPending}
+                onClick={() => create.mutate({ receiver_user_id: composeTo.trim(), content: composeBody.trim() })}
+              >
+                发送
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>接收者用户 ID</span>
+            <input className="input" value={composeTo} onChange={(e) => setComposeTo(e.target.value)} placeholder="e1000Xs" autoFocus />
+          </label>
+          <label className="field">
+            <span>内容</span>
+            <textarea
+              className="input"
+              style={{ minHeight: 100 }}
+              value={composeBody}
+              onChange={(e) => setComposeBody(e.target.value)}
+            />
+          </label>
         </Modal>
       ) : null}
     </>
