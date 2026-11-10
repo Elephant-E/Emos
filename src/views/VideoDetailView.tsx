@@ -331,7 +331,7 @@ export function VideoDetailView({
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="这一集还没有资源" hint="去上传页把文件入库到这里。" /> : null}
 
             {media.data && media.data.length > 0 ? (
-              <table className="table" style={{ marginTop: 10 }}>
+              <table className="table table--inset" style={{ marginTop: 10 }}>
                 <thead>
                   <tr>
                     <th>资源名</th>
@@ -402,7 +402,7 @@ export function VideoDetailView({
             </div>
             {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
-              <table className="table" style={{ marginTop: 10 }}>
+              <table className="table table--inset" style={{ marginTop: 10 }}>
                 <thead>
                   <tr>
                     <th>字幕</th>

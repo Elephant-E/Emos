@@ -194,7 +194,7 @@ export function WatchlistDetailView({
 
       {!videos.isLoading && videos.data && videos.data.items.length > 0 ? (
         <div className="table-card">
-          <table className="table">
+          <table className="table table--inset">
             <thead>
               <tr>
                 <th style={{ width: '44%' }} className="th-thumb">影片</th>
@@ -630,7 +630,7 @@ function WatchMusicList({
 
       {songs.data && songs.data.items.length > 0 ? (
         <div className="table-card">
-          <table className="table">
+          <table className="table table--inset">
             <thead>
               <tr>
                 <th style={{ width: canEdit ? '52%' : '72%' }}>歌曲</th>

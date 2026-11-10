@@ -187,7 +187,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             </div>
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
-              <table className="table">
+              <table className="table table--inset">
                 <thead>
                   <tr>
                     <th style={{ width: '38%' }}>文件</th>
