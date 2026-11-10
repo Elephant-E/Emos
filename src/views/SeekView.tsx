@@ -9,6 +9,7 @@ import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
 import { useSeekPage, useSeekPoll } from '@/api/queries'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL, formatDateTime } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
@@ -315,7 +316,16 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               className="btn btn--danger-text"
               style={{ marginTop: 'var(--stack)' }}
               disabled={cancelClaim.isPending}
-              onClick={() => cancelClaim.mutate(detailTarget.id)}
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  title: '撤回这个认领？',
+                  message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
+                  confirmText: '撤回',
+                  danger: true,
+                })
+                if (!ok) return
+                cancelClaim.mutate(detailTarget.id)
+              }}
             >
               {cancelClaim.isPending ? '撤回中…' : '撤回认领'}
             </button>

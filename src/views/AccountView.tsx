@@ -273,7 +273,18 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                           <button
                             className="btn btn--quiet"
                             disabled={actions.logoutDevice.isPending}
-                            onClick={() => actions.logoutDevice.mutate(device.device_id, { onSuccess: () => toast('已下线', 'success') })}
+                            onClick={async () => {
+                              const ok = await confirmDialog({
+                                title: `让 ${device.device_name || '这台设备'} 下线？`,
+                                message: '该设备需要重新登录才能继续播放。',
+                                confirmText: '下线',
+                                danger: true,
+                              })
+                              if (!ok) return
+                              actions.logoutDevice.mutate(device.device_id, {
+                                onSuccess: () => toast('已下线', 'success'),
+                              })
+                            }}
                           >
                             下线
                           </button>
