@@ -25,6 +25,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       <PageHeader
         crumb={['商城', seller.data?.name ?? '店铺']}
         title={seller.data?.name ?? '店铺'}
+        mark={seller.data?.cover_url ?? null}
         hint={
           [
             seller.data?.description,
@@ -35,12 +36,9 @@ export function SellerView({ sellerId }: { sellerId: number }) {
             .join(' · ') || undefined
         }
         tools={
-          <>
-            {seller.data?.cover_url ? <img className="seller-mark" src={seller.data.cover_url} alt="" /> : null}
-            <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
-              回到商城
-            </Link>
-          </>
+          <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
+            回到商城
+          </Link>
         }
       />
 

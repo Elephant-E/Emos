@@ -7,6 +7,8 @@ interface PageHeaderProps {
   title: string
   hint?: ReactNode
   tools?: ReactNode
+  /** 标题左侧的小图（店铺封面、头像一类），和 h1 同一基线 */
+  mark?: string | null
 }
 
 /** 面包屑首段对应的列表页，点它能回到那一级 */
@@ -29,7 +31,7 @@ const SECTION_PATH: Record<string, string> = {
   回收站: '/recycle',
 }
 
-export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
+export function PageHeader({ crumb, title, hint, tools, mark }: PageHeaderProps) {
   const root = crumb[0]
   const path = SECTION_PATH[root]
   return (
@@ -52,6 +54,7 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
           ) : null}
         </nav>
         <div className="page-title__row">
+          {mark ? <img className="page-title__mark" src={mark} alt="" /> : null}
           <h1 className="page-title">{title}</h1>
           {hint ? <span className="page-title__hint">{hint}</span> : null}
         </div>

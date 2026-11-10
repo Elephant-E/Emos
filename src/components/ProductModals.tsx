@@ -32,8 +32,20 @@ export function ProductDetailModal({
       {p ? (
         <>
           <div style={{ display: 'flex', gap: 16 }}>
-            <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
-              {p.cover_url ? <img src={p.cover_url} alt={p.name} /> : p.name.slice(0, 1)}
+            <div className="product-tile__cover" style={{ width: 200, height: 200, flex: 'none', borderRadius: 10 }}>
+              {p.cover_url ? (
+                <img
+                  src={p.cover_url}
+                  alt={p.name}
+                  onError={(e) => {
+                    // 封面走独立 CDN，国内经常被重置；失败时退回首字，别留个破图
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.parentElement?.setAttribute('data-fallback', p.name.slice(0, 1))
+                  }}
+                />
+              ) : (
+                p.name.slice(0, 1)
+              )}
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
