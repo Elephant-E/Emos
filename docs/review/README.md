@@ -21,18 +21,33 @@
 - full-review-ux 的 9 条必须改：卡中卡、表格主操作被压成灰字、两页表头错位、
   表格内输入被撑宽、术语混用、卡内表格缩进、图片兜底、⌘K 快捷键
 
+## 第二轮补完的
+
+- 越界页码：`/library?page=2` 与 `/lines?page=2` 现在显示「这一页没有内容 +
+  共 N 条」，并保留分页器
+- 空态文案按筛选状态分：片单（搜索/我创建的/我订阅的）、求片（搜索/我认领的/
+  类型）、回收站（搜索）、商城（搜索/分类）
+- 概览「继续观看」「我的近况」错误态换成 bare ErrorBlock，带重试
+- 工具栏顺序统一：视图 tab → spacer → 搜索 → 筛选 → 操作
+- 单设备下线、撤回认领补二次确认
+- 直播切频道重置源页码；片单「添加影片」弹窗不再与页面筛选共用搜索词
+- 演职员岗位加了中文映射（Director → 导演 等）
+- mock 补齐 12 个缺失接口（概览两块数据源、whisper 三件套、回收站资源列表与
+  恢复、片单删除、求片详情与催片、用户原图与 Telegram、音乐片单移除）
+
 ## 还没修的
 
-**需要设计决策的**
-- 搜索框与筛选组在全站有 7 种排法（`.tabs` 与 `.seg` 也随页面摇摆）——统一要动 10 个页面
+**列表接口的筛选参数在 mock 下不生效**，让「筛选是否真的生效」无法验证：
+- `/api/watch` 忽略 type / name
+- `/api/seek` 忽略 video_title / video_type / upload_self
+- `/api/music/song/list` 忽略 has_media / is_favorite
+- `/api/video/list` 忽略 only_delete
 
-**P3 里值得做但没做的**
-- 越界页码：`/library?page=2` 伪装成「片库为空」、`/lines?page=2` 整页空白
-- 空态文案不区分「库是空的」与「筛选没命中」（4 个页面）
-- 概览的「继续观看」「我的近况」错误态没有重试
-- 破坏性动作缺确认：单设备下线、撤回认领
+这些在真机上是好的（契约有、后端也认），只是 mock 没实现，属于测试基础设施。
 
-**mock 缺口（影响以后的可验证性）**
-- 概览两块数据源、`DELETE /api/watch/{id}`、`whisper` 三件套、`media/restore` 等
-- 若干列表接口忽略了筛选参数：`/api/watch` 忽略 type/name、`/api/seek` 忽略
-  video_title/video_type/upload_self、`/api/music/song/list` 忽略 has_media/is_favorite
+**纯体验层面、优先级低的**
+- 空态内容丰俭不一（只有媒体库有 hint + 清空按钮）
+- 加载态有三套写法（LoadingBlock / skeleton / 「加载中…」文字）
+- 「⋯」的 opacity 0.55 偏淡
+- 状态视觉三套（badge / 纯文本 / chip）
+- 站内跳转两处用了裸 `<a>`（会整页刷新）
