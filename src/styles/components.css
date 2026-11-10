@@ -327,6 +327,13 @@
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .seg button:hover { color: var(--fg-2); }
+.seg--bare {
+  padding: 0;
+  gap: 6px;
+  background: transparent;
+  border: 0;
+}
+.seg--bare button { padding: 0 12px; }
 .seg button[aria-pressed='true'] {
   background: rgba(255, 255, 255, 0.09);
   color: var(--fg);
@@ -1768,15 +1775,15 @@
 .pick-row__num { width: 26px; }
 .pick-row__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pick-tabs { display: flex; gap: 8px; }
+/* 季多的时候横向滚动，但滚动条本身会压住 tab 文字；
+   另外不要 sticky + 底色——那会在弹窗里凭空多出一条色块 */
 .pick-tabs__scroll {
   overflow-x: auto;
   flex-wrap: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 4px 0;
-  background: var(--raised);
+  padding-bottom: 2px;
+  scrollbar-width: none;
 }
+.pick-tabs__scroll::-webkit-scrollbar { display: none; }
 .pick-tabs__item { flex: none; }
 
 
