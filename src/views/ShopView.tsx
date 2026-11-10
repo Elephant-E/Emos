@@ -6,6 +6,7 @@ import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
+import { shopApi } from '@/api/endpoints'
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -273,7 +274,18 @@ export function ShopView({
                             >
                               {product.is_up ? '下架' : '上架'}
                             </button>
-                            <button className="btn btn--quiet" onClick={() => setEditing(product)}>
+                            <button
+                              className="btn btn--quiet"
+                              onClick={async () => {
+                                setEditing(product)
+                                try {
+                                  const full = await shopApi.product(product.product_id)
+                                  setEditing((prev) => (prev ? { ...prev, ...full } : prev))
+                                } catch {
+                                  /* 拿不到详情就用手上这份，至少能改名称价格 */
+                                }
+                              }}
+                            >
                               编辑
                             </button>
                             <button
@@ -344,8 +356,27 @@ export function ShopView({
                 {categories.data.map((category) => (
                   <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
-                    <span className="muted" style={{ fontSize: 11.5 }}>#{category.category_id} · 排序 {category.sort}</span>
+                    <span className="muted" style={{ fontSize: 11.5 }}>#{category.category_id}</span>
                     <span className="spacer" />
+                    {isSeller ? (
+                      <input
+                        className="input tnum"
+                        type="number"
+                        aria-label={`${category.name} 的排序`}
+                        style={{ width: 72, height: 26, padding: '0 6px', fontSize: 12.5 }}
+                        defaultValue={category.sort}
+                        onBlur={(e) => {
+                          const next = Number(e.target.value)
+                          if (!Number.isFinite(next) || next === category.sort) return
+                          actions.sortCategory.mutate(
+                            { categoryId: category.category_id, sort: next },
+                            { onSuccess: () => toast('已调整排序', 'success') },
+                          )
+                        }}
+                      />
+                    ) : (
+                      <span className="muted" style={{ fontSize: 11.5 }}>排序 {category.sort}</span>
+                    )}
                     {isSeller ? (
                       <button
                         className="btn btn--quiet"

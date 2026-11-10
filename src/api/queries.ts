@@ -522,6 +522,10 @@ export function useShopMutations() {
     setCategory: useMutation({ mutationFn: (p: { productId: number; categoryId: number }) => shopApi.productCategory(p.productId, p.categoryId), onSuccess: invalidate }),
     removeProduct: useMutation({ mutationFn: (productId: number) => shopApi.deleteProduct(productId), onSuccess: invalidate }),
     saveProduct: useMutation({ mutationFn: (payload: Record<string, unknown>) => shopApi.saveProduct(payload), onSuccess: invalidate }),
+    sortCategory: useMutation({
+      mutationFn: (p: { categoryId: number; sort: number }) => shopApi.sortCategory(p.categoryId, p.sort),
+      onSuccess: invalidate,
+    }),
     createCategory: useMutation({ mutationFn: (p: { name: string; sort: number }) => shopApi.createCategory(p.name, p.sort), onSuccess: invalidate }),
     removeCategory: useMutation({ mutationFn: (categoryId: number) => shopApi.deleteCategory(categoryId), onSuccess: invalidate }),
     saveSeller: useMutation({ mutationFn: (payload: { name: string; description: string }) => shopApi.sellerUpdate(payload), onSuccess: invalidate }),
