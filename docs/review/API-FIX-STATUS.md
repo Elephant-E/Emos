@@ -234,3 +234,26 @@
 
 这 5 个是有明确语义的接口能力，删掉会让 typed client 不完整；保留但没有
 对应产品场景。不是遗漏，是判断。
+
+---
+
+## `PUT /api/video/media/move` 的 item_type 取值（2026-11-10 实测）
+
+Postman 契约为这个接口留了空 body 示例，没说 `item_type` 能取什么值。
+用不存在的 `media_id` 做探针（不会改任何真实数据）可以反推枚举是否被接受：
+
+| `item_type` | 响应 | 含义 |
+|---|---|---|
+| `vl` | `404 emos api 404 :(` | 参数校验通过，只是媒体不存在 |
+| `ve` | `404` 同上 | 同上 |
+| `bogus_type` | `422 {"message":"已选的属性 item type 无效。"}` | 枚举校验拒绝 |
+
+**结论：`vl`（影片级）与 `ve`（集级）都是合法值。** 不合法的值会在枚举校验
+阶段就被 422 挡掉，不会走到「找不到媒体」那一步。
+
+另一条独立证据：旧项目 `src/composables/useMoveTarget.js` 的资源移动实现里，
+电影分支直接写 `{ item_type: 'vl', item_id: video.video_id }`，剧集分支用
+`/api/video/tree` 返回的 `episode.item_type`（实测为 `ve`）+ `item_id`。
+
+所以「资源移到另一部影片」用 `item_type=vl` 是有据可依的，不需要真的移动一次
+来验证。
