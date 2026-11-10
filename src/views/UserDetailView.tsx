@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
@@ -83,48 +84,39 @@ export function UserDetailView({ userId }: { userId: string }) {
       {(
         <>
           <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
-            <article className="card card--stat">
-              <p className="stat__label">账号状态</p>
-              <p className="stat__value" style={{ color: banned ? 'var(--c-red)' : undefined }}>
-                <span className="stat__word stat__word--sm">
-                  {banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
-                </span>
-              </p>
-              <p className="stat__delta stat__delta--quiet">
-                {banned
+            <StatCard
+              label="账号状态"
+              word
+              tone={banned ? 'danger' : undefined}
+              value={banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
+              note={
+                banned
                   ? `该账号注册于 ${formatRelative(banned.created_at)}`
                   : bans.isLoading
                     ? '正在核对封禁列表'
-                    : '未出现在封禁列表中'}
-              </p>
-            </article>
+                    : '未出现在封禁列表中'
+              }
+            />
 
-            <article className="card card--stat">
-              <p className="stat__label">胡萝卜</p>
-              <p className="stat__value">
-                {info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
-                <small>个</small>
-              </p>
-              <p className="stat__delta stat__delta--quiet">
-                {info?.carrot == null ? '需要服务商权限' : '当前余额'}
-              </p>
-            </article>
+            <StatCard
+              label="胡萝卜"
+              value={info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
+              unit="个"
+              note={info?.carrot == null ? '需要服务商权限' : '当前余额'}
+            />
 
-            <article className="card card--stat">
-              <p className="stat__label">上传量</p>
-              <p className="stat__value">{info ? formatSize(info.size_upload).replace(/\s/g, '') : '—'}</p>
-              <p className="stat__delta stat__delta--quiet">累计入库体积</p>
-            </article>
+            <StatCard
+              label="上传量"
+              value={info ? formatSize(info.size_upload).replace(/\s/g, '') : '—'}
+              note="累计入库体积"
+            />
 
-            <article className="card card--stat">
-              <p className="stat__label">邀请关系</p>
-              <p className="stat__value">
-                <span className="stat__word stat__word--sm">{invited ? '由我邀请' : '—'}</span>
-              </p>
-              <p className="stat__delta stat__delta--quiet">
-                {invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
-              </p>
-            </article>
+            <StatCard
+              label="邀请关系"
+              word
+              value={invited ? '由我邀请' : '—'}
+              note={invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
+            />
           </section>
 
           <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>

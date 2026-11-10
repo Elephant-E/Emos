@@ -199,7 +199,7 @@ export function VideoDetailView({
         <section className="detail-head">
           <div className="detail-head__row">
             {video.video_image_poster ? (
-              <Poster src={video.video_image_poster} name={video.video_title} style={{ width: 76, height: 108 }} />
+              <Poster src={video.video_image_poster} name={video.video_title} className="poster-img detail-head__poster" />
             ) : null}
             <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>

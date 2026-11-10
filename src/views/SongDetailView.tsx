@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
+import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { uploadSong } from '@/lib/uploader'
@@ -30,9 +31,9 @@ export function SongDetailView({ songId }: { songId: number }) {
         crumb={['音乐', song.data?.name ?? `#${songId}`]}
         title={song.data?.name ?? '歌曲详情'}
         hint={
-          song.data
-            ? `${song.data.duration ? `${Math.floor(song.data.duration / 60)}:${String(Math.round(song.data.duration % 60)).padStart(2, '0')}` : '时长未知'} · #${songId}`
-            : `#${songId}`
+          song.data?.duration
+            ? `${Math.floor(song.data.duration / 60)}:${String(Math.round(song.data.duration % 60)).padStart(2, '0')}`
+            : undefined
         }
         tools={
           <>
@@ -89,6 +90,41 @@ export function SongDetailView({ songId }: { songId: number }) {
           </>
         }
       />
+
+      {song.data ? (
+        <section className="detail-head">
+          <div className="detail-head__row">
+            <Poster src={song.data.image_poster_url} name={song.data.name} className="poster-img detail-head__poster" />
+            <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                {song.data.is_favorite ? (
+                  <span className="badge badge--ok">
+                    <i />
+                    已收藏
+                  </span>
+                ) : null}
+                {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">还没有填写艺人</span> : null}
+              </div>
+              {song.data.description ? <p className="detail-desc">{song.data.description}</p> : null}
+              {song.data.tagline ? <p className="meta-sm">{song.data.tagline}</p> : null}
+              <div className="detail-stats">
+                <div className="detail-stat">
+                  <b>{(song.data.person_artists ?? []).map((x) => x.name).filter(Boolean).join('/') || '—'}</b>
+                  <span>艺人</span>
+                </div>
+                <div className="detail-stat">
+                  <b>{media.data?.length ?? song.data.count_medias ?? 0}</b>
+                  <span>资源</span>
+                </div>
+                <div className="detail-stat">
+                  <b>{song.data.rating ?? '—'}</b>
+                  <span>评分</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="toolbar">
         <div className="tabs" role="tablist" aria-label="详情分区">

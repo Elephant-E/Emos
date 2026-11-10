@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -163,41 +164,21 @@ export function ShopView({
 
       {mine && isSeller && tab === 'products' && !panel ? (
         <section className="cards cards--4" style={{ marginBottom: 18 }}>
-          <article className="card">
-            <p className="stat__label">待发货</p>
-            <p className="stat__value">
-              {counts.ordersPending ?? '—'}
-              <small>单</small>
-            </p>
-            <p className="stat__delta stat__delta--quiet">
-              {/* 取不到（比如非管理员，订单接口 403）时不能写「都发完了」 */}
-              {counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
-            </p>
-          </article>
-          <article className="card">
-            <p className="stat__label">在售商品</p>
-            <p className="stat__value">
-              {counts.productsOnSale ?? '—'}
-              <small>件</small>
-            </p>
-            <p className="stat__delta stat__delta--quiet">共 {counts.productsAll ?? '—'} 件</p>
-          </article>
-          <article className="card">
-            <p className="stat__label">订单</p>
-            <p className="stat__value">
-              {counts.ordersAll ?? '—'}
-              <small>单</small>
-            </p>
-            <p className="stat__delta stat__delta--quiet">开店以来</p>
-          </article>
-          <article className="card">
-            <p className="stat__label">销量</p>
-            <p className="stat__value">
-              {counts.salesTotal ?? '—'}
-              <small>件</small>
-            </p>
-            <p className="stat__delta stat__delta--quiet">{counts.salesCapped ? '前 200 件累计' : '全部商品累计'}</p>
-          </article>
+          <StatCard
+            label="待发货"
+            value={counts.ordersPending ?? '—'}
+            unit="单"
+            /* 取不到（比如非管理员，订单接口 403）时不能写「都发完了」 */
+            note={counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
+          />
+          <StatCard label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
+          <StatCard label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
+          <StatCard
+            label="销量"
+            value={counts.salesTotal ?? '—'}
+            unit="件"
+            note={counts.salesCapped ? '前 200 件累计' : '全部商品累计'}
+          />
         </section>
       ) : null}
 

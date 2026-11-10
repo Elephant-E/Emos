@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -82,20 +83,16 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       ) : null}
 
       <section className="cards" style={base.error ? { display: 'none' } : undefined}>
-        <article className="card">
-          <p className="stat__label">累计收入</p>
-          <p className="stat__value">
-            {base.isLoading ? '—' : formatThousand(base.data?.total_revenue ?? 0)}
-            <small>胡萝卜</small>
-          </p>
-        </article>
-        <article className="card">
-          <p className="stat__label">累计支出</p>
-          <p className="stat__value">
-            {base.isLoading ? '—' : formatThousand(base.data?.total_expenditure ?? 0)}
-            <small>胡萝卜</small>
-          </p>
-        </article>
+        <StatCard
+          label="累计收入"
+          value={base.isLoading ? '—' : formatThousand(base.data?.total_revenue ?? 0)}
+          unit="胡萝卜"
+        />
+        <StatCard
+          label="累计支出"
+          value={base.isLoading ? '—' : formatThousand(base.data?.total_expenditure ?? 0)}
+          unit="胡萝卜"
+        />
         <article className="card">
           <CardHead title="回调地址">
             <button

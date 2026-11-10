@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
@@ -173,24 +174,20 @@ export function OverviewView() {
           </p>
         </article>
 
-        <article className="card card--stat">
-          <p className="stat__label">我的胡萝卜</p>
-          <p className="stat__value">
-            {(() => {
-              const balance = carrot.data?.carrot ?? session.data?.carrot
-              return balance == null ? '—' : formatThousand(balance)
-            })()}
-            <small>个</small>
-          </p>
-          <p className="stat__delta stat__delta--quiet">
-            {(() => {
-              const value = carrot.data?.carrot ?? session.data?.carrot
-              if (value == null) return '签到、上传都会获得'
-              const realm = realmOf(value)
-              return realm.next ? `${realm.name} · 距下一境 ${formatThousand(realm.next - value)}` : realm.name
-            })()}
-          </p>
-        </article>
+        <StatCard
+          label="我的胡萝卜"
+          value={(() => {
+            const balance = carrot.data?.carrot ?? session.data?.carrot
+            return balance == null ? '—' : formatThousand(balance)
+          })()}
+          unit="个"
+          note={(() => {
+            const value = carrot.data?.carrot ?? session.data?.carrot
+            if (value == null) return '签到、上传都会获得'
+            const realm = realmOf(value)
+            return realm.next ? `${realm.name} · 距下一境 ${formatThousand(realm.next - value)}` : realm.name
+          })()}
+        />
 
         <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video', q: '' }}>
           <p className="stat__label">片单槽位</p>

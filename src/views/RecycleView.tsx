@@ -83,6 +83,16 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       />
 
       <div className="toolbar">
+        <div className="tabs" role="tablist" aria-label="回收类型">
+          <button className="tab" role="tab" aria-selected={tab === 'media'} onClick={() => onTab('media')}>
+            资源
+          </button>
+          <button className="tab" role="tab" aria-selected={tab === 'video'} onClick={() => onTab('video')}>
+            影片
+          </button>
+        </div>
+        <span className="spacer" />
+
         {tab === 'media' ? (
           <select
             className="input"
@@ -108,14 +118,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           />
         </label>
 
-        <div className="tabs" role="tablist" aria-label="回收类型">
-          <button className="tab" role="tab" aria-selected={tab === 'media'} onClick={() => onTab('media')}>
-            资源
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'video'} onClick={() => onTab('video')}>
-            影片
-          </button>
-        </div>
       </div>
 
       {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}

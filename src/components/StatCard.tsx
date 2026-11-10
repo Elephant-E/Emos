@@ -1,0 +1,46 @@
+import type { ReactNode } from 'react'
+import { CardHead } from './CardHead'
+
+/**
+ * 大数字卡片：标签 → 数值（可带单位）→ 一行说明。
+ *
+ * 这个形状在六个页面里出现十几次，每处都是三段样板，而且分成两套写法：
+ * 裸 `.card` 的数字是 44px，`.card--stat` 的是 42px —— 同一件事两个值。
+ * 收成组件后只保留 44px，间距也统一走 `.card--stat` 那套。
+ *
+ * action 是卡片头右侧的操作（例如「胡萝卜余额」上的「转赠」），
+ * 有它时标签那一行改用 CardHead。
+ */
+export function StatCard({
+  label,
+  value,
+  unit,
+  note,
+  action,
+  tone,
+  word,
+  loud,
+}: {
+  label: ReactNode
+  value: ReactNode
+  unit?: ReactNode
+  note?: ReactNode
+  action?: ReactNode
+  /** 数值用警示色（封禁、欠费等） */
+  tone?: 'danger'
+  /** 数值本身是文字而不是数字，用小一号 */
+  word?: boolean
+  /** 说明用强调色（默认是弱色） */
+  loud?: boolean
+}) {
+  return (
+    <article className="card card--stat">
+      {action ? <CardHead title={label}>{action}</CardHead> : <p className="stat__label">{label}</p>}
+      <p className="stat__value" style={tone === 'danger' ? { color: 'var(--c-red)' } : undefined}>
+        {word ? <span className="stat__word stat__word--sm">{value}</span> : value}
+        {unit ? <small>{unit}</small> : null}
+      </p>
+      {note ? <p className={loud ? 'stat__delta' : 'stat__delta stat__delta--quiet'}>{note}</p> : null}
+    </article>
+  )
+}

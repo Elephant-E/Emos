@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -140,34 +141,24 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       {tab === 'profile' && user ? (
         <>
           <section className="cards">
-            <article className="card">
-              <p className="stat__label">胡萝卜</p>
-              <p className="stat__value">
-                {formatThousand(carrot.data?.carrot ?? user.carrot)}
-                <small>个</small>
-              </p>
-              <p className="stat__delta">
-                片单槽位 {user.slot_remaining}
-                <span> · 邀请名额 {user.invite_remaining}</span>
-              </p>
-            </article>
-            <article className="card">
-              <p className="stat__label">累计上传</p>
-              <p className="stat__value">
-                {formatSize(user.size_upload)}
-              </p>
-              <p className="stat__delta stat__delta--quiet">
-                {user.is_can_upload ? '上传权限已开通' : '上传权限未开通'}
-              </p>
-            </article>
-            <article className="card">
-              <p className="stat__label">片单槽位</p>
-              <p className="stat__value">
-                {user.slot_remaining}
-                <small>个可用</small>
-              </p>
-              <p className="stat__delta stat__delta--quiet">可用胡萝卜兑换</p>
-            </article>
+            <StatCard
+              label="胡萝卜"
+              value={formatThousand(carrot.data?.carrot ?? user.carrot)}
+              unit="个"
+              loud
+              note={
+                <>
+                  片单槽位 {user.slot_remaining}
+                  <span> · 邀请名额 {user.invite_remaining}</span>
+                </>
+              }
+            />
+            <StatCard
+              label="累计上传"
+              value={formatSize(user.size_upload)}
+              note={user.is_can_upload ? '上传权限已开通' : '上传权限未开通'}
+            />
+            <StatCard label="片单槽位" value={user.slot_remaining} unit="个可用" note="可用胡萝卜兑换" />
           </section>
 
           <section className="cards cards--wide">
@@ -472,18 +463,16 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       {tab === 'invite' ? (
         <>
           <section className="cards cards--2">
-            <article className="card">
-              <p className="stat__label">邀请名额</p>
-              <p className="stat__value">
-                {info.isLoading ? '—' : caps.inviteRemaining}
-                <small>个可用</small>
-              </p>
-              <p className="stat__delta stat__delta--quiet">
-                {info.data?.parent?.pseudonym
+            <StatCard
+              label="邀请名额"
+              value={info.isLoading ? '—' : caps.inviteRemaining}
+              unit="个可用"
+              note={
+                info.data?.parent?.pseudonym
                   ? `邀请人 ${info.data.parent.pseudonym}`
-                  : `加入于 ${formatDateTime(info.data?.invite_at)}`}
-              </p>
-            </article>
+                  : `加入于 ${formatDateTime(info.data?.invite_at)}`
+              }
+            />
             <article className="card">
               <p className="stat__label">邀请用户</p>
               <div className="row-input" style={{ marginTop: 10 }}>

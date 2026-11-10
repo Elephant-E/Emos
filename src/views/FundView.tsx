@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CardHead } from '@/components/CardHead'
+import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -24,18 +24,23 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
   return (
     <>
       <section className="cards cards--wide">
-        <article className="card" style={{ maxWidth: 380 }}>
-          <CardHead title="胡萝卜余额">
-            <button className="btn btn--quiet" disabled={!carrot.data || carrot.data.carrot < 2} onClick={() => setTransferring(true)}>
-              转赠
-            </button>
-          </CardHead>
-          <p className="stat__value" style={{ marginTop: 8 }}>
-            {carrot.data ? formatThousand(carrot.data.carrot) : '—'}
-            <small>个</small>
-          </p>
-          <p className="stat__delta stat__delta--quiet">签到、上传、字幕都会获得</p>
-        </article>
+        <div style={{ maxWidth: 380 }}>
+          <StatCard
+            label="胡萝卜余额"
+            value={carrot.data ? formatThousand(carrot.data.carrot) : '—'}
+            unit="个"
+            note="签到、上传、字幕都会获得"
+            action={
+              <button
+                className="btn btn--quiet"
+                disabled={!carrot.data || carrot.data.carrot < 2}
+                onClick={() => setTransferring(true)}
+              >
+                转赠
+              </button>
+            }
+          />
+        </div>
       </section>
 
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
