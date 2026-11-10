@@ -79,8 +79,8 @@ export function VideoDetailView({
   const persons = usePersons(videoId)
   const actions = useVideoMutations(videoId)
 
-  const [renaming, setRenaming] = useState<{ mediaId: string; name: string; isSelf: boolean } | null>(null)
-  const [renamingSub, setRenamingSub] = useState<{ id: string; title: string; isSelf: boolean } | null>(null)
+  const [renaming, setRenaming] = useState<{ mediaId: string; name: string; isSelf: boolean; owner?: string | null } | null>(null)
+  const [renamingSub, setRenamingSub] = useState<{ id: string; title: string; isSelf: boolean; owner?: string | null } | null>(null)
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
   const [subProgress, setSubProgress] = useState(0)
   const [subBusy, setSubBusy] = useState(false)
@@ -347,7 +347,7 @@ export function VideoDetailView({
                             <button
                               className="row-menu"
                               aria-label="操作"
-                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload) })}
+                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
                             >
                               <IconDots />
                             </button>
@@ -416,7 +416,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload) })}>
+                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
                               <IconDots />
                             </button>
                           ) : null}
@@ -542,10 +542,11 @@ export function VideoDetailView({
                   if (!ok) return
                 } else {
                   const input = await promptDialog({
-                    title: '删除别人的资源？',
-                    message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。理由会记录在删除记录里。',
-                    label: '删除理由',
-                    defaultValue: '后台删除',
+                    title: '删除这个资源？',
+                    message: `${renaming.owner ? `由 ${renaming.owner} 上传。` : ''}删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。`,
+                    label: '理由',
+                    placeholder: '写一句，方便以后查',
+                    required: true,
                     confirmText: '删除',
                   })
                   if (input === null) return
@@ -745,10 +746,11 @@ export function VideoDetailView({
                 if (!ok) return
               } else {
                 const input = await promptDialog({
-                  title: '删除别人的字幕？',
-                  message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜。理由会记录在删除记录里。',
-                  label: '删除理由',
-                  defaultValue: '后台删除',
+                  title: '删除这条字幕？',
+                  message: `${renamingSub.owner ? `由 ${renamingSub.owner} 上传。` : ''}观看端将不再显示它，会扣除 1 个胡萝卜。`,
+                  label: '理由',
+                  placeholder: '写一句，方便以后查',
+                  required: true,
                   confirmText: '删除',
                 })
                 if (input === null) return

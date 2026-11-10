@@ -253,10 +253,11 @@ export function SongDetailView({ songId }: { songId: number }) {
                                 if (!ok) return
                               } else {
                                 const input = await promptDialog({
-                                  title: '删除别人的资源？',
-                                  message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。理由会记录在删除记录里。',
-                                  label: '删除理由',
-                                  defaultValue: '后台删除',
+                                  title: '删除这个资源？',
+                                  message: `${owner ? `由 ${String((row.user as { username?: string } | undefined)?.username ?? '')} 上传。` : ''}歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。`,
+                                  label: '理由',
+                                  placeholder: '写一句，方便以后查',
+                                  required: true,
                                   confirmText: '删除',
                                 })
                                 if (input === null) return
