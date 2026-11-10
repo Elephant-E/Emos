@@ -8,7 +8,6 @@ import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopProductsInfinite, useShopSeller } from '@/api/queries'
-import { shopApi } from '@/api/endpoints'
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -205,9 +204,8 @@ export function ShopView({
         </section>
       ) : null}
 
-      {true ? (
-        <>
-          <div className="toolbar" style={{ marginTop: 0 }}>
+      <>
+        <div className="toolbar" style={{ marginTop: 0 }}>
             {mine ? (
               <div className="tabs">
                 <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
@@ -343,15 +341,7 @@ export function ShopView({
                             </button>
                             <button
                               className="btn btn--quiet"
-                              onClick={async () => {
-                                setEditing(product)
-                                try {
-                                  const full = await shopApi.product(product.product_id)
-                                  setEditing((prev) => (prev ? { ...prev, ...full } : prev))
-                                } catch {
-                                  /* 拿不到详情就用手上这份，至少能改名称价格 */
-                                }
-                              }}
+                              onClick={() => setEditing(product)}
                             >
                               编辑
                             </button>
@@ -387,8 +377,7 @@ export function ShopView({
               <Pager total={products.data.total} page={page} pageSize={products.data.page_size} onPage={(next) => onSearch({ page: next })} />
             </div>
           ) : null}
-        </>
-      ) : null}
+      </>
 
       {panel === 'categories' ? (
         <Modal

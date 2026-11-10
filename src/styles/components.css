@@ -1824,6 +1824,12 @@
   height: 100%;
   object-fit: cover;
 }
+/* 封面加载失败时退回首字：组件里一直在设 data-fallback，但规则一直没写 */
+.product-tile__cover[data-fallback]::after {
+  content: attr(data-fallback);
+  font-size: 28px;
+  color: var(--fg-5);
+}
 .product-tile__body { padding: 14px 16px 16px; display: grid; gap: 7px; }
 .product-tile__name {
   font-size: 14px;

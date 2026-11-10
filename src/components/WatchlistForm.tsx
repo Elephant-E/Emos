@@ -57,8 +57,7 @@ export function WatchlistForm({
       title={initial ? '编辑片单' : '新建片单'}
       onClose={onClose}
       onSubmit={() => {
-        // 焦点在标签输入框里时，回车属于「确认标签」，不该提交整个表单
-        if (document.activeElement?.closest('.tag-input')) return
+        // 标签输入框里的回车由 Modal 统一拦截（见 Modal 的 onKeyDown），这里不重复判断
         if (valid && !pending) onSubmit({ ...form, name: form.name.trim() })
       }}
       footer={

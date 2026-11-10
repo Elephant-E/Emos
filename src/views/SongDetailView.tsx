@@ -6,7 +6,7 @@ import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } f
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { promptDialog } from '@/ui/prompt'
+import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize } from '@/lib/format'
 import { Modal } from '@/components/Modal'
 
@@ -226,30 +226,15 @@ export function SongDetailView({ songId }: { songId: number }) {
                           <button
                             className="btn btn--danger-text"
                             onClick={async () => {
-                              // 音频列表没有 is_self_upload，归属看 user.user_id
-                              const owner = (row.user as { user_id?: string } | undefined)?.user_id
-                              const isMine = Boolean(owner) && owner === session.data?.user_id
-                              let reason = ''
-                              if (isMine) {
-                                const ok = await confirmDialog({
-                                  title: '删除这个资源？',
-                                  message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
-                                  confirmText: '删除',
-                                  danger: true,
-                                })
-                                if (!ok) return
-                              } else {
-                                const input = await promptDialog({
-                                  title: '删除这个资源？',
-                                  message: `${owner ? `由 ${String((row.user as { username?: string } | undefined)?.username ?? '')} 上传。` : ''}歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。`,
-                                  label: '理由',
-                                  placeholder: '请说明删除原因',
-                                  required: true,
-                                  confirmText: '删除',
-                                })
-                                if (input === null) return
-                                reason = input
-                              }
+                              // 音频列表没有 is_self_upload，归属看 user
+                              const ownerUser = row.user as { user_id?: string; username?: string } | undefined
+                              const reason = await confirmDelete({
+                                title: '删除这个资源？',
+                                message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
+                                isSelf: Boolean(ownerUser?.user_id) && ownerUser?.user_id === session.data?.user_id,
+                                owner: ownerUser?.username ?? null,
+                              })
+                              if (reason === null) return
                               actions.deleteMedia.mutate(
                                 { mediaId: String(row.media_id), reason },
                                 { onSuccess: () => toast('已删除', 'success') },

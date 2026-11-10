@@ -327,15 +327,8 @@ export function useEpisodes(videoId: number, seasonNumber: number) {
 export function useMediaList(params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) {
   return useQuery({
     queryKey: ['media', params] as const,
-    queryFn: async () => {
-      const res = (await mediaApi.list(params)) as unknown
-      if (Array.isArray(res)) return res as Array<Record<string, unknown>>
-      const obj = res as { data?: unknown; items?: unknown; medias?: unknown }
-      if (Array.isArray(obj.items)) return obj.items as Array<Record<string, unknown>>
-      if (Array.isArray(obj.data)) return obj.data as Array<Record<string, unknown>>
-      if (Array.isArray(obj.medias)) return obj.medias as Array<Record<string, unknown>>
-      return []
-    },
+    // 接口返回的就是数组（真机实测），不需要再嗅探信封
+    queryFn: () => mediaApi.list(params) as unknown as Promise<Array<Record<string, unknown>>>,
   })
 }
 

@@ -10,7 +10,7 @@ import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations, useVideoPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { promptDialog } from '@/ui/prompt'
+import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface DetailSearch {
@@ -90,6 +90,7 @@ export function VideoDetailView({
   const [moveVideo, setMoveVideo] = useState<{ id: number; title: string; type: 'movie' | 'tv' } | null>(null)
   const [moveTerm, setMoveTerm] = useState('')
   const [moveKeyword, setMoveKeyword] = useState('')
+  const moveSearchTimer = useRef<number | undefined>(undefined)
   const moveTargetId = moveVideo?.id ?? videoId
   const moveSearch = useVideoPage({ page: 1, page_size: 6, title: moveKeyword || undefined })
   const moveSeasons = useSeasons(moveTargetId)
@@ -537,28 +538,13 @@ export function VideoDetailView({
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
-                // 自己的资源不需要解释；删别人的才要说明为什么
-                let reason = ''
-                if (renaming.isSelf) {
-                  const ok = await confirmDialog({
-                    title: '删除这个资源？',
-                    message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
-                    confirmText: '删除',
-                    danger: true,
-                  })
-                  if (!ok) return
-                } else {
-                  const input = await promptDialog({
-                    title: '删除这个资源？',
-                    message: `${renaming.owner ? `由 ${renaming.owner} 上传。` : ''}删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。`,
-                    label: '理由',
-                    placeholder: '请说明删除原因',
-                    required: true,
-                    confirmText: '删除',
-                  })
-                  if (input === null) return
-                  reason = input
-                }
+                const reason = await confirmDelete({
+                  title: '删除这个资源？',
+                  message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
+                  isSelf: renaming.isSelf,
+                  owner: renaming.owner,
+                })
+                if (reason === null) return
                 actions.removeMedia.mutate(
                   { mediaId: renaming.mediaId, reason },
                   {
@@ -595,10 +581,16 @@ export function VideoDetailView({
               placeholder="搜片名，留空则在当前影片里移动"
               value={moveTerm}
               onChange={(e) => {
-                setMoveTerm(e.target.value)
-                const next = e.target.value.trim()
-                setTimeout(() => setMoveKeyword(next), 300)
-                if (!next) setMoveVideo(null)
+                const value = e.target.value
+                setMoveTerm(value)
+                if (!value.trim()) {
+                  setMoveVideo(null)
+                  setMoveKeyword('')
+                  return
+                }
+                // 每次输入都清掉上一个定时器，否则连打六个字就是六个请求
+                window.clearTimeout(moveSearchTimer.current)
+                moveSearchTimer.current = window.setTimeout(() => setMoveKeyword(value.trim()), 300)
               }}
             />
           </label>
@@ -742,27 +734,13 @@ export function VideoDetailView({
           <button
             className="btn btn--ghost"
             onClick={async () => {
-              let reason = ''
-              if (renamingSub.isSelf) {
-                const ok = await confirmDialog({
-                  title: '删除这条字幕？',
-                  message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜，可重新上传。',
-                  confirmText: '删除',
-                  danger: true,
-                })
-                if (!ok) return
-              } else {
-                const input = await promptDialog({
-                  title: '删除这条字幕？',
-                  message: `${renamingSub.owner ? `由 ${renamingSub.owner} 上传。` : ''}观看端将不再显示它，会扣除 1 个胡萝卜。`,
-                  label: '理由',
-                  placeholder: '请说明删除原因',
-                  required: true,
-                  confirmText: '删除',
-                })
-                if (input === null) return
-                reason = input
-              }
+              const reason = await confirmDelete({
+                title: '删除这条字幕？',
+                message: '观看端将不再显示它，会扣除 1 个胡萝卜，可重新上传。',
+                isSelf: renamingSub.isSelf,
+                owner: renamingSub.owner,
+              })
+              if (reason === null) return
               actions.removeSubtitle.mutate({ subtitleId: renamingSub.id, reason }, {
                 onSuccess: () => {
                   toast('已删除字幕', 'success')
