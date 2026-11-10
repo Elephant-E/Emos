@@ -157,8 +157,9 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             {media.error ? <ErrorBlock bare error={media.error as Error & { status?: number }} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-              <button className="btn btn--ghost" onClick={() => fileRef.current?.click()} disabled={uploading}>
+            <div className="card-head">
+              <p className="stat__label" style={{ margin: 0 }}>资源</p>
+              <button className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
               </button>
               <input
@@ -190,12 +191,12 @@ export function SongDetailView({ songId }: { songId: number }) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>文件</th>
-                    <th style={{ width: 140 }}>音质</th>
-                    <th className="num" style={{ width: 100 }}>大小</th>
-                    <th style={{ width: 110 }}>码率</th>
-                    <th style={{ width: 110 }}>上传者</th>
-                    <th style={{ width: 130 }}>操作</th>
+                    <th style={{ width: '32%' }}>文件</th>
+                    <th style={{ width: '16%' }}>音质</th>
+                    <th className="num" style={{ width: '11%' }}>大小</th>
+                    <th className="num" style={{ width: '11%' }}>码率</th>
+                    <th style={{ width: '14%' }}>上传者</th>
+                    <th style={{ width: '16%' }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -207,8 +208,9 @@ export function SongDetailView({ songId }: { songId: number }) {
                           {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
                         </span>
                         <span className="cell-title__code">
-                          {String(row.media_id ?? '')}
-                          {row.file_duration ? ` · ${Math.floor(Number(row.file_duration) / 60)}:${String(Math.round(Number(row.file_duration) % 60)).padStart(2, '0')}` : ''}
+                          {row.file_duration
+                            ? `${Math.floor(Number(row.file_duration) / 60)}:${String(Math.round(Number(row.file_duration) % 60)).padStart(2, '0')}`
+                            : String(row.file_suffix ?? '')}
                         </span>
                       </td>
                       <td className="muted">
@@ -238,6 +240,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                           </button>
                           <button
                             className="btn btn--danger-text"
+                            style={{ marginLeft: 20 }}
                             onClick={async () => {
                               // 音频列表没有 is_self_upload，归属看 user.user_id
                               const owner = (row.user as { user_id?: string } | undefined)?.user_id
