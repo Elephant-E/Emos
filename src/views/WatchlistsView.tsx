@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type { WatchlistFormValues } from '@/components/WatchlistForm'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
@@ -121,9 +121,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         <EmptyBlock
           action={
             search.q ? (
-              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', page: 1 })}>
-                清空搜索
-              </button>
+              <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />
             ) : (
               <button className="btn btn--primary" onClick={() => setCreating(true)}>
                 新建片单

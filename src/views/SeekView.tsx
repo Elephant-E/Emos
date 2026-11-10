@@ -3,7 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
@@ -121,11 +121,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
           action={
-            search.q ? (
-              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', page: 1 })}>
-                清空搜索
-              </button>
-            ) : undefined
+            search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
           }
           title={
             search.q

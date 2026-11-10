@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { useShopCategories, useShopProductsInfinite, useShopSeller } from '@/api/queries'
@@ -99,11 +99,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
         <EmptyBlock
           title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
           action={
-            keyword ? (
-              <button className="btn btn--ghost" onClick={() => { setTerm(''); setKeyword('') }}>
-                清空搜索
-              </button>
-            ) : undefined
+            keyword ? <ClearSearchButton onClick={() => { setTerm(''); setKeyword('') }} /> : undefined
           }
         />
       ) : null}

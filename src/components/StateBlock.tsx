@@ -67,3 +67,12 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
     </div>
   )
 }
+
+/** 搜索没命中时的「清空搜索」，四个列表页共用 */
+export function ClearSearchButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button className="btn btn--ghost" onClick={onClick}>
+      清空搜索
+    </button>
+  )
+}
