@@ -25,7 +25,6 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       <PageHeader
         crumb={['商城', seller.data?.name ?? '店铺']}
         title={seller.data?.name ?? '店铺'}
-        mark={seller.data?.cover_url ?? null}
         hint={
           [
             seller.data?.description,
@@ -43,6 +42,12 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       />
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
+
+      {seller.data?.cover_url ? (
+        <div className="seller-cover">
+          <img src={seller.data.cover_url} alt="" />
+        </div>
+      ) : null}
 
       {categories.data && categories.data.length > 0 ? (
         <div className="toolbar">

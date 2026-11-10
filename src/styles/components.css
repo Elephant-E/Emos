@@ -201,15 +201,6 @@
   font-weight: 450;
   letter-spacing: 0;
 }
-.page-title__mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid var(--line);
-  flex: none;
-  align-self: center;
-}
 .page-title__row {
   display: flex;
   align-items: baseline;
@@ -1739,12 +1730,6 @@
   height: 100%;
   object-fit: cover;
 }
-/* 图片加载失败时的首字回退 */
-.product-tile__cover[data-fallback]::after {
-  content: attr(data-fallback);
-  font-size: 34px;
-  color: var(--fg-5);
-}
 .product-tile__body { padding: 12px 14px 14px; display: grid; gap: 6px; }
 .product-tile__name {
   font-size: 13.5px;
@@ -1787,12 +1772,36 @@
 
 
 
-/* 店铺封面的小方图，放在页头右侧。店铺封面是正常比例的图，
-   拉成整宽横幅会被裁得只剩一条，看不清是什么 */
-.seller-mark {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
+
+/* 商品详情里的店铺行：封面小图 + 店名 + 简介，整行进店 */
+.seller-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--fg-3);
+  font-size: 12px;
+  min-width: 0;
+}
+.seller-line__mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   object-fit: cover;
+  flex: none;
   border: 1px solid var(--line);
 }
+.seller-line__name { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; flex: none; }
+.seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 店铺封面：真实比例是 16:9（实测 3840×2160），按这个比例显示才不裁得奇怪 */
+.seller-cover {
+  margin-top: 4px;
+  width: min(100%, 520px);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-card);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--raised);
+}
+.seller-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }

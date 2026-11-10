@@ -32,20 +32,8 @@ export function ProductDetailModal({
       {p ? (
         <>
           <div style={{ display: 'flex', gap: 16 }}>
-            <div className="product-tile__cover" style={{ width: 200, height: 200, flex: 'none', borderRadius: 10 }}>
-              {p.cover_url ? (
-                <img
-                  src={p.cover_url}
-                  alt={p.name}
-                  onError={(e) => {
-                    // 封面走独立 CDN，国内经常被重置；失败时退回首字，别留个破图
-                    e.currentTarget.style.display = 'none'
-                    e.currentTarget.parentElement?.setAttribute('data-fallback', p.name.slice(0, 1))
-                  }}
-                />
-              ) : (
-                p.name.slice(0, 1)
-              )}
+            <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
+              {p.cover_url ? <img src={p.cover_url} alt={p.name} /> : p.name.slice(0, 1)}
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
@@ -63,17 +51,15 @@ export function ProductDetailModal({
               {offShelf ? <span className="badge badge--off"><i />已下架</span> : null}
               {soldOut ? <span className="badge badge--warn"><i />已售罄</span> : null}
               {p.seller ? (
-                <span className="muted" style={{ fontSize: 12 }}>
-                  来自{' '}
-                  <Link
-                    to="/shop/seller/$sellerId"
-                    params={{ sellerId: String(p.seller.seller_id) }}
-                    style={{ color: 'var(--fg-2)', textDecoration: 'underline', textUnderlineOffset: 2 }}
-                  >
-                    {p.seller.name}
-                  </Link>
-                  {p.seller.description ? ` · ${p.seller.description}` : ''}
-                </span>
+                <Link
+                  to="/shop/seller/$sellerId"
+                  params={{ sellerId: String(p.seller.seller_id) }}
+                  className="seller-line"
+                >
+                  {p.seller.cover_url ? <img className="seller-line__mark" src={p.seller.cover_url} alt="" /> : null}
+                  <span className="seller-line__name">{p.seller.name}</span>
+                  {p.seller.description ? <span className="seller-line__desc">{p.seller.description}</span> : null}
+                </Link>
               ) : null}
             </div>
           </div>
