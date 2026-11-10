@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { useMusicMutations, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
+import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { musicApi } from '@/api/endpoints'
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
@@ -15,6 +15,7 @@ export function SongDetailView({ songId }: { songId: number }) {
   const song = useSong(songId)
   const lyrics = useSongLyrics(songId)
   const media = useSongMedia(songId)
+  const session = useSession()
   const actions = useMusicMutations(songId)
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
   const [adding, setAdding] = useState(false)
@@ -238,14 +239,29 @@ export function SongDetailView({ songId }: { songId: number }) {
                           <button
                             className="btn btn--danger-text"
                             onClick={async () => {
-                              const reason = await promptDialog({
-                                title: '删除这个资源？',
-                                message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
-                                label: '删除理由',
-                                defaultValue: '后台删除',
-                                confirmText: '删除',
-                              })
-                              if (reason === null) return
+                              // 音频列表没有 is_self_upload，归属看 user.user_id
+                              const owner = (row.user as { user_id?: string } | undefined)?.user_id
+                              const isMine = Boolean(owner) && owner === session.data?.user_id
+                              let reason = '本人删除'
+                              if (isMine) {
+                                const ok = await confirmDialog({
+                                  title: '删除这个资源？',
+                                  message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
+                                  confirmText: '删除',
+                                  danger: true,
+                                })
+                                if (!ok) return
+                              } else {
+                                const input = await promptDialog({
+                                  title: '删除别人的资源？',
+                                  message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。理由会记录在删除记录里。',
+                                  label: '删除理由',
+                                  defaultValue: '后台删除',
+                                  confirmText: '删除',
+                                })
+                                if (input === null) return
+                                reason = input
+                              }
                               actions.deleteMedia.mutate(
                                 { mediaId: String(row.media_id), reason },
                                 { onSuccess: () => toast('已删除', 'success') },

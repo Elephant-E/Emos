@@ -23,7 +23,7 @@ const user: UserInfo = {
   is_can_upload: true,
   is_can_down: true,
   is_original_image: false,
-  roles: [],
+  roles: ['admin'],
   must_otp: false,
   is_viewing: false,
   invite_remaining: 3,
@@ -324,6 +324,18 @@ export async function mockRequest<T>(
       medias_count: 2,
       subtitles_count: 1,
     })) as T
+  }
+
+  const songMedia = clean.match(/^\/api\/music\/song\/(\d+)\/media\/list$/)
+  if (songMedia) {
+    return [
+      { media_id: '2g598yxqwqzr', file_suffix: 'mp3', file_type: 'audio/mpeg', file_size: 13_767_777,
+        file_duration: 330, file_quality: 'high', is_primary: true, name: '陈曦 上传', created_at: '2026-06-09T10:18:20Z',
+        user: { user_id: user.user_id, username: user.username, avatar: null } },
+      { media_id: '9x111aa22bb', file_suffix: 'flac', file_type: 'audio/flac', file_size: 41_234_567,
+        file_duration: 332, file_quality: 'lossless', is_primary: false, name: 'lin 上传', created_at: '2026-05-01T09:00:00Z',
+        user: { user_id: 'eK98L0NEMs', username: 'lin', avatar: null } },
+    ] as T
   }
 
   if (clean === '/api/music/song/list') {

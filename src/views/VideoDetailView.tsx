@@ -79,8 +79,8 @@ export function VideoDetailView({
   const persons = usePersons(videoId)
   const actions = useVideoMutations(videoId)
 
-  const [renaming, setRenaming] = useState<{ mediaId: string; name: string } | null>(null)
-  const [renamingSub, setRenamingSub] = useState<{ id: string; title: string } | null>(null)
+  const [renaming, setRenaming] = useState<{ mediaId: string; name: string; isSelf: boolean } | null>(null)
+  const [renamingSub, setRenamingSub] = useState<{ id: string; title: string; isSelf: boolean } | null>(null)
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
   const [subProgress, setSubProgress] = useState(0)
   const [subBusy, setSubBusy] = useState(false)
@@ -347,7 +347,7 @@ export function VideoDetailView({
                             <button
                               className="row-menu"
                               aria-label="操作"
-                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? '') })}
+                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload) })}
                             >
                               <IconDots />
                             </button>
@@ -416,7 +416,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title) })}>
+                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload) })}>
                               <IconDots />
                             </button>
                           ) : null}
@@ -530,23 +530,36 @@ export function VideoDetailView({
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
-                // 接口要求 reason，写死「后台删除」等于没写；让操作的人自己说明
-                const reason = await promptDialog({
-                  title: '删除这个资源？',
-                  message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
-                  label: '删除理由',
-                  defaultValue: '后台删除',
-                  placeholder: '会记录在删除记录里',
-                  confirmText: '删除',
-                })
-                if (reason !== null) {
-                  actions.removeMedia.mutate({ mediaId: renaming.mediaId, reason }, {
+                // 自己的资源不需要解释；删别人的才要说明为什么
+                let reason = '本人删除'
+                if (renaming.isSelf) {
+                  const ok = await confirmDialog({
+                    title: '删除这个资源？',
+                    message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
+                    confirmText: '删除',
+                    danger: true,
+                  })
+                  if (!ok) return
+                } else {
+                  const input = await promptDialog({
+                    title: '删除别人的资源？',
+                    message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。理由会记录在删除记录里。',
+                    label: '删除理由',
+                    defaultValue: '后台删除',
+                    confirmText: '删除',
+                  })
+                  if (input === null) return
+                  reason = input
+                }
+                actions.removeMedia.mutate(
+                  { mediaId: renaming.mediaId, reason },
+                  {
                     onSuccess: (res) => {
                       toast(`已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`, 'success')
                       setRenaming(null)
                     },
-                  })
-                }
+                  },
+                )
               }}
             >
               删除
@@ -721,14 +734,26 @@ export function VideoDetailView({
           <button
             className="btn btn--ghost"
             onClick={async () => {
-              const reason = await promptDialog({
-                title: '删除这条字幕？',
-                message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜，可重新上传。',
-                label: '删除理由',
-                defaultValue: '后台删除',
-                confirmText: '删除',
-              })
-              if (reason === null) return
+              let reason = '本人删除'
+              if (renamingSub.isSelf) {
+                const ok = await confirmDialog({
+                  title: '删除这条字幕？',
+                  message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜，可重新上传。',
+                  confirmText: '删除',
+                  danger: true,
+                })
+                if (!ok) return
+              } else {
+                const input = await promptDialog({
+                  title: '删除别人的字幕？',
+                  message: '观看端将不再显示这条字幕，会扣除 1 个胡萝卜。理由会记录在删除记录里。',
+                  label: '删除理由',
+                  defaultValue: '后台删除',
+                  confirmText: '删除',
+                })
+                if (input === null) return
+                reason = input
+              }
               actions.removeSubtitle.mutate({ subtitleId: renamingSub.id, reason }, {
                 onSuccess: () => {
                   toast('已删除字幕', 'success')
