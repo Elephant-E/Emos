@@ -130,6 +130,14 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                   <tr
                     key={`${search.tab}-${id}`}
                     onClick={() => isSong && navigate({ to: '/music/song/$songId', params: { songId: String(id) } })}
+                    tabIndex={isSong ? 0 : undefined}
+                    role={isSong ? 'link' : undefined}
+                    onKeyDown={(e) => {
+                      if (!isSong) return
+                      if (e.key !== 'Enter' && e.key !== ' ') return
+                      e.preventDefault()
+                      navigate({ to: '/music/song/$songId', params: { songId: String(id) } })
+                    }}
                     style={{ cursor: isSong ? 'pointer' : 'default' }}
                   >
                     <td>

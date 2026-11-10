@@ -205,7 +205,18 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 const selected = item.id === search.channel
                 return (
                   <Fragment key={item.id}>
-                  <tr onClick={() => onSearch({ channel: selected ? 0 : item.id })} style={{ cursor: 'pointer' }} className={selected ? 'is-expanded' : undefined}>
+                  <tr
+                    onClick={() => onSearch({ channel: selected ? 0 : item.id })}
+                    tabIndex={0}
+                    role="button"
+                    onKeyDown={(e) => {
+                      if (e.key !== 'Enter' && e.key !== ' ') return
+                      e.preventDefault()
+                      onSearch({ channel: selected ? 0 : item.id })
+                    }}
+                    style={{ cursor: 'pointer' }}
+                    className={selected ? 'is-expanded' : undefined}
+                  >
                     <td>
                       <div className="cell-title">
                         <Poster src={item.image_poster_url} name={item.title} />
