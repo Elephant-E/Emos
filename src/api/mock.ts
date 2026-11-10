@@ -522,6 +522,7 @@ export async function mockRequest<T>(
     filtered = [...filtered, ...bulk]
     filtered = [...filtered, ...otherRows]
     if (query.is_up !== undefined) filtered = filtered.filter((r) => r.is_up === (String(query.is_up) === '1' || query.is_up === true))
+    if (query.name) filtered = filtered.filter((r) => r.name.includes(String(query.name)))
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
   }
   if (clean === '/api/shop/product/up') return { is_up: true } as T

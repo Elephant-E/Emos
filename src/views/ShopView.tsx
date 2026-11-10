@@ -248,10 +248,21 @@ export function ShopView({
             ) : null}
           </div>
 
-          {products.error ? <ErrorBlock error={products.error as Error & { status?: number }} onRetry={() => products.refetch()} /> : null}
-          {products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-          {products.data && products.data.items.length === 0 ? (
+          {mine && products.error ? (
+            <ErrorBlock error={products.error as Error & { status?: number }} onRetry={() => products.refetch()} />
+          ) : null}
+          {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
+          {mine && products.data && products.data.items.length === 0 ? (
             <EmptyBlock title="这个分类还没有商品" />
+          ) : null}
+
+          {/* 全站视图走 browse（滚动加载），它的加载与空态之前完全没接 */}
+          {!mine && browse.error ? (
+            <ErrorBlock error={browse.error as Error & { status?: number }} onRetry={() => browse.refetch()} />
+          ) : null}
+          {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
+          {!mine && !browse.isLoading && browseItems.length === 0 ? (
+            <EmptyBlock title={q ? `没有找到「${q}」` : '还没有在售商品'} />
           ) : null}
 
           {!mine && browseItems.length > 0 ? (
