@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
-import { musicApi } from '@/api/endpoints'
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -191,12 +190,12 @@ export function SongDetailView({ songId }: { songId: number }) {
               <table className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: '32%' }}>文件</th>
+                    <th style={{ width: '38%' }}>文件</th>
                     <th style={{ width: '16%' }}>音质</th>
                     <th className="num" style={{ width: '11%' }}>大小</th>
                     <th className="num" style={{ width: '11%' }}>码率</th>
                     <th style={{ width: '14%' }}>上传者</th>
-                    <th style={{ width: '16%' }}>操作</th>
+                    <th style={{ width: '10%' }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -225,22 +224,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td>
                         <span className="action-group">
                           <button
-                            className="btn btn--quiet"
-                            onClick={async () => {
-                              try {
-                                const res = await musicApi.playUrl(songId, String(row.media_id))
-                                await navigator.clipboard?.writeText(res.url)
-                                toast('播放地址已复制', 'success')
-                              } catch (error) {
-                                toast(error instanceof Error ? error.message : '取播放地址失败', 'error')
-                              }
-                            }}
-                          >
-                            播放地址
-                          </button>
-                          <button
                             className="btn btn--danger-text"
-                            style={{ marginLeft: 20 }}
                             onClick={async () => {
                               // 音频列表没有 is_self_upload，归属看 user.user_id
                               const owner = (row.user as { user_id?: string } | undefined)?.user_id
