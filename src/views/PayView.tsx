@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
+import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
@@ -25,6 +26,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const [transferTo, setTransferTo] = useState('')
   const [amount, setAmount] = useState(10)
   const [sending, setSending] = useState(false)
+  const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
 
   return (
     <>
@@ -34,9 +36,10 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         title="支付"
         hint={base.data ? base.data.name : undefined}
         tools={
-          base.data && base.data.status !== 'pass' ? (
-            <span className="head-note">{base.data.status}</span>
-          ) : null
+          <>
+            {base.data && base.data.status !== 'pass' ? <span className="head-note">{base.data.status}</span> : null}
+
+          </>
         }
       />
       ) : null}
@@ -91,7 +94,21 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           </p>
         </article>
         <article className="card">
-          <p className="stat__label">回调地址</p>
+          <div className="detail-head">
+            <p className="stat__label">回调地址</p>
+            <button
+              className="btn btn--quiet"
+              onClick={() =>
+                setEditing({
+                  name: base.data?.name ?? '',
+                  description: base.data?.description ?? '',
+                  notify_url: base.data?.notify_url ?? '',
+                })
+              }
+            >
+              编辑
+            </button>
+          </div>
           <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--fg-2)', wordBreak: 'break-all' }}>
             {base.data?.notify_url || '未配置'}
           </p>
@@ -176,6 +193,53 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           </p>
         </article>
       </section>
+
+      {editing ? (
+        <Modal
+          title="服务商信息"
+          onClose={() => setEditing(null)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setEditing(null)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                onClick={async () => {
+                  try {
+                    await payApi.update(editing)
+                    toast('已保存', 'success')
+                    setEditing(null)
+                    base.refetch()
+                  } catch (error) {
+                    toast(error instanceof Error ? error.message : '保存失败', 'error')
+                  }
+                }}
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>名称</span>
+            <input className="input" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} autoFocus />
+          </label>
+          <label className="field">
+            <span>描述</span>
+            <input className="input" value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+          </label>
+          <label className="field">
+            <span>回调地址</span>
+            <input
+              className="input"
+              value={editing.notify_url}
+              onChange={(e) => setEditing({ ...editing, notify_url: e.target.value })}
+              placeholder="https://…"
+            />
+          </label>
+        </Modal>
+      ) : null}
     </>
   )
 }

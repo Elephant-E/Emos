@@ -238,6 +238,14 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
+  if (clean === '/api/pay/base') {
+    return {
+      name: '我的支付服务', description: '由后台发起申请', notify_url: null,
+      total_revenue: 0, total_expenditure: 0, status: 'review',
+    } as T
+  }
+  if (clean === '/api/pay/update') return {} as T
+  if (clean === '/api/pay/close') return { is_close: true } as T
   if (clean === '/api/whisper/create') return { whisper_id: 9001 } as T
   if (clean === '/api/video/record/request') {
     return {
