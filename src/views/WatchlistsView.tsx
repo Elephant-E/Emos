@@ -70,6 +70,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       toast('片单已创建', 'success')
       setCreating(false)
       qc.invalidateQueries({ queryKey: ['watches'] })
+      qc.invalidateQueries({ queryKey: ['session'] })
     },
   })
 
@@ -199,6 +200,9 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                           setRemoving(true)
                           try {
                             await watchApi.remove(watch.id)
+                            // 删除会返还槽位
+                            void qc.invalidateQueries({ queryKey: ['watches'] })
+                            void qc.invalidateQueries({ queryKey: ['session'] })
                             toast('片单已删除', 'success')
                             void refetch()
                           } catch (error) {

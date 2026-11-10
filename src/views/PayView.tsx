@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { useQueryClient } from '@tanstack/react-query'
 import { usePayBase, usePayOrder } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
 import { carrotApi } from '@/api/endpoints'
@@ -18,6 +19,7 @@ const PAY_STATUS: Record<string, string> = {
 }
 
 export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
+  const qc = useQueryClient()
   const base = usePayBase()
   const [no, setNo] = useState('')
   const [lookup, setLookup] = useState('')
@@ -176,6 +178,9 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                 setSending(true)
                 try {
                   const res = await carrotApi.transfer(transferTo.trim(), amount)
+                  // 转赠改了余额，侧栏与概览的胡萝卜都得跟着变
+                  void qc.invalidateQueries({ queryKey: ['carrot'] })
+                  void qc.invalidateQueries({ queryKey: ['session'] })
                   toast(`已转赠，余额 ${res.carrot}`, 'success')
                   setTransferTo('')
                 } catch (error) {

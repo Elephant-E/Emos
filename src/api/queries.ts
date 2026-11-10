@@ -344,8 +344,10 @@ export function useVideoMutations(videoId: number) {
   const qc = useQueryClient()
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['video', videoId] })
+    qc.invalidateQueries({ queryKey: ['videos'] })      // 媒体库列表（删除影片后要消失）
     qc.invalidateQueries({ queryKey: ['media'] })
     qc.invalidateQueries({ queryKey: ['subtitles'] })
+    qc.invalidateQueries({ queryKey: ['session'] })     // 删除会扣胡萝卜
   }
 
   return {

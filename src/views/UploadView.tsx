@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -23,6 +23,7 @@ interface QueueItem {
 }
 
 export function UploadView() {
+  const qc = useQueryClient()
   const inputRef = useRef<HTMLInputElement>(null)
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [over, setOver] = useState(false)
@@ -101,6 +102,11 @@ export function UploadView() {
     try {
       const result = await uploadAndSave(item.file, item.target, (ratio) => patch(item.id, { progress: ratio }), fileStorage)
       patch(item.id, { status: 'done', progress: 1 })
+      // 入库会改媒体列表、该影片的资源数与胡萝卜余额
+      void qc.invalidateQueries({ queryKey: ['video', item.target.item_id] })
+      void qc.invalidateQueries({ queryKey: ['videos'] })
+      void qc.invalidateQueries({ queryKey: ['media'] })
+      void qc.invalidateQueries({ queryKey: ['session'] })
       toast(`《${item.target.title}》入库完成，+${result.carrot} 胡萝卜`, 'success')
     } catch (err) {
       patch(item.id, { status: 'failed', message: err instanceof Error ? err.message : '上传失败' })
