@@ -65,6 +65,7 @@ export function ShopView({
 
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
   const [detailId, setDetailId] = useState(0)
+  const [buyTarget, setBuyTarget] = useState<ShopProduct | null>(null)
   const [term, setTerm] = useState(q)
   useEffect(() => setTerm(q), [q])
   useEffect(() => {
@@ -277,6 +278,17 @@ export function ShopView({
                       {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
                         <s>{formatThousand(product.price_origin)}</s>
                       ) : null}
+                      <button
+                        className="btn btn--quiet"
+                        style={{ marginLeft: 'auto', flex: 'none' }}
+                        disabled={product.stock <= 0 || !product.is_up}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setBuyTarget(product)
+                        }}
+                      >
+                        购买
+                      </button>
                     </div>
                     <div className="product-tile__meta">
                       <span>销量 {formatThousand(product.sales)}</span>
@@ -625,6 +637,10 @@ export function ShopView({
         </Modal>
       ) : null}
 
+      {buyTarget ? (
+        <BuyModal product={buyTarget} onClose={() => setBuyTarget(null)} />
+      ) : null}
+
       {detailId ? (
         <ProductDetailModal
           productId={detailId}
@@ -679,6 +695,12 @@ function ProductDetailModal({
               </div>
               {offShelf ? <span className="badge badge--off"><i />已下架</span> : null}
               {soldOut ? <span className="badge badge--warn"><i />已售罄</span> : null}
+              {p.seller ? (
+                <span className="muted" style={{ fontSize: 12 }}>
+                  来自 {p.seller.name}
+                  {p.seller.description ? ` · ${p.seller.description}` : ''}
+                </span>
+              ) : null}
             </div>
           </div>
 
@@ -727,6 +749,74 @@ function ProductDetailModal({
           </div>
         </>
       ) : null}
+    </Modal>
+  )
+}
+
+/** 快捷购买：卡片上直接下单，不经过详情页 */
+function BuyModal({ product, onClose }: { product: ShopProduct; onClose: () => void }) {
+  const actions = useShopMutations()
+  const [buyNumber, setBuyNumber] = useState(1)
+  const [remark, setRemark] = useState('')
+  const max = Math.max(1, product.stock)
+  const total = (product.price ?? 0) * buyNumber
+
+  return (
+    <Modal
+      title="购买"
+      width={420}
+      onClose={onClose}
+      footer={
+        <>
+          <button className="btn btn--ghost" onClick={onClose}>
+            取消
+          </button>
+          <button
+            className="btn btn--primary"
+            disabled={actions.createOrder.isPending}
+            onClick={() =>
+              actions.createOrder.mutate(
+                { productId: product.product_id, buyNumber, remark: remark.trim() || null },
+                {
+                  onSuccess: (res) => {
+                    onClose()
+                    toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
+                  },
+                },
+              )
+            }
+          >
+            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatThousand(total)} 萝卜`}
+          </button>
+        </>
+      }
+    >
+      <div className="row" style={{ gap: 12 }}>
+        <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
+          {product.cover_url ? <img src={product.cover_url} alt={product.name} /> : product.name.slice(0, 1)}
+        </div>
+        <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
+          <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
+          <span className="muted" style={{ fontSize: 12 }}>
+            {product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`} · 库存 {formatThousand(product.stock)}
+          </span>
+        </span>
+      </div>
+      <label className="field" style={{ marginTop: 14 }}>
+        <span>数量</span>
+        <input
+          className="input tnum"
+          type="number"
+          min={1}
+          max={max}
+          value={buyNumber}
+          onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), max))}
+        />
+      </label>
+      <label className="field">
+        <span>备注（给商户看）</span>
+        <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
+      </label>
     </Modal>
   )
 }

@@ -339,6 +339,11 @@ export interface ShopProduct {
   user_buy_max: number | null
   sort: number
   updated_at: string
+  /** 只有 product/info 会返回（Postman 契约里没写，实测有） */
+  seller?: { seller_id: number; name: string; description: string | null; cover_url: string | null } | null
+  category_name?: string
+  description?: string | null
+  exchange_way?: string | null
 }
 
 export interface ShopSeller {

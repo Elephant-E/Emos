@@ -250,9 +250,7 @@ export const shopApi = {
   sortCategory: (categoryId: number, sort: number) =>
     request<{ sort: number }>('/api/shop/category/sort', { method: 'PUT', body: { category_id: categoryId, sort } }),
   product: (productId: number) =>
-    request<ShopProduct & { category_name?: string; description?: string; exchange_way?: string }>('/api/shop/product/info', {
-      query: { product_id: productId },
-    }),
+    request<ShopProduct>('/api/shop/product/info', { query: { product_id: productId } }),
   sellerBase: (sellerId?: number) => request<ShopSeller>('/api/shop/seller/base', { query: { seller_id: sellerId } }),
   sellerApply: (name: string, description: string) => request<unknown>('/api/shop/seller/apply', { method: 'POST', body: { name, description } }),
   sellerUpdate: (payload: Record<string, unknown>) => request<{ name: string; description: string; cover: string; cover_url: string }>('/api/shop/seller/update', { method: 'POST', body: payload }),

@@ -488,6 +488,7 @@ export async function mockRequest<T>(
       product_id: id, category_id: 1000, category_name: '周边',
       cover_url: poster('shop1'), name: '限量海报 A3', price: 68, price_origin: 98,
       stock: 24, sales: 132, is_up: true, sort: 80,
+      seller: { seller_id: 1002, name: '幕间小店', description: '只卖自己喜欢的东西', cover_url: null },
       description: '美术馆授权的限量印刷版，A3 尺寸 250g 哑粉纸。',
       exchange_way: '下单后凭订单号联系商户自提',
       up_time: '2026-10-20 10:00:00', time_start: null, time_end: null,
