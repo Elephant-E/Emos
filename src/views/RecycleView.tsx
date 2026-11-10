@@ -164,7 +164,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                     <tr key={mediaId}>
                       <td>
                         <span className="cell-title__name">{name}</span>
-                        <span className="cell-title__code">{mediaId}</span>
                       </td>
                       <td className="muted">
                         {String(row.video_title ?? '—')}

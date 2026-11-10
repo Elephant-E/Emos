@@ -1009,7 +1009,7 @@
   border-top: 1px solid var(--line-soft);
 }
 .table__expand .sources {
-  padding: 14px 16px 16px 58px;
+  padding: 14px 24px 16px 58px;
   animation: content-in 160ms var(--ease);
 }
 .table tr.is-expanded > td {

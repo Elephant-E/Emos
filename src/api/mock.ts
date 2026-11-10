@@ -518,7 +518,7 @@ export async function mockRequest<T>(
   }
   if (clean === '/api/live/list') {
     const rows = [
-      { id: 1, live_library_id: 100, code: 'cctv1', title: 'CCTV-1 综合', description: '央视综合频道', tagline: '三网直达', image_poster_url: poster('live1'), sort: 80, is_can_edit: true, media_count: 3, updated_at: '2026-11-03T10:00:00Z' },
+      { id: 1, live_library_id: 100, code: 'cctv1', title: 'CCTV-1 综合', description: '央视综合频道', tagline: '三网直达', image_poster_url: poster('live1'), sort: 80, is_can_edit: true, media_count: 2, updated_at: '2026-11-03T10:00:00Z' },
       { id: 2, live_library_id: 100, code: 'cctv5', title: 'CCTV-5 体育', description: null, tagline: null, image_poster_url: poster('live2'), sort: 70, is_can_edit: true, media_count: 2, updated_at: '2026-11-02T18:00:00Z' },
       { id: 3, live_library_id: 101, code: 'hunan', title: '湖南卫视', description: null, tagline: null, image_poster_url: poster('live3'), sort: 60, is_can_edit: false, media_count: 1, updated_at: '2026-10-28T09:00:00Z' },
     ]
