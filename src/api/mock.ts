@@ -231,7 +231,8 @@ export async function mockRequest<T>(
   if (clean === '/api/rank/userVideoRecordPlaying') return playing as T
 
   if (clean === '/api/video/list') {
-    let rows = videos.filter((v) => !v.is_delete)
+    const wantDeleted = String(query.only_delete ?? '') === '1' || query.only_delete === true
+    let rows = videos.filter((v) => (wantDeleted ? v.is_delete : !v.is_delete))
     const title = String(query.title ?? '').trim()
     if (title) rows = rows.filter((v) => v.video_title.includes(title))
     if (query.type) rows = rows.filter((v) => v.video_type === query.type)
@@ -261,13 +262,18 @@ export async function mockRequest<T>(
   if (clean === '/api/seek/apply') return { seek_is_request: true } as T
   if (clean === '/api/seek') {
     const statuses = (body.status as string[] | undefined) ?? ['default', 'upload', 'complete']
-    const rows = seeks.filter((s) => statuses.includes(s.status))
+    let rows = seeks.filter((s) => statuses.includes(s.status))
+    if (body.video_title) rows = rows.filter((s) => s.video_title_display.includes(String(body.video_title)))
+    if (body.video_type) rows = rows.filter((s) => s.video_type === body.video_type)
+    if (body.upload_self) rows = rows.filter((s) => Boolean(s.upload_username))
     return paginate(rows, Number(body.page ?? 1), Number(body.page_size ?? 20)) as T
   }
 
   if (clean === '/api/watch') {
     let rows = watches
     if (query.watch_id) rows = rows.filter((w) => w.id === Number(query.watch_id))
+    if (query.type) rows = rows.filter((w) => w.type === query.type)
+    if (query.name) rows = rows.filter((w) => w.name.includes(String(query.name)))
     if (query.is_self) rows = rows.filter((w) => w.is_self)
     if (query.is_subscribe) rows = rows.filter((w) => w.is_subscribe)
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
@@ -314,7 +320,12 @@ export async function mockRequest<T>(
 
   if (clean === '/api/music/song/list') {
     const name = String(query.name ?? '').trim()
-    const rows = name ? songs.filter((x) => x.name.includes(name)) : songs
+    let rows = name ? songs.filter((x) => x.name.includes(name)) : songs
+    const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
+    const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
+    if (falsy(query.has_media)) rows = rows.filter((x) => x.has_media === false)
+    if (truthy(query.has_media)) rows = rows.filter((x) => x.has_media !== false)
+    if (truthy(query.is_favorite)) rows = rows.filter((x) => x.is_favorite === true)
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
   if (clean === '/api/music/album/list') {
