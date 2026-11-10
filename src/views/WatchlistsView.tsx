@@ -56,7 +56,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const create = useMutation({
     mutationFn: (values: WatchlistFormValues) =>
       watchApi.createOrUpdate({
-        type: search.type,
+        type: values.type,
         name: values.name,
         description: values.description.trim() || undefined,
         is_public: values.is_public,
@@ -244,6 +244,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {creating ? (
         <WatchlistForm
+          defaultType={search.type}
           submitLabel="创建"
           pending={create.isPending}
           onClose={() => setCreating(false)}

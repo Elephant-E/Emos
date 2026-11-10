@@ -487,6 +487,7 @@ export function WatchlistDetailView({
       {editing && item ? (
         <WatchlistForm
           initial={{
+            type: item.type,
             name: item.name,
             description: item.description ?? '',
             is_public: item.is_public,

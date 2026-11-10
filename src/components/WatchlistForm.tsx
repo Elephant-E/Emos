@@ -4,6 +4,8 @@ import { TagInput } from '@/components/TagInput'
 import { ImagePicker } from '@/components/ImagePicker'
 
 export interface WatchlistFormValues {
+  /** 影视片单还是音乐片单，创建后不可改 */
+  type: 'video' | 'music'
   name: string
   description: string
   is_public: boolean
@@ -15,6 +17,7 @@ export interface WatchlistFormValues {
 }
 
 const EMPTY: WatchlistFormValues = {
+  type: 'video',
   name: '',
   description: '',
   is_public: true,
@@ -31,6 +34,7 @@ const EMPTY: WatchlistFormValues = {
  */
 export function WatchlistForm({
   initial,
+  defaultType = 'video',
   submitLabel,
   pending,
   onClose,
@@ -38,12 +42,14 @@ export function WatchlistForm({
 }: {
   /** 传入即为编辑模式 */
   initial?: WatchlistFormValues | null
+  /** 新建时的默认类型（跟当前列表 tab 一致） */
+  defaultType?: 'video' | 'music'
   submitLabel: string
   pending?: boolean
   onClose: () => void
   onSubmit: (values: WatchlistFormValues) => void
 }) {
-  const [form, setForm] = useState<WatchlistFormValues>(initial ?? EMPTY)
+  const [form, setForm] = useState<WatchlistFormValues>(initial ?? { ...EMPTY, type: defaultType })
   const valid = form.name.trim().length >= 2
 
   return (
@@ -71,6 +77,19 @@ export function WatchlistForm({
         </>
       }
     >
+      {initial ? null : (
+        <div className="field">
+          <span>类型</span>
+          <div className="seg" role="group" aria-label="片单类型">
+            <button type="button" aria-pressed={form.type === 'video'} onClick={() => setForm({ ...form, type: 'video' })}>
+              影视
+            </button>
+            <button type="button" aria-pressed={form.type === 'music'} onClick={() => setForm({ ...form, type: 'music' })}>
+              音乐
+            </button>
+          </div>
+        </div>
+      )}
       <ImagePicker
         label="封面"
         value={form.image_poster_url}
