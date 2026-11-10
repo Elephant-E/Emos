@@ -43,18 +43,19 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   }, [term, search.q])
 
   const mineScope = search.scope === 'mine'
+  // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表
   const shopOrders = useShopOrders(search.page, {
     ...pay.filter,
     ...delivery.filter,
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
-  })
+  }, 10, !mineScope)
   // 「我的订单」也要吃搜索与两个状态筛选，之前只传了页码
   const mineOrders = useShopMineOrders(search.page, {
     ...pay.filter,
     ...delivery.filter,
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
-  })
+  }, 10, mineScope)
   const orders = mineScope ? mineOrders : shopOrders
   const actions = useShopMutations()
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)

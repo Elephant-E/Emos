@@ -557,17 +557,25 @@ export function useShopMineOrders(
   page: number,
   filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string } = {},
   pageSize = 10,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ['shop', 'mineOrders', page, filter] as const,
     queryFn: () => shopApi.ordersUser({ page, page_size: pageSize, ...filter }),
+    enabled,
   })
 }
 
-export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string }, pageSize = 10) {
+export function useShopOrders(
+  page: number,
+  filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string },
+  pageSize = 10,
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
     queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
+    enabled,
   })
 }
 
@@ -606,17 +614,16 @@ export function useShopMutations() {
     }),
     closeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.closeOrder(orderNo), onSuccess: invalidate }),
     // 买家侧
+    // 下单会改库存与销量，付款会改订单状态 —— 两者都影响商品网格、商品详情、
+    // 两个视角的订单列表、以及「我的店铺」的四张统计卡，统一用 ['shop'] 前缀失效
     createOrder: useMutation({
       mutationFn: (p: { productId: number; buyNumber: number; remark?: string | null }) =>
         shopApi.createOrder(p.productId, p.buyNumber, p.remark),
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] })
-        qc.invalidateQueries({ queryKey: ['shop', 'products'] })
-      },
+      onSuccess: invalidate,
     }),
     payOrder: useMutation({
       mutationFn: (orderNo: string) => shopApi.payOrder(orderNo),
-      onSuccess: () => qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] }),
+      onSuccess: invalidate,
     }),
   }
 }
