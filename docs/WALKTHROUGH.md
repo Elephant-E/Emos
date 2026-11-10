@@ -70,3 +70,20 @@ npm run dev            # http://localhost:5273
 
 - `/api/ban/list` 会 504、求片列表要 20 秒以上
 - 封面图走 `files.emosstore.sbs`，国内直连会 `ERR_CONNECTION_RESET`（图片退首字）
+
+
+---
+
+## 非管理员视角走查（2026-11-10，mock `?nonadmin`）
+
+`/api/shop/order/shop/order` 与 `/api/ban/list` 对普通用户返回 403，
+用 mock 的 `?nonadmin` 开关逐页看过：
+
+| 页面 | 结果 |
+|---|---|
+| 概览 | ✅ 待办里订单与封禁取不到，只剩求片；没有报错弹层 |
+| 订单 | ✅ 列表空，不崩 |
+| 用户 | ✅ 空态「这一屏没有内容」，不崩 |
+| 商城 | ⚠️ 待发货卡显示「— 单 / **都发完了**」——取不到数据被当成了 0，已修 |
+
+修复：`counts.ordersPending === undefined` 时写「读取中」，只有确实是 0 才写「都发完了」。

@@ -134,7 +134,8 @@ export function ShopView({
               <small>单</small>
             </p>
             <p className="stat__delta stat__delta--quiet">
-              {counts.ordersPending ? '需要处理' : '都发完了'}
+              {/* 取不到（比如非管理员，订单接口 403）时不能写「都发完了」 */}
+              {counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
             </p>
           </article>
           <article className="card">
