@@ -36,6 +36,7 @@ export function ShopView({
   categoryId,
   q,
   sort,
+  scope,
   onSearch,
 }: {
   tab: Tab
@@ -43,12 +44,22 @@ export function ShopView({
   categoryId: number
   q: string
   sort: '' | 'sales' | 'price'
-  onSearch: (patch: { tab?: Tab; page?: number; category?: number; q?: string; sort?: '' | 'sales' | 'price' }) => void
+  /** all = 逛全站商品（默认）；mine = 管自己的店 */
+  scope: 'all' | 'mine'
+  onSearch: (patch: {
+    tab?: Tab
+    page?: number
+    category?: number
+    q?: string
+    sort?: '' | 'sales' | 'price'
+    scope?: 'all' | 'mine'
+  }) => void
 }) {
   const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
-  const products = useShopProducts(page, seller.data?.seller_id ?? 0, categoryId, 12, q, sort)
+  const mine = scope === 'mine'
+  const products = useShopProducts(page, mine ? (seller.data?.seller_id ?? 0) : 0, categoryId, 12, q, sort)
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
@@ -107,10 +118,10 @@ export function ShopView({
     <>
       <PageHeader
         crumb={['商城', TABS.find((t) => t.key === tab)?.label ?? '商品']}
-        title={seller.data?.name ?? '商城'}
-        hint={seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
+        title={mine ? (seller.data?.name ?? '商城') : '商城'}
+        hint={mine && seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
         tools={
-          isSeller ? (
+          isSeller && mine ? (
             <>
               <button className="btn btn--ghost" onClick={() => setPanel('categories')}>
                 分类
@@ -125,7 +136,7 @@ export function ShopView({
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
 
-      {isSeller && tab === 'products' && !panel ? (
+      {mine && isSeller && tab === 'products' && !panel ? (
         <section className="cards cards--4" style={{ marginBottom: 18 }}>
           <article className="card">
             <p className="stat__label">待发货</p>
@@ -168,21 +179,31 @@ export function ShopView({
       {true ? (
         <>
           <div className="toolbar" style={{ marginTop: 0 }}>
-            <div className="tabs">
-              <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
-                全部
+            <div className="tabs" role="tablist" aria-label="范围">
+              <button className="tab" role="tab" aria-selected={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
+                全部商品
               </button>
-              {(categories.data ?? []).map((category) => (
-                <button
-                  key={category.category_id}
-                  className="tab"
-                  aria-selected={categoryId === category.category_id}
-                  onClick={() => onSearch({ category: category.category_id, page: 1 })}
-                >
-                  {category.name}
-                </button>
-              ))}
+              <button className="tab" role="tab" aria-selected={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
+                我的店铺
+              </button>
             </div>
+            {mine ? (
+              <div className="tabs">
+                <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
+                  全部分类
+                </button>
+                {(categories.data ?? []).map((category) => (
+                  <button
+                    key={category.category_id}
+                    className="tab"
+                    aria-selected={categoryId === category.category_id}
+                    onClick={() => onSearch({ category: category.category_id, page: 1 })}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <span className="spacer" />
             <div className="seg" role="group" aria-label="排序">
               <button aria-pressed={sort === ''} onClick={() => onSearch({ sort: '', page: 1 })}>
@@ -203,7 +224,7 @@ export function ShopView({
               onChange={(e) => setTerm(e.target.value)}
               style={{ minWidth: 170 }}
             />
-            {isSeller ? (
+            {isSeller && mine ? (
               <button
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
@@ -227,12 +248,12 @@ export function ShopView({
               <table className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: '34%' }} className="th-thumb">商品</th>
+                    <th style={{ width: mine ? '34%' : '44%' }} className="th-thumb">商品</th>
                     <th className="num" style={{ width: '12%' }}>价格</th>
                     <th className="num" style={{ width: '12%' }}>库存</th>
                     <th className="num" style={{ width: '12%' }}>销量</th>
                     <th style={{ width: '14%' }}>状态</th>
-                    <th style={{ width: '16%' }}>操作</th>
+                    {mine ? <th style={{ width: '16%' }}>操作</th> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -262,6 +283,7 @@ export function ShopView({
                           {product.is_up ? '已上架' : '已下架'}
                         </span>
                       </td>
+                      {mine ? (
                       <td>
                         {isSeller ? (
                           <span className="action-group">
@@ -313,6 +335,7 @@ export function ShopView({
                           <span className="muted">—</span>
                         )}
                       </td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>

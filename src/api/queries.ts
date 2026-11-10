@@ -457,7 +457,8 @@ export function useShopProducts(
         sort_by: sortBy || 'sort',
         sort_order: sortBy ? 'desc' : 'asc',
       }),
-    enabled: Boolean(sellerId),
+    // sellerId 为 0 表示看全站商品，不再按店铺过滤
+    enabled: true,
   })
 }
 

@@ -488,7 +488,15 @@ export async function mockRequest<T>(
       { product_id: 1001, category_id: 1001, cover_url: poster('shop2'), name: '一年会员兑换码', price: 198, price_origin: 268, stock: 500, sales: 61, is_up: true, up_time: '2026-10-18 09:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-10-28T09:00:00Z' },
       { product_id: 1002, category_id: 1000, cover_url: poster('shop3'), name: '亚克力立牌', price: 39, price_origin: 59, stock: 0, sales: 240, is_up: false, up_time: null, time_start: null, time_end: null, user_buy_max: 3, sort: 60, updated_at: '2026-09-30T09:00:00Z' },
     ]
+    // 不传 seller_id 就是全站商品；mock 里再补两条别家的，好看出区别
+    const otherRows = query.seller_id
+      ? []
+      : [
+          { product_id: 2000, category_id: 1000, cover_url: poster('shop3'), name: '别家的立牌', price: 45, price_origin: 60, stock: 12, sales: 33, is_up: true, up_time: '2026-10-01 10:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 80, updated_at: '2026-10-01T10:00:00Z' },
+          { product_id: 2001, category_id: 1001, cover_url: poster('shop1'), name: '别家的海报', price: 88, price_origin: 120, stock: 5, sales: 9, is_up: true, up_time: '2026-09-20 10:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-09-20T10:00:00Z' },
+        ]
     let filtered = query.category_id ? rows.filter((r) => r.category_id === Number(query.category_id)) : rows
+    filtered = [...filtered, ...otherRows]
     if (query.is_up !== undefined) filtered = filtered.filter((r) => r.is_up === (String(query.is_up) === '1' || query.is_up === true))
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
   }

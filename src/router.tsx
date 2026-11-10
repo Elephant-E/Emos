@@ -123,12 +123,15 @@ const shopRoute = createRoute({
     category: number
     q: string
     sort: '' | 'sales' | 'price'
+    /** all = 逛全站商品（默认）；mine = 管自己的店 */
+    scope: 'all' | 'mine'
   } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
     page: asPage(s.page),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
     q: asString(s.q),
     sort: s.sort === 'sales' || s.sort === 'price' ? s.sort : '',
+    scope: s.scope === 'mine' ? 'mine' : 'all',
   }),
   component: ShopRoute,
 })
@@ -143,6 +146,7 @@ function ShopRoute() {
       categoryId={search.category}
       q={search.q}
       sort={search.sort}
+      scope={search.scope}
       onSearch={(patch) => navigate({ search: { ...search, ...patch } })}
     />
   )
