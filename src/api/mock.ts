@@ -302,6 +302,14 @@ export async function mockRequest<T>(
     })) as T
   }
 
+  if (clean === '/api/upload/video/base') {
+    const id = Number(query.item_id ?? 0)
+    const video = videos.find((v) => v.video_id === id)
+    return {
+      title: video ? (video.video_type === 'tv' ? `${video.video_title} - S01E01 - 第 1 集` : video.video_title) : '未知影片',
+      video_medias: [],
+    } as T
+  }
   if (clean === '/api/video/media/list') {
     const seed = String(query.video_episode_id ?? '') + String(query.video_season_id ?? '')
     return [

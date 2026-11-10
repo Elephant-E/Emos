@@ -68,10 +68,21 @@ export function UploadView() {
         const res = (await uploadApi.recognize(item.file.name)) as unknown as Record<string, unknown>
         const itemId = Number(res.item_id ?? 0)
         if (itemId) {
+          const itemType = String(res.item_type ?? 'vl')
           patch(item.id, {
             status: 'ready',
-            target: { item_type: String(res.item_type ?? 'vl'), item_id: itemId, title: String(res.video_title ?? res.title ?? item.file.name) },
+            target: { item_type: itemType, item_id: itemId, title: String(res.video_title ?? res.title ?? item.file.name) },
           })
+          // recognize 是猜的，video/base 给的才是入库后真正显示的名字
+          // （剧集形如「【我推的孩子】 - S01E03 - 漫画原作的电视剧」）
+          try {
+            const base = await uploadApi.videoBase(itemType, itemId)
+            if (base?.title) {
+              patch(item.id, { target: { item_type: itemType, item_id: itemId, title: base.title } })
+            }
+          } catch {
+            /* 拿不到就沿用识别结果，不影响上传 */
+          }
         } else {
           patch(item.id, { status: 'need-target', message: String(res.message ?? '无法自动识别') })
         }
