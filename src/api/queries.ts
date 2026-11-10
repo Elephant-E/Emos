@@ -424,8 +424,12 @@ export function useAccountMutations() {
   }
 }
 
-export function useShopSeller() {
-  return useQuery({ queryKey: ['shop', 'seller'] as const, queryFn: () => shopApi.sellerBase() })
+/** 不传 sellerId 就是自己的店；传了就查别人的 */
+export function useShopSeller(sellerId?: number) {
+  return useQuery({
+    queryKey: ['shop', 'seller', sellerId ?? 0] as const,
+    queryFn: () => shopApi.sellerBase(sellerId),
+  })
 }
 
 export function useShopCategories(sellerId?: number) {

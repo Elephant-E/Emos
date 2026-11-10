@@ -4,8 +4,10 @@ import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
-import { IconBag, IconPlus } from '@/components/icons'
-import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProducts, useShopSeller } from '@/api/queries'
+import { IconPlus } from '@/components/icons'
+import { ProductTile } from '@/components/ProductTile'
+import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
+import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
 import { shopApi } from '@/api/endpoints'
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
@@ -251,53 +253,12 @@ export function ShopView({
           {products.data && products.data.items.length > 0 && !mine ? (
             <div className="product-grid content-in">
               {products.data.items.map((product) => (
-                <article
+                <ProductTile
                   key={product.product_id}
-                  className="product-tile"
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setDetailId(product.product_id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      setDetailId(product.product_id)
-                    }
-                  }}
-                >
-                  <div className="product-tile__cover">
-                    {product.cover_url ? (
-                      <img src={product.cover_url} alt={product.name} loading="lazy" />
-                    ) : (
-                      product.name.slice(0, 1)
-                    )}
-                  </div>
-                  <div className="product-tile__body">
-                    <span className="product-tile__name">{product.name}</span>
-                    <div className="product-tile__price">
-                      <b>{product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`}</b>
-                      {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
-                        <s>{formatThousand(product.price_origin)}</s>
-                      ) : null}
-                    </div>
-                    <div className="product-tile__meta">
-                      <span>销量 {formatThousand(product.sales)}</span>
-                      {product.stock > 0 ? <span>库存 {formatThousand(product.stock)}</span> : <span>已售罄</span>}
-                      {/* 右下角图标：这里是「买」，不是「加入购物车」（没有购物车） */}
-                      <button
-                        className="product-tile__buy"
-                        aria-label={`购买 ${product.name}`}
-                        title={product.stock <= 0 ? '已售罄' : '购买'}
-                        disabled={product.stock <= 0 || !product.is_up}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setBuyTarget(product)
-                        }}
-                      >
-                        <IconBag size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </article>
+                  product={product}
+                  onOpen={() => setDetailId(product.product_id)}
+                  onBuy={() => setBuyTarget(product)}
+                />
               ))}
             </div>
           ) : null}
@@ -651,174 +612,5 @@ export function ShopView({
         />
       ) : null}
     </>
-  )
-}
-
-/** 商品详情 + 下单。商品列表只返回一部分字段，详情与库存要以 product/info 为准。 */
-function ProductDetailModal({
-  productId,
-  onClose,
-  onBought,
-}: {
-  productId: number
-  onClose: () => void
-  onBought: () => void
-}) {
-  const product = useShopProduct(productId)
-  const actions = useShopMutations()
-  const [buyNumber, setBuyNumber] = useState(1)
-  const [remark, setRemark] = useState('')
-
-  const p = product.data
-  const soldOut = (p?.stock ?? 0) <= 0
-  const offShelf = p ? !p.is_up : false
-
-  return (
-    <Modal title="商品详情" width={560} onClose={onClose}>
-      {product.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
-      {p ? (
-        <>
-          <div style={{ display: 'flex', gap: 16 }}>
-            <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
-              {p.cover_url ? <img src={p.cover_url} alt={p.name} /> : p.name.slice(0, 1)}
-            </div>
-            <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
-              <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
-              <div className="product-tile__price">
-                <b>{p.price == null ? '—' : `${formatThousand(p.price)} 萝卜`}</b>
-                {(p.price ?? 0) > 0 && (p.price_origin ?? 0) > (p.price ?? 0) ? (
-                  <s>{formatThousand(p.price_origin ?? 0)}</s>
-                ) : null}
-              </div>
-              <div className="product-tile__meta">
-                <span>库存 {formatThousand(p.stock)}</span>
-                <span>销量 {formatThousand(p.sales)}</span>
-                {p.category_name ? <span>{p.category_name}</span> : null}
-              </div>
-              {offShelf ? <span className="badge badge--off"><i />已下架</span> : null}
-              {soldOut ? <span className="badge badge--warn"><i />已售罄</span> : null}
-              {p.seller ? (
-                <span className="muted" style={{ fontSize: 12 }}>
-                  来自 {p.seller.name}
-                  {p.seller.description ? ` · ${p.seller.description}` : ''}
-                </span>
-              ) : null}
-            </div>
-          </div>
-
-          {p.description ? <p className="card-note" style={{ marginTop: 14 }}>{p.description}</p> : null}
-          {p.exchange_way ? <p className="card-note">兑换方式：{p.exchange_way}</p> : null}
-
-          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12, marginTop: 14 }}>
-            <label className="field">
-              <span>数量</span>
-              <input
-                className="input tnum"
-                type="number"
-                min={1}
-                max={Math.max(1, p.stock)}
-                value={buyNumber}
-                onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, p.stock)))}
-              />
-            </label>
-            <label className="field">
-              <span>备注（给商户看）</span>
-              <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
-            </label>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
-            <button className="btn btn--ghost" onClick={onClose}>
-              关闭
-            </button>
-            <button
-              className="btn btn--primary"
-              disabled={soldOut || offShelf || actions.createOrder.isPending}
-              onClick={() =>
-                actions.createOrder.mutate(
-                  { productId, buyNumber, remark: remark.trim() || null },
-                  {
-                    onSuccess: (res) => {
-                      onBought()
-                      toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
-                    },
-                  },
-                )
-              }
-            >
-              {actions.createOrder.isPending ? '下单中…' : soldOut ? '已售罄' : offShelf ? '已下架' : '立即购买'}
-            </button>
-          </div>
-        </>
-      ) : null}
-    </Modal>
-  )
-}
-
-/** 快捷购买：卡片上直接下单，不经过详情页 */
-function BuyModal({ product, onClose }: { product: ShopProduct; onClose: () => void }) {
-  const actions = useShopMutations()
-  const [buyNumber, setBuyNumber] = useState(1)
-  const [remark, setRemark] = useState('')
-  const max = Math.max(1, product.stock)
-  const total = (product.price ?? 0) * buyNumber
-
-  return (
-    <Modal
-      title="购买"
-      width={420}
-      onClose={onClose}
-      footer={
-        <>
-          <button className="btn btn--ghost" onClick={onClose}>
-            取消
-          </button>
-          <button
-            className="btn btn--primary"
-            disabled={actions.createOrder.isPending}
-            onClick={() =>
-              actions.createOrder.mutate(
-                { productId: product.product_id, buyNumber, remark: remark.trim() || null },
-                {
-                  onSuccess: (res) => {
-                    onClose()
-                    toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
-                  },
-                },
-              )
-            }
-          >
-            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatThousand(total)} 萝卜`}
-          </button>
-        </>
-      }
-    >
-      <div className="row" style={{ gap: 12 }}>
-        <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
-          {product.cover_url ? <img src={product.cover_url} alt={product.name} /> : product.name.slice(0, 1)}
-        </div>
-        <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
-          <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
-          <span className="muted" style={{ fontSize: 12 }}>
-            {product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`} · 库存 {formatThousand(product.stock)}
-          </span>
-        </span>
-      </div>
-      <label className="field" style={{ marginTop: 14 }}>
-        <span>数量</span>
-        <input
-          className="input tnum"
-          type="number"
-          min={1}
-          max={max}
-          value={buyNumber}
-          onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), max))}
-        />
-      </label>
-      <label className="field">
-        <span>备注（给商户看）</span>
-        <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
-      </label>
-    </Modal>
   )
 }

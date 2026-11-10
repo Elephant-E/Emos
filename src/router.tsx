@@ -12,6 +12,7 @@ import { UploadView } from '@/views/UploadView'
 import { VideoDetailView } from '@/views/VideoDetailView'
 import { AccountView } from '@/views/AccountView'
 import { ShopView } from '@/views/ShopView'
+import { SellerView } from '@/views/SellerView'
 import { OrdersView } from '@/views/OrdersView'
 import { LiveView } from '@/views/LiveView'
 import { LinesView } from '@/views/LinesView'
@@ -112,6 +113,17 @@ function AccountRoute() {
   const search = accountRoute.useSearch()
   const navigate = accountRoute.useNavigate()
   return <AccountView tab={search.tab} onTab={(tab) => navigate({ search: { tab } })} />
+}
+
+const sellerRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/shop/seller/$sellerId',
+  component: SellerRoute,
+})
+
+function SellerRoute() {
+  const { sellerId } = sellerRoute.useParams()
+  return <SellerView sellerId={Number(sellerId) || 0} />
 }
 
 const shopRoute = createRoute({
@@ -442,6 +454,7 @@ const routeTree = rootRoute.addChildren([
     seekRoute,
     accountRoute,
     shopRoute,
+    sellerRoute,
     ordersRoute,
     liveRoute,
     linesRoute,
