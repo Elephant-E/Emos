@@ -1124,8 +1124,6 @@
   transform: rotate(180deg);
 }
 
-.badge,
-
 .btn[aria-busy='true'] { opacity: 0.6; transition: opacity 140ms var(--ease) 140ms; }
 
 @keyframes toast-out {
@@ -1215,7 +1213,7 @@
   height: 24px;
 }
 
-.card-head .btn,
+.card-head .btn--quiet,
 .card--stat .stat__label .btn {
   height: 20px;
   padding: 0;
@@ -1226,9 +1224,9 @@
   letter-spacing: 0.02em;
   color: var(--fg-3);
 }
-.card-head .btn:hover,
+.card-head .btn--quiet:hover,
 .card--stat .stat__label .btn:hover { color: var(--fg); background: transparent; }
-.card-head .btn:disabled,
+.card-head .btn--quiet:disabled,
 .card--stat .stat__label .btn:disabled { color: var(--fg-5); cursor: default; }
 
 .card-body { margin-top: var(--stack); min-width: 0; overflow-x: auto; }
@@ -1283,14 +1281,7 @@
 .kv dt { margin: 0; font-size: 12.5px; color: var(--fg-3); }
 .kv dd { margin: 0; font-size: 13px; color: var(--fg-2); text-align: right; }
 
-.btn--danger-text {
-  border: 0;
-  background: transparent;
-  padding: 0;
-  height: 20px;
-  color: var(--fg-3);
-  font-size: 12.5px;
-}
+.btn--danger-text { color: var(--fg-3); }
 .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 
 /* 详情页头部的封面：列表缩略图 30×40 拿到这里比旁边的字还矮 */

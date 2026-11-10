@@ -2,7 +2,7 @@
 
 - **仓库**：`emos.club`（React 18 + TS + TanStack，暗色管理台）
 - **角度**：只审「界面结构 / 样式层」。代码质量（死代码、缓存、endpoint、类型）另有一份 `refactor-audit-code.md`，本文件不重复其结论，只在必要处互相引用。
-- **基线**：`68de9df`（今晚收工点）→ 写作期间 HEAD 连续前进到 `8a2c189`。并行的三个提交（`8f332d1` 清死代码与重复写法、`fe7ed8c` 抽「清空搜索」、`8a2c189` 修审查发现的真问题）已经吃掉了本文件的一部分发现，**已被处理处标注【已处理】，不重复计入分档**。行号以 `8a2c189` 为准；`ImagePicker` / `PageHeader` 仍有未提交改动。
+- **基线**：`68de9df`（今晚收工点）→ 写作期间 HEAD 连续前进到 `222d301`。并行落了四个提交（`8f332d1` 清死代码与重复写法、`fe7ed8c` 抽「清空搜索」、`8a2c189` 修审查发现的真问题、`222d301` 收死 prop/CSS/token），**已经吃掉了本文件的一部分发现**，处理过的都标了【已处理】且不重复计入分档。行号取自 `222d301`。
 - **方式**：只读。`git log --since="2026-11-10 18:00"` 94 个提交逐条对照；`VITE_MOCK=1 npx vite --port 5288` 起服务，逐路由取 `getComputedStyle` 与 `getBoundingClientRect` 实测（数据见第 5 节附录）。**未改 `src/`**。
 - **判断标准**：这个项目要的是克制、留白、不要多余 hover。下面所有建议都刻意避开「加动效 / 加 hover / 加组件库 / 加花活」，能用 3 行 CSS 解决的不建议抽组件。
 
@@ -11,7 +11,7 @@
 ## 0. 结论
 
 1. **UI 层缺的不是组件库，是「同一件事只写一遍」。** 最典型的有 5 处结构性重复：卡片头 **18 处 / 10 文件**、页内 tabs **13 处**、「列表 + 分页」**13 处**、弹窗 footer **5 种写法（其中 4 处是手搓）**、「搜索并选一条」的候选列表 **5 份**。
-2. **内联 style 是主要的一致性负债**：`src/` 共 **335 个** `style={{…}}`，其中 **266 个**含尺寸/间距/字号。同一需求的实际取值：`marginTop` **11 种**、`gap` **8 种**、`fontSize` **9 种**、`border-radius` **9 种**（3/4/5/7/8/9/12/14/999）。而 `tokens.css` 里的 `--s-1`…`--s-9` 九个间距 token **一次都没被用过**——令牌和代码是两套系统。
+2. **内联 style 是主要的一致性负债**：`src/` 共 **335 个** `style={{…}}`，其中 **266 个**含尺寸/间距/字号。同一需求的实际取值：`marginTop` **11 种**、`gap` **8 种**、`fontSize` **9 种**、`border-radius` **9 种**（3/4/5/7/8/9/12/14/999）。而 `tokens.css` 里原本还有 `--s-1`…`--s-9` 九个间距 token，**一次都没被用过**（`222d301` 已删）——令牌和代码是两套系统。
 3. **有三个补丁类已经在产生副作用，不只是不优雅**：
    - `.card-head .btn` 把卡片头里所有 `.btn` 压成「无边框 20px 文字」，于是 `AccountView` 写的 `btn--ghost`（「全部下线」，批量危险操作）**渲染结果和 `btn--quiet` 完全一样**，意图丢失（实测 `height:20px / border:0 / color:fg-3`）。
    - `.btn--danger-text` 自带 `height:20px + font-size:12.5px`，混进 `.action-group` 后**基线和兄弟按钮差 12px**（实测 `bottom 244 vs 256`），订单/商城/直播/片单四处的操作列都毛边。
@@ -20,7 +20,7 @@
 
 ### 已被并行提交处理掉的（不必重复做）
 
-写作期间 HEAD 从 `68de9df` 前进到 `8a2c189`，下面这些原来的发现已经修了，本文件不再计入分档：
+写作期间 HEAD 从 `68de9df` 前进到 `222d301`，下面这些原来的发现已经修了，本文件不再计入分档：
 
 | 原问题 | 处理 |
 |---|---|
@@ -29,8 +29,9 @@
 | 文字型统计值内联 `fontSize:20`（两处） | `8f332d1` 抽 `.stat__word--sm` |
 | 四个列表页各写一遍「清空搜索」 | `fe7ed8c` 抽 `ClearSearchButton` |
 | `{true ? (…)}` 包裹、`data-fallback` 无 CSS 消费、`.tag-input` 死守卫、`mediaApi` 信封嗅探 | `8a2c189` |
+| `--s-1`…`--s-9` 零引用 token、`PageHeader.mark`、`ImagePicker.hint` | `222d301` |
 
-> 行号取自 `8a2c189`。仓库仍在被并行修改（`ImagePicker.tsx`、`PageHeader.tsx` 有未提交改动），若偏移请按「结构 + 附近的代码特征」定位，每一条都带了可搜索的特征串。
+> 行号取自 `222d301`。仓库仍在被并行修改，若偏移请按「结构 + 附近的代码特征」定位——每条都带了可搜索的特征串。
 
 ---
 
@@ -136,7 +137,7 @@ export function CardHead({ title, note, action }: { title: ReactNode; note?: Rea
 
 ### 1.4 空态 + 清空筛选
 
-**【已处理】** `fe7ed8c` 已把四处「清空搜索」抽成 `ClearSearchButton`（`components/StateBlock.tsx:71`）。
+**【已处理】** `fe7ed8c` 已把四处「清空搜索」抽成 `ClearSearchButton`（`components/StateBlock.tsx:74`）。
 
 剩下的问题：
 
@@ -170,7 +171,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 
 ### 1.6 「搜索 → 选一条」候选列表 ——5 份，其中 4 份手写
 
-`components.css:1773-1787` 已经有 `.pick-list / .pick-row / .pick-row__num / .pick-row__title / .pick-tabs`，但只有**一处**在用（`VideoDetailView.tsx:613-707` 移动资源弹窗）。手写的四份：
+`components.css:1773-1786` 已经有 `.pick-list / .pick-row / .pick-row__num / .pick-row__title / .pick-tabs`，但只有**一处**在用（`VideoDetailView.tsx:613-707` 移动资源弹窗）。手写的四份：
 
 | 文件:行 | 容器 | 行结构 |
 |---|---|---|
@@ -625,7 +626,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | `.cards + .table-card/.toolbar/section { margin-top: 24px }`（`components.css:349-354`） | 这是**相邻兄弟补间距**的正确用法，不是补丁。只删死选择器 `.media-grid` |
 | `Pager.tsx` 里 5 处内联尺寸 | 全部封装在组件内部，不外溢；改成类只是把数字挪到 CSS。78 行的组件不值得为它加 4 个类 |
 | `Token` 化 13.5 / 12.5 / 11.5 三档字号 | 只是换个地方记数字。三档已经分别有 `.text-sm` / `--text-sm` / `.meta-sm` 可复用，够了 |
-| `--s-1`…`--s-9` 九个间距 token | 现状是「定义了没人用」。**不要**为了「用上 token」把 266 处内联一次性替换——那是最大的回归风险源。要么删掉这 9 个 token（承认不搞间距体系），要么只在新增代码里用。二者选一，不要半途 |
+| `--s-1`…`--s-9` 九个间距 token | 【已处理】`222d301` 直接删了这 9 个 token（承认不搞间距体系）。**不要**反过来为了「用上 token」把 266 处内联一次性替换——那是最大的回归风险源 |
 | `Modal` 的 `width` 五档 | 收成常量即可，不必做成 size 枚举 props |
 | `TagInput` / `ImagePicker` / `Poster` / `StateBlock` / `Pager` | 已经是「一个组件一件事」的正面样板，别再动 |
 | `.tab` 与 `.seg` 选中态视觉接近 | 主观项，`refactor-round1` 已记录；两者用途不同（页面级切换 vs 页内二元筛选），不建议再造第三套视觉 |
@@ -683,7 +684,7 @@ C 的 3 处建议搬回列表行里的删除按钮（OrdersView 的删除在列�
 | `gap` | 2, 4, 6, 8, 10, 12, 16, 24（8 种） |
 | `fontSize` | 10, 11.5, 12, 12.5, 13, 13.5, 15, 20（8 种） |
 | `border-radius`（CSS） | 3, 4, 5, 6, 7, 8, 9, 12, 14, 999, `--r-card`, `--r-field`, `--r-item`, `50%` |
-| CSS 变量 | `--surface-2` 被引用但未定义；`--s-1`…`--s-9` 定义但**零引用** |
+| CSS 变量 | `--surface-2` 被引用但未定义（`222d301` 之后 `--s-*` 已删） |
 
 ### 7.3 关键 computed style（`VITE_MOCK=1`，1280×720）
 

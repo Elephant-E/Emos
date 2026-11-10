@@ -1,7 +1,7 @@
 # 类型 ↔ 真实 API 核对 · 字段错配 / 冗余 / 缺失
 
 - **仓库**：`emos.club`（React 18 + TS + TanStack Query）
-- **被审对象**：`src/api/types.ts`（435 行）、`src/api/endpoints.ts`（345 行）、`src/api/queries.ts`（改动中）、`api.postman_collection.json`（190 个请求）
+- **被审对象**：`src/api/types.ts`（435 行）、`src/api/endpoints.ts`（345 行）、`src/api/queries.ts`（审查期间在并行改动）、`api.postman_collection.json`（190 个请求）
 - **真实后端**：`https://emos.best`，`Authorization: Bearer 1090_zijIu560MmusQM8j`（管理员 `elephant` / `e7E6K6OE4s`）
 - **方式**：**只发 GET**（写接口 `move` / `syncMetadata` / `sync` / `seek` / `ban/change` 一个都没打），响应落地到 `/tmp/api-audit/*.json` 后跑脚本做「键集 + 类型 + null 率」统计。**未改 `src/`**。
 - **判定口径**：
@@ -19,7 +19,7 @@
 1. **幽灵字段**（类型/契约里有、真实后端从不返回）：`WatchItem.image_poster`（264/264 无）、`WatchAuthor.pseudonym`（264/264 无）、`VideoPerson.image_profile_url`（39/39 无）。其中 `pseudonym` **已经造成显示逻辑失效**：`WatchlistDetailView.tsx:156,597` 的 `author?.pseudonym || author?.username` 永远走后半段。
 2. **一个类型服务多个形状**：`VideoMedia`（`media/list` 17 字段 vs `upload/video/base` 5 字段）、`MusicSong`（`song/list` 18 字段 vs `watch/{id}/music/search` 9 字段）、`SeekItem`（`/api/seek` 24 字段 vs `/api/seek/poll` 10 字段）、`VideoItem`（`video/list` 24 字段 vs `video/search` 5 字段）。这些类型让 TS 在**字段不存在的地方**给了"存在且非空"的承诺。
 
-修复量不大：删 3 个幽灵字段、把 4 个复合类型拆开、给 3 个字段加 `| null`、补 2 个参数（`include_delete`、`video/search` 的筛选参数）。
+修复量不大：删 3 个幽灵字段、把 4 个复合类型拆开、给约 10 处「实际可空却声明必填」的字段补 `| null`、补 2 个参数（`include_delete`、`video/search` 的筛选参数）。
 
 ---
 
@@ -271,7 +271,7 @@ export interface VideoMedia extends VideoMediaBase {   // media/list 用
 | P3 | `mediaApi.listAll` → `/api/video/media/listAll` | `media_id, user_id, only_delete, include_metadata`（`status` 在契约里是 `disabled: true`） | 多传 `status`、`page`、`page_size`（`endpoints.ts:124-125`） | `status=complete` 返回 200 且 `total=133353`（与不传时的量级一致，看不出是否生效）；`page`/`page_size` 有效（`page_size=3` 回 3 条） | **多传**：`status` 是个无效参数，建议删；`page`/`page_size` 实测有效但契约没写，建议在契约里补 |
 | P4 | `watchApi.searchVideos` → `/api/watch/{id}/video/search` | `title, type`（**没有** `with_genre`） | 多传 `with_genre: true`（`endpoints.ts:177-178`；`queries.ts:298-299` 的注释还写「with_genre 让候选行能显示题材，省一次补充请求」） | `with_genre=1` 返回里**没有 genres 键** | **多传 + 注释误导**：`WatchVideoCandidate.genres` 永远是 `undefined`，`WatchlistDetailView.tsx:338` 的"· 题材"永远不显示。要么后端支持，要么删参数+删字段+删那一行渲染 |
 | P5 | `watchApi.videos` → `/api/watch/{id}/video` | 只有 `video_title` | 多传 `page`、`page_size`（`endpoints.ts:175-176`） | `page_size=50` → 响应 `page_size: 15`，`items.length: 15`；`page=2` 有效（total 199）；`video_title=律界狂花` 有效（total 1） | **多传**：`page_size` 被后端写死 15。`WatchlistDetailView.tsx:312-313` 已经用响应里的 `page_size` 算页数兜住了；但同一文件的音乐侧 `:694` 还在用 `search.page_size`，需要确认（见 §5 未验证） |
-| P6 | `shopApi.products` → `/api/shop/product/list` | `sort_by=sort&sort_order=asc` 都在示例里，语义必填 | `sort_order?: 'asc' \| 'desc'` **可选**（`endpoints.ts:271-272`） | 不传两个参数 → **422** `{"message":"sort order 不能为空。"}`；`sort_by` 合法值实测只有 `sort / sales / price / stock`，`updated_at`、`created_at` → **422** `{"message":"已选的属性 sort by 无效。"}` | 契约没写"必填"是契约的漏；**类型该收紧**：`sort_by: 'sort'\|'sales'\|'price'\|'stock'`、`sort_order: 'asc'\|'desc'`（去掉 `?`）。`queries.ts` 的 `useShopProducts` 与 `useShopProductsInfinite` 两处都硬编码了，暂时安全 |
+| P6 | `shopApi.products` → `/api/shop/product/list` | `sort_by=sort&sort_order=asc` 都在示例里，语义必填 | `sort_order?: 'asc' \| 'desc'` **可选**（`endpoints.ts:271-272`） | **`sort_order` 硬必填**：缺 → **422** `{"message":"sort order 不能为空。"}`（`sort_by` 单独给也一样 422）；只给 `sort_order=asc`、不给 `sort_by` → **200**（有默认值）。`sort_by` 合法值实测只有 `sort / sales / price / stock`，`updated_at`、`created_at` → **422** `{"message":"已选的属性 sort by 无效。"}` | 契约没写"必填"是契约的漏；**类型该收紧**：`sort_order: 'asc'\|'desc'`（去掉 `?` 才是关键），`sort_by?: 'sort'\|'sales'\|'price'\|'stock'`。`queries.ts` 的 `useShopProducts` 与 `useShopProductsInfinite` 两处都硬编码了，暂时安全 |
 | P7 | `mediaApi.move` / `seekApi.apply` / `uploadApi.videoBase` / `uploadApi.saveVideo` / `uploadApi.saveSubtitle` / `recordApi.change` | 契约 §「资源类型 item_type」明确枚举：`vl` 列表 / `vs` 季 / `ve` 集 / `vp` 分段 / `vm` 资源 / `vt` 字幕；音乐侧 `mp` / `ms` / `ma` | 一律 `itemType: string` | 无法实测（PUT/POST） | **类型该收紧**：`type ItemType = 'vl'\|'vs'\|'ve'\|'vp'\|'vm'\|'vt'`。今天 `VideoDetailView.tsx:635,677` 传的是 `'vl'`/`'ve'`，都对 |
 | P8 | `musicApi.songs` / `albums` / `persons` | 契约列出完整参数：`song_id, name, has_media, is_favorite, is_rating, album_id, person_id_artist, person_name_artist, is_headless` 等 | `params: Record<string, unknown>` | 用到的 `name`/`has_media`/`is_favorite`/`page` 都有效 | **没有校验**（不是错）：拼错参数名不会有任何编译/运行提示，后端静默忽略。建议补内联类型 |
 | P9 | `watchApi.createOrUpdate` | 请求体字段叫 **`point`**；列表/详情响应里叫 **`carrot`** | 请求用 `point`，读取用 `item.carrot`（`WatchlistDetailView.tsx:493`） | 实测列表 `"carrot": 1` | **不是 bug，是命名陷阱**：同一样东西两个名字，读代码时极易误以为 `point` 没生效。建议在 `types.ts` 的 `carrot` 上加注释 |
@@ -299,9 +299,9 @@ export interface VideoMedia extends VideoMediaBase {   // media/list 用
 - 代码 `endpoints.ts:132-141`：正常路径声明 `CarrotDelta`（错，见 T15），并 `catch` 里用**字符串匹配** `error.message.includes('已存在 metadata')` 把 422 翻译成 `{ carrot: 0 }`。
 - 风险（读代码就能确定，不依赖实测）：
   1. 语义翻译靠中文文案匹配 —— 后端改一个字（或加标点/换成英文）就退化成报红。
-  2. `client.ts:129-133` 的 `msg` 取的是 `payload.message`，这个文案确实会原样出现在 `message` 里，所以匹配**目前**能工作。
+  2. `client.ts:129-133` 的 `msg` 取的是 `payload.message`，所以只要后端 422 的文案里还带「已存在 metadata」四个字，匹配就能工作（**这条是读代码推断，写接口未实测**；同一后端其它 422 的文案都是中文一句话，如 `{"message":"sort order 不能为空。"}`，格式上是吻合的）。
   3. 成功路径 204 → `client.ts` 返回 `''`（字符串），`(await …).carrot` 是 `undefined`。谁哪天读 `.carrot` 就会 `undefined` 参与运算。
-- **修法**：`request<void>`；422 用 `(err as ApiError).status === 422` + `payload.message` 里"已存在"做双条件，或者干脆把 422 一律当"已是目标状态"（因为该接口只有这一个 422 语义）。UI 层 `VideoDetailView.tsx:521` 的 toast「已同步元数据」在 422 时也会弹 —— 语义正确（确实已是目标状态）。
+- **修法**：`request<void>`；422 判断优先用 `(err as ApiError).status === 422`，文案只作为附加条件（`payload.message` 含「已存在」）。若确认该接口只有这一个 422 语义，直接 `status === 422 → 成功` 更稳。UI 层 `VideoDetailView.tsx:521` 的 toast「已同步元数据」在 422 时也会弹 —— 语义正确（确实已是目标状态）。
 
 ### 4.3 `/api/video/sync` — `tmdb_id` / `todb_id`【读契约（PATCH，未打）】
 
@@ -322,6 +322,7 @@ GET /api/shop/product/list?page=1&page_size=1&sort_by={sort,sales,price,stock}&s
 HTTP 200  ×8   ← 只有这 4 个 sort_by 合法
 ```
 
+- 补充实测：`sort_order` 是**唯一**的硬必填项 —— 只给 `sort_by=sort` 仍 422，只给 `sort_order=asc` 却 200（`sort_by` 有默认值）。
 - 结论：契约的示例里写了这两个参数但没标注必填/枚举，**真正的问题在契约**；`endpoints.ts` 把 `sort_order` 标成可选，是在类型层放行了会 422 的调用。修 P6。
 - 返回字段：`price` 恒 int（T16）、`description`/`exchange_way` 恒有（T17）；`seller`/`category_name` 只在 `product/info` 有，与 `types.ts:342-345` 的注释一致 ✅。
 
@@ -374,8 +375,8 @@ GET /api/video/list?page=1&page_size=2&with_media=1     → 与不传时字段�
 |---|---|---|
 | `VideoItem`（`/api/video/list`） | 500 条 | `todb_id` 恒 int ✅；`tmdb_id` 1/500 为 null ✅ 可空正确；`item_id` 241/500 null、259 条 `"vl-<id>"` ✅；`titles`/`genres` 恒数组 ✅；`is_delete`/`seek_is_request` 恒 bool ✅ |
 | `VideoSeason` | 1 部 1 季 | 9 字段全中 ✅ |
-| `VideoEpisode` | 1 部 10 集 + 1 部 3 集 | 14 字段全中；`seek` 对象 8 字段与 `types.ts:118-127` **逐字一致** ✅ |
-| `LiveListItem` / `LiveMedia` / `LiveLibrary` | 15 频道 + 3 条媒体 | 全中 ✅（`description`/`tagline`/`pseudonym` 可 null 正确） |
+| `VideoEpisode` | 1 部 12 集（S01）+ 1 部 3 集（S03） | 14 字段全中；`seek` 对象 8 字段与 `types.ts:118-127` **逐字一致** ✅ |
+| `LiveListItem` / `LiveMedia` / `/api/live/library` 的内联类型 | 15 频道 + 3 条媒体 | 全中 ✅（`description`/`tagline`/`pseudonym` 可 null 正确） |
 | `LineItem` | 全量（10KB） | 6 字段全中 ✅ |
 | `BanItem` | 全量 | 9 字段全中 ✅ |
 | `CarrotHistory` | 3 条 | 全中（`expired_at` 有值，声明可空是保守正确）✅ |
@@ -384,7 +385,7 @@ GET /api/video/list?page=1&page_size=2&with_media=1     → 与不传时字段�
 | `UserDetail` | 403 | `pay/getUserInfo` 对管理员返回 **403**，与 `types.ts:408` 注释「非服务商时接口 403」一致 ✅；`useUserPayInfo` 的 403→null 处理正确 |
 | `/api/upload/video/base` | 2 次 | 见下 |
 
-**`/api/upload/video/base` 的 404 不是 bug**：`item_type=vl&item_id=126958/1000/33647/201938` 全部返回 `404 {"message":"请求的资源不存在"}`（实际是空 body 的 `emos api 404 :(`），但 `item_id=1038`（本地已有）返回 200、`item_type=ve&item_id=3161584` 也返回 200。→ 404 表示"这条影片不在本地库"，与契约不冲突。
+**`/api/upload/video/base` 的 404 不是 bug**：`item_type=vl&item_id=126958/1000/33647/201938` 全部返回 `404`，body 是纯文本 `emos api 404 :(`（不是 JSON），但 `item_id=1038`（本地已有）返回 200、`item_type=ve&item_id=3161584` 也返回 200。→ 404 表示"这条影片不在本地库"，与契约不冲突。
 
 `item_type=ve` 的真实响应（注意只有 6 个键，`video_medias` 里只有 5 个字段——这是 T9 拆类型的直接证据）：
 

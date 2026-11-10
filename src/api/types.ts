@@ -160,7 +160,6 @@ export interface VideoMedia {
 export interface WatchAuthor {
   user_id?: string
   username?: string
-  pseudonym?: string | null
   avatar?: string | null
 }
 
@@ -174,7 +173,6 @@ export interface WatchItem {
   carrot: number
   /** 不传 tags 时后端返回 null 而非 [] */
   tags: string[] | null
-  image_poster: string | null
   image_poster_url: string | null
   is_show_empty: boolean
   is_self: boolean

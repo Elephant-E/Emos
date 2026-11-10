@@ -86,35 +86,35 @@ const videos: VideoItem[] = TITLES.map(([title, origin, type], i) => ({
 const watches: WatchItem[] = [
   {
     subscribe_id: null, id: 1000, type: 'video' as const, name: '本周新片', description: '每周更新的院线新片合集',
-    is_public: true, carrot: 0, tags: ['院线', '追新'], image_poster: null, image_poster_url: poster('watch1'),
+    is_public: true, carrot: 0, tags: ['院线', '追新'], image_poster_url: poster('watch1'),
     is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: true,
     user_sort: 80, subscribe_count: 128, video_count: 24, maintainers: [], author: { username: 'sorakand' },
     updated_at: '2026-11-04T09:12:00Z',
   },
   {
     subscribe_id: 77, id: 1001, type: 'video' as const, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
-    is_public: true, carrot: 10, tags: ['修复', '4K'], image_poster: null, image_poster_url: poster('watch2'),
+    is_public: true, carrot: 10, tags: ['修复', '4K'], image_poster_url: poster('watch2'),
     is_show_empty: false, is_self: true, is_edit_video: true, is_subscribe: true, user_is_show: true,
     user_sort: 70, subscribe_count: 42, video_count: 12, maintainers: [{ username: 'lin' }], author: { username: 'sorakand' },
     updated_at: '2026-11-02T12:40:00Z',
   },
   {
     subscribe_id: null, id: 1002, type: 'video' as const, name: '纪录片精选', description: null,
-    is_public: false, carrot: 0, tags: ['纪录片'], image_poster: null, image_poster_url: poster('watch3'),
+    is_public: false, carrot: 0, tags: ['纪录片'], image_poster_url: poster('watch3'),
     is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: false,
     user_sort: 80, subscribe_count: 6, video_count: 31, maintainers: [], author: { username: 'zhou' },
     updated_at: '2026-10-28T18:20:00Z',
   },
   {
     subscribe_id: null, id: 1004, type: 'video' as const, name: '只看一遍的', description: '自己留着，不公开',
-    is_public: false, carrot: 0, tags: [], image_poster: null, image_poster_url: null,
+    is_public: false, carrot: 0, tags: [], image_poster_url: null,
     is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: false,
     user_sort: 70, subscribe_count: 0, video_count: 0, maintainers: [], author: { username: '陈曦' },
     updated_at: '2026-11-08T10:00:00Z',
   },
   {
     subscribe_id: null, id: 1003, type: 'music' as const, name: '夜间通勤', description: '适合路上听的歌单',
-    is_public: true, carrot: 0, tags: ['通勤'], image_poster: null, image_poster_url: poster('watch4'),
+    is_public: true, carrot: 0, tags: ['通勤'], image_poster_url: poster('watch4'),
     is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: true,
     user_sort: 80, subscribe_count: 12, video_count: 3, maintainers: [], author: { username: 'lin' },
     updated_at: '2026-11-01T08:00:00Z',
@@ -377,8 +377,8 @@ export async function mockRequest<T>(
   // ── 补上此前缺失的接口，让 mock 下这些页面能真正验证 ──
   if (clean === '/api/video/record/list') {
     return paginate([
-      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_image_poster: null, username: 'sorakand' },
-      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_image_poster: null, username: 'lin' },
+      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_username: 'sorakand' },
+      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_username: 'lin' },
     ], 1, 6) as T
   }
   if (clean === '/api/user/stats/video/history') {

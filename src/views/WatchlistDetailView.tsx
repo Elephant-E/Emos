@@ -153,12 +153,12 @@ export function WatchlistDetailView({
                   <span>更新</span>
                 </div>
                 <div className="detail-stat">
-                  <b>{item.author?.pseudonym || item.author?.username || '—'}</b>
+                  <b>{item.author?.username || '—'}</b>
                   <span>作者</span>
                 </div>
                 {item.maintainers?.length ? (
                   <div className="detail-stat">
-                    <b>{item.maintainers.map((m) => m.pseudonym || m.username).filter(Boolean).join('/')}</b>
+                    <b>{item.maintainers.map((m) => m.username).filter(Boolean).join('/')}</b>
                     <span>维护者</span>
                   </div>
                 ) : null}
@@ -594,7 +594,7 @@ function WatchMusicList({
                 <span>更新</span>
               </div>
               <div className="detail-stat">
-                <b>{item.author?.pseudonym || item.author?.username || '—'}</b>
+                <b>{item.author?.username || '—'}</b>
                 <span>作者</span>
               </div>
             </div>
