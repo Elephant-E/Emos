@@ -629,11 +629,20 @@
 .modal {
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 64px);
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--raised), var(--card-bottom));
   box-shadow: 0 32px 80px -32px #000;
+}
+
+.modal > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal__head {
@@ -642,12 +651,13 @@
   justify-content: space-between;
   gap: 16px;
   padding: 18px 20px 14px;
+  flex: none;
   border-bottom: 1px solid var(--line-soft);
 }
 
 .modal__title { font-size: 15.5px; font-weight: 550; }
 
-.modal__body { padding: 18px 20px; display: grid; gap: 14px; }
+.modal__body { padding: 18px 20px; display: grid; gap: 14px; overflow-y: auto; min-height: 0; }
 .modal__hint {
   margin: 0;
   font-size: 12.5px;
@@ -660,6 +670,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 14px 20px 18px;
+  flex: none;
   border-top: 1px solid var(--line-soft);
 }
 
@@ -1617,22 +1628,45 @@
 
 
 /* ── 图床选择器 ───────────────────────────────────────── */
-.image-picker__preview {
+/* 封面槽：方形。图铺满，操作按钮压在图上，不另外占一行 */
+.image-picker__slot {
+  position: relative;
+  border-radius: var(--r-item);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: var(--raised);
+}
+.image-picker__slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.image-picker__actions {
+  position: absolute;
+  inset: auto 0 0 0;
   display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 0;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72));
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease);
+}
+.image-picker__slot:hover .image-picker__actions,
+.image-picker__slot:focus-within .image-picker__actions { opacity: 1; }
+.image-picker__actions .btn { color: #fff; font-size: 12px; }
+.image-picker__empty {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 0;
   border: 1px dashed var(--line);
   border-radius: var(--r-item);
   background: rgba(255, 255, 255, 0.02);
   color: var(--fg-4);
+  font-size: 12px;
   cursor: pointer;
-  overflow: hidden;
-  transition: border-color var(--t-fast) var(--ease);
+  transition: border-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.image-picker__preview:hover { border-color: var(--line-hot); }
-.image-picker__preview img { width: 100%; height: 100%; object-fit: cover; }
-.image-picker__empty { display: inline-flex; }
+.image-picker__empty:hover { border-color: var(--line-hot); color: var(--fg-3); }
 .image-picker__hint { font-size: 11.5px; color: var(--fg-4); }
 
 .image-picker__grid {

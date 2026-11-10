@@ -89,7 +89,6 @@ export function WatchlistForm({
       </label>
       <ImagePicker
         label="封面"
-        hint="从图库选一张，或直接上传"
         value={form.image_poster_url}
         onChange={(url) => setForm({ ...form, image_poster_url: url })}
       />

@@ -18,8 +18,8 @@ export function ImagePicker({
   onChange,
   label = '图片',
   hint,
-  width = 132,
-  height = 74,
+  width = 120,
+  height = 120,
 }: {
   value?: string | null
   onChange: (url: string | null) => void
@@ -32,35 +32,34 @@ export function ImagePicker({
 
   return (
     <>
-      <label className="field">
+      {/* 用 div 不用 label：里面是按钮，套在 label 里点击会被 label 捕获两次 */}
+      <div className="field">
         <span>{label}</span>
-        <button
-          type="button"
-          className="image-picker__preview"
-          style={{ width, height }}
-          onClick={() => setOpen(true)}
-          aria-label={value ? `更换${label}` : `选择${label}`}
-        >
-          {value ? (
-            <img src={value} alt="" />
-          ) : (
-            <span className="image-picker__empty">
-              <IconPlus />
-            </span>
-          )}
-        </button>
         {value ? (
+          <div className="image-picker__slot" style={{ width, height }}>
+            <img src={value} alt="" />
+            <div className="image-picker__actions">
+              <button type="button" className="btn btn--quiet" onClick={() => setOpen(true)}>
+                更换
+              </button>
+              <button type="button" className="btn btn--quiet" onClick={() => onChange(null)}>
+                移除
+              </button>
+            </div>
+          </div>
+        ) : (
           <button
             type="button"
-            className="btn btn--quiet"
-            style={{ alignSelf: 'flex-start' }}
-            onClick={() => onChange(null)}
+            className="image-picker__empty"
+            style={{ width, height }}
+            onClick={() => setOpen(true)}
           >
-            移除
+            <IconPlus size={16} />
+            <span>选择{label}</span>
           </button>
-        ) : null}
+        )}
         {hint ? <span className="image-picker__hint">{hint}</span> : null}
-      </label>
+      </div>
 
       {open ? (
         <ImagePickerModal

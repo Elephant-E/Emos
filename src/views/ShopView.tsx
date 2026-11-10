@@ -542,7 +542,6 @@ export function ShopView({
           </label>
           <ImagePicker
             label="封面"
-            hint="从图库选一张，或直接上传"
             value={editing.cover_url ?? null}
             onChange={(url) => setEditing({ ...editing, cover_url: url })}
           />
