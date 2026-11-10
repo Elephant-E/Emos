@@ -311,6 +311,37 @@ export async function mockRequest<T>(
     })) as T
   }
 
+  if (clean === '/api/music/song/list') {
+    const name = String(query.name ?? '').trim()
+    const rows = name ? songs.filter((x) => x.name.includes(name)) : songs
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+  }
+  if (clean === '/api/music/album/list') {
+    const rows = [
+      { album_id: 3001, name: '潮汐', image_poster_url: poster('album1'), release_date: '2026-03-01', count_song: 10, person_artists: [{ name: '陈曦' }] },
+      { album_id: 3002, name: '夜行记', image_poster_url: poster('album2'), release_date: '2025-11-12', count_song: 8, person_artists: [{ name: 'lin' }] },
+    ]
+    return paginate(rows, 1, 20) as T
+  }
+  if (clean === '/api/music/person/list') {
+    const rows = [
+      { person_id: 4001, name: '陈曦', image_profile: 'profile1', count_medias: 12 },
+      { person_id: 4002, name: 'lin', image_profile: 'profile2', count_medias: 7 },
+    ]
+    return paginate(rows, 1, 20) as T
+  }
+  if (clean === '/api/music/favorite') return { is_favorite: true } as T
+  if (clean === '/api/music/rating') return { rating: Number(query.rating ?? 5) } as T
+  if (clean === '/api/music/sync') return {} as T
+  if (clean === '/api/seek/history') return [] as T
+  if (clean === '/api/seek/claim') return { seek_id: 1 } as T
+  if (clean === '/api/invite/remark') return {} as T
+  if (clean === '/api/pay/query') return { pay_status: 'pay', price_order: 68, pay_way: 'alipay', order_name: '限量海报 A3' } as T
+  if (clean === '/api/pay/getUserInfo') return { user_id: 'e1000Xs', username: 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
+  if (clean === '/api/pay/getUserCarrot') return { carrot: 120 } as T
+  if (clean === '/api/pay/apply') return { status: 'review' } as T
+  if (clean === '/api/fund/order/create') return { no: '20261110180000fundMOCK' } as T
+  if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
   if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
     const id = Number(query.item_id ?? 0)

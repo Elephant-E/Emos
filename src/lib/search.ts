@@ -12,10 +12,6 @@ export function asPageSize(value: unknown, fallback = 20): number {
   return (PAGE_SIZES as readonly number[]).includes(n) ? n : fallback
 }
 
-export function asOneOf<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
-  return allowed.includes(value as T) ? (value as T) : fallback
-}
-
 export function asString(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback
 }
