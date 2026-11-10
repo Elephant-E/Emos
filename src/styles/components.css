@@ -1794,14 +1794,3 @@
 .seller-line__name { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; flex: none; }
 .seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* 店铺封面：真实比例是 16:9（实测 3840×2160），按这个比例显示才不裁得奇怪 */
-.seller-cover {
-  margin-top: 4px;
-  width: min(100%, 520px);
-  aspect-ratio: 16 / 9;
-  border-radius: var(--r-card);
-  overflow: hidden;
-  border: 1px solid var(--line);
-  background: var(--raised);
-}
-.seller-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }

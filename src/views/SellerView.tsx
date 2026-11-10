@@ -43,12 +43,6 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
 
-      {seller.data?.cover_url ? (
-        <div className="seller-cover">
-          <img src={seller.data.cover_url} alt="" />
-        </div>
-      ) : null}
-
       {categories.data && categories.data.length > 0 ? (
         <div className="toolbar">
           <div className="tabs" role="tablist" aria-label="分类">
