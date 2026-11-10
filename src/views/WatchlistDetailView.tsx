@@ -226,7 +226,7 @@ export function WatchlistDetailView({
 
       {!videos.isLoading && videos.data && videos.data.items.length > 0 ? (
         <div className="table-card">
-          <table className="table table--inset">
+          <table className="table">
             <thead>
               <tr>
                 <th style={{ width: '44%' }} className="th-thumb">影片</th>
@@ -275,9 +275,9 @@ export function WatchlistDetailView({
                   <td className="num">
                     {item?.is_edit_video ? (
                       <input
-                        className="input tnum"
+                        className="input input--cell tnum"
                         type="number"
-                        style={{ width: 72, height: 26, padding: '0 6px', fontSize: 12.5 }}
+                        aria-label={`${video.video_title} 的排序`}
                         defaultValue={video.sort}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
@@ -581,7 +581,7 @@ function WatchMusicRows({
 
       {songs.data && songs.data.items.length > 0 ? (
         <div className="table-card">
-          <table className="table table--inset">
+          <table className="table">
             <thead>
               <tr>
                 <th style={{ width: canEdit ? '52%' : '72%' }}>歌曲</th>

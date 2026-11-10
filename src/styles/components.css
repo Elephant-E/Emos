@@ -1249,6 +1249,20 @@
 }
 /* 表格里的输入（排序、评分）是内联小控件，不该被 .input 的 200px 最小宽度撑开 */
 .table .input { min-width: 0; }
+/* 行内可编辑的数字：平时就是一行文字，指上去/聚焦时才露出输入框。
+   整行摆六个带边框的输入框，视觉重心会全跑到这些框上，把片名压下去。 */
+.input--cell {
+  width: 72px;
+  height: 26px;
+  padding: 0 6px;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-3);
+  background: transparent;
+  border-color: transparent;
+}
+.input--cell:hover { border-color: rgba(255, 255, 255, 0.16); color: var(--fg-2); }
+.input--cell:focus { color: var(--fg); background: #24231f; border-color: rgba(255, 255, 255, 0.4); }
 .table .btn:hover { color: var(--fg); background: transparent; }
 .table .btn--primary {
   padding: 0;
@@ -1332,12 +1346,15 @@
 
 /* 卡片内的表格：首列/末列去掉表格自身的 24px 内边距，
    否则表格文字会比卡片标题再缩进 24px，看起来像两个层级 */
-.table--inset { margin-top: 10px; }
-.table--inset thead th:first-child,
-.table--inset tbody td:first-child { padding-left: 0; }
-.table--inset thead th:last-child,
-.table--inset tbody td:last-child { padding-right: 0; }
-.table--inset thead th.th-thumb { padding-left: 43px; }
+/* --inset 只对「卡片里的表格」成立：卡片自己有内边距，表格首末列再各带 24px，
+   内容就会比卡片标题多缩进一截。.table-card 本身是带边框的容器、没有内边距，
+   套上 --inset 会把内容顶到边框上 —— 所以这里用子选择器限死作用范围。 */
+.card > .table--inset { margin-top: 10px; }
+.card > .table--inset thead th:first-child,
+.card > .table--inset tbody td:first-child { padding-left: 0; }
+.card > .table--inset thead th:last-child,
+.card > .table--inset tbody td:last-child { padding-right: 0; }
+.card > .table--inset thead th.th-thumb { padding-left: 43px; }
 .note-left { text-align: left; }
 
 

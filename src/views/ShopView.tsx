@@ -412,10 +412,9 @@ export function ShopView({
                     <span className="spacer" />
                     {isSeller ? (
                       <input
-                        className="input tnum"
+                        className="input input--cell tnum"
                         type="number"
                         aria-label={`${category.name} 的排序`}
-                        style={{ width: 72, height: 26, padding: '0 6px', fontSize: 12.5 }}
                         defaultValue={category.sort}
                         onBlur={(e) => {
                           const next = Number(e.target.value)
