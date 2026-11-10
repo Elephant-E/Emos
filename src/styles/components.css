@@ -1750,13 +1750,3 @@
 .product-tile__price b { font-size: 15px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: 11.5px; color: var(--fg-5); }
 .product-tile__meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--fg-4); white-space: nowrap; }
-.product-tile__off {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  /* 封面底色不确定，徽标要自带底，否则浅色图上看不见 */
-  background: rgba(0, 0, 0, 0.68);
-  padding: 2px 8px;
-  border-radius: 6px;
-  backdrop-filter: blur(2px);
-}

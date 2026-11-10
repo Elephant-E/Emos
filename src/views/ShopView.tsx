@@ -59,7 +59,8 @@ export function ShopView({
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
   const mine = scope === 'mine'
-  const products = useShopProducts(page, mine ? (seller.data?.seller_id ?? 0) : 0, categoryId, 12, q, sort)
+  // 逛全站时只显示上架的——下架商品对买家不存在
+  const products = useShopProducts(page, mine ? (seller.data?.seller_id ?? 0) : 0, categoryId, 12, q, sort, !mine)
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
@@ -269,7 +270,6 @@ export function ShopView({
                     ) : (
                       product.name.slice(0, 1)
                     )}
-                    {product.is_up ? null : <span className="badge badge--off product-tile__off"><i />已下架</span>}
                   </div>
                   <div className="product-tile__body">
                     <span className="product-tile__name">{product.name}</span>

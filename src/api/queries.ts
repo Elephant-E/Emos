@@ -443,9 +443,11 @@ export function useShopProducts(
   pageSize = 12,
   name = '',
   sortBy: '' | 'sales' | 'price' = '',
+  /** 只查上架的。逛全站商品时用，管理自己店铺时不传（要能看到下架的） */
+  onlyUp = false,
 ) {
   return useQuery({
-    queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy] as const,
+    queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy, onlyUp] as const,
     queryFn: () =>
       shopApi.products({
         seller_id: sellerId || undefined,
@@ -453,6 +455,7 @@ export function useShopProducts(
         page_size: pageSize,
         category_id: categoryId || undefined,
         name: name || undefined,
+        is_up: onlyUp ? true : undefined,
         // 后端只认这几个；updated_at / created_at 会 422
         sort_by: sortBy || 'sort',
         sort_order: sortBy ? 'desc' : 'asc',
