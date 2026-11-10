@@ -36,13 +36,15 @@ export function OverviewView() {
   const stats = useWatchStats(1)
   const carrotHistory = useCarrotHistory(1, 3)
   const todos = useTodos()
-  const todoItems = [
+  const todoAll = [
     { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page: 1, page_size: 20, tab: 'default' as const } },
     { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
     { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
-  ].filter((item) => (item.value ?? 0) > 0)
+  ]
+  // 加载中先照常占位，否则首屏看起来像「今天没有待办」
+  const todoItems = todos.isLoading ? todoAll : todoAll.filter((item) => (item.value ?? 0) > 0)
   // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡
-  const showWatchlists = todoItems.length === 0
+  const showWatchlists = !todos.isLoading && todoItems.length === 0
   const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
