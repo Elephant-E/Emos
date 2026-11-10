@@ -755,7 +755,10 @@ export function useWatchMutations(watchId: number) {
   }
 
   const addVideo = useMutation({
-    mutationFn: (videoId: number) => watchApi.addVideo(watchId, videoId),
+    mutationFn: (p: number | { videoId: number; sort?: number }) =>
+      typeof p === 'number'
+        ? watchApi.addVideo(watchId, p)
+        : watchApi.addVideo(watchId, p.videoId, p.sort ?? 80),
     onSuccess: invalidate,
   })
   const removeVideo = useMutation({

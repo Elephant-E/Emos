@@ -315,11 +315,13 @@ export function WatchlistDetailView({
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
-                  onClick={() =>
-                    addVideo.mutate(c.video_id, {
-                      onSuccess: () => toast(`已加入《${c.video_title}》`, 'success'),
-                    })
-                  }
+                  onClick={() => {
+                    const maxSort = Math.max(0, ...(videos.data?.items ?? []).map((v) => v.sort ?? 0))
+                    addVideo.mutate(
+                      { videoId: c.video_id, sort: maxSort + 10 },
+                      { onSuccess: () => toast(`已加入《${c.video_title}》`, 'success') },
+                    )
+                  }}
                   disabled={addVideo.isPending}
                 >
                   加入
