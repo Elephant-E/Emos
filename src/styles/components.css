@@ -59,7 +59,7 @@
   margin: 16px 0 4px;
   padding: 9px 10px 9px 11px;
   border-radius: var(--r-field);
-  background: #201f1c;
+  background: var(--field);
   border: 1px solid rgba(255, 255, 255, 0.14);
   transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
@@ -546,7 +546,7 @@
   padding: 0 11px;
   border-radius: var(--r-item);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  background: #201f1c;
+  background: var(--field);
   color: var(--fg);
   font-size: 13.5px;
   transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
@@ -632,7 +632,7 @@
   overflow: auto;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, #1a1917, #14130f);
+  background: linear-gradient(180deg, var(--raised), var(--card-bottom));
   box-shadow: 0 32px 80px -32px #000;
 }
 
@@ -797,7 +797,7 @@
   width: 424px;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, #1a1917, #14130f);
+  background: linear-gradient(180deg, var(--raised), var(--card-bottom));
   box-shadow: 0 32px 80px -32px #000;
   padding: 22px 22px 18px;
 }
@@ -904,7 +904,7 @@
   padding: 6px;
   border-radius: 12px;
   border: 1px solid var(--line);
-  background: #1a1917;
+  background: var(--raised);
   box-shadow: var(--shadow-pop);
 }
 
