@@ -105,6 +105,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
             products={products}
             hasMore={query.hasNextPage}
             loadingMore={query.isFetchingNextPage}
+            loadError={query.isFetchNextPageError}
             onLoadMore={() => query.fetchNextPage()}
             onOpen={(product) => setDetailId(product.product_id)}
             onBuy={setBuyTarget}

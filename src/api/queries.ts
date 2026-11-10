@@ -505,12 +505,13 @@ export function useShopCounts(sellerId: number) {
   const enabled = sellerId > 0
   const productsAll = useQuery({
     queryKey: ['shop', 'count', 'products', sellerId] as const,
-    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 1 }),
+    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 1, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
   const productsOnSale = useQuery({
     queryKey: ['shop', 'count', 'onSale', sellerId] as const,
-    queryFn: () => shopApi.products({ seller_id: sellerId, is_up: true, page: 1, page_size: 1 }),
+    queryFn: () =>
+      shopApi.products({ seller_id: sellerId, is_up: true, page: 1, page_size: 1, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
   const ordersAll = useQuery({
@@ -526,7 +527,7 @@ export function useShopCounts(sellerId: number) {
   // 没有销量统计接口，只能把商品拉回来自己加
   const salesRows = useQuery({
     queryKey: ['shop', 'count', 'sales', sellerId] as const,
-    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 200 }),
+    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 200, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
   const salesTotal = salesRows.data?.items.reduce((sum, p) => sum + (p.sales ?? 0), 0)

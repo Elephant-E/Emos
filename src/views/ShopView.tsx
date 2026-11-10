@@ -270,6 +270,7 @@ export function ShopView({
               products={browseItems}
               hasMore={browse.hasNextPage}
               loadingMore={browse.isFetchingNextPage}
+              loadError={browse.isFetchNextPageError}
               onLoadMore={() => browse.fetchNextPage()}
               onOpen={(product) => setDetailId(product.product_id)}
               onBuy={setBuyTarget}
