@@ -6,6 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
+import { formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
@@ -103,11 +104,25 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       {!error && isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (
-        <EmptyBlock
-          title="没有匹配的影片"
-          hint={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
-          action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
-        />
+        // 区分「真没有数据」和「页码越界」：后者总条数是有值的
+        data.total > 0 ? (
+          <>
+            <EmptyBlock
+              title="这一页没有内容"
+              hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
+              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+            />
+            <div className="table-foot">
+              <span>共 {formatThousand(data.total)} 条</span>
+              <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
+            </div>
+          </>
+        ) : (
+          <EmptyBlock
+            title={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
+            action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
+          />
+        )
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (

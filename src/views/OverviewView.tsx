@@ -226,7 +226,9 @@ export function OverviewView() {
           <div className="card-body">
           {watching.isLoading ? <div className="skeleton" style={{ height: 96 }} /> : null}
 
-          {watching.error ? <p className="card-note">暂时取不到观看记录，稍后刷新～</p> : null}
+          {watching.error ? (
+            <ErrorBlock bare error={watching.error as Error & { status?: number }} onRetry={() => watching.refetch()} />
+          ) : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
             <p className="card-note">还没有未看完的内容</p>
@@ -278,7 +280,9 @@ export function OverviewView() {
 
           <div className="card-body">
 
-          {stats.error ? <p className="card-note">本周记录取不到，稍后再看～</p> : null}
+          {stats.error ? (
+            <ErrorBlock bare error={stats.error as Error & { status?: number }} onRetry={() => stats.refetch()} />
+          ) : null}
 
           {!stats.data && !stats.error ? (
             <div className="stack--loose">

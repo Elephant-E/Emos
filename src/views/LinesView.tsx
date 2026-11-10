@@ -68,6 +68,14 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
       {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
       {lines.data && lines.data.length > 0 && rows.length === 0 ? <EmptyBlock title={`没有匹配「${search.q}」的线路`} /> : null}
+      {/* 页码越界：有数据但这一页是空的，不能什么都不渲染（原来整页空白） */}
+      {lines.data && rows.length > 0 && paged.length === 0 ? (
+        <EmptyBlock
+          title="这一页没有内容"
+          hint={`共 ${rows.length} 条，当前在第 ${search.page} 页`}
+          action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+        />
+      ) : null}
 
       {paged.length > 0 ? (
         <div className="table-card">

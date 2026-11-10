@@ -119,7 +119,15 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {!error && !isLoading && data && data.items.length === 0 ? (
         <EmptyBlock
-          title="还没有片单"
+          title={
+            search.q
+              ? `没有找到「${search.q}」`
+              : search.scope === 'self'
+                ? '还没有自己建的片单'
+                : search.scope === 'subscribed'
+                  ? '还没有订阅任何片单'
+                  : '还没有片单'
+          }
           action={<button className="btn btn--primary" onClick={() => setCreating(true)}>新建片单</button>}
         />
       ) : null}

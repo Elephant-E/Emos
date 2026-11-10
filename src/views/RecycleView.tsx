@@ -127,7 +127,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
       {!active.error && !active.isLoading && rows.length === 0 ? (
         <EmptyBlock
-          title="回收站是空的"
+          title={q ? `没有找到「${q}」` : '回收站是空的'}
           
         />
       ) : null}

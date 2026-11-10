@@ -119,7 +119,17 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (
-        <EmptyBlock title="没有求片" />
+        <EmptyBlock
+          title={
+            search.q
+              ? `没有找到「${search.q}」`
+              : search.mine
+                ? '没有我认领的求片'
+                : search.type
+                  ? `没有${search.type === 'movie' ? '电影' : '剧集'}类的求片`
+                  : '没有求片'
+          }
+        />
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
