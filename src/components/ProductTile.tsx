@@ -30,12 +30,20 @@ export function ProductTile({
       }}
     >
       <div className="product-tile__cover">
-        {product.cover_url ? <img src={product.cover_url} alt={product.name} loading="lazy" /> : product.name.slice(0, 1)}
+        {product.cover_url ? <img
+          src={product.cover_url}
+          alt={product.name}
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.parentElement?.setAttribute('data-fallback', product.name.slice(0, 1))
+          }}
+        /> : product.name.slice(0, 1)}
       </div>
       <div className="product-tile__body">
         <span className="product-tile__name">{product.name}</span>
         <div className="product-tile__price">
-          <b>{product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`}</b>
+          <b>{product.price == null ? '—' : `${formatThousand(product.price)} 胡萝卜`}</b>
           {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
             <s>{formatThousand(product.price_origin ?? 0)}</s>
           ) : null}

@@ -291,7 +291,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     danger: true,
                   })
                   if (!ok) return
-                  actions.removeOrder.mutate(remarking.orderNo, {
+                  ;(mineScope ? actions.removeOrder : actions.deleteOrder).mutate(remarking.orderNo, {
                     onSuccess: () => {
                       toast('已删除', 'success')
                       setRemarking(null)

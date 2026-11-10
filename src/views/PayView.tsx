@@ -96,7 +96,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           </p>
         </article>
         <article className="card">
-          <div className="detail-head">
+          <div className="card-head">
             <p className="stat__label">回调地址</p>
             <button
               className="btn btn--quiet"

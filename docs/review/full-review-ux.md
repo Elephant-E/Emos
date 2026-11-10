@@ -1,8 +1,8 @@
 # 全站交互一致性 / 视觉一致性审查
 
-分支 `rewrite/v2`（工作区 `emos.club`，只读审查，未改 `src/`）。
+分支 `rewrite/v2`（工作区 `emos.club`，只读审查，未改 `src/`）。行号按审查结束时的 `f29a6b2` 核对（审查期间有他人提交，`PayView`/`UploadView`/`WatchlistsView` 的改动只涉及缓存失效，不影响本文结论）。
 环境：`VITE_MOCK=1 npx vite --port 5288`（独立 dev server，避免和别的会话抢端口）。1600×1000 视口，Playwright 逐页截图 + 程序化测量 + 交互实测。
-截图目录：`/Users/xiangchengjie/DSH/ux-*.png`（20 张，见文末清单）。
+截图目录：`/Users/xiangchengjie/DSH/ux-*.png`（31 张，见文末清单）。
 控制台：0 个 JS 错误；只有图片域 `ERR_CONNECTION_REFUSED`（外部图床不可达，这部分正好用来验图片兜底）。
 
 > mock 覆盖缺口：`/api/video/media/listAll`（回收站-资源）、`/api/whisper/*` 未模拟，这两处的表格只能读代码判断，已在对应条目注明「代码核对」。
@@ -32,7 +32,7 @@ detail-head 计算样式：padding 24px / border 1px rgba(255,255,255,.075) / ra
 
 为什么必须改：同一张卡片里，「客户端登录」是平铺 kv 行、「已登录设备」却多一层边框盒子，用户会以为那是可点的子区域；而影片详情里「资源」有框、「字幕」没框，**同一页两组同类内容长得不一样**。
 
-改法：用现成的 `.card-head`（卡片内左右分栏）替换这三处（`PayView.tsx:97`、`AccountView.tsx:228`、`VideoDetailView.tsx:283`），`.detail-head` 只保留页面级那一个定义。
+改法：用现成的 `.card-head`（卡片内左右分栏）替换这三处（`PayView.tsx:99`、`AccountView.tsx:228`、`VideoDetailView.tsx:283`），`.detail-head` 只保留页面级那一个定义。
 
 ### M2 · 表格里的主操作被 `.table .btn` 抹平（复现，ia-round3 已记）
 
@@ -95,7 +95,7 @@ background: rgba(0,0,0,0)   border: 0 none   color: rgb(143,141,134)
 
 同一个字段（片单的 `carrot`）在两个页面两种写法，而且就在相邻两级：
 
-- 片单列表：`{watch.carrot} 萝卜`（`WatchlistsView.tsx:159`，`ux-watchlists.png`「10 萝卜」）
+- 片单列表：`{watch.carrot} 萝卜`（`WatchlistsView.tsx:160`，`ux-watchlists.png`「10 萝卜」）
 - 片单详情：`订阅需 {carrot} 胡萝卜`（`WatchlistDetailView.tsx:124`）
 - 商城价格：`68 萝卜`（`ShopView.tsx:321`、`ProductTile.tsx`、`ProductModals.tsx`）
 - 影片详情：`求片中 X 萝卜`（`VideoDetailView.tsx:270`）

@@ -63,7 +63,7 @@ export function UserSearchView() {
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th style={{ width: '34%' }}>用户</th>
+                <th className="th-thumb" style={{ width: '34%' }}>用户</th>
                 <th style={{ width: '30%' }}>原因</th>
                 <th className="num" style={{ width: '18%' }}>注册时间</th>
                 <th style={{ width: '96px' }}>操作</th>

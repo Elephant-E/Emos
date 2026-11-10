@@ -94,7 +94,11 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
             <tbody>
               {rows.map((row, index) => {
                 const id = Number(row.whisper_id ?? index)
-                const peerUser = (row.sender_user ?? row.receiver_user) as { username?: string; id?: string } | undefined
+                // 收到的看「谁发的」，发出的看「发给谁」——原来无条件先取 sender_user，
+                // 于是发件箱里每个人都是自己
+                const peerUser = (
+                  tab === 'receiver' ? row.sender_user : row.receiver_user
+                ) as { username?: string; id?: string } | undefined
                 const peer = peerUser?.username ?? '—'
                 // 字段按角色命名，不随视角变：sender_content 永远是发起方写的，
                 // receiver_content 永远是接收方写的。sender tab 之前取反了，

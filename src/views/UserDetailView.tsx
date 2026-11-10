@@ -4,7 +4,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime, formatRelative, formatSize } from '@/lib/format'
+import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
 
 export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
@@ -99,10 +99,12 @@ export function UserDetailView({ userId }: { userId: string }) {
             <article className="card card--stat">
               <p className="stat__label">胡萝卜</p>
               <p className="stat__value">
-                —
+                {info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
                 <small>个</small>
               </p>
-              <p className="stat__delta stat__delta--quiet">需要服务商权限</p>
+              <p className="stat__delta stat__delta--quiet">
+                {info?.carrot == null ? '需要服务商权限' : '当前余额'}
+              </p>
             </article>
 
             <article className="card card--stat">

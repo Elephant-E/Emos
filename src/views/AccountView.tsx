@@ -225,7 +225,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
           <section className="cards cards--wide">
             <article className="card">
-              <div className="detail-head">
+              <div className="card-head">
                 <p className="stat__label">已登录设备</p>
                 {devices.data && devices.data.length > 0 ? (
                   <button

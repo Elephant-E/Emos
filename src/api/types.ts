@@ -405,6 +405,8 @@ export interface MusicArtistRef {
 
 export interface UserDetail {
   user_id: string
+  /** 只有服务商身份查得到；非服务商时接口 403，不会有这个对象 */
+  carrot?: number | null
   username: string
   avatar: string | null
   is_viewing: boolean

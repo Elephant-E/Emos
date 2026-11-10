@@ -414,7 +414,8 @@ const watchlistDetailRoute = createRoute({
   path: '/watchlists/$watchId',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
     page: asPage(s.page),
-    page_size: 20,
+    // 之前写死 20，Pager 的「每页条数」选完立刻被覆盖回去
+    page_size: Number(s.page_size) > 0 ? Number(s.page_size) : 20,
     q: asString(s.q),
   }),
   component: WatchDetailRoute,

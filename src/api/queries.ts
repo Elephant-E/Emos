@@ -316,9 +316,10 @@ export function useMediaList(params: { video_list_id: number; video_season_id?: 
     queryFn: async () => {
       const res = (await mediaApi.list(params)) as unknown
       if (Array.isArray(res)) return res as Array<Record<string, unknown>>
-      const obj = res as { data?: unknown; items?: unknown }
+      const obj = res as { data?: unknown; items?: unknown; medias?: unknown }
       if (Array.isArray(obj.items)) return obj.items as Array<Record<string, unknown>>
       if (Array.isArray(obj.data)) return obj.data as Array<Record<string, unknown>>
+      if (Array.isArray(obj.medias)) return obj.medias as Array<Record<string, unknown>>
       return []
     },
   })

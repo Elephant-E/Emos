@@ -70,9 +70,23 @@ export function Sidebar({ user }: { user?: UserInfo }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()
   const [term, setTerm] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
   const footRef = useRef<HTMLDivElement | null>(null)
+
+  // ⌘K / Ctrl+K 聚焦搜索框——键帽画在那儿就得能用
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        searchRef.current?.focus()
+        searchRef.current?.select()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -121,6 +135,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
             if (e.key !== 'Enter') return
             navigate({ to: '/library', search: { page: 1, page_size: 20, q: term.trim(), type: '' } })
           }}
+          ref={searchRef}
         />
         <span className="rail__keys">
           <kbd>⌘</kbd>

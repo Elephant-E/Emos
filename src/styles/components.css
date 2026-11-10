@@ -1225,7 +1225,17 @@
   background: transparent;
   color: var(--fg-3);
 }
+/* 表格里的输入（排序、评分）是内联小控件，不该被 .input 的 200px 最小宽度撑开 */
+.table .input { min-width: 0; }
 .table .btn:hover { color: var(--fg); background: transparent; }
+.table .btn--primary {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-weight: 550;
+}
+.table .btn--primary:hover { background: transparent; color: var(--fg); }
 .table .btn--danger-text { color: var(--fg-3); }
 .table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 .table td.action-cell { white-space: nowrap; }
@@ -1306,7 +1316,14 @@
 /* 一屏只留一个主数字，其余降一档，避免 6 个 42px 抢焦点 */
 .card--secondary .stat__value { font-size: 30px; }
 
+/* 卡片内的表格：首列/末列去掉表格自身的 24px 内边距，
+   否则表格文字会比卡片标题再缩进 24px，看起来像两个层级 */
 .table--inset { margin-top: 10px; }
+.table--inset thead th:first-child,
+.table--inset tbody td:first-child { padding-left: 0; }
+.table--inset thead th:last-child,
+.table--inset tbody td:last-child { padding-right: 0; }
+.table--inset thead th.th-thumb { padding-left: 43px; }
 .note-left { text-align: left; }
 
 
@@ -1669,18 +1686,19 @@
   margin-top: 18px;
 }
 .detail-col { display: grid; gap: 18px; align-content: start; }
-.detail-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-.detail-head > .stat__label { margin: 0; }
-
 /* 演职员 */
 .person-grid { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; }
 .person-card { display: grid; gap: 6px; width: 84px; }
 .person-card__poster { width: 84px; height: 112px; border-radius: 8px; object-fit: cover; }
 .person-card__poster--empty { background: var(--raised); }
+/* 图片加载失败时的首字回退 */
+.product-tile__cover[data-fallback]::after,
+.person-card[data-fallback]::after {
+  content: attr(data-fallback);
+  font-size: 26px;
+  color: var(--fg-5);
+}
+.person-card[data-fallback] { display: grid; place-items: center; height: 112px; }
 .person-card__name { font-size: 12.5px; color: var(--fg-2); }
 .person-card__role { font-size: 11px; color: var(--fg-4); }
 

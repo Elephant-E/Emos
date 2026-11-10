@@ -33,12 +33,19 @@ export function ProductDetailModal({
         <>
           <div style={{ display: 'flex', gap: 16 }}>
             <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
-              {p.cover_url ? <img src={p.cover_url} alt={p.name} /> : p.name.slice(0, 1)}
+              {p.cover_url ? <img
+                src={p.cover_url}
+                alt={p.name}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.parentElement?.setAttribute('data-fallback', p.name.slice(0, 1))
+                }}
+              /> : p.name.slice(0, 1)}
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
               <div className="product-tile__price">
-                <b>{p.price == null ? '—' : `${formatThousand(p.price)} 萝卜`}</b>
+                <b>{p.price == null ? '—' : `${formatThousand(p.price)} 胡萝卜`}</b>
                 {(p.price ?? 0) > 0 && (p.price_origin ?? 0) > (p.price ?? 0) ? (
                   <s>{formatThousand(p.price_origin ?? 0)}</s>
                 ) : null}
@@ -145,19 +152,26 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
               )
             }
           >
-            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatThousand(total)} 萝卜`}
+            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatThousand(total)} 胡萝卜`}
           </button>
         </>
       }
     >
       <div className="row" style={{ gap: 12 }}>
         <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
-          {product.cover_url ? <img src={product.cover_url} alt={product.name} /> : product.name.slice(0, 1)}
+          {product.cover_url ? <img
+            src={product.cover_url}
+            alt={product.name}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+              e.currentTarget.parentElement?.setAttribute('data-fallback', product.name.slice(0, 1))
+            }}
+          /> : product.name.slice(0, 1)}
         </div>
         <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
           <span className="muted" style={{ fontSize: 12 }}>
-            {product.price == null ? '—' : `${formatThousand(product.price)} 萝卜`} · 库存 {formatThousand(product.stock)}
+            {product.price == null ? '—' : `${formatThousand(product.price)} 胡萝卜`} · 库存 {formatThousand(product.stock)}
           </span>
         </span>
       </div>

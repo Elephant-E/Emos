@@ -267,7 +267,7 @@ export function VideoDetailView({
                     {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
                     {currentEpisode.runtime ? `${currentEpisode.runtime} 分` : '—'} ·{' '}
                     {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
-                    {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 萝卜` : ''}
+                    {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 胡萝卜` : ''}
                   </span>
                   {currentEpisode.episode_description ? (
                     <span className="ep-current__desc">{currentEpisode.episode_description}</span>
@@ -280,7 +280,7 @@ export function VideoDetailView({
 
         <div className="detail-col">
           <article className="card card--tight">
-            <div className="detail-head">
+            <div className="card-head">
               <p className="stat__label">
                 资源
               </p>
@@ -393,6 +393,11 @@ export function VideoDetailView({
                     alt=""
                     loading="lazy"
                     className="person-card__poster"
+                    onError={(e) => {
+                      // 拼出来的地址，缺图时退成首字，别留裂图
+                      e.currentTarget.style.display = 'none'
+                      e.currentTarget.parentElement?.setAttribute('data-fallback', person.name.slice(0, 1))
+                    }}
                   />
                 ) : (
                   <div className="person-card__poster person-card__poster--empty" />

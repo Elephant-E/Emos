@@ -157,7 +157,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                           {watch.carrot > 0 ? (
                             <span className="badge badge--wait" style={{ marginLeft: 8 }}>
                               <i />
-                              {watch.carrot} 萝卜
+                              {watch.carrot} 胡萝卜
                             </span>
                           ) : null}
                           {watch.is_subscribe ? (

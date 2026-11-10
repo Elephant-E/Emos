@@ -74,7 +74,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th style={{ width: '24%' }}>名称</th>
+                <th className="th-thumb" style={{ width: '24%' }}>名称</th>
                 <th>地址</th>
                 <th style={{ width: '18%' }}>简介</th>
                 <th style={{ width: '18%' }}>创建时间</th>

@@ -118,8 +118,9 @@ export const videoApi = {
 }
 
 export const mediaApi = {
+  // 真机返回的是数组，不是 { medias }
   list: (params: { video_list_id?: number; video_season_id?: number; video_episode_id?: number; video_part_id?: number; include_metadata?: boolean }) =>
-    request<{ medias?: VideoMedia[] }>('/api/video/media/list', { query: params }),
+    request<VideoMedia[]>('/api/video/media/list', { query: params }),
   listAll: (params: { media_id?: string; user_id?: string; status?: string; only_delete?: boolean; include_metadata?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<Record<string, unknown>>>('/api/video/media/listAll', { query: params }),
   remove: (mediaId: string, reason = '后台删除') => request<CarrotDelta>('/api/video/media/delete', { method: 'DELETE', body: { media_id: mediaId, reason } }),

@@ -60,7 +60,9 @@ export function SongDetailView({ songId }: { songId: number }) {
                 )
               }
             >
-              <option value="">未评分</option>
+              <option value="">
+                {song.data?.rating == null ? '未评分' : `当前 ${song.data.rating}`}
+              </option>
               {[1, 2, 3, 4, 5].map((n) => (
                 <option key={n} value={n}>
                   {n} 星
