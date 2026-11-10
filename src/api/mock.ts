@@ -482,6 +482,18 @@ export async function mockRequest<T>(
       { category_id: 1002, name: '会员', sort: 60 },
     ] as T
   }
+  if (clean === '/api/shop/product/info') {
+    const id = Number(query.product_id ?? 0)
+    return ({
+      product_id: id, category_id: 1000, category_name: '周边',
+      cover_url: poster('shop1'), name: '限量海报 A3', price: 68, price_origin: 98,
+      stock: 24, sales: 132, is_up: true, sort: 80,
+      description: '美术馆授权的限量印刷版，A3 尺寸 250g 哑粉纸。',
+      exchange_way: '下单后凭订单号联系商户自提',
+      up_time: '2026-10-20 10:00:00', time_start: null, time_end: null,
+      user_buy_max: 2, updated_at: '2026-11-01T10:00:00Z',
+    } as T)
+  }
   if (clean === '/api/shop/product/list') {
     const rows = [
       { product_id: 1000, category_id: 1000, cover_url: poster('shop1'), name: '限量海报 A3', price: 68, price_origin: 98, stock: 24, sales: 132, is_up: true, up_time: '2026-10-20 10:00:00', time_start: null, time_end: null, user_buy_max: 2, sort: 80, updated_at: '2026-11-01T10:00:00Z' },
@@ -526,6 +538,15 @@ export async function mockRequest<T>(
     if (truthy(query.is_delivery)) filtered = filtered.filter((r) => Boolean(r.time_delivery))
     if (falsy(query.is_delivery)) filtered = filtered.filter((r) => !r.time_delivery)
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
+  if (clean === '/api/shop/order/user/create') {
+    return { no: '20261110190000shopMOCK', buy_number: Number(body.buy_number ?? 1), price: 68, expired: '2026-11-10 19:30:00' } as T
+  }
+  if (clean === '/api/shop/order/user/pay') return { message: '支付成功' } as T
+  if (clean === '/api/shop/order/user/list') {
+    return paginate([
+      { user: { username: 'sorakand' }, order_no: '20261110190000shopMOCK', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 1, time_pay: null, time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-10T19:00:00Z' },
+    ], 1, 20) as T
   }
   if (clean === '/api/shop/order/shop/delivery') return { time_delivery: new Date().toISOString() } as T
   if (clean === '/api/shop/order/shop/remark') return {} as T

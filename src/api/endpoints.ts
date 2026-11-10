@@ -268,6 +268,19 @@ export const shopApi = {
   productSort: (productId: number, sort: number) => request<{ sort: number }>('/api/shop/product/sort', { method: 'PUT', query: { product_id: productId, sort } }),
   productUp: (productId: number) => request<{ is_up: boolean }>('/api/shop/product/up', { method: 'PUT', query: { product_id: productId } }),
 
+  // 买家侧：管理员也是用户，后台要能像用户端一样下单
+  ordersUser: (params: { seller_id?: number; product_id?: number; order_title?: string; order_no?: string; is_pay?: boolean; is_delivery?: boolean; page?: number; page_size?: number }) =>
+    request<ListResult<ShopOrder>>('/api/shop/order/user/list', { query: params }),
+  createOrder: (productId: number, buyNumber: number, remark?: string | null) =>
+    request<{ no: string; buy_number: number; price: number; expired: string }>('/api/shop/order/user/create', {
+      method: 'POST',
+      body: { product_id: productId, buy_number: buyNumber, remark: remark ?? null },
+    }),
+  payOrder: (orderNo: string) => request<MessageResult>('/api/shop/order/user/pay', { method: 'POST', body: { order_no: orderNo } }),
+  urgeOrder: (orderNo: string) => request<{ urge_number: number }>('/api/shop/order/user/urge', { method: 'PUT', body: { order_no: orderNo } }),
+  closeOrder: (orderNo: string) => request<unknown>('/api/shop/order/user/close', { method: 'POST', body: { order_no: orderNo } }),
+  removeOrder: (orderNo: string) => request<unknown>('/api/shop/order/user/order', { method: 'DELETE', query: { order_no: orderNo } }),
+
   ordersShop: (params: { user_id?: string; order_no?: string; order_title?: string; is_pay?: boolean; is_delivery?: boolean; product_id?: number; page?: number; page_size?: number }) =>
     request<ListResult<ShopOrder>>('/api/shop/order/shop/order', { query: params }),
   delivery: (orderNo: string, isDelivery: boolean) => request<{ time_delivery: string }>('/api/shop/order/shop/delivery', { method: 'PUT', body: { order_no: orderNo, is_delivery: isDelivery } }),

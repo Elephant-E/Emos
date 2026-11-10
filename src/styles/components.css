@@ -1709,6 +1709,7 @@
 .product-tile {
   display: flex;
   flex-direction: column;
+  cursor: pointer;
   border: 1px solid var(--line);
   border-radius: var(--r-card);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));

@@ -160,11 +160,13 @@ const ordersRoute = createRoute({
     pay: 'all' | 'paid' | 'unpaid'
     delivery: 'all' | 'sent' | 'pending'
     q: string
+    scope: 'mine' | 'shop'
   } => ({
     page: asPage(s.page),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
     q: asString(s.q),
+    scope: s.scope === 'mine' ? 'mine' : 'shop',
   }),
   component: OrdersRoute,
 })

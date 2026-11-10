@@ -5,7 +5,7 @@ import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
-import { useShopMutations, useShopOrders } from '@/api/queries'
+import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime } from '@/lib/format'
@@ -15,6 +15,7 @@ export interface OrdersSearch {
   pay: 'all' | 'paid' | 'unpaid'
   delivery: 'all' | 'sent' | 'pending'
   q: string
+  scope: 'mine' | 'shop'
 }
 
 const PAY_TABS: Array<{ key: OrdersSearch['pay']; label: string; filter: { is_pay?: boolean } }> = [
@@ -41,12 +42,15 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
     return () => clearTimeout(timer)
   }, [term, search.q])
 
-  const orders = useShopOrders(search.page, {
+  const mineScope = search.scope === 'mine'
+  const shopOrders = useShopOrders(search.page, {
     ...pay.filter,
     ...delivery.filter,
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
   })
+  const mineOrders = useShopMineOrders(search.page)
+  const orders = mineScope ? mineOrders : shopOrders
   const actions = useShopMutations()
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
 
@@ -56,7 +60,19 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       <PageHeader
         crumb={['订单']}
         title="订单"
-        tools={orders.isFetching ? <span className="head-note">拉取中</span> : null}
+        tools={
+          <>
+            {orders.isFetching ? <span className="head-note">拉取中</span> : null}
+            <div className="seg" role="group" aria-label="视角">
+              <button aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop', page: 1 })}>
+                店铺订单
+              </button>
+              <button aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine', page: 1 })}>
+                我的订单
+              </button>
+            </div>
+          </>
+        }
       />
 
       <div className="toolbar">
@@ -150,7 +166,17 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     <td className="num muted">{formatDateTime(order.created_at)}</td>
                     <td>
                       <span className="action-group">
-                        {!sent && paid ? (
+                        {mineScope && !paid ? (
+                          <button
+                            className="btn btn--primary"
+                            onClick={() =>
+                              actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
+                            }
+                          >
+                            付款
+                          </button>
+                        ) : null}
+                        {!mineScope && !sent && paid ? (
                           <button
                             className="btn btn--quiet"
                             onClick={() =>
@@ -163,7 +189,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             发货
                           </button>
                         ) : null}
-                        {sent ? (
+                        {!mineScope && sent ? (
                           <button
                             className="btn btn--quiet"
                             onClick={() =>

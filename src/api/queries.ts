@@ -504,6 +504,23 @@ export function useShopCounts(sellerId: number) {
   }
 }
 
+/** 商品详情：列表里的字段不全，点开看详情和下单前都要取一次 */
+export function useShopProduct(productId: number) {
+  return useQuery({
+    queryKey: ['shop', 'product', productId] as const,
+    queryFn: () => shopApi.product(productId),
+    enabled: productId > 0,
+    staleTime: 60_000,
+  })
+}
+
+export function useShopMineOrders(page: number, pageSize = 10) {
+  return useQuery({
+    queryKey: ['shop', 'mineOrders', page] as const,
+    queryFn: () => shopApi.ordersUser({ page, page_size: pageSize }),
+  })
+}
+
 export function useShopOrders(page: number, filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string }, pageSize = 10) {
   return useQuery({
     queryKey: ['shop', 'orders', page, filter] as const,
@@ -537,6 +554,19 @@ export function useShopMutations() {
     }),
     remark: useMutation({ mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark), onSuccess: invalidate }),
     removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
+    // 买家侧
+    createOrder: useMutation({
+      mutationFn: (p: { productId: number; buyNumber: number; remark?: string | null }) =>
+        shopApi.createOrder(p.productId, p.buyNumber, p.remark),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] })
+        qc.invalidateQueries({ queryKey: ['shop', 'products'] })
+      },
+    }),
+    payOrder: useMutation({
+      mutationFn: (orderNo: string) => shopApi.payOrder(orderNo),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] }),
+    }),
   }
 }
 
