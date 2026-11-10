@@ -320,11 +320,4 @@ export const whisperApi = {
   reply: (whisperId: number, content: string) => request<{ whisper_id: number }>('/api/whisper/reply', { method: 'POST', body: { whisper_id: whisperId, content } }),
 }
 
-export const api = {
-  session: sessionApi, user: userApi, invite: inviteApi, upload: uploadApi, video: videoApi,
-  media: mediaApi, subtitle: subtitleApi, record: recordApi, watch: watchApi, line: lineApi,
-  seek: seekApi, carrot: carrotApi, live: liveApi, pay: payApi, shop: shopApi, ban: banApi,
-  music: musicApi, fund: fundApi, whisper: whisperApi,
-}
-
 export { q }

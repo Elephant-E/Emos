@@ -40,6 +40,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const [inviting, setInviting] = useState(false)
   const [inviteId, setInviteId] = useState('')
   const [inviteRemark, setInviteRemark] = useState('')
+  const [remarkFor, setRemarkFor] = useState<{ userId: string; username: string; remark: string } | null>(null)
 
   const inviteHistory = useInviteHistory(1)
   const tree = useInviteTree()
@@ -526,7 +527,18 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <td className="muted">{formatDateTime(row.joinAt)}</td>
                         <td className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</td>
                         <td className="muted">
-                          {row.remark ? <span className="ellipsis" title={row.remark}>{row.remark}</span> : '—'}
+                          {row.depth === 1 ? (
+                            <button
+                              className="btn btn--quiet"
+                              onClick={() => setRemarkFor({ userId: row.userId, username: row.username, remark: row.remark })}
+                            >
+                              {row.remark || '添加备注'}
+                            </button>
+                          ) : row.remark ? (
+                            <span className="ellipsis" title={row.remark}>{row.remark}</span>
+                          ) : (
+                            '—'
+                          )}
                         </td>
                         <td>
                           {row.depth === 1 ? (
@@ -563,6 +575,48 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             </section>
           ) : null}
         </>
+      ) : null}
+
+      {remarkFor ? (
+        <Modal
+          title={`邀请备注 · ${remarkFor.username}`}
+          onClose={() => setRemarkFor(null)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={actions.remarkInvite.isPending}
+                onClick={() =>
+                  actions.remarkInvite.mutate(
+                    { userId: remarkFor.userId, remark: remarkFor.remark.trim() },
+                    {
+                      onSuccess: () => {
+                        toast('已保存', 'success')
+                        setRemarkFor(null)
+                      },
+                    },
+                  )
+                }
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>备注</span>
+            <input
+              className="input"
+              value={remarkFor.remark}
+              onChange={(e) => setRemarkFor({ ...remarkFor, remark: e.target.value })}
+              placeholder="例如：来自某某群的谁"
+              autoFocus
+            />
+          </label>
+        </Modal>
       ) : null}
 
 

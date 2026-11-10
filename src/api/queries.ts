@@ -406,6 +406,12 @@ export function useAccountMutations() {
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
     sign: useMutation({ mutationFn: (content?: string) => userApi.sign(content), onSuccess: invalidate }),
+    remarkInvite: useMutation({
+      mutationFn: (p: { userId: string; remark: string }) => inviteApi.remark(p.userId, p.remark),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['invite'] })
+      },
+    }),
     // 传 null 表示把该账号在所有设备上踢下线
     logoutDevice: useMutation({
       mutationFn: (deviceId: string | null) => userApi.videoLogout(deviceId),
