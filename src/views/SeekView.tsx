@@ -213,7 +213,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                       ) : null}
                     </td>
                     <td className="num">{item.count_request}</td>
-                    <td className="num">{item.seek_carrot == null ? '—' : formatThousand(item.seek_carrot)}</td>
+                    <td className="num">{item.seek_carrot == null ? '—' : `${formatThousand(item.seek_carrot)} 胡萝卜`}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
                       <span className="action-group">

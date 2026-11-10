@@ -181,7 +181,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                     {video.medias_count} 个 · 字幕 {video.subtitles_count}
                   </td>
                   <td className="num">
-                    {video.seek_is_request ? (
+                    {video.request_count > 0 ? (
                       <span className="badge badge--wait">
                         <i />
                         {video.request_count} 人求

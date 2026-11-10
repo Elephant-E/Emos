@@ -120,7 +120,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 <th style={{ width: '12%' }}>支付</th>
                 <th style={{ width: '12%' }}>发货</th>
                 <th className="num" style={{ width: '12%' }}>下单时间</th>
-                <th style={{ width: '18%' }}>操作</th>
+                <th style={{ width: '21%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -208,7 +208,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             撤销发货
                           </button>
                         ) : null}
-                        {mineScope && !sent ? (
+                        {mineScope && paid && !sent ? (
                           <button
                             className="btn btn--quiet"
                             onClick={() =>

@@ -123,7 +123,7 @@ export function OverviewView() {
       {todoItems.length > 0 ? (
         <section className="cards cards--todos" style={{ marginTop: 16 }}>
           {todoItems.map((item) => (
-            <Link key={item.label} className="card todo" to={item.to} search={item.search}>
+            <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
               <p className="stat__value">
                 {item.value === null ? '—' : formatThousand(item.value ?? 0)}
@@ -259,11 +259,11 @@ export function OverviewView() {
                       {row.episode_number ? `E${row.episode_number}` : ''}
                     </span>
                     <span className="progress-line">
-                      <i style={{ transform: `scaleX(${ratio.toFixed(3)})` }} />
+                      {total > 0 ? <i style={{ transform: `scaleX(${ratio.toFixed(3)})` }} /> : null}
                     </span>
                   </span>
                   <span className="muted tnum" style={{ fontSize: 12 }}>
-                    {Math.round(ratio * 100)}%
+                    {total > 0 ? `${Math.round(ratio * 100)}%` : '时长未知'}
                   </span>
                   </Link>
                 </li>
@@ -300,9 +300,10 @@ export function OverviewView() {
           ) : null}
 
           <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 6, height: 60 }}>
-            {(stats.data?.weeks[0] ?? []).map((day) => {
+            {(stats.data?.weeks[0] ?? []).map((day, _i, arr) => {
               const minutes = Math.round(day.seconds / 60)
-              const h = minutes <= 0 ? 10 : Math.min(40, 12 + Math.round(minutes / 3))
+              const peak = Math.max(...arr.map((d) => d.seconds), 1)
+              const h = minutes <= 0 ? 8 : Math.max(8, Math.round((day.seconds / peak) * 44))
               return (
                 <span key={day.date} title={`${day.date} · ${minutes > 0 ? `${minutes} 分钟` : '没看'}`} style={{ display: 'grid', gap: 6, justifyItems: 'center' }}>
                   <span

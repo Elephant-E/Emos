@@ -357,8 +357,8 @@ export async function mockRequest<T>(
   // ── 补上此前缺失的接口，让 mock 下这些页面能真正验证 ──
   if (clean === '/api/video/record/list') {
     return paginate([
-      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_second: 1280, username: 'sorakand' },
-      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_second: 2400, username: 'lin' },
+      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_image_poster: null, username: 'sorakand' },
+      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_image_poster: null, username: 'lin' },
     ], 1, 6) as T
   }
   if (clean === '/api/user/stats/video/history') {

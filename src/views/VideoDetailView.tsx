@@ -284,7 +284,7 @@ export function VideoDetailView({
                   </span>
                   <span className="muted" style={{ fontSize: 11.5 }}>
                     {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
-                    {currentEpisode.runtime ? `${currentEpisode.runtime} 分` : '—'} ·{' '}
+                    {currentEpisode.runtime ? `${currentEpisode.runtime} 分钟` : '—'} ·{' '}
                     {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
                     {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 胡萝卜` : ''}
                   </span>
@@ -329,7 +329,6 @@ export function VideoDetailView({
                       <tr key={mediaId}>
                         <td>
                           <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
-                          <span className="cell-title__code">{mediaId}</span>
                         </td>
                         <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
