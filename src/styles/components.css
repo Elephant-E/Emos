@@ -1777,8 +1777,8 @@
 /* ── 商品卡片网格（浏览用，不是管理表格）──────────────── */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+  gap: 18px;
 }
 .product-tile {
   display: flex;
@@ -1810,9 +1810,9 @@
   height: 100%;
   object-fit: cover;
 }
-.product-tile__body { padding: 12px 14px 14px; display: grid; gap: 6px; }
+.product-tile__body { padding: 14px 16px 16px; display: grid; gap: 7px; }
 .product-tile__name {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--fg);
   line-height: 1.4;
   display: -webkit-box;
@@ -1821,9 +1821,10 @@
   overflow: hidden;
 }
 .product-tile__price { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-.product-tile__price b { font-size: 15px; font-weight: 550; color: var(--fg); }
-.product-tile__price s { font-size: 11.5px; color: var(--fg-5); }
+.product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
+.product-tile__price s { font-size: 12px; color: var(--fg-5); }
 .product-tile__meta {
+  margin-top: 2px;
   display: flex;
   align-items: center;
   gap: 8px;
