@@ -17,6 +17,25 @@ export interface DetailSearch {
   episode: number
 }
 
+/** TODB 的岗位字段是英文，界面统一用中文 */
+const JOB_LABEL: Record<string, string> = {
+  Director: '导演',
+  Actor: '演员',
+  Actress: '演员',
+  Writer: '编剧',
+  Screenplay: '编剧',
+  Producer: '制片',
+  'Executive Producer': '出品人',
+  Composer: '配乐',
+  'Director of Photography': '摄影',
+  Editor: '剪辑',
+  Casting: '选角',
+  'Production Design': '美术',
+  Costume: '服装',
+  Sound: '音效',
+  'Visual Effects': '视效',
+}
+
 export function VideoDetailView({
   videoId,
   search,
@@ -404,7 +423,7 @@ export function VideoDetailView({
                 )}
                 <span className="person-card__name">{person.name}</span>
                 <span className="person-card__role">
-                  {person.job ?? (person.title ? `饰 ${person.title}` : '')}
+                  {JOB_LABEL[person.job ?? ''] ?? person.job ?? (person.title ? `饰 ${person.title}` : '')}
                 </span>
               </div>
             ))}

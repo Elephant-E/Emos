@@ -41,7 +41,8 @@ export function WatchlistDetailView({
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
-  const candidates = useWatchSearch(id, term)
+  const [addTerm, setAddTerm] = useState('')
+  const candidates = useWatchSearch(id, addTerm)
   const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers } = useWatchMutations(id)
 
   // 输入即搜：停手 350ms 后推进 URL。
@@ -163,7 +164,7 @@ export function WatchlistDetailView({
         />
         <span className="spacer" />
         {item?.is_edit_video ? (
-          <button className="btn btn--primary" onClick={() => setAdding(true)}>
+          <button className="btn btn--primary" onClick={() => { setAddTerm(''); setAdding(true) }}>
             <IconPlus />
             添加影片
           </button>
@@ -306,9 +307,9 @@ export function WatchlistDetailView({
             <input
               className="input"
               autoFocus
-              value={term}
+              value={addTerm}
               placeholder="输入片名"
-              onChange={(e) => setTerm(e.target.value)}
+              onChange={(e) => setAddTerm(e.target.value)}
             />
           </label>
           <div style={{ display: 'grid', gap: 6, maxHeight: 320, overflowY: 'auto' }}>
@@ -339,8 +340,8 @@ export function WatchlistDetailView({
                 </button>
               </div>
             ))}
-            {term.trim() && !candidates.isFetching && (candidates.data ?? []).length === 0 ? (
-              <p className="muted">没有找到「{term}」</p>
+            {addTerm.trim() && !candidates.isFetching && (candidates.data ?? []).length === 0 ? (
+              <p className="muted">没有找到「{addTerm}」</p>
             ) : null}
           </div>
         </Modal>

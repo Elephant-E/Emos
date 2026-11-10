@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -20,6 +20,8 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   const library = useLiveLibrary()
   const list = useLiveList(search.page, search.library)
   const [mediaPage, setMediaPage] = useState(1)
+  // 换频道时源列表回到第一页，不然会停在上一个频道的页码上
+  useEffect(() => setMediaPage(1), [search.channel])
   const media = useLiveMedia(search.channel, mediaPage)
   const actions = useLiveMutations()
 
