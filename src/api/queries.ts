@@ -552,10 +552,14 @@ export function useShopProduct(productId: number) {
   })
 }
 
-export function useShopMineOrders(page: number, pageSize = 10) {
+export function useShopMineOrders(
+  page: number,
+  filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string } = {},
+  pageSize = 10,
+) {
   return useQuery({
-    queryKey: ['shop', 'mineOrders', page] as const,
-    queryFn: () => shopApi.ordersUser({ page, page_size: pageSize }),
+    queryKey: ['shop', 'mineOrders', page, filter] as const,
+    queryFn: () => shopApi.ordersUser({ page, page_size: pageSize, ...filter }),
   })
 }
 

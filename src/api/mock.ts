@@ -560,9 +560,19 @@ export async function mockRequest<T>(
   if (clean === '/api/shop/order/user/close') return {} as T
   if (clean === '/api/shop/order/user/order') return {} as T
   if (clean === '/api/shop/order/user/list') {
-    return paginate([
+    const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
+    const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
+    let rows = [
       { user: { username: 'sorakand' }, order_no: '20261110190000shopMOCK', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 1, time_pay: null, time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-10T19:00:00Z' },
-    ], 1, 20) as T
+      { user: { username: 'sorakand' }, order_no: '20261109120000shopPAID', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'pay', urge_number: 0, buy_number: 1, time_pay: '2026-11-09 12:01:00', time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-09T12:00:00Z' },
+    ]
+    if (truthy(query.is_pay)) rows = rows.filter((r) => r.status_pay === 'pay')
+    if (falsy(query.is_pay)) rows = rows.filter((r) => r.status_pay !== 'pay')
+    if (truthy(query.is_delivery)) rows = rows.filter((r) => Boolean(r.time_delivery))
+    if (falsy(query.is_delivery)) rows = rows.filter((r) => !r.time_delivery)
+    if (query.order_title) rows = rows.filter((r) => r.order_title.includes(String(query.order_title)))
+    if (query.order_no) rows = rows.filter((r) => r.order_no === String(query.order_no))
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/shop/order/shop/delivery') return { time_delivery: new Date().toISOString() } as T
   if (clean === '/api/shop/order/shop/remark') return {} as T

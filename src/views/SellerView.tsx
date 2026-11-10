@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -14,10 +14,18 @@ export function SellerView({ sellerId }: { sellerId: number }) {
   const seller = useShopSeller(sellerId)
   const [categoryId, setCategoryId] = useState(0)
   const [sort, setSort] = useState<'' | 'sales' | 'price'>('')
+  const [term, setTerm] = useState('')
+  const [keyword, setKeyword] = useState('')
+
+  // 输入即搜，350ms 防抖
+  useEffect(() => {
+    const timer = setTimeout(() => setKeyword(term.trim()), 350)
+    return () => clearTimeout(timer)
+  }, [term])
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
   const categories = useShopCategories(sellerId)
-  const query = useShopProductsInfinite({ sellerId, categoryId, sortBy: sort, onlyUp: true })
+  const query = useShopProductsInfinite({ sellerId, categoryId, name: keyword, sortBy: sort, onlyUp: true })
   const products = query.data?.pages.flatMap((p) => p.items) ?? []
 
   return (
@@ -62,6 +70,14 @@ export function SellerView({ sellerId }: { sellerId: number }) {
             ))}
           </div>
           <span className="spacer" />
+          <input
+            className="input"
+            type="search"
+            placeholder="搜这家店的商品"
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            style={{ minWidth: 170 }}
+          />
           <div className="seg" role="group" aria-label="排序">
             <button aria-pressed={sort === ''} onClick={() => setSort('')}>
               默认
@@ -79,7 +95,9 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {query.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
 
-      {!query.isLoading && products.length === 0 ? <EmptyBlock title="这家店还没有在售商品" /> : null}
+      {!query.isLoading && products.length === 0 ? (
+        <EmptyBlock title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'} />
+      ) : null}
 
       {products.length > 0 ? (
         <div style={{ marginTop: 18 }}>

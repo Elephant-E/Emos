@@ -49,7 +49,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
   })
-  const mineOrders = useShopMineOrders(search.page)
+  // 「我的订单」也要吃搜索与两个状态筛选，之前只传了页码
+  const mineOrders = useShopMineOrders(search.page, {
+    ...pay.filter,
+    ...delivery.filter,
+    ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
+  })
   const orders = mineScope ? mineOrders : shopOrders
   const actions = useShopMutations()
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
