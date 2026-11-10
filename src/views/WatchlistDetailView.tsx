@@ -33,13 +33,14 @@ export function WatchlistDetailView({
   const [term, setTerm] = useState(search.q)
   const [adding, setAdding] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; sort: number; remark: string } | null>(null)
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const candidates = useWatchSearch(id, term)
-  const { addVideo, removeVideo, subscribe, toggleShow, setDynamic, update } = useWatchMutations(id)
+  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update } = useWatchMutations(id)
 
   // 输入即搜：停手 350ms 后推进 URL。
   // 必须放在 early return 之前 —— 否则音乐片单会在第二帧少执行一个 hook 而崩溃。
@@ -213,8 +214,48 @@ export function WatchlistDetailView({
                       {VIDEO_TYPE_LABEL[video.video_type]}
                     </span>
                   </td>
-                  <td className="num">{video.sort}</td>
-                  <td className="muted">{video.remark ?? '—'}</td>
+                  <td className="num">
+                    {item?.is_edit_video ? (
+                      <input
+                        className="input tnum"
+                        type="number"
+                        style={{ width: 72, height: 26, padding: '0 6px', fontSize: 12.5 }}
+                        defaultValue={video.sort}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onBlur={(e) => {
+                          const next = Number(e.target.value)
+                          if (!Number.isFinite(next) || next === video.sort) return
+                          updateVideoEntry.mutate(
+                            { videoId: video.video_id, sort: next, remark: video.remark ?? null },
+                            { onSuccess: () => toast('已调整排序', 'success') },
+                          )
+                        }}
+                      />
+                    ) : (
+                      video.sort
+                    )}
+                  </td>
+                  <td className="muted">
+                    {item?.is_edit_video ? (
+                      <button
+                        className="btn btn--quiet"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setRemarkFor({
+                            videoId: video.video_id,
+                            title: video.video_title,
+                            sort: video.sort,
+                            remark: video.remark ?? '',
+                          })
+                        }}
+                      >
+                        {video.remark || '添加备注'}
+                      </button>
+                    ) : (
+                      video.remark ?? '—'
+                    )}
+                  </td>
                   {item?.is_edit_video ? (
                   <td onClick={(e) => e.stopPropagation()}>
                     <button
@@ -322,6 +363,53 @@ export function WatchlistDetailView({
           <p className="state__hint" style={{ textAlign: 'left' }}>
             填了地址后，片单会按该地址定期同步内容；清空即关闭。
           </p>
+        </Modal>
+      ) : null}
+
+
+      {remarkFor ? (
+        <Modal
+          title={`备注 · ${remarkFor.title}`}
+          onClose={() => setRemarkFor(null)}
+          footer={
+            <>
+              <button className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
+                取消
+              </button>
+              <button
+                className="btn btn--primary"
+                disabled={updateVideoEntry.isPending}
+                onClick={() =>
+                  updateVideoEntry.mutate(
+                    {
+                      videoId: remarkFor.videoId,
+                      sort: remarkFor.sort,
+                      remark: remarkFor.remark.trim() || null,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast('已保存', 'success')
+                        setRemarkFor(null)
+                      },
+                    },
+                  )
+                }
+              >
+                保存
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>备注（只有自己看得到）</span>
+            <textarea
+              className="input"
+              style={{ minHeight: 90 }}
+              value={remarkFor.remark}
+              onChange={(e) => setRemarkFor({ ...remarkFor, remark: e.target.value })}
+              autoFocus
+            />
+          </label>
         </Modal>
       ) : null}
 

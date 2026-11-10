@@ -743,6 +743,12 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (videoId: number) => watchApi.removeVideo(watchId, videoId),
     onSuccess: invalidate,
   })
+  // POST 同一个 video_id 就是更新这一行的 sort / remark
+  const updateVideoEntry = useMutation({
+    mutationFn: (p: { videoId: number; sort: number; remark: string | null }) =>
+      watchApi.addVideo(watchId, p.videoId, p.sort, p.remark),
+    onSuccess: invalidate,
+  })
   const addMusic = useMutation({
     mutationFn: (songId: number) => watchApi.addMusic(watchId, songId),
     onSuccess: invalidate,
@@ -781,5 +787,5 @@ export function useWatchMutations(watchId: number) {
   })
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
-  return { addVideo, removeVideo, addMusic, removeMusic, subscribe, toggleShow, setDynamic, sort, update }
+  return { addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic, subscribe, toggleShow, setDynamic, sort, update }
 }
