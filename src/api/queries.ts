@@ -172,8 +172,22 @@ export function useTodos() {
   })
 }
 
-export function useVideoPage(params: { page: number; page_size: number; title?: string; type?: VideoType }) {
-  return useQuery({ queryKey: qk.videos(params), queryFn: () => videoApi.list(params) })
+export function useVideoPage(params: {
+  page: number
+  page_size: number
+  title?: string
+  type?: VideoType
+  tmdb_id?: number
+  todb_id?: number
+  video_id?: number
+  only_delete?: boolean
+  enabled?: boolean
+}) {
+  return useQuery({
+    queryKey: qk.videos(params),
+    queryFn: () => videoApi.list(params),
+    enabled: params.enabled ?? true,
+  })
 }
 
 export function useSeekPage(params: SeekQuery) {

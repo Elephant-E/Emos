@@ -373,7 +373,7 @@ const seekRoute = createRoute({
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
     q: typeof s.q === 'string' ? s.q : '',
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
-    mine: s.mine === true || s.mine === '1',
+    mine: s.mine === true || s.mine === '1' || s.mine === 'true',
   }),
   component: SeekRoute,
 })
@@ -473,7 +473,32 @@ const routeTree = rootRoute.addChildren([
   ]),
 ])
 
-export const router = createRouter({ routeTree, defaultPreload: 'intent' })
+/**
+ * 搜索词一律按字符串处理。
+ * TanStack 默认的 parseSearch 会把 `q=63247` JSON.parse 成数字，validateSearch
+ * 里 asString(数字) 返回空串 —— 于是「按 TODB/TMDB ID 搜」刚进 URL 就被清空。
+ * stringify 也走同一条路，避免数字型字符串被加上引号。
+ */
+export const router = createRouter({
+  routeTree,
+  defaultPreload: 'intent',
+  parseSearch: (input) => {
+    const out: Record<string, unknown> = {}
+    new URLSearchParams(input.startsWith('?') ? input.slice(1) : input).forEach((value, key) => {
+      out[key] = value
+    })
+    return out
+  },
+  stringifySearch: (search) => {
+    const params = new URLSearchParams()
+    for (const [key, value] of Object.entries(search as Record<string, unknown>)) {
+      if (value === undefined || value === null || value === '') continue
+      params.set(key, String(value))
+    }
+    const out = params.toString()
+    return out ? `?${out}` : ''
+  },
+})
 
 declare module '@tanstack/react-router' {
   interface Register {
