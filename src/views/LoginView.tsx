@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { request } from '@/api/client'
+import { sessionApi } from '@/api/endpoints'
 import { LOGIN_POSTERS } from '@/views/login-posters'
 
 const TOKEN_KEY = 'emos_admin_token'
@@ -41,7 +41,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
     setPhase('checking')
     setMessage('')
     try {
-      await request('/api/sign/check', { token: trimmed, silent401: true, signal: AbortSignal.timeout(12_000) })
+      await sessionApi.check(trimmed)
       localStorage.setItem(TOKEN_KEY, trimmed)
       onDone()
     } catch (error) {

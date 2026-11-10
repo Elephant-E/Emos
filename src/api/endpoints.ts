@@ -6,7 +6,9 @@ import type {
 const q = (o: Record<string, unknown>) => o
 
 export const sessionApi = {
-  check: () => request<SignCheck>('/api/sign/check'),
+  /** 验 token 用：只回 { is_sign, user_id }，比拉整份 /api/user 轻得多 */
+  check: (token?: string) =>
+    request<SignCheck>('/api/sign/check', { token, silent401: true, signal: AbortSignal.timeout(12_000) }),
   profile: () => request<UserInfo>('/api/user'),
 }
 
@@ -282,7 +284,6 @@ export const banApi = {
 }
 
 export const musicApi = {
-  searchSongs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/search', { query: params }),
   deleteMedia: (songId: number, mediaId: string, reason?: string) =>
     request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
   playUrl: (songId: number, mediaId: string) =>
