@@ -238,6 +238,15 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
+  if (clean === '/api/video/record/request') {
+    return {
+      page: 1, page_size: 10, total: 24,
+      items: [
+        { video_media_id: '1ro3z92r0pgl', range: null, is_proxy: true, video_id: 3854, video_type: 'tv', video_title: 'MobLand', ip: '123.152.142.217', ua: 'Rex-Standard/1.1', time: '2026-11-10 18:09:22' },
+        { video_media_id: 'md_3854a', range: '00:12:30', is_proxy: false, video_id: 2581, video_type: 'tv', video_title: '罗小黑战记', ip: '58.246.11.9', ua: 'SenPlayer/5.7.4', time: '2026-11-09 21:40:03' },
+      ],
+    } as T
+  }
   if (clean === '/api/seek/poll') return [] as T
   if (clean === '/api/seek/apply') return { seek_is_request: true } as T
   if (clean === '/api/seek') {

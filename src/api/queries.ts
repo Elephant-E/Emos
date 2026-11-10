@@ -187,6 +187,14 @@ export function useSeekPage(params: SeekQuery) {
  * 求片增量探测：每 30 秒只拉比 lastId 新的条目，有变化才让列表重查。
  * 原来是对 2.4 万条的列表做全量重查，等于每 30 秒让后端重新排序分页一次。
  */
+export function useUserRecords(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId, 'records'] as const,
+    queryFn: () => recordApi.requests({ user_id: userId, page: 1, page_size: 10 }),
+    enabled: Boolean(userId),
+  })
+}
+
 export function useSeekApply() {
   const qc = useQueryClient()
   return useMutation({

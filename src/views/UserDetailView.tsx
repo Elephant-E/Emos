@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
-import { ErrorBlock } from '@/components/StateBlock'
-import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo } from '@/api/queries'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatSize } from '@/lib/format'
@@ -10,6 +10,7 @@ export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
   const invite = useUserInvite(userId)
   const bans = useBanList()
+  const records = useUserRecords(userId)
   const actions = useAccountMutations()
 
   const info = pay.data ?? null
@@ -183,6 +184,55 @@ export function UserDetailView({ userId }: { userId: string }) {
                   </div>
                 </dl>
               </div>
+            </article>
+          </section>
+
+          <section className="cards cards--wide">
+            <article className="card">
+              <div className="card-head">
+                <p className="stat__label" style={{ margin: 0 }}>最近播放</p>
+                <span className="muted tnum-sm">近一周</span>
+              </div>
+              {records.isLoading ? <LoadingBlock bare rows={3} columns={4} /> : null}
+              {records.data && (records.data.items ?? []).length === 0 ? (
+                <EmptyBlock bare title="近一周没有播放记录" />
+              ) : null}
+              {(records.data?.items ?? []).length > 0 ? (
+                <table className="table table--inset">
+                  <thead>
+                    <tr>
+                      <th>影片</th>
+                      <th style={{ width: 150 }}>时间</th>
+                      <th style={{ width: 140 }}>来源 IP</th>
+                      <th style={{ width: 180 }}>客户端</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(records.data?.items ?? []).map((row, index) => (
+                      <tr key={`${String(row.video_media_id)}-${index}`}>
+                        <td>
+                          <Link
+                            to="/media/$videoId"
+                            params={{ videoId: String(row.video_id) }}
+                            search={{ season: 0, episode: 1 }}
+                            className="cell-title__name"
+                            style={{ color: 'var(--fg)' }}
+                          >
+                            {String(row.video_title ?? '—')}
+                          </Link>
+                          <span className="cell-title__code">{String(row.video_media_id ?? '')}</span>
+                        </td>
+                        <td className="muted">{formatDateTime(String(row.time ?? ''))}</td>
+                        <td className="muted tnum">
+                          {String(row.ip ?? '—')}
+                          {row.is_proxy ? ' · 代理' : ''}
+                        </td>
+                        <td className="muted ellipsis">{String(row.ua ?? '—')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : null}
             </article>
           </section>
         </>
