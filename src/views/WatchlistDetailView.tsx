@@ -7,6 +7,7 @@ import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { WatchlistForm } from '@/components/WatchlistForm'
+import { TagInput } from '@/components/TagInput'
 import type { WatchItem } from '@/api/types'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -36,7 +37,7 @@ export function WatchlistDetailView({
   const [editing, setEditing] = useState(false)
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; sort: number; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
-  const [maintainerIds, setMaintainerIds] = useState('')
+  const [maintainerIds, setMaintainerIds] = useState<string[]>([])
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
@@ -95,7 +96,7 @@ export function WatchlistDetailView({
                   <button
                     className="btn btn--ghost"
                     onClick={() => {
-                      setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean).join(' '))
+                      setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean) as string[])
                       setMaintainerOpen(true)
                     }}
                   >
@@ -409,7 +410,7 @@ export function WatchlistDetailView({
                 disabled={setMaintainers.isPending}
                 onClick={() =>
                   setMaintainers.mutate(
-                    maintainerIds.split(/[,，\s]+/).map((s) => s.trim()).filter(Boolean),
+                    maintainerIds,
                     {
                       onSuccess: () => {
                         toast('已保存', 'success')
@@ -424,17 +425,15 @@ export function WatchlistDetailView({
             </>
           }
         >
-          <label className="field">
-            <span>维护者用户 ID（空格或逗号分隔，留空即清除）</span>
-            <textarea
-              className="input"
-              style={{ minHeight: 80 }}
+          <div className="field">
+            <span>维护者用户 ID</span>
+            <TagInput
               value={maintainerIds}
-              onChange={(e) => setMaintainerIds(e.target.value)}
-              placeholder="e1000Xs e1001Xs"
+              onChange={setMaintainerIds}
+              placeholder="输入用户 ID 后回车，全部清空即取消维护者"
               autoFocus
             />
-          </label>
+          </div>
         </Modal>
       ) : null}
 

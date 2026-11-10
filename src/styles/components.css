@@ -1881,30 +1881,16 @@
 .seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 
-/* 标签输入：已确认的标签是 chip，正在输入的是框里的文字，两者不混在一起 */
-.tag-input {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 6px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-field);
-  background: var(--field);
-}
-.tag-input:focus-within { border-color: var(--line-hot); }
-.tag-input__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding-right: 4px;
-}
-.tag-input__remove {
+/* 标签输入：已确认的标签在输入框下方单独一行，不塞进框里（塞进去第一个
+   会紧贴左边框，看着像被选中） */
+.tag-field { display: grid; gap: 8px; }
+.tag-field__list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-field__chip { padding-right: 5px; }
+.tag-field__remove {
   display: inline-grid;
   place-items: center;
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   padding: 0;
   border: 0;
   border-radius: 4px;
@@ -1914,14 +1900,4 @@
   line-height: 1;
   cursor: pointer;
 }
-.tag-input__remove:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }
-.tag-input__field {
-  flex: 1;
-  min-width: 90px;
-  border: 0;
-  background: transparent;
-  color: var(--fg);
-  font-size: 14px;
-  outline: none;
-}
-.tag-input__field::placeholder { color: var(--fg-5); }
+.tag-field__remove:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }

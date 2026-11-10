@@ -38,7 +38,9 @@ export function Modal({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Enter' && onSubmit && !(event.target as HTMLElement)?.closest('textarea')) {
+      const target = event.target as HTMLElement | null
+      // 输入类控件里的回车属于输入本身，不该触发整表单提交
+      if (event.key === 'Enter' && onSubmit && !target?.closest('textarea, .tag-field')) {
         event.preventDefault()
         onSubmit()
         return

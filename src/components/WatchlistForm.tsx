@@ -95,7 +95,7 @@ export function WatchlistForm({
         value={form.image_poster_url}
         onChange={(url) => setForm({ ...form, image_poster_url: url })}
         width="100%"
-        height={148}
+        height={116}
       />
       <label className="field">
         <span>名称</span>
