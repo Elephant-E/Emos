@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { PickList } from '@/components/PickList'
 import { IconPlus, IconUpload } from '@/components/icons'
 import { uploadApi, userApi, videoApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -332,11 +333,10 @@ export function UploadView() {
             <span>按片名搜索</span>
             <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
           </label>
-          <div style={{ display: 'grid', gap: 4, maxHeight: 320, overflowY: 'auto' }}>
-            {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
+          <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
             {(candidates.data?.items ?? []).map((video: VideoItem) => (
-              <div key={video.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>{video.video_title}</span>
+              <div key={video.video_id} className="pick-row">
+                <span className="pick-row__title">{video.video_title}</span>
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
@@ -360,10 +360,7 @@ export function UploadView() {
                 </button>
               </div>
             ))}
-            {term.trim() && !candidates.isFetching && (candidates.data?.items ?? []).length === 0 ? (
-              <p className="muted">没有找到「{term}」</p>
-            ) : null}
-          </div>
+          </PickList>
         </Modal>
       ) : null}
 
@@ -382,11 +379,10 @@ export function UploadView() {
             <span>按片名搜索</span>
             <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
           </label>
-          <div style={{ display: 'grid', gap: 4, maxHeight: 320, overflowY: 'auto' }}>
-            {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
+          <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
             {(candidates.data?.items ?? []).map((video: VideoItem) => (
-              <div key={video.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                <span style={{ fontSize: 13.5, color: 'var(--fg)' }}>{video.video_title}</span>
+              <div key={video.video_id} className="pick-row">
+                <span className="pick-row__title">{video.video_title}</span>
                 <button
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
@@ -400,10 +396,7 @@ export function UploadView() {
                 </button>
               </div>
             ))}
-            {term.trim() && !candidates.isFetching && (candidates.data?.items ?? []).length === 0 ? (
-              <p className="muted">没有找到「{term}」</p>
-            ) : null}
-          </div>
+          </PickList>
         </Modal>
       ) : null}
     </>

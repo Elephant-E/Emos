@@ -1765,6 +1765,8 @@
 .pick-row { display: flex; align-items: center; gap: 10px; padding: 6px 2px; min-width: 0; }
 .pick-row__num { width: 26px; }
 .pick-row__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 两行式行标题（主标题 + 副标题），和单行的 .pick-row__title 区分 */
+.pick-row__text { display: grid; min-width: 0; }
 .pick-tabs { display: flex; gap: 8px; }
 /* 季多的时候横向滚动，但滚动条本身会压住 tab 文字；
    另外不要 sticky + 底色——那会在弹窗里凭空多出一条色块 */

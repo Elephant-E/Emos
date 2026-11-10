@@ -6,6 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
+import { PickList } from '@/components/PickList'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import { TagInput } from '@/components/TagInput'
 import type { WatchItem } from '@/api/types'
@@ -365,12 +366,11 @@ export function WatchlistDetailView({
               onChange={(e) => setAddTerm(e.target.value)}
             />
           </label>
-          <div style={{ display: 'grid', gap: 6, maxHeight: 320, overflowY: 'auto' }}>
-            {candidates.isFetching ? <p className="muted">搜索中…</p> : null}
+          <PickList loading={candidates.isFetching} query={addTerm} count={(candidates.data ?? []).length}>
             {(candidates.data ?? []).map((c) => (
-              <div key={c.video_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                {c.video_image_poster ? <Poster src={c.video_image_poster} name={String(c.video_title ?? "?")} /> : null}
-                <span style={{ display: 'grid' }}>
+              <div key={c.video_id} className="pick-row">
+                {c.video_image_poster ? <Poster src={c.video_image_poster} name={String(c.video_title ?? '?')} /> : null}
+                <span className="pick-row__text">
                   <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
                   <span className="meta-sm">
                     {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
@@ -393,10 +393,7 @@ export function WatchlistDetailView({
                 </button>
               </div>
             ))}
-            {addTerm.trim() && !candidates.isFetching && (candidates.data ?? []).length === 0 ? (
-              <p className="muted">没有找到「{addTerm}」</p>
-            ) : null}
-          </div>
+          </PickList>
         </Modal>
       ) : null}
 
@@ -663,12 +660,11 @@ function WatchMusicRows({
             <span>按歌名搜索</span>
             <input className="input" autoFocus value={songTerm} placeholder="输入歌名" onChange={(e) => setSongTerm(e.target.value)} />
           </label>
-          <div style={{ display: 'grid', gap: 6, maxHeight: 320, overflowY: 'auto' }}>
-            {songCandidates.isFetching ? <p className="muted">搜索中…</p> : null}
+          <PickList loading={songCandidates.isFetching} query={songTerm} count={(songCandidates.data?.items ?? []).length}>
             {(songCandidates.data?.items ?? []).map((sg) => (
-              <div key={sg.song_id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+              <div key={sg.song_id} className="pick-row">
                 <Poster src={sg.image_poster_url} name={String(sg.name ?? '?')} />
-                <span style={{ display: 'grid', minWidth: 0 }}>
+                <span className="pick-row__text">
                   <span className="ellipsis" style={{ fontSize: 13.5 }}>{sg.name}</span>
                   <span className="meta-sm">{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>
                 </span>
@@ -682,10 +678,7 @@ function WatchMusicRows({
                 </button>
               </div>
             ))}
-            {songTerm.trim() && !songCandidates.isFetching && (songCandidates.data?.items ?? []).length === 0 ? (
-              <p className="muted">没有找到「{songTerm}」</p>
-            ) : null}
-          </div>
+          </PickList>
         </Modal>
       ) : null}
     </>
