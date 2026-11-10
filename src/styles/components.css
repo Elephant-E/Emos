@@ -339,6 +339,12 @@
   margin-top: 24px;
   max-width: var(--page-max);
 }
+/* 卡片组后面紧跟表格/工具条时补上下间距，否则两者贴在一起 */
+.cards + .table-card,
+.cards + .toolbar,
+.cards + .media-grid,
+.cards + .product-grid,
+.cards + section { margin-top: 24px; }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 
