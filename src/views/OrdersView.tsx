@@ -154,12 +154,26 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           <button
                             className="btn btn--quiet"
                             onClick={() =>
-                              actions.deliver.mutate(order.order_no, {
-                                onSuccess: () => toast('已标记发货', 'success'),
-                              })
+                              actions.deliver.mutate(
+                                { orderNo: order.order_no, sent: true },
+                                { onSuccess: () => toast('已标记发货', 'success') },
+                              )
                             }
                           >
                             发货
+                          </button>
+                        ) : null}
+                        {sent ? (
+                          <button
+                            className="btn btn--quiet"
+                            onClick={() =>
+                              actions.deliver.mutate(
+                                { orderNo: order.order_no, sent: false },
+                                { onSuccess: () => toast('已撤销发货', 'success') },
+                              )
+                            }
+                          >
+                            撤销发货
                           </button>
                         ) : null}
                         <button className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>

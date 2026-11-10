@@ -445,10 +445,12 @@ export async function mockRequest<T>(
       { user: { username: 'chen' }, order_no: '20261028113300shopC3', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 2, time_pay: null, time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-10-28T11:33:00Z' },
     ]
     let filtered = rows
-    if (query.is_pay === 'true') filtered = filtered.filter((r) => r.status_pay === 'pay')
-    if (query.is_pay === 'false') filtered = filtered.filter((r) => r.status_pay !== 'pay')
-    if (query.is_delivery === 'true') filtered = filtered.filter((r) => Boolean(r.time_delivery))
-    if (query.is_delivery === 'false') filtered = filtered.filter((r) => !r.time_delivery)
+    const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
+    const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
+    if (truthy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay === 'pay')
+    if (falsy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay !== 'pay')
+    if (truthy(query.is_delivery)) filtered = filtered.filter((r) => Boolean(r.time_delivery))
+    if (falsy(query.is_delivery)) filtered = filtered.filter((r) => !r.time_delivery)
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/shop/order/shop/delivery') return { time_delivery: new Date().toISOString() } as T
