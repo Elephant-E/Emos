@@ -5,9 +5,9 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
-import { ProductTile } from '@/components/ProductTile'
+import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopSeller } from '@/api/queries'
+import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { shopApi } from '@/api/endpoints'
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
@@ -62,7 +62,11 @@ export function ShopView({
   const categories = useShopCategories(seller.data?.seller_id)
   const mine = scope === 'mine'
   // 逛全站时只显示上架的——下架商品对买家不存在
-  const products = useShopProducts(page, mine ? (seller.data?.seller_id ?? 0) : 0, categoryId, 12, q, sort, !mine)
+  // 表格只在「我的店铺」用；全站是卡片网格，走 browse
+  const products = useShopProducts(page, mine ? (seller.data?.seller_id ?? 0) : 0, categoryId, 12, q, sort, !mine, mine)
+  // 卡片视图用滚动加载；表格视图仍分页
+  const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true })
+  const browseItems = browse.data?.pages.flatMap((p) => p.items) ?? []
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
   const actions = useShopMutations()
 
@@ -250,17 +254,15 @@ export function ShopView({
             <EmptyBlock title="这个分类还没有商品" />
           ) : null}
 
-          {products.data && products.data.items.length > 0 && !mine ? (
-            <div className="product-grid content-in">
-              {products.data.items.map((product) => (
-                <ProductTile
-                  key={product.product_id}
-                  product={product}
-                  onOpen={() => setDetailId(product.product_id)}
-                  onBuy={() => setBuyTarget(product)}
-                />
-              ))}
-            </div>
+          {!mine && browseItems.length > 0 ? (
+            <ProductGrid
+              products={browseItems}
+              hasMore={browse.hasNextPage}
+              loadingMore={browse.isFetchingNextPage}
+              onLoadMore={() => browse.fetchNextPage()}
+              onOpen={(product) => setDetailId(product.product_id)}
+              onBuy={setBuyTarget}
+            />
           ) : null}
 
           {products.data && products.data.items.length > 0 && mine ? (

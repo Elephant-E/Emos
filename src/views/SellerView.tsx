@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { Pager } from '@/components/Pager'
-import { ProductTile } from '@/components/ProductTile'
+import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useShopProducts, useShopSeller } from '@/api/queries'
+import { useShopProductsInfinite, useShopSeller } from '@/api/queries'
 
 /**
  * 别人的店铺。从商品详情点店名进来，看这一家在卖什么。
@@ -13,17 +12,24 @@ import { useShopProducts, useShopSeller } from '@/api/queries'
  */
 export function SellerView({ sellerId }: { sellerId: number }) {
   const seller = useShopSeller(sellerId)
-  const [page, setPage] = useState(1)
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
-  const products = useShopProducts(page, sellerId, 0, 24, '', '', true)
+  const query = useShopProductsInfinite({ sellerId, onlyUp: true })
+  const products = query.data?.pages.flatMap((p) => p.items) ?? []
 
   return (
     <>
       <PageHeader
         crumb={['商城', seller.data?.name ?? '店铺']}
         title={seller.data?.name ?? '店铺'}
-        hint={seller.data?.description ?? undefined}
+        hint={
+          [
+            seller.data?.description,
+            query.data ? `${query.data.pages[0]?.total ?? 0} 件在售` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || undefined
+        }
         tools={
           <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
             回到商城
@@ -32,30 +38,29 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       />
 
       {seller.error ? <ErrorBlock error={seller.error as Error & { status?: number }} onRetry={() => seller.refetch()} /> : null}
-      {products.error ? (
-        <ErrorBlock error={products.error as Error & { status?: number }} onRetry={() => products.refetch()} />
+
+      {seller.data?.cover_url ? (
+        <div className="seller-banner">
+          <img src={seller.data.cover_url} alt="" />
+        </div>
       ) : null}
+      {query.error ? <ErrorBlock error={query.error as Error & { status?: number }} onRetry={() => query.refetch()} /> : null}
 
-      {products.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
+      {query.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
 
-      {!products.isLoading && products.data && products.data.items.length === 0 ? (
-        <EmptyBlock title="这家店还没有在售商品" />
-      ) : null}
+      {!query.isLoading && products.length === 0 ? <EmptyBlock title="这家店还没有在售商品" /> : null}
 
-      {products.data && products.data.items.length > 0 ? (
-        <>
-          <div className="product-grid content-in" style={{ marginTop: 18 }}>
-            {products.data.items.map((product) => (
-              <ProductTile
-                key={product.product_id}
-                product={product}
-                onOpen={() => setDetailId(product.product_id)}
-                onBuy={() => setBuyTarget(product)}
-              />
-            ))}
-          </div>
-          <Pager total={products.data.total} page={page} pageSize={products.data.page_size} onPage={setPage} />
-        </>
+      {products.length > 0 ? (
+        <div style={{ marginTop: 18 }}>
+          <ProductGrid
+            products={products}
+            hasMore={query.hasNextPage}
+            loadingMore={query.isFetchingNextPage}
+            onLoadMore={() => query.fetchNextPage()}
+            onOpen={(product) => setDetailId(product.product_id)}
+            onBuy={setBuyTarget}
+          />
+        </div>
       ) : null}
 
       {buyTarget ? <BuyModal product={buyTarget} onClose={() => setBuyTarget(null)} /> : null}

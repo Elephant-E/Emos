@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { VideoType } from './types'
 
@@ -449,6 +449,7 @@ export function useShopProducts(
   sortBy: '' | 'sales' | 'price' = '',
   /** 只查上架的。逛全站商品时用，管理自己店铺时不传（要能看到下架的） */
   onlyUp = false,
+  enabled = true,
 ) {
   return useQuery({
     queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy, onlyUp] as const,
@@ -464,12 +465,42 @@ export function useShopProducts(
         sort_by: sortBy || 'sort',
         sort_order: sortBy ? 'desc' : 'asc',
       }),
-    // sellerId 为 0 表示看全站商品，不再按店铺过滤
-    enabled: true,
+    enabled,
   })
 }
 
 /** 只取 total 的轻量查询：page_size 传 1，不拉列表 */
+/**
+ * 商品用滚动加载：卡片网格没有「第几页」的概念，翻页会让人重新找位置。
+ * sellerId 传 0 表示全站。
+ */
+export function useShopProductsInfinite(params: {
+  sellerId: number
+  categoryId?: number
+  name?: string
+  sortBy?: '' | 'sales' | 'price'
+  onlyUp?: boolean
+  pageSize?: number
+}) {
+  const { sellerId, categoryId = 0, name = '', sortBy = '', onlyUp = false, pageSize = 24 } = params
+  return useInfiniteQuery({
+    queryKey: ['shop', 'productsInfinite', sellerId, categoryId, name, sortBy, onlyUp] as const,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      shopApi.products({
+        seller_id: sellerId || undefined,
+        page: pageParam,
+        page_size: pageSize,
+        category_id: categoryId || undefined,
+        name: name || undefined,
+        is_up: onlyUp ? true : undefined,
+        sort_by: sortBy || 'sort',
+        sort_order: sortBy ? 'desc' : 'asc',
+      }),
+    getNextPageParam: (last, pages) => (last.items.length < pageSize ? undefined : pages.length + 1),
+  })
+}
+
 export function useShopCounts(sellerId: number) {
   const enabled = sellerId > 0
   const productsAll = useQuery({

@@ -473,7 +473,11 @@ export async function mockRequest<T>(
   }
 
   if (clean === '/api/shop/seller/base') {
-    return { seller_id: 1000, name: '幕间小店', description: '周边与兑换码，工作日当天发货。', cover_url: null, status: 'normal', is_self: true } as T
+    const id = Number(query.seller_id ?? 0)
+    if (id && id !== 1002) {
+      return { seller_id: id, name: '洛圣都军火商', description: '不买真军火的店铺是好店铺', cover_url: poster('shop2'), status: 'pass', is_self: false } as T
+    }
+    return { seller_id: 1002, name: '幕间小店', description: '周边与兑换码，工作日当天发货。', cover_url: poster('seller-banner'), status: 'pass', is_self: true } as T
   }
   if (clean === '/api/shop/category/list') {
     return [
