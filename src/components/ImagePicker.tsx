@@ -25,8 +25,8 @@ export function ImagePicker({
   onChange: (url: string | null) => void
   label?: string
   hint?: string
-  width?: number
-  height?: number
+  width?: number | string
+  height?: number | string
 }) {
   const [open, setOpen] = useState(false)
 

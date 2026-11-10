@@ -71,6 +71,13 @@ export function WatchlistForm({
         </>
       }
     >
+      <ImagePicker
+        label="封面"
+        value={form.image_poster_url}
+        onChange={(url) => setForm({ ...form, image_poster_url: url })}
+        width="100%"
+        height={148}
+      />
       <label className="field">
         <span>名称</span>
         <input
@@ -90,11 +97,6 @@ export function WatchlistForm({
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />
       </label>
-      <ImagePicker
-        label="封面"
-        value={form.image_poster_url}
-        onChange={(url) => setForm({ ...form, image_poster_url: url })}
-      />
       <label className="field">
         <span>标签</span>
         <TagInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
