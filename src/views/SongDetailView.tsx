@@ -242,7 +242,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                               // 音频列表没有 is_self_upload，归属看 user.user_id
                               const owner = (row.user as { user_id?: string } | undefined)?.user_id
                               const isMine = Boolean(owner) && owner === session.data?.user_id
-                              let reason = '本人删除'
+                              let reason = ''
                               if (isMine) {
                                 const ok = await confirmDialog({
                                   title: '删除这个资源？',
@@ -256,7 +256,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                                   title: '删除这个资源？',
                                   message: `${owner ? `由 ${String((row.user as { username?: string } | undefined)?.username ?? '')} 上传。` : ''}歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。`,
                                   label: '理由',
-                                  placeholder: '写一句，方便以后查',
+                                  placeholder: '请说明删除原因',
                                   required: true,
                                   confirmText: '删除',
                                 })

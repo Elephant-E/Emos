@@ -538,7 +538,7 @@ export function VideoDetailView({
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
                 // 自己的资源不需要解释；删别人的才要说明为什么
-                let reason = '本人删除'
+                let reason = ''
                 if (renaming.isSelf) {
                   const ok = await confirmDialog({
                     title: '删除这个资源？',
@@ -552,7 +552,7 @@ export function VideoDetailView({
                     title: '删除这个资源？',
                     message: `${renaming.owner ? `由 ${renaming.owner} 上传。` : ''}删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。`,
                     label: '理由',
-                    placeholder: '写一句，方便以后查',
+                    placeholder: '请说明删除原因',
                     required: true,
                     confirmText: '删除',
                   })
@@ -742,7 +742,7 @@ export function VideoDetailView({
           <button
             className="btn btn--ghost"
             onClick={async () => {
-              let reason = '本人删除'
+              let reason = ''
               if (renamingSub.isSelf) {
                 const ok = await confirmDialog({
                   title: '删除这条字幕？',
@@ -756,7 +756,7 @@ export function VideoDetailView({
                   title: '删除这条字幕？',
                   message: `${renamingSub.owner ? `由 ${renamingSub.owner} 上传。` : ''}观看端将不再显示它，会扣除 1 个胡萝卜。`,
                   label: '理由',
-                  placeholder: '写一句，方便以后查',
+                  placeholder: '请说明删除原因',
                   required: true,
                   confirmText: '删除',
                 })
