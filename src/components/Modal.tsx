@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { isConfirmOpen } from '@/ui/confirm'
+import { isPromptOpen } from '@/ui/prompt'
 
 export function Modal({
   title,
@@ -48,7 +49,8 @@ export function Modal({
       if (event.key === 'Escape') {
         event.stopPropagation()
         // 确认框叠在弹层之上，此时 Esc 只应关掉确认框
-        if (isConfirmOpen()) return
+        // 二级弹层（确认框 / 输入理由）开着时，Esc 只该关掉那一层
+        if (isConfirmOpen() || isPromptOpen()) return
         onClose()
         return
       }
