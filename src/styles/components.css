@@ -1065,10 +1065,7 @@
   color: var(--fg-3);
   font-size: 12px;
   line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  white-space: pre-line;
 }
 .ep-current__title {
   color: var(--fg);
