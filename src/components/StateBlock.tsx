@@ -55,11 +55,7 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
           <IconAlert />
         </span>
         <p className="state__title">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
-        <p className="state__hint">
-          {timedOut
-            ? '网络请求没有到达服务器。检查网络或稍后重试。'
-            : error.message || '接口返回了错误。如果是权限问题，请联系管理员。'}
-        </p>
+        {!timedOut && error.message ? <p className="state__hint">{error.message}</p> : null}
         <div className="state__actions">
           {onRetry ? (
             <button className="btn btn--ghost" onClick={onRetry}>

@@ -480,10 +480,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 <small>个可用</small>
               </p>
               <p className="stat__delta stat__delta--quiet">
-                已邀请 {info.data?.invite_count ?? 0} 人
                 {info.data?.parent?.pseudonym
-                  ? ` · 邀请人 ${info.data.parent.pseudonym}`
-                  : ` · 加入于 ${formatDateTime(info.data?.invite_at)}`}
+                  ? `邀请人 ${info.data.parent.pseudonym}`
+                  : `加入于 ${formatDateTime(info.data?.invite_at)}`}
               </p>
             </article>
             <article className="card">
@@ -532,7 +531,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                             {row.userId}
                             {row.invitedBy ? ` · 由 ${row.invitedBy} 邀请` : ''}
                             {row.isDisabled ? ' · 已禁用' : ''}
-                            {row.remark ? ` · 备注：${row.remark}` : ''}
                           </span>
                         </td>
                         <td className="muted">{formatDateTime(row.joinAt)}</td>
