@@ -1,7 +1,7 @@
 # 用户与账号域 API 逐条核对
 
 > 只读审计，未改 `src/`。基线 `rewrite/v2`，行号以 **HEAD `65b89d8`**（2026-11-07 20:40 提交，视频域改动）为准。
-> 取证方式：`curl` 直连 `https://emos.club`，Header `Authorization: Bearer 1090_zijIu560MmusQM8j`（账号 `e7E6K6OE4s` / `elephant`，`roles=["admin"]`，非支付服务商）。
+> 取证方式：`curl` 直连 `https://emos.best`，Header `Authorization: Bearer 1090_zijIu560MmusQM8j`（账号 `e7E6K6OE4s` / `elephant`，`roles=["admin"]`，非支付服务商）。
 > 本轮共发出 **约 40 次真实请求**。破坏性端点一律用「空 body / 不存在的 id / 错误的 method」探针，靠 422/404/405 判定 method、路径、参数名与必填项，不落库。
 >
 > **副作用声明（唯一一次）**：`PUT /api/user/showEmpty` 传非布尔值 `"abc"` 时后端按 `false` 处理，把 `is_show_empty` 从 `true` 改成了 `false`；已立刻用 `{"is_show_empty": true}` 复原，并回读 `/api/user` 确认为 `true`。

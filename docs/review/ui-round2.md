@@ -1,7 +1,7 @@
 # EMOS 管理台 · 视觉审查（第二轮）
 
 审查对象：`src/styles/{tokens,base,components}.css`、`src/views/*.tsx`、`src/components/*.tsx`、`docs/SPEC-UI.md`
-基线：上轮 `9474275` → 本轮 `68cd790`（含 emos.club 域名切换），**外加工作区未提交改动**。
+基线：上轮 `9474275` → 本轮 `68cd790`（含上游域名切换），**外加工作区未提交改动**。
 方法：静态审查 + 算术推演布局 + WCAG 对比度计算；未启动浏览器，未改动 `src/`。
 
 > **快照与状态说明（重要）**

@@ -4,7 +4,7 @@ import { fileURLToPath, URL } from 'node:url'
 import https from 'node:https'
 import { readFile } from 'node:fs/promises'
 
-const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.club'
+const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.best'
 
 function fixturesPlugin() {
   return {

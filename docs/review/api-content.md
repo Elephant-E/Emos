@@ -8,7 +8,7 @@
 
 | 项 | 说明 |
 |---|---|
-| 真实接口 | `BASE=https://emos.club`，`Authorization: Bearer <token>`（已脱敏） |
+| 真实接口 | `BASE=https://emos.best`，`Authorization: Bearer <token>`（已脱敏） |
 | 时间 | 2026-11-07 20:32–20:44 CST |
 | 标记 | **`[实测]`** = 发过真实请求并拿到响应；**`[代码]`** = 仅读代码/契约推断 |
 | 慢与 504 | 共 13 次请求耗时 >10s（最长 60s 超时）；2 次 `HTTP 000`（60s 超时）与 2 次瞬时连接失败，均按「重试两次」后成功。`/api/watch?type=music`、`/api/proxy/line?only_self=1` 首次均超时 |

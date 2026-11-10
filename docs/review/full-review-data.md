@@ -40,7 +40,7 @@
 | `pay/query` 对任意单号返回同一对象 | 查单结果无法体现状态变化 |
 
 ### 1.3 未覆盖
-- 真实后端（`emos.club`）本轮**没有发任何真实请求**（避免副作用）。后端契约以仓库内 `api.postman_collection.json` 与 `docs/review/api-shop.md`（历史实测）为准，凡引用这两处会写明「契约」。
+- 真实后端（`emos.best`）本轮**没有发任何真实请求**（避免副作用）。后端契约以仓库内 `api.postman_collection.json` 与 `docs/review/api-shop.md`（历史实测）为准，凡引用这两处会写明「契约」。
 
 ---
 

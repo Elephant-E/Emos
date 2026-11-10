@@ -1,7 +1,7 @@
 # 商业域 API 逐条核对（商城 / 订单 / 基金 / 支付 / 萝卜）
 
 > 只读审计，**未改 `src/`**。基线 `rewrite/v2`，行号以 **HEAD `8d21eb6`** 为准（工作区仅新增本文件与 `docs/review/api-user.md`）。
-> 取证：`curl` 直连 `https://emos.club`，Header `Authorization: Bearer 1090_zijIu560MmusQM8j`（账号 `e7E6K6OE4s` / `elephant`，`roles=["admin"]`，自有店铺 `seller_id=1002`，审计前为非支付服务商）。共发出 **约 55 次真实请求**。
+> 取证：`curl` 直连 `https://emos.best`，Header `Authorization: Bearer 1090_zijIu560MmusQM8j`（账号 `e7E6K6OE4s` / `elephant`，`roles=["admin"]`，自有店铺 `seller_id=1002`，审计前为非支付服务商）。共发出 **约 55 次真实请求**。
 > 破坏性端点用「不存在的 id / 空 body / 超范围值」探针，靠 422/404/405 判定 method、路径、参数名与必填项。**但本域的三个写接口不是"不落库"，而是"落库了却报 502"**，因此对这三个额外做了「建→删→回读」的闭环验证（见 P0-1）。
 
 **标注口径**
@@ -421,7 +421,7 @@
 
 ```bash
 T=1090_zijIu560MmusQM8j
-B=https://emos.club
+B=https://emos.best
 H=(-H "Authorization: Bearer $T" -H "Accept: application/json")
 
 # 必填探针（不落库）

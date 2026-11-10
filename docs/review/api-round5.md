@@ -1,7 +1,7 @@
 # 逐端点 API 使用核对（第五轮）
 
 > 只读审计，未改任何源码。基线 HEAD `a79b2a2`。
-> 取证：`curl` 直连 `https://emos.club`，token 为 lead 提供（账号 `e7E6K6OE4s`，admin + 商城商户 `seller_id 1002`，非支付服务商）。共发出 **约 130 次真实请求**（93 次清单探针 + 14 次补测 + 11 次补充 mutation 探针 + 若干次复核与样本扫描）。
+> 取证：`curl` 直连 `https://emos.best`，token 为 lead 提供（账号 `e7E6K6OE4s`，admin + 商城商户 `seller_id 1002`，非支付服务商）。共发出 **约 130 次真实请求**（93 次清单探针 + 14 次补测 + 11 次补充 mutation 探针 + 若干次复核与样本扫描）。
 > 破坏性端点**不用真实 id 执行**，改用「不存在的 id / 空 body」探针：返回的 422/404 足以确认 **method、路径、参数名、必填项**，且不产生副作用（`ban.change`、`media.delete` 等都是先过校验再落库）。
 > 唯一产生的真实副作用：`music/favorite` 一次（已立即回滚），`user/showEmpty` 若干次（已复原为 `false`）。
 > ⚠️ 审查期间工作区有并发改动（`AccountView` 重构、`endpoints.ts` 新增 3 个用户接口、`router.tsx` 调整）。**本文行号以 HEAD `a79b2a2` 为准**；若与当前工作区不一致，按代码关键字定位。已复核：并发改动不影响本次 9 个问题的结论（`AccountView` 的封禁 Tab 被移除后，F1 只剩 `UserDetailView` 一个入口）。

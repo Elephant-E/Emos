@@ -1,6 +1,6 @@
 # 真机走查清单
 
-> 你现在能连 `emos.club`，这 15 步点完，比我猜哪里有问题高效得多。
+> 你现在能连 `emos.best`，这 15 步点完，比我猜哪里有问题高效得多。
 > 每步都写了「应该看到什么」，不对就截图给我。
 
 ## 准备
@@ -9,7 +9,7 @@
 npm run dev            # http://localhost:5273
 ```
 
-`.env.development` 现在是 `VITE_MOCK=0`、`VITE_API_ORIGIN=https://emos.club`。
+`.env.development` 现在是 `VITE_MOCK=0`、`VITE_API_ORIGIN=https://emos.best`。
 首次进 `/login` 粘贴 token。
 
 ---

@@ -1,6 +1,6 @@
 # 视频域 API 逐条核对
 
-基线：`rewrite/v2`。取证方式：真实请求 `https://emos.club`，token `1090_zijIu560MmusQM8j`。
+基线：`rewrite/v2`。取证方式：真实请求 `https://emos.best`，token `1090_zijIu560MmusQM8j`。
 
 ## 一、请求字段
 

@@ -1,6 +1,6 @@
 # 全站交互一致性 / 视觉一致性审查
 
-分支 `rewrite/v2`（工作区 `emos.club`，只读审查，未改 `src/`）。行号按审查结束时的 `f29a6b2` 核对（审查期间有他人提交，`PayView`/`UploadView`/`WatchlistsView` 的改动只涉及缓存失效，不影响本文结论）。
+分支 `rewrite/v2`（工作区 `emos.best`，只读审查，未改 `src/`）。行号按审查结束时的 `f29a6b2` 核对（审查期间有他人提交，`PayView`/`UploadView`/`WatchlistsView` 的改动只涉及缓存失效，不影响本文结论）。
 环境：`VITE_MOCK=1 npx vite --port 5288`（独立 dev server，避免和别的会话抢端口）。1600×1000 视口，Playwright 逐页截图 + 程序化测量 + 交互实测。
 截图目录：`/Users/xiangchengjie/DSH/ux-*.png`（31 张，见文末清单）。
 控制台：0 个 JS 错误；只有图片域 `ERR_CONNECTION_REFUSED`（外部图床不可达，这部分正好用来验图片兜底）。
