@@ -247,24 +247,44 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                               撤回
                             </button>
                           ) : null}
+                          <button
+                            className="btn btn--quiet"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setUrgeTarget(item)
+                              setCarrot(10)
+                            }}
+                          >
+                            催片
+                          </button>
                         </>
-                      ) : item.is_can_claim && item.status === 'default' ? (
-                        <button
-                          className="btn btn--ghost"
-                          aria-busy={claim.isPending && claim.variables === item.id}
-                          onClick={(e) => { e.stopPropagation(); claim.mutate(item.id) }}
-                          disabled={claim.isPending && claim.variables === item.id}
-                        >
-                          认领
-                        </button>
-                      ) : (
-                        <button
-                          className="btn btn--quiet"
-                          onClick={(e) => { e.stopPropagation(); setUrgeTarget(item); setCarrot(10) }}
-                        >
-                          催片
-                        </button>
-                      )}
+                      ) : item.status === 'default' ? (
+                        <>
+                          {item.is_can_claim ? (
+                            <button
+                              className="btn btn--ghost"
+                              aria-busy={claim.isPending && claim.variables === item.id}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                claim.mutate(item.id)
+                              }}
+                              disabled={claim.isPending && claim.variables === item.id}
+                            >
+                              认领
+                            </button>
+                          ) : null}
+                          <button
+                            className="btn btn--quiet"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setUrgeTarget(item)
+                              setCarrot(10)
+                            }}
+                          >
+                            催片
+                          </button>
+                        </>
+                      ) : null}
                       </span>
                     </td>
                   </tr>
