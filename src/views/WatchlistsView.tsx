@@ -61,7 +61,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         description: values.description.trim() || undefined,
         is_public: values.is_public,
         point: values.point,
-        tags: values.tags.split(/[,，\s]+/).filter(Boolean),
+        tags: values.tags,
         image_poster_url: values.image_poster_url,
         // 后端要求该字段必填，缺省会 422 is show empty 不能为空
         is_show_empty: values.is_show_empty,

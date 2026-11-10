@@ -922,7 +922,7 @@ export function useWatchMutations(watchId: number) {
       description: string
       is_public: boolean
       point: number
-      tags: string
+      tags: string[]
       image_poster_url: string | null
     }) =>
       watchApi.createOrUpdate({
@@ -932,7 +932,7 @@ export function useWatchMutations(watchId: number) {
         description: v.description.trim() || undefined,
         is_public: v.is_public,
         point: v.point,
-        tags: v.tags.split(/[,，\s]+/).filter(Boolean),
+        tags: v.tags,
         image_poster_url: v.image_poster_url,
         is_show_empty: v.is_show_empty,
       }),

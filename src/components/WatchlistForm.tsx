@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Modal } from '@/components/Modal'
+import { TagInput } from '@/components/TagInput'
 import { ImagePicker } from '@/components/ImagePicker'
 
 export interface WatchlistFormValues {
@@ -7,7 +8,7 @@ export interface WatchlistFormValues {
   description: string
   is_public: boolean
   point: number
-  tags: string
+  tags: string[]
   image_poster_url: string | null
   /** 片单里没有内容时，是否仍然展示（后端必填，可存 false） */
   is_show_empty: boolean
@@ -18,7 +19,7 @@ const EMPTY: WatchlistFormValues = {
   description: '',
   is_public: true,
   point: 0,
-  tags: '',
+  tags: [],
   image_poster_url: null,
   is_show_empty: true,
 }
@@ -50,6 +51,8 @@ export function WatchlistForm({
       title={initial ? '编辑片单' : '新建片单'}
       onClose={onClose}
       onSubmit={() => {
+        // 焦点在标签输入框里时，回车属于「确认标签」，不该提交整个表单
+        if (document.activeElement?.closest('.tag-input')) return
         if (valid && !pending) onSubmit({ ...form, name: form.name.trim() })
       }}
       footer={
@@ -93,8 +96,8 @@ export function WatchlistForm({
         onChange={(url) => setForm({ ...form, image_poster_url: url })}
       />
       <label className="field">
-        <span>标签（逗号或空格分隔）</span>
-        <input className="input" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} />
+        <span>标签</span>
+        <TagInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
       </label>
       <label className="field">
         <span>订阅所需胡萝卜（0 为免费，最高 50000）</span>

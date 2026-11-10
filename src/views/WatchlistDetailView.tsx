@@ -491,7 +491,7 @@ export function WatchlistDetailView({
             description: item.description ?? '',
             is_public: item.is_public,
             point: item.carrot ?? 0,
-            tags: (item.tags ?? []).join(' '),
+            tags: item.tags ?? [],
             image_poster_url: item.image_poster_url ?? null,
             is_show_empty: item.is_show_empty,
           }}
