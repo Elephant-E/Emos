@@ -29,6 +29,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
           [
             seller.data?.description,
             query.data ? `${query.data.pages[0]?.total ?? 0} 件在售` : null,
+            categories.data?.length ? `${categories.data.length} 个分类` : null,
           ]
             .filter(Boolean)
             .join(' · ') || undefined
