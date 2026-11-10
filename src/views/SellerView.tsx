@@ -34,9 +34,12 @@ export function SellerView({ sellerId }: { sellerId: number }) {
             .join(' · ') || undefined
         }
         tools={
-          <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
-            回到商城
-          </Link>
+          <>
+            {seller.data?.cover_url ? <img className="seller-mark" src={seller.data.cover_url} alt="" /> : null}
+            <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
+              回到商城
+            </Link>
+          </>
         }
       />
 
@@ -72,12 +75,6 @@ export function SellerView({ sellerId }: { sellerId: number }) {
               价格
             </button>
           </div>
-        </div>
-      ) : null}
-
-      {seller.data?.cover_url ? (
-        <div className="seller-banner">
-          <img src={seller.data.cover_url} alt="" />
         </div>
       ) : null}
       {query.error ? <ErrorBlock error={query.error as Error & { status?: number }} onRetry={() => query.refetch()} /> : null}
