@@ -40,30 +40,15 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
-  // 纯数字按 ID 搜：先当 TODB（站内主 ID），没结果再当 TMDB。
-  // 两个 ID 都是数字，从输入上分不出来，与其让用户选，不如都试一次。
+  // 纯数字按 TMDB ID 搜，其余按片名
   const numeric = /^\d{1,12}$/.test(search.q.trim())
-  const byId = useVideoPage({
-    page: search.page,
-    page_size: search.page_size,
-    todb_id: numeric ? Number(search.q) : undefined,
-    title: numeric ? undefined : search.q || undefined,
-    type: (search.type || undefined) as VideoType | undefined,
-  })
-  const byTmdb = useVideoPage({
+  const { data, isLoading, error, refetch, isFetching } = useVideoPage({
     page: search.page,
     page_size: search.page_size,
     tmdb_id: numeric ? Number(search.q) : undefined,
+    title: numeric ? undefined : search.q || undefined,
     type: (search.type || undefined) as VideoType | undefined,
-    // 只有数字且 TODB 没命中时才查第二次
-    enabled: numeric && byId.data !== undefined && byId.data.total === 0,
   })
-  const byIdEmpty = byId.data !== undefined && byId.data.total === 0
-  const data = numeric && byIdEmpty && byTmdb.data ? byTmdb.data : byId.data
-  const isLoading = byId.isLoading || (numeric && byIdEmpty && byTmdb.isLoading)
-  const error = byId.error ?? (numeric && byIdEmpty ? byTmdb.error : null)
-  const refetch = byIdEmpty ? byTmdb.refetch : byId.refetch
-  const isFetching = byId.isFetching || byTmdb.isFetching
 
 
   return (
@@ -105,7 +90,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           className="input"
           type="search"
           value={query}
-          placeholder="片名、TODB 或 TMDB ID"
+          placeholder="片名或 TMDB ID"
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key !== 'Enter') return
