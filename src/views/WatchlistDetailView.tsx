@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -20,6 +20,56 @@ export interface WatchDetailSearch {
   q: string
 }
 
+/** 片单详情头部：影视、音乐两种片单共用，只有计数单位不同 */
+function WatchlistHead({ item, count, countLabel }: { item: WatchItem; count: number; countLabel: string }) {
+  return (
+    <section className="detail-head">
+      <div className="detail-head__row">
+        <Poster src={item.image_poster_url} name={String(item.name ?? '?')} className="poster-img detail-head__poster" />
+        <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
+              <i />
+              {item.is_public ? '公开' : '私密'}
+            </span>
+            {(item.tags ?? []).map((tag) => (
+              <span key={tag} className="chip">
+                {tag}
+              </span>
+            ))}
+            {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
+          </div>
+          {item.description ? <p className="detail-desc">{item.description}</p> : null}
+          <div className="detail-stats">
+            <div className="detail-stat">
+              <b>{formatThousand(count)}</b>
+              <span>{countLabel}</span>
+            </div>
+            <div className="detail-stat">
+              <b>{formatThousand(item.subscribe_count)}</b>
+              <span>订阅</span>
+            </div>
+            <div className="detail-stat">
+              <b>{formatRelative(item.updated_at)}</b>
+              <span>更新</span>
+            </div>
+            <div className="detail-stat">
+              <b>{item.author?.username || '—'}</b>
+              <span>作者</span>
+            </div>
+            {item.maintainers?.length ? (
+              <div className="detail-stat">
+                <b>{item.maintainers.map((m) => m.username).filter(Boolean).join('/')}</b>
+                <span>维护者</span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export function WatchlistDetailView({
   watchId,
   search,
@@ -34,6 +84,7 @@ export function WatchlistDetailView({
 
   const [term, setTerm] = useState(search.q)
   const [adding, setAdding] = useState(false)
+  const [addingSong, setAddingSong] = useState(false)
   const [editing, setEditing] = useState(false)
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; sort: number; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
@@ -57,18 +108,15 @@ export function WatchlistDetailView({
   }, [term, search.q])
 
   const item = watch.data?.items[0]
+  const isMusic = item?.type === 'music'
 
-  if (item?.type === 'music') {
-    return (
-      <WatchMusicList
-        watchId={id}
-        item={item}
-        canEdit={item.is_edit_video}
-        search={search}
-        onSearch={onSearch}
-      />
-    )
-  }
+  // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮，
+  // 原来音乐走 early return 的独立组件，因此少了下头那五个按钮。
+  const songs = useWatchMusic(
+    id,
+    { page: search.page, page_size: search.page_size, song_title: search.q || undefined },
+    isMusic,
+  )
 
 
   const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
@@ -76,12 +124,29 @@ export function WatchlistDetailView({
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
+  if (!watch.isLoading && !item) {
+    return (
+      <>
+        <PageHeader crumb={['片单', '详情']} title="片单" />
+        {watch.error ? (
+          <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} />
+        ) : (
+          <EmptyBlock title="片单不存在，或没有查看权限" />
+        )}
+      </>
+    )
+  }
+
   return (
     <>
       <PageHeader
         crumb={['片单', item?.name ?? '详情']}
         title={item?.name ?? '片单'}
-        hint={item ? `${formatThousand(item.video_count)} 部` : undefined}
+        hint={
+          item
+            ? `${formatThousand(isMusic ? (songs.data?.total ?? 0) : item.video_count)} ${isMusic ? '首' : '部'}`
+            : undefined
+        }
         tools={
           item ? (
             <>
@@ -118,72 +183,44 @@ export function WatchlistDetailView({
       {watch.error ? <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} /> : null}
 
       {item ? (
-        <section className="detail-head">
-          <div className="detail-head__row">
-            <Poster
-              src={item.image_poster_url}
-              name={String(item.name ?? '?')}
-              className="poster-img detail-head__poster"
-            />
-            <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
-                  <i />
-                  {item.is_public ? '公开' : '私密'}
-                </span>
-                {(item.tags ?? []).map((tag) => (
-                  <span key={tag} className="chip">
-                    {tag}
-                  </span>
-                ))}
-                {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
-              </div>
-              {item.description ? <p className="detail-desc">{item.description}</p> : null}
-              <div className="detail-stats">
-                <div className="detail-stat">
-                  <b>{formatThousand(item.video_count)}</b>
-                  <span>影片</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{formatThousand(item.subscribe_count)}</b>
-                  <span>订阅</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{formatRelative(item.updated_at)}</b>
-                  <span>更新</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{item.author?.username || '—'}</b>
-                  <span>作者</span>
-                </div>
-                {item.maintainers?.length ? (
-                  <div className="detail-stat">
-                    <b>{item.maintainers.map((m) => m.username).filter(Boolean).join('/')}</b>
-                    <span>维护者</span>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </section>
+        <WatchlistHead
+          item={item}
+          count={isMusic ? (songs.data?.total ?? 0) : item.video_count}
+          countLabel={isMusic ? '首' : '影片'}
+        />
       ) : null}
 
       <div className="toolbar">
         <input
           className="input"
           type="search"
-          placeholder="在该片单里搜片名"
+          placeholder={isMusic ? '搜歌名' : '在该片单里搜片名'}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         <span className="spacer" />
         {item?.is_edit_video ? (
-          <button className="btn btn--primary" onClick={() => { setAddTerm(''); setAdding(true) }}>
+          <button
+            className="btn btn--primary"
+            onClick={() => {
+              if (isMusic) {
+                setAddingSong(true)
+              } else {
+                setAddTerm('')
+                setAdding(true)
+              }
+            }}
+          >
             <IconPlus />
-            添加影片
+            {isMusic ? '添加歌曲' : '添加影片'}
           </button>
         ) : null}
       </div>
+
+      {isMusic ? (
+        <WatchMusicRows watchId={id} item={item} search={search} onSearch={onSearch} songs={songs} addingSong={addingSong} onCloseAdd={() => setAddingSong(false)} />
+      ) : (
+        <>
 
       {videos.error ? <ErrorBlock error={videos.error} onRetry={() => videos.refetch()} /> : null}
       {videos.isLoading ? <LoadingBlock bare rows={6} columns={4} /> : null}
@@ -313,6 +350,8 @@ export function WatchlistDetailView({
           <Pager total={videos.data.total} page={search.page} pageSize={videos.data.page_size} onPage={(page) => go({ page })} />
         </div>
       ) : null}
+        </>
+      )}
 
       {adding ? (
         <Modal title="添加影片" onClose={() => setAdding(false)} width={460}>
@@ -516,110 +555,31 @@ export function WatchlistDetailView({
 }
 
 
-function WatchMusicList({
+function WatchMusicRows({
   watchId,
   item,
-  canEdit,
   search,
   onSearch,
+  songs,
+  addingSong,
+  onCloseAdd,
 }: {
   watchId: number
   item: WatchItem
-  canEdit: boolean
   search: WatchDetailSearch
   onSearch: (patch: Partial<WatchDetailSearch>) => void
+  songs: ReturnType<typeof useWatchMusic>
+  addingSong: boolean
+  onCloseAdd: () => void
 }) {
-  const title = item.name
-  const [term, setTerm] = useState(search.q)
-  useEffect(() => setTerm(search.q), [search.q])
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
-
   const navigate = useNavigate()
-  const songs = useWatchMusic(watchId, { page: search.page, page_size: search.page_size, song_title: search.q || undefined })
+  const canEdit = item.is_edit_video
   const { addSong, removeSong } = useWatchMusicMutations(watchId)
-  const [addingSong, setAddingSong] = useState(false)
   const [songTerm, setSongTerm] = useState('')
   const songCandidates = useWatchMusicSearch(watchId, songTerm)
 
   return (
     <>
-      <PageHeader
-        crumb={['片单', title]}
-        title={title}
-        hint={songs.data ? `${formatThousand(songs.data.total)} 首` : undefined}
-        tools={
-          <Link className="btn btn--ghost" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'all', type: 'music', q: '' }}>
-            返回列表
-          </Link>
-        }
-      />
-
-      <section className="detail-head">
-        <div className="detail-head__row">
-          <Poster
-            src={item.image_poster_url}
-            name={String(item.name ?? '?')}
-            className="poster-img detail-head__poster"
-          />
-          <div style={{ display: 'grid', gap: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
-                <i />
-                {item.is_public ? '公开' : '私密'}
-              </span>
-              {(item.tags ?? []).map((tag) => (
-                <span key={tag} className="chip">
-                  {tag}
-                </span>
-              ))}
-              {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
-            </div>
-            {item.description ? <p className="detail-desc">{item.description}</p> : null}
-            <div className="detail-stats">
-              <div className="detail-stat">
-                <b>{formatThousand(songs.data?.total ?? 0)}</b>
-                <span>首</span>
-              </div>
-              <div className="detail-stat">
-                <b>{formatThousand(item.subscribe_count)}</b>
-                <span>订阅</span>
-              </div>
-              <div className="detail-stat">
-                <b>{formatRelative(item.updated_at)}</b>
-                <span>更新</span>
-              </div>
-              <div className="detail-stat">
-                <b>{item.author?.username || '—'}</b>
-                <span>作者</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="toolbar">
-        <input
-          className="input"
-          type="search"
-          placeholder="搜歌名"
-          value={term}
-          onChange={(event) => setTerm(event.target.value)}
-        />
-        {canEdit ? (
-          <>
-            <span className="spacer" />
-            <button className="btn btn--primary" onClick={() => { setSongTerm(''); setAddingSong(true) }}>
-              <IconPlus />
-              添加歌曲
-            </button>
-          </>
-        ) : null}
-      </div>
 
       {songs.error ? <ErrorBlock error={songs.error} onRetry={() => songs.refetch()} /> : null}
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
@@ -698,7 +658,7 @@ function WatchMusicList({
         </div>
       ) : null}
       {addingSong ? (
-        <Modal title="添加歌曲" onClose={() => setAddingSong(false)} width={460}>
+        <Modal title="添加歌曲" onClose={onCloseAdd} width={460}>
           <label className="field">
             <span>按歌名搜索</span>
             <input className="input" autoFocus value={songTerm} placeholder="输入歌名" onChange={(e) => setSongTerm(e.target.value)} />

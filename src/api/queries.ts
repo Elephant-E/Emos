@@ -259,10 +259,15 @@ export function useWatchVideos(watchId: number, params: { page: number; page_siz
   })
 }
 
-export function useWatchMusic(watchId: number, params: { page: number; page_size: number; song_title?: string }) {
+export function useWatchMusic(
+  watchId: number,
+  params: { page: number; page_size: number; song_title?: string },
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['watch', watchId, 'music', params] as const,
     queryFn: () => watchApi.music(watchId, params),
+    enabled,
   })
 }
 
