@@ -6,6 +6,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
+import { useDebounced } from '@/lib/useDebounced'
 import { } from '@/lib/format'
 
 export interface MusicSearch {
@@ -41,13 +42,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
-  // 输入即搜：停手 350ms 后推进 URL
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   return (
     <>

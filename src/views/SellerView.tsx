@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
+import { useDebounced } from '@/lib/useDebounced'
 import { useShopCategories, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 
 /**
@@ -17,11 +18,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
   const [term, setTerm] = useState('')
   const [keyword, setKeyword] = useState('')
 
-  // 输入即搜，350ms 防抖
-  useEffect(() => {
-    const timer = setTimeout(() => setKeyword(term.trim()), 350)
-    return () => clearTimeout(timer)
-  }, [term])
+  useDebounced(term, setKeyword)
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
   const categories = useShopCategories(sellerId)

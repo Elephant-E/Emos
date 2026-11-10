@@ -11,6 +11,7 @@ import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
 
@@ -35,13 +36,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
 
-  // 输入即搜：停手 350ms 推进 URL
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
   const [removing, setRemoving] = useState(false)
   const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({

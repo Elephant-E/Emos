@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -6,6 +6,7 @@ import { Pager } from '@/components/Pager'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import {formatRelative, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 type Tab = 'media' | 'video'
@@ -29,12 +30,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   const [term, setTerm] = useState(q)
 
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
-  useEffect(() => {
-    const next = term.trim()
-    if (next === q) return
-    const timer = setTimeout(() => onQuery(next, by), 350)
-    return () => clearTimeout(timer)
-  }, [term, q, by])
+  useDebounced(term, (next) => onQuery(next, by), { current: q })
 
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0

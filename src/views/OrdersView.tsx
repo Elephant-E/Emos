@@ -8,6 +8,7 @@ import { Pager } from '@/components/Pager'
 import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import { formatDateTime } from '@/lib/format'
 
 export interface OrdersSearch {
@@ -35,12 +36,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   const delivery = DELIVERY_TABS.find((t) => t.key === search.delivery) ?? DELIVERY_TABS[0]
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   const mineScope = search.scope === 'mine'
   // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表

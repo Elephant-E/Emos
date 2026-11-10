@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -13,6 +13,7 @@ import type { WatchItem } from '@/api/types'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface WatchDetailSearch {
@@ -99,14 +100,7 @@ export function WatchlistDetailView({
   const candidates = useWatchSearch(id, addTerm)
   const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers } = useWatchMutations(id)
 
-  // 输入即搜：停手 350ms 后推进 URL。
-  // 必须放在 early return 之前 —— 否则音乐片单会在第二帧少执行一个 hook 而崩溃。
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   const item = watch.data?.items[0]
   const isMusic = item?.type === 'music'

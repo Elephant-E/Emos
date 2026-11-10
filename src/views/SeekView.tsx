@@ -10,6 +10,7 @@ import { seekApi } from '@/api/endpoints'
 import { useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
@@ -39,12 +40,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
-  useEffect(() => {
-    const next = term.trim()
-    if (next === search.q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, search.q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   const { data, isLoading, error, refetch, isFetching } = useSeekPage({
     page: search.page,

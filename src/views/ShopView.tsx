@@ -12,6 +12,7 @@ import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, us
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { useDebounced } from '@/lib/useDebounced'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import type { ShopProduct } from '@/api/types'
 
@@ -85,12 +86,7 @@ export function ShopView({
   const [buyTarget, setBuyTarget] = useState<ShopProduct | null>(null)
   const [term, setTerm] = useState(q)
   useEffect(() => setTerm(q), [q])
-  useEffect(() => {
-    const next = term.trim()
-    if (next === q) return
-    const timer = setTimeout(() => onSearch({ q: next, page: 1 }), 350)
-    return () => clearTimeout(timer)
-  }, [term, q])
+  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: q })
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
