@@ -555,6 +555,9 @@ export async function mockRequest<T>(
     return { no: '20261110190000shopMOCK', buy_number: Number(body.buy_number ?? 1), price: 68, expired: '2026-11-10 19:30:00' } as T
   }
   if (clean === '/api/shop/order/user/pay') return { message: '支付成功' } as T
+  if (clean === '/api/shop/order/user/urge') return { urge_number: 1 } as T
+  if (clean === '/api/shop/order/user/close') return {} as T
+  if (clean === '/api/shop/order/user/order') return {} as T
   if (clean === '/api/shop/order/user/list') {
     return paginate([
       { user: { username: 'sorakand' }, order_no: '20261110190000shopMOCK', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 1, time_pay: null, time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-10T19:00:00Z' },

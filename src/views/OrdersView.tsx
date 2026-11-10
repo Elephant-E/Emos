@@ -202,9 +202,40 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             撤销发货
                           </button>
                         ) : null}
-                        <button className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
-                          备注
-                        </button>
+                        {mineScope && !sent ? (
+                          <button
+                            className="btn btn--quiet"
+                            onClick={() =>
+                              actions.urgeOrder.mutate(order.order_no, {
+                                onSuccess: () => toast('已催发货', 'success'),
+                              })
+                            }
+                          >
+                            催发货
+                          </button>
+                        ) : null}
+                        {mineScope && !paid ? (
+                          <button
+                            className="btn btn--quiet"
+                            onClick={async () => {
+                              const ok = await confirmDialog({
+                                title: '关闭这个订单？',
+                                message: '关闭后无法再付款，需要重新下单。',
+                                confirmText: '关闭',
+                                danger: true,
+                              })
+                              if (!ok) return
+                              actions.closeOrder.mutate(order.order_no, { onSuccess: () => toast('已关闭', 'success') })
+                            }}
+                          >
+                            关闭
+                          </button>
+                        ) : null}
+                        {!mineScope ? (
+                          <button className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
+                            备注
+                          </button>
+                        ) : null}
                         <button
                           className="btn btn--danger-text"
                           onClick={async () => {
@@ -216,7 +247,9 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                               danger: true,
                             })
                             if (!ok) return
-                            actions.removeOrder.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+                            // 店铺订单和自己下的单是两个接口
+                            const mutation = mineScope ? actions.removeOrder : actions.deleteOrder
+                            mutation.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
                           }}
                         >
                           删除

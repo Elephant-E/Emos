@@ -591,7 +591,15 @@ export function useShopMutations() {
       onSuccess: invalidate,
     }),
     remark: useMutation({ mutationFn: (p: { orderNo: string; remark: string }) => shopApi.remarkOrder(p.orderNo, p.remark), onSuccess: invalidate }),
-    removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
+    // 商户侧：删自己的店铺订单
+    deleteOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.deleteOrder(orderNo), onSuccess: invalidate }),
+    // 买家侧：删我下的单、催发货、关闭订单
+    removeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.removeOrder(orderNo), onSuccess: invalidate }),
+    urgeOrder: useMutation({
+      mutationFn: (orderNo: string) => shopApi.urgeOrder(orderNo),
+      onSuccess: () => invalidate(),
+    }),
+    closeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.closeOrder(orderNo), onSuccess: invalidate }),
     // 买家侧
     createOrder: useMutation({
       mutationFn: (p: { productId: number; buyNumber: number; remark?: string | null }) =>
