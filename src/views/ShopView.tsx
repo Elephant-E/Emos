@@ -226,6 +226,14 @@ export function ShopView({
               </div>
             ) : null}
             <span className="spacer" />
+            <input
+              className="input"
+              type="search"
+              placeholder="搜索商品名"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              style={{ minWidth: 170 }}
+            />
             <div className="seg" role="group" aria-label="排序">
               <button aria-pressed={sort === ''} onClick={() => onSearch({ sort: '', page: 1 })}>
                 默认
@@ -237,14 +245,6 @@ export function ShopView({
                 价格
               </button>
             </div>
-            <input
-              className="input"
-              type="search"
-              placeholder="搜索商品名"
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              style={{ minWidth: 170 }}
-            />
             {isSeller && mine ? (
               <button
                 className="btn btn--primary"

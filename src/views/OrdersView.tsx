@@ -82,13 +82,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       />
 
       <div className="toolbar">
-        <input
-          className="input"
-          type="search"
-          placeholder="订单号或商品名"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
-        />
         <div className="tabs" role="tablist" aria-label="支付状态">
           {PAY_TABS.map((tab) => (
             <button key={tab.key} className="tab" role="tab" aria-selected={search.pay === tab.key} onClick={() => onSearch({ pay: tab.key, page: 1 })}>
@@ -97,6 +90,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           ))}
         </div>
         <span className="spacer" />
+        <input
+          className="input"
+          type="search"
+          placeholder="订单号或商品名"
+          value={term}
+          onChange={(e) => setTerm(e.target.value)}
+        />
         <div className="seg" role="group" aria-label="发货状态">
           {DELIVERY_TABS.map((tab) => (
             <button key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key, page: 1 })}>
