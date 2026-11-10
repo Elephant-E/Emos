@@ -129,7 +129,16 @@ export const mediaApi = {
     request<CarrotDelta>('/api/video/media/move', { method: 'PUT', query: { media_id: mediaId, item_type: itemType, item_id: itemId } }),
   rename: (mediaId: string, name: string) => request<CarrotDelta>('/api/video/media/rename', { method: 'PUT', query: { media_id: mediaId, name } }),
   playUrl: (mediaId: string) => request<{ url: string }>('/api/video/media/playUrl', { query: { media_id: mediaId } }),
-  syncMetadata: (mediaId: string) => request<CarrotDelta>('/api/video/media/syncMetadata', { method: 'PUT', query: { media_id: mediaId } }),
+  // 「此视频已存在 metadata 信息」是个 422，但语义是「已经是目标状态」，
+  // 不是失败。翻译成成功，界面不该弹红字。
+  syncMetadata: async (mediaId: string) => {
+    try {
+      return await request<CarrotDelta>('/api/video/media/syncMetadata', { method: 'PUT', query: { media_id: mediaId } })
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('已存在 metadata')) return { carrot: 0 } as CarrotDelta
+      throw error
+    }
+  },
 }
 
 export const subtitleApi = {

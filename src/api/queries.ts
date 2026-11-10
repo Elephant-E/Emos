@@ -366,7 +366,10 @@ export function useVideoMutations(videoId: number) {
   }
 
   return {
-    syncVideo: useMutation({ mutationFn: () => videoApi.sync({ todb_id: videoId }), onSuccess: invalidate }),
+    syncVideo: useMutation({
+      mutationFn: (todbId: number) => videoApi.sync({ todb_id: todbId }),
+      onSuccess: invalidate,
+    }),
     removeVideo: useMutation({ mutationFn: () => videoApi.remove(videoId), onSuccess: invalidate }),
     playUrl: useMutation({ mutationFn: (mediaId: string) => mediaApi.playUrl(mediaId) }),
     renameMedia: useMutation({ mutationFn: (p: { mediaId: string; name: string }) => mediaApi.rename(p.mediaId, p.name), onSuccess: invalidate }),

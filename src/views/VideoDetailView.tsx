@@ -119,7 +119,14 @@ export function VideoDetailView({
             {video ? (
               <button
                 className="btn btn--ghost"
-                onClick={() => actions.syncVideo.mutate(undefined, { onSuccess: () => toast('已触发同步', 'success') })}
+                onClick={() => {
+                  // 接口要的是 TODB 的 id，不是站内的 video_id
+                  if (!video?.todb_id) {
+                    toast('这部影片没有 TODB 记录，无法同步', 'error')
+                    return
+                  }
+                  actions.syncVideo.mutate(video.todb_id, { onSuccess: () => toast('已开始同步', 'success') })
+                }}
               >
                 同步
               </button>
@@ -511,7 +518,7 @@ export function VideoDetailView({
             <button
               className="btn btn--ghost"
               onClick={() =>
-                actions.syncMetadata.mutate(renaming.mediaId, { onSuccess: () => toast('已重新同步元数据', 'success') })
+                actions.syncMetadata.mutate(renaming.mediaId, { onSuccess: () => toast('已同步元数据', 'success') })
               }
             >
               同步元数据
