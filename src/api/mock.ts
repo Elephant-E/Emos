@@ -211,6 +211,7 @@ export async function mockRequest<T>(
   }
 
   const [clean] = path.split('?')
+  const method = opts.method ?? 'GET'
   const query = (opts.query ?? {}) as Record<string, string | number | boolean | undefined>
   const body = (opts.body ?? {}) as Record<string, unknown>
 
@@ -342,6 +343,49 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/apply') return { status: 'review' } as T
   if (clean === '/api/fund/order/create') return { no: '20261110180000fundMOCK' } as T
   if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
+  // ── 补上此前缺失的接口，让 mock 下这些页面能真正验证 ──
+  if (clean === '/api/video/record/list') {
+    return paginate([
+      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_second: 1280, username: 'sorakand' },
+      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_second: 2400, username: 'lin' },
+    ], 1, 6) as T
+  }
+  if (clean === '/api/user/stats/video/history') {
+    return Array.from({ length: 7 }, (_, i) => ({
+      date: `2026-11-0${i + 4}`, video_watch_second_real: 600 + i * 900, video_watch_count: 1 + i,
+    })) as T
+  }
+  if (clean === '/api/video/media/listAll') {
+    return paginate([
+      { media_id: 'md_del_1', media_name: '4K HDR · h265', media_file_size: 8_589_934_592, user_pseudonym: 'sorakand', is_self_upload: true, is_can_restore: true, created_at: '2026-10-01T10:00:00Z', deleted_at: '2026-11-01T10:00:00Z' },
+      { media_id: 'md_del_2', media_name: '1080p · h264', media_file_size: 2_147_483_648, user_pseudonym: 'lin', is_self_upload: false, is_can_restore: false, created_at: '2026-09-01T10:00:00Z', deleted_at: '2026-10-20T10:00:00Z' },
+    ], Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+  }
+  if (clean === '/api/video/media/restore') return { carrot: 3 } as T
+  if (clean === '/api/seek/query') {
+    return { seek_id: Number(query.seek_id ?? 1), status: 'default', video_title: '夜航西飞', count_request: 3, seek_carrot: 120, created_at: '2026-11-01T10:00:00Z' } as T
+  }
+  if (clean === '/api/seek/urge') return { seek_carrot: 130 } as T
+  if (clean === '/api/whisper/receiver') {
+    return [{
+      whisper_id: 1, sender_content: '请问这个资源还在吗', sender_at: '2026-11-01T10:00:00Z',
+      sender_user: { id: 'e1000Xs', username: 'lin' }, receiver_content: null, receiver_at: null,
+      sender_is_anonymous: false,
+    }] as T
+  }
+  if (clean === '/api/whisper/sender') {
+    return [{
+      whisper_id: 2, sender_content: '已收到，稍后处理', sender_at: '2026-11-02T10:00:00Z',
+      receiver_user: { id: 'e1001Xs', username: 'zhou' }, receiver_content: null, receiver_at: null,
+      sender_is_anonymous: false,
+    }] as T
+  }
+  if (clean === '/api/whisper/reply') return { whisper_id: Number(body.whisper_id ?? 1) } as T
+  if (clean === '/api/user/originalImage') return { is_original_image: true } as T
+  if (clean === '/api/user/telegram') return {} as T
+  if (/^\/api\/watch\/\d+$/.test(clean) && method === 'DELETE') return {} as T
+  if (/^\/api\/watch\/\d+\/music\/\d+$/.test(clean) && method === 'DELETE') return { count: 1 } as T
+
   if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
     const id = Number(query.item_id ?? 0)
