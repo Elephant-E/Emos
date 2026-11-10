@@ -1783,14 +1783,6 @@
   font-size: 12px;
   min-width: 0;
 }
-.seller-line__mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  object-fit: cover;
-  flex: none;
-  border: 1px solid var(--line);
-}
 .seller-line__name { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; flex: none; }
 .seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 

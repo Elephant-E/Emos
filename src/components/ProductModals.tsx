@@ -56,7 +56,6 @@ export function ProductDetailModal({
                   params={{ sellerId: String(p.seller.seller_id) }}
                   className="seller-line"
                 >
-                  {p.seller.cover_url ? <img className="seller-line__mark" src={p.seller.cover_url} alt="" /> : null}
                   <span className="seller-line__name">{p.seller.name}</span>
                   {p.seller.description ? <span className="seller-line__desc">{p.seller.description}</span> : null}
                 </Link>
