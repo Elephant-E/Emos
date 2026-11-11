@@ -145,7 +145,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <ListCard items={data.items} total={data.total} idKey={(v) => v.id}>
-          <table className="table table--fixed">
+          <table className="table table--fixed table--thumb-wide">
             <thead>
               <tr>
                 <th style={{ width: '41%' }} className="th-thumb">片单</th>

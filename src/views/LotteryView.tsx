@@ -349,7 +349,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                   <table className="table">
                     <thead>
                       <tr>
-                        <th style={{ width: '28%' }}>用户</th>
+                        <th className="th-thumb" style={{ width: '28%' }}>用户</th>
                         <th style={{ width: '24%' }}>奖品</th>
                         <th>说明</th>
                         <th style={{ width: '18%' }}>参加时间</th>

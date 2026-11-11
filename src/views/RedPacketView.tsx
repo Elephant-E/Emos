@@ -343,7 +343,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               <table className="table">
                 <thead>
                   <tr>
-                    <th style={{ width: '46%' }}>用户</th>
+                    <th className="th-thumb" style={{ width: '46%' }}>用户</th>
                     <th>用户 ID</th>
                     <th className="num" style={{ width: '14%' }}>胡萝卜</th>
                     <th style={{ width: '20%' }}>领取时间</th>

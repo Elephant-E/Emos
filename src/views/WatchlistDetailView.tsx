@@ -505,7 +505,7 @@ export function WatchlistDetailView({
             <table className="table table--inset">
               <thead>
                 <tr>
-                  <th>用户</th>
+                  <th className="th-thumb">用户</th>
                   <th className="num" style={{ width: 90 }}>付费</th>
                   <th style={{ width: 110 }}>到期</th>
                 </tr>
