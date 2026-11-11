@@ -24,7 +24,7 @@ SRC = ROOT / "src"
 VERDICTS = {
     # —— 刻意不接 ——
     ("GET", "/link"): ("skip", "浏览器跳转用的授权链接，不是 API 调用；LoginView 里拼字符串"),
-    ("PUT", "https://emos.local/{var}"): ("skip", "客户端分片上传的 PUT 目标，走 uploader 的 uploadObject，不是接口"),
+    ("PUT", "https://emos.local/xxxx"): ("skip", "客户端分片上传的 PUT 目标（multipart/onedrive 直传），走 uploader 的 uploadObject，不是普通接口"),
     ("GET", "/api/upload/store/disk"): ("skip", "暂存区需单独申请权限，管理员 token 也 422，已整体删除"),
     ("GET", "/api/upload/store/file"): ("skip", "同上"),
     ("POST", "/api/upload/store/archive"): ("skip", "同上"),
@@ -76,6 +76,8 @@ VERDICTS = {
 }
 
 UNUSED_VERDICTS = {
+    "seekApi.query": ("gap", "求片详情；求片页只有列表，看不到这条求片的完整信息与谁给了胡萝卜"),
+    "seekApi.history": ("gap", "求片的胡萝卜记录，同上"),
     "watchApi.emptyVideos": ("gap", "清空片单内视频；片单详情现在只能一条条移除"),
     "watchApi.emptyMusic": ("gap", "清空片单内音乐，同上"),
     "musicApi.playUrl": ("gap", "音乐资源没有试听，视频详情有「复制播放地址」"),
@@ -296,7 +298,15 @@ def main():
             lines.append(f"| {r['name']} | `{r['method']} {r['path']}` | {VERDICTS[(r['method'], r['path'])][1]} |")
 
     if extra:
-        lines += ["", "## 代码有、文档没有", "", "| 封装 | 方法 路径 | 调用方 |", "|---|---|---|"]
+        lines += [
+            "",
+            "## 代码有、文档没有",
+            "",
+            "这几个代码里在用，但 `api.postman_collection.json` 没收录，说明集合比实现对旧。",
+            "",
+            "| 封装 | 方法 路径 | 调用方 |",
+            "|---|---|---|",
+        ]
         for w in extra:
             callers = call_sites(w["object"], w["fn"])
             lines.append(

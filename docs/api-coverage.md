@@ -72,8 +72,8 @@
 | 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
 | 片单相关 / 视频类 | `watchApi.emptyVideos` | `DELETE /api/watch/{var}/video/empty` | 清空片单内视频；片单详情现在只能一条条移除 |
 | 片单相关 / 音乐类 | `watchApi.emptyMusic` | `DELETE /api/watch/{var}/music/empty` | 清空片单内音乐，同上 |
-| 求片相关 | `seekApi.query` | `GET /api/seek/query` |  |
-| 求片相关 | `seekApi.history` | `GET /api/seek/history` |  |
+| 求片相关 | `seekApi.query` | `GET /api/seek/query` | 求片详情；求片页只有列表，看不到这条求片的完整信息与谁给了胡萝卜 |
+| 求片相关 | `seekApi.history` | `GET /api/seek/history` | 求片的胡萝卜记录，同上 |
 | 支付相关 | `payApi.close` | `PUT /api/pay/close` | 支付服务没有「关闭」入口；申请下来之后只能一直开着 |
 | 支付相关 | `payApi.userCarrot` | `GET /api/pay/getUserCarrot` | 见 pay/transfer：本站转赠走 carrot 域 |
 
@@ -106,6 +106,7 @@
 | 简单的信息 | `GET /api/user/base` | 字段是 /api/user 的子集，已有 /api/user |
 | 内部入库 | `POST /api/upload/video/saveInternal` | 内部入库，服务端任务用 |
 | 保存为群星版本 | `POST /api/upload/music/saveHeadless` | 「保存为群星版本」，契约里写明不建议；正常路径是先去 todb 补歌 |
+| 客户端上传分片 | `PUT https://emos.local/xxxx` | 客户端分片上传的 PUT 目标（multipart/onedrive 直传），走 uploader 的 uploadObject，不是普通接口 |
 | 可用储存列表 | `GET /api/upload/store/disk` | 暂存区需单独申请权限，管理员 token 也 422，已整体删除 |
 | 暂存区文件 | `GET /api/upload/store/file` | 同上 |
 | 暂存区文件入库 | `POST /api/upload/store/archive` | 同上 |
@@ -121,6 +122,8 @@
 | 更新关联的视频ID | `PUT /api/music/album/{var}/updateVideoId` | 同上（专辑） |
 
 ## 代码有、文档没有
+
+这几个代码里在用，但 `api.postman_collection.json` 没收录，说明集合比实现对旧。
 
 | 封装 | 方法 路径 | 调用方 |
 |---|---|---|
