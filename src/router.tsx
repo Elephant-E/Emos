@@ -63,7 +63,7 @@ const libraryRoute = createRoute({
   path: '/library',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: '' | VideoType } => ({
     page: asPage(s.page),
-    page_size: [20, 50, 100].includes(Number(s.page_size)) ? Number(s.page_size) : 20,
+    page_size: asPageSize(s.page_size),
     q: asString(s.q),
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
   }),
@@ -414,7 +414,7 @@ const watchlistDetailRoute = createRoute({
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
     page: asPage(s.page),
     // 之前写死 20，Pager 的「每页条数」选完立刻被覆盖回去
-    page_size: Number(s.page_size) > 0 ? Number(s.page_size) : 20,
+    page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),
   component: WatchDetailRoute,
