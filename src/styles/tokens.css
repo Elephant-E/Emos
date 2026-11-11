@@ -19,7 +19,19 @@
   --c-green: #34d399;
   --c-blue: #5aa2ff;
   --c-red: #f2704a;
+  /* 间距：只允许这一组值，见 docs/SPEC-UI.md §1 */
+  --sp-0: 0;
+  --sp-hair: 2px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
   --stack: 12px;
+  --sp-4: 16px;
+  --gap-card: 18px;
+  --sp-5: 20px;
+  --pad-card: 24px;
+  --sp-7: 32px;
+  --sp-page: 40px;
 
   --r-card: 18px;
   --r-field: 12px;
