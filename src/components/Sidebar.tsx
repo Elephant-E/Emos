@@ -28,12 +28,13 @@ import {
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; chev?: boolean }
 
-/**
- * 按业务对象分组：内容 = 片库本身，交易 = 钱和货，社区 = 人和活动，
- * 系统 = 基础设施与账号。概览不属于任何业务域，单独置顶、不带组标题。
- */
+/** 概览不属于任何业务域，单独置顶、不带组标题 */
 const PINNED: NavItem[] = [{ to: '/', label: '概览', icon: IconGrid }]
 
+/**
+ * 按业务对象分组：内容 = 片库本身，交易 = 钱和货，社区 = 人和活动，
+ * 系统 = 基础设施与账号。
+ */
 const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '内容',
