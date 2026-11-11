@@ -238,10 +238,12 @@ export function SongDetailView({ songId }: { songId: number }) {
               <table className="table table--inset">
                 <thead>
                   <tr>
-                    <th style={{ width: '46%' }}>文件</th>
-                    <th className="num" style={{ width: '14%' }}>大小</th>
-                    <th style={{ width: '20%' }}>上传者</th>
-                    <th style={{ width: '20%' }}>操作</th>
+                    <th style={{ width: '38%' }}>文件</th>
+                    <th style={{ width: '14%' }}>音质</th>
+                    <th className="num" style={{ width: '11%' }}>大小</th>
+                    <th className="num" style={{ width: '11%' }}>码率</th>
+                    <th style={{ width: '14%' }}>上传者</th>
+                    <th style={{ width: '12%' }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -258,7 +260,11 @@ export function SongDetailView({ songId }: { songId: number }) {
                             : String(row.file_suffix ?? '')}
                         </span>
                       </td>
+                      <td className="muted">{String(row.file_suffix ?? '—')}</td>
                       <td className="num muted">{formatSize(row.file_size == null ? null : Number(row.file_size))}</td>
+                      <td className="num muted">
+                        {row.meta_rate_bit ? `${Math.round(Number(row.meta_rate_bit) / 1000)} kbps` : '—'}
+                      </td>
                       <td className="muted">{String((row.user as { username?: string } | undefined)?.username ?? '—')}</td>
                       <td>
                         <span className="action-group">

@@ -364,10 +364,10 @@ export async function mockRequest<T>(
   if (songMedia) {
     return [
       { media_id: '2g598yxqwqzr', file_suffix: 'mp3', file_type: 'audio/mpeg', file_size: 13_767_777,
-        file_duration: 330, file_quality: 'high', is_primary: true, name: '陈曦 上传', created_at: '2026-06-09T10:18:20Z',
+        file_duration: 330, file_quality: 'high', meta_rate_bit: 320_000, is_primary: true, name: '陈曦 上传', created_at: '2026-06-09T10:18:20Z',
         user: { user_id: user.user_id, username: user.username, avatar: null } },
       { media_id: '9x111aa22bb', file_suffix: 'flac', file_type: 'audio/flac', file_size: 41_234_567,
-        file_duration: 332, file_quality: 'lossless', is_primary: false, name: 'lin 上传', created_at: '2026-05-01T09:00:00Z',
+        file_duration: 332, file_quality: 'lossless', meta_rate_bit: 931_876, is_primary: false, name: 'lin 上传', created_at: '2026-05-01T09:00:00Z',
         user: { user_id: 'eK98L0NEMs', username: 'lin', avatar: null } },
     ] as T
   }
