@@ -480,16 +480,6 @@
   white-space: nowrap;
 }
 .cell-title__row { display: flex; align-items: center; gap: var(--sp-1); }
-/* 标题行里的状态标记（如官方频道），比 chip 轻，不参与布局高度 */
-.cell-title__tag {
-  flex: none;
-  padding: 0 4px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  font-size: var(--text-2xs);
-  line-height: 15px;
-  color: var(--fg-3);
-}
 .cell-title__code {
   display: block;
   margin-top: var(--sp-hair);
@@ -579,7 +569,6 @@ select.input,
 input.input[type='number'] { min-width: 0; }
 .input::placeholder { color: var(--fg-3); }
 .input:hover { border-color: rgba(255, 255, 255, 0.26); }
-.input:focus { border-color: rgba(255, 255, 255, 0.4); background: #24231f; }
 .state {
   display: grid;
   place-items: center;
@@ -1261,7 +1250,10 @@ input.input[type='number'] { min-width: 0; }
 .card-head .btn--quiet:disabled,
 .card--stat .stat__label .btn:disabled { color: var(--fg-5); cursor: default; }
 
-.card-body { margin-top: var(--stack); min-width: 0; overflow-x: auto; }
+.card-body { margin-top: var(--stack); min-width: 0; }
+/* 卡片里的宽表格要能横向滚动；但表单卡片不需要滚动容器 ——
+   滚动容器会把输入框的焦点环在左右两侧切掉（环比输入框宽 4px） */
+.card-body:has(> .table, > .table-card, > .cards, table) { overflow-x: auto; }
 .card table { min-width: 420px; }
 
 .card-note {
@@ -1295,7 +1287,7 @@ input.input[type='number'] { min-width: 0; }
   border-color: transparent;
 }
 .input--cell:hover { border-color: rgba(255, 255, 255, 0.16); color: var(--fg-2); }
-.input--cell:focus { color: var(--fg); background: #24231f; border-color: rgba(255, 255, 255, 0.4); }
+.input--cell:focus { color: var(--fg); }
 .table .btn:hover { color: var(--fg); background: transparent; }
 .table .btn--primary {
   padding: 0;
@@ -1734,7 +1726,6 @@ input.input[type='number'] { min-width: 0; }
 }
 .image-picker__empty:hover { border-color: var(--line-hot); color: var(--fg-3); }
 
-.image-picker__list { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .image-picker__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));

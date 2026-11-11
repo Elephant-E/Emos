@@ -1,4 +1,6 @@
 :root {
+  /* 全站唯一的焦点环：输入框、按钮、链接、选项卡都用它 */
+  --focus-ring: rgba(255, 255, 255, 0.6);
   color-scheme: dark;
   --bg: #0a0908;
   --panel: #0d0c0b;

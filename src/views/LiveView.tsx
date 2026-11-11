@@ -250,7 +250,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                             <span className="cell-title__name">{item.title}</span>
                             {selected ? <span className="meta-sm">展开中</span> : null}
                             {/* code 非空表示官方频道（CCTV1 这类），不可删除 */}
-                            {item.code ? <span className="cell-title__tag">官方</span> : null}
+                            {item.code ? <span className="chip">官方</span> : null}
                           </span>
                           {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
                         </span>
