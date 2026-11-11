@@ -1,15 +1,15 @@
-# 契约验证（用 Postman 里记录的真实响应）
+# 契约验证（Postman 集合里记录的真实响应）
 
-我这边连不上 `test.emos.best`：该域名没有公网 A 记录，只在你本机的代理里解析；
-TCP 能建连但 TLS ClientHello 立刻被 reset。所以我换了验证方式——
+`test.emos.best` 没有公网 A 记录，只在本机代理内解析；TCP 可建连，但 TLS ClientHello
+立刻被 reset。因此改用离线验证：
 
-把集合里 **158 条真实响应**导出成 fixtures，让前端直接跑这些数据：
+把集合里的 **158 条真实响应**导出成 fixtures，让前端直接跑这些数据：
 
 ```bash
 VITE_MOCK=fixtures npm run dev
 ```
 
-这条路验证的是「我的字段解析能不能吃下真实响应」，比手点更严格。
+这种方式验证字段解析能否吃下真实响应，比手动点击更严格。
 
 ## 已验证通过（12 个路由全部渲染，无报错、无 undefined）
 
@@ -32,13 +32,15 @@ VITE_MOCK=fixtures npm run dev
 | 直播 | `live/list`、`live/media`、`live/library` ✔ |
 | 线路 | `proxy/line` 数组，`is_self` 决定能否删除 ✔ |
 
-## 这轮验证改掉的真问题
+## 验证中修正的问题
 
-1. **季/集串季**：`/episode?season_number=N` 在真实环境里返回全部集（记录的那次响应就是全季的），
-   列表里出现 01、01、01、01 反复。改为按 `season_id` 过滤后才正确（西部世界 S1 十集正常）。
+1. **季/集串季**：`/episode?season_number=N` 返回全部集（记录的那次响应就是全季的），
+   列表里出现 01、01、01、01 反复。改为按 `season_id` 过滤后正确（西部世界 S1 十集正常）。
+   生产环境实测该现象为 fixtures 假象，见「误判修正」。
 2. **集行被截断**：标题、时长、资源、字幕挤一行，右半截被切。改为两行（标题 / 元信息）。
-3. **季切换器溢出**：五个长季名把段落撑爆，改成可横向滚动的 tab。
-4. **fixtures 模式被登录守卫拦回 /login**：守卫判断的是 `VITE_MOCK === '1'`，没覆盖 `fixtures`。
+3. **季切换器溢出**：五个长季名把段落撑破，改为可横向滚动的 tab。
+4. **fixtures 模式被登录守卫拦回 /login**：守卫原先只判断 `VITE_MOCK === '1'`，未覆盖 `fixtures`；
+   现改为按 `USE_MOCK` 判断（`router.tsx`），两种 mock 模式都放行。
 
 ## 仍无法离线验证的两处
 
@@ -47,17 +49,17 @@ VITE_MOCK=fixtures npm run dev
 | `GET /api/video/media/list` | 集合里只记录了 `listAll`，没有这个 | 详情页资源列表用的是手写兜底，字段按 `media_id/media_name/media_file_size/user_pseudonym` 猜的 |
 | `POST /api/upload/getUploadToken` | 只记录了失败响应（"此资源您一周内上传过"） | 成功响应里 file_id 的字段名未知，代码按 `file_id/fileId/id/file_key/key/upload_id` 依次尝试 |
 
-这两处等你连上后端跑一次就能定，改动点都在一个函数里。
+这两处需连后端跑一次才能确定，改动点都在一个函数里。
 
 ---
 
-# 第二版：连上生产 API
+# 生产 API 实测
 
-token 换成生产用户（admin）后直连 `https://emos.best` 成功，拿到了真实数据。
+token 换成生产用户（admin）后直连 `https://emos.best` 成功，取得真实数据。
 
-## 代理怎么做的（照抄原项目）
+## 代理配置
 
-旧项目的两处配置才是对的，我之前自己写的 fetch 反代会被上游 RST：
+旧项目的两处配置才是可用的；自己写的 fetch 反代会被上游 RST：
 
 **开发（旧 vite.config.ts）**
 ```ts
@@ -72,9 +74,9 @@ headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
 ```
 非 JSON 响应包成 `{message}` 返回。
 
-新版已照此实现：`worker/index.ts` 补齐 `EMOS-PROXY-*` 头，`wrangler.jsonc` 写入两个变量。
+新版已按此实现：`worker/index.ts` 补齐 `EMOS-PROXY-*` 头，`wrangler.jsonc` 写入两个变量。
 
-## 真实数据量 → 改掉的 UI
+## 真实数据量对应的 UI 调整
 
 | 数据 | 真实值 | 原实现的问题 | 现在 |
 |---|---|---|---|
@@ -86,13 +88,13 @@ headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
 | 店铺 | `status: "pass"` | 未映射，界面显示 pass | 映射为「营业中」 |
 | 商城分类 | 必须带 `seller_id` | 不传 → 422 | 用 seller_id 拉取 |
 
-## 修正上一次的误判
+## 误判修正
 
-我说「`?season_number=` 不过滤」是**错的**——那是 fixtures 的假象（同一条记录被所有季复用）。
-真实接口是对的：某剧 `season_number` 缺省 14 集、`=1` 13 集、`=0` 1 集。
-前端按 `season_id` 过滤只是防御，不影响正确性。
+`?season_number=` 不过滤的判断是错的，那是 fixtures 的假象（同一条记录被所有季复用）。
+真实接口按季返回：某剧 `season_number` 缺省 14 集、`=1` 13 集、`=0` 1 集。
+前端按 `season_id` 过滤只作防御，不影响正确性。
 
-## 另外
+## 其他
 
-- 这条链路不稳（客户端 fetch 6 次里 1 次超时），已给所有 GET 加 3 次重试（300ms/600ms 退避）。
-- `media/list` 与 `getUploadToken` 的成功响应仍未见：前者在该剧该集返回 `[]`（确认是数组），后者集合里只有失败样例。
+- 该链路不稳（客户端 fetch 6 次里 1 次超时），所有 GET 已加 3 次重试（300ms/600ms 退避）。
+- `media/list` 与 `getUploadToken` 的成功响应仍未取到：前者在该剧该集返回 `[]`（确认是数组），后者集合里只有失败样例。

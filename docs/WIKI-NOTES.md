@@ -1,4 +1,4 @@
-# wiki.emos.best 阅读记录（14 页全读）
+# wiki.emos.best 要点（14 页）
 
 ## 与实现相关的硬约束
 
@@ -27,5 +27,5 @@
 
 ## 备注
 
-wiki 明确写着「具体以 postman 为准」，所以字段级契约仍以 Postman 集合为第一来源；
-wiki 用来补 Postman 没写清楚的**行为语义**（如 score 扣除、等级表、上传协议分支）。
+wiki 写明「具体以 postman 为准」，字段级契约以 Postman 集合为第一来源；
+wiki 用于补充 Postman 未写清楚的**行为语义**（如 score 扣除、等级表、上传协议分支）。

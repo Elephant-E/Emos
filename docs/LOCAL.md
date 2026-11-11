@@ -16,7 +16,7 @@ VITE_MOCK=0
 VITE_API_ORIGIN=https://test.emos.best
 ```
 
-改完重启 dev（vite 只在启动时读 env）。`/api` 由 vite proxy 转发，浏览器侧同域，不会有 CORS。
+改完需重启 dev（vite 只在启动时读 env）。`/api` 由 vite proxy 转发，浏览器侧同域，不会有 CORS。
 
 ## 3. 登录
 
@@ -30,13 +30,13 @@ token 存在 `localStorage.emos_admin_token`。侧栏底部头像可添加/切�
 
 ## 4. 假数据模式
 
-- `VITE_MOCK=1`：手写样例数据（`src/api/mock.ts`），用来做界面与交互。
-- `VITE_MOCK=fixtures`：**Postman 里记录的真实响应**（`dev/fixtures.json`，158 条），
-  用来验证字段解析。这个文件只在 dev 中间件里提供，不会进生产产物。
+- `VITE_MOCK=1`：手写样例数据（`src/api/mock.ts`），用于界面与交互验证。
+- `VITE_MOCK=fixtures`：Postman 集合里记录的真实响应（`dev/fixtures.json`，158 条），
+  用于验证字段解析。该文件只由 dev 中间件提供，不进生产产物。
 
 两种模式侧栏 logo 旁都会显示黄色 **MOCK** 标记。
 
-## 5. 联调时重点核对这几处
+## 5. 联调核对项
 
 | 位置 | 接口 | 需要确认 |
 |---|---|---|
@@ -48,8 +48,8 @@ token 存在 `localStorage.emos_admin_token`。侧栏底部头像可添加/切�
 | 求片 | `POST /api/seek` | `status` 数组取值（default/upload/complete） |
 | 商城 | `GET /api/shop/order/shop/order` | `status_pay` 的取值（代码里按 `pay/paid` 判断） |
 
-## 6. 部署（等你确认后再做）
+## 6. 部署
 
-新的 Worker 名是 `emos-club`，与线上现有的 `emos` **不同名**，`wrangler deploy` 只会新建，不会覆盖旧的。
+新的 Worker 名是 `emos-club`，与线上现有的 `emos` 不同名，`wrangler deploy` 只会新建，不会覆盖旧的。
 
-真要替换时再改 `wrangler.jsonc` 的 `name`，或给 `emos-club` 绑定路由。
+替换旧 Worker 时改 `wrangler.jsonc` 的 `name`，或给 `emos-club` 绑定路由。

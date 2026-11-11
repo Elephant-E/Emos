@@ -279,12 +279,12 @@ POST /api/redPacket/create
 `seconds` 60-172800（默认 86400）、给了 `file_url` 时 `file_type` 必填（image/audio）、
 `is_exclusive` 只在有 `file_url` 时有效。
 
-**没有「撤销红包」和「列出我发过的红包」两个接口** —— 只能拿红包 ID 查领取记录，
-所以发出去之后要把 ID 记下来（页面在发成功后会显示并可复制）。
+**没有「撤销红包」与「列出已发红包」两个接口**：只能按红包 ID 查领取记录，
+发出后需记下 ID（页面在发送成功后显示并支持复制）。
 
-**`createTelegramHtml` 不接**：它把红包发到 Telegram 频道，`html` 字段 6000 字符内、
-要拼 Telegram 支持的 HTML 子集，且说明里写明「发送失败会吞红包，等有效期结束才退款」。
-这是给 bot 侧用的入口，后台上没有对应场景（旧项目也没接）。
+**`createTelegramHtml` 不接**：该接口把红包发到 Telegram 频道，`html` 字段 6000 字符内、
+需拼 Telegram 支持的 HTML 子集，且说明写明「发送失败会吞红包，等有效期结束才退款」。
+该接口属 bot 侧入口，后台没有对应场景（旧项目也未接）。
 
 ## Telegram相关 / 投票
 
@@ -381,7 +381,7 @@ POST /api/redPacket/create
 
 真机当前账号：`must_otp: false`、`is_viewing: true`、`password: "534387"`（6 位）。
 
-**注意 `is_viewing` 是「观影权限」，不是「是不是本人」** —— 旧项目拿它当改密码的前置条件是错的，别照抄。
+**`is_viewing` 是「观影权限」，不是「是否本人」**：旧项目把它当作改密码的前置条件，属错误用法。
 
 界面上同一时刻只出现一个入口（`AccountView` 的 `otpMode` 分支）：
 `must_otp = true` 只显示「获取动态密码」，`false` 只显示「重置登录密码」。
