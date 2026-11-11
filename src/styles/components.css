@@ -457,7 +457,7 @@
 .thumb {
   width: 28px;
   height: 42px;
-  border-radius: 5px;
+  border-radius: 3px;
   flex: none;
   display: grid;
   place-items: center;
