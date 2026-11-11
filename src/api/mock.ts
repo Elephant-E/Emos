@@ -482,6 +482,11 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/getUserInfo') return { user_id: 'e1000Xs', username: 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
   if (clean === '/api/pay/getUserCarrot') return { carrot: 120 } as T
   if (clean === '/api/pay/apply') return { status: 'review' } as T
+  if (clean === '/api/fund/order/check') {
+    // 用 LIMITED 这个码可以在界面上走到「不能参加」的分支
+    const activityCode = String(body.fund_activity_code ?? '')
+    return (activityCode === 'LIMITED' ? { message: '活动仅可以参与 1 次' } : {}) as T
+  }
   if (clean === '/api/fund/order/create') return { no: '20261110180000fundMOCK' } as T
   if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
   // ── 补上此前缺失的接口，让 mock 下这些页面能真正验证 ──

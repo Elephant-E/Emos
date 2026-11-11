@@ -157,6 +157,28 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const [remark, setRemark] = useState('')
   const [images, setImages] = useState('')
 
+  // 下单前先问一次「能不能参加」：后端会用 message 说明原因（如活动只能参加 1 次）。
+  // 检查本身失败（码不对会 404）不拦，交给 create 报错
+  const [checking, setChecking] = useState(false)
+  const checkThenCreate = async () => {
+    const activityCode = code.trim()
+    if (!activityCode) return
+    setChecking(true)
+    try {
+      const res = await fundApi.check(activityCode)
+      const message = String(res?.message ?? '').trim()
+      if (message) {
+        toast(message, 'error')
+        return
+      }
+    } catch {
+      /* 检查不可用就继续下单 */
+    } finally {
+      setChecking(false)
+    }
+    create.mutate()
+  }
+
   const create = useMutation({
     mutationFn: () => fundApi.create(code.trim(), Number(carrot)),
     onSuccess: (res) => {
@@ -272,7 +294,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           width={400}
           onClose={() => setCreating(false)}
           onSubmit={() => {
-            if (code.trim() && Number(carrot) > 0 && !create.isPending) create.mutate()
+            if (code.trim() && Number(carrot) > 0 && !create.isPending && !checking) void checkThenCreate()
           }}
           footer={
             <>
@@ -282,9 +304,9 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               <button
                 className="btn btn--primary"
                 type="submit"
-                disabled={!code.trim() || Number(carrot) <= 0 || create.isPending}
+                disabled={!code.trim() || Number(carrot) <= 0 || create.isPending || checking}
               >
-                {create.isPending ? '创建中…' : '创建'}
+                {checking ? '检查中…' : create.isPending ? '创建中…' : '创建'}
               </button>
             </>
           }

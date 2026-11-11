@@ -360,6 +360,9 @@ export const voteApi = {
 export const fundApi = {
   orders: (params: { page?: number; page_size?: number } = {}) => request<ListResult<Record<string, unknown>>>('/api/fund/order/list', { query: params }),
   create: (fundActivityCode: string, carrot: number) => request<{ no: string }>('/api/fund/order/create', { method: 'POST', body: { fund_activity_code: fundActivityCode, carrot } }),
+  /** 下单前的资格检查：返回 message 说明不能参与（如「活动仅可以参与 1 次」） */
+  check: (fundActivityCode: string) =>
+    request<{ message?: string }>('/api/fund/order/check', { method: 'POST', body: { fund_activity_code: fundActivityCode } }),
   evidence: (payload: { order_no: string; images: string[]; remark: string }) =>
     request<{ payout_status: string }>('/api/fund/order/evidence', { method: 'POST', body: payload }),
 }

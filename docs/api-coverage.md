@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**162** 个封装。
+代码（`src/api/endpoints.ts`）：**163** 个封装。
 
-- 已接且有界面调用：**156**
+- 已接且有界面调用：**157**
 - 已接但无调用：**3**
-- 未接：**29**
+- 未接：**28**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -43,7 +43,6 @@
 | 影院相关 | 媒体列表 | `GET /api/reel/media` |
 | 影院相关 | 获取播放清单 | `POST /api/reel/manifest` |
 | 影院相关 | 更新播放进度 | `POST /api/reel/progress` |
-| 基金相关 / 订单 | 判断是否可以参与活动 | `POST /api/fund/order/check` |
 
 ## 文档里 url 是空的（没法判断）
 

@@ -30,7 +30,14 @@ VERDICTS = {
     ("POST", "/api/upload/store/archive"): ("skip", "同上"),
     ("POST", "/api/upload/music/saveHeadless"): ("skip", "「保存为群星版本」，契约里写明不建议；正常路径是先去 todb 补歌"),
     ("POST", "/api/redPacket/createTelegramHtml"): ("skip", "发到 Telegram 频道，bot 侧入口，后台没有场景"),
-    ("GET", "/api/user/base"): ("skip", "字段是 /api/user 的子集，已有 /api/user"),
+    ("GET", "/api/user/base"): ("skip", "字段是 /api/user 的子集，已有 /api/user"), 
+    ("GET", "/api/reel/rand"): ("skip", "影院 = 客户端播放器的随机放映：rand 随机挑一部片开一次放映"),
+    ("GET", "/api/reel/info/{var}"): ("skip", "查这次放映看到了哪一集、哪个源、第几秒（客户端状态）"),
+    ("POST", "/api/reel/create"): ("skip", "为某部影片开一次放映，用户侧动作"),
+    ("GET", "/api/reel/media"): ("skip", "放映时挑版本用（带每个 source 的编码流信息）"),
+    ("POST", "/api/reel/manifest"): ("skip", "按播放器支持的 codecs 取播放清单"),
+    ("POST", "/api/reel/progress"): ("skip", "上报播放进度，客户端每分钟发一次"),
+
     ("POST", "/api/watch/{var}/video/update"): ("skip", "批量重置片单内容的对外接口；契约自己写着「请先联系官方确认」，且每次提交会清空整个片单，不适合放进日常界面"),
     ("GET", "/api/pay/getUserSign"): ("skip", "真机 403「请先成为服务商」；用户详情里已有「最近签到」（来自邀请数据）"),
     ("GET", "/api/video/media/playUrl"): ("skip", "播放地址按需求不展示"),
@@ -60,7 +67,6 @@ VERDICTS = {
     ("GET", "/api/reel/media"): ("todo", "同上"),
     ("POST", "/api/reel/manifest"): ("todo", "同上"),
     ("POST", "/api/reel/progress"): ("todo", "同上"),
-    ("POST", "/api/fund/order/check"): ("todo", "资金下单前的资格检查；资金页现在是直接下单，失败才知道"),
 }
 
 UNUSED_VERDICTS = {
