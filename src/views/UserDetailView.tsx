@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
+import { CardTable } from '@/components/CardTable'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ErrorBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -189,11 +190,13 @@ export function UserDetailView({ userId }: { userId: string }) {
               <CardHead title="最近播放">
                 <span className="muted tnum-sm">近一周</span>
               </CardHead>
-              {records.isLoading ? <LoadingBlock bare rows={3} columns={4} /> : null}
-              {records.data && (records.data.items ?? []).length === 0 ? (
-                <EmptyBlock bare title="近一周没有播放记录" />
-              ) : null}
-              {(records.data?.items ?? []).length > 0 ? (
+              <CardTable
+                loading={records.isLoading}
+                empty="近一周没有播放记录"
+                count={(records.data?.items ?? []).length}
+                loadingRows={3}
+                loadingCols={4}
+              >
                 <table className="table table--inset">
                   <thead>
                     <tr>
@@ -228,7 +231,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                     ))}
                   </tbody>
                 </table>
-              ) : null}
+              </CardTable>
             </article>
           </section>
         </>

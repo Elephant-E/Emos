@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { CardTable } from '@/components/CardTable'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import {
   useAccountMutations,
@@ -233,11 +234,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   </button>
                 ) : null}
               </CardHead>
-              {devices.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
-              {devices.data && devices.data.length === 0 ? (
-                <EmptyBlock bare title="没有登录中的设备" />
-              ) : null}
-              {devices.data && devices.data.length > 0 ? (
+              <CardTable
+                loading={devices.isLoading}
+                empty="没有登录中的设备"
+                count={devices.data?.length ?? 0}
+                loadingCols={3}
+              >
                 <table className="table table--inset">
                   <thead>
                     <tr>
@@ -247,7 +249,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     </tr>
                   </thead>
                   <tbody>
-                    {devices.data.map((device) => (
+                    {(devices.data ?? []).map((device) => (
                       <tr key={device.device_id}>
                         <td>
                           <span className="cell-title__name">{device.device_name || '未命名设备'}</span>
@@ -280,7 +282,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     ))}
                   </tbody>
                 </table>
-              ) : null}
+              </CardTable>
             </article>
           </section>
 
