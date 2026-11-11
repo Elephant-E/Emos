@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { PickList } from '@/components/PickList'
+import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
-import { uploadApi, userApi, videoApi } from '@/api/endpoints'
+import { uploadApi, userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES, uploadAndSave, type UploadTarget } from '@/lib/uploader'
 import { formatSize } from '@/lib/format'
 import { USE_MOCK } from '@/api/client'
-import type { VideoItem } from '@/api/types'
 
 type Status = 'recognizing' | 'need-target' | 'ready' | 'uploading' | 'done' | 'failed'
 
@@ -35,19 +35,6 @@ export function UploadView() {
   const [fileStorage, setFileStorage] = useState<string>(DEFAULT_UPLOAD_STORAGE)
   const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
-  // 手动选目标：小说/电影直接落影片级（vl），剧集要再选到季与集（ve）
-  const [pickedSeries, setPickedSeries] = useState<{ videoId: number; title: string; season: number } | null>(null)
-  const pickedSeasons = useQuery({
-    queryKey: ['upload', 'seasons', pickedSeries?.videoId ?? 0],
-    queryFn: () => videoApi.seasons(pickedSeries?.videoId ?? 0),
-    enabled: Boolean(pickedSeries?.videoId),
-  })
-  const pickedEpisodes = useQuery({
-    queryKey: ['upload', 'episodes', pickedSeries?.videoId ?? 0, pickedSeries?.season ?? 0],
-    queryFn: () => videoApi.episodes(pickedSeries?.videoId ?? 0, pickedSeries?.season),
-    enabled: Boolean(pickedSeries?.videoId) && pickedSeries!.season >= 0,
-  })
-  const [term, setTerm] = useState('')
 
   const disks = useQuery({ queryKey: ['upload', 'disks'], queryFn: () => uploadApi.disks(), retry: false })
   const storeFiles = useQuery({
@@ -59,11 +46,6 @@ export function UploadView() {
   // 暂存区要单独申请权限（422「请先申请权限后使用」），没有时整块不出现
   const storeDenied = (storeFiles.error as { status?: number } | null)?.status === 422
   const showStore = Boolean(storage) && !storeDenied && !storeFiles.isLoading
-  const candidates = useQuery({
-    queryKey: ['upload', 'search', term],
-    queryFn: () => videoApi.search({ title: term, page: 1, page_size: 8 }),
-    enabled: term.trim().length > 0,
-  })
 
   useEffect(() => {
     if (!storage && disks.data?.length) setStorage(disks.data[0])
@@ -231,7 +213,7 @@ export function UploadView() {
                     {item.target ? (
                       <span style={{ color: 'var(--fg-2)' }}>{item.target.title}</span>
                     ) : (
-                      <button className="btn btn--ghost" onClick={() => { setPicking(item); setTerm('') }}>
+                      <button className="btn btn--ghost" onClick={() => setPicking(item)}>
                         选择影片
                       </button>
                     )}
@@ -276,41 +258,37 @@ export function UploadView() {
       {showStore ? (
       <section className="cards cards--wide" style={{ marginTop: 22 }}>
         <article className="card">
-          <div className="card-head">
-            <div>
-              <p className="stat__label">暂存区</p>
-              <p className="stat__value">
-                {storeFiles.data?.length ?? 0}
-                <small>个文件</small>
-              </p>
-            </div>
-            {(disks.data ?? []).length > 1 ? (
-              <select
-                className="input"
-                style={{ width: 160 }}
-                value={storage}
-                onChange={(e) => setStorage(e.target.value)}
-                aria-label="暂存盘"
-              >
-                {(disks.data ?? []).map((disk) => (
-                  <option key={disk} value={disk}>
-                    {disk}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <span className="muted" style={{ fontSize: 12 }}>
-                {storage}
-              </span>
-            )}
-          </div>
+          <CardHead title="暂存区">
+            <span className="row">
+              <span className="muted tnum-sm">{storeFiles.data?.length ?? 0} 个文件</span>
+              {(disks.data ?? []).length > 1 ? (
+                <select
+                  className="input"
+                  style={{ width: 160 }}
+                  value={storage}
+                  onChange={(e) => setStorage(e.target.value)}
+                  aria-label="暂存盘"
+                >
+                  {(disks.data ?? []).map((disk) => (
+                    <option key={disk} value={disk}>
+                      {disk}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="muted tnum-sm">{storage}</span>
+              )}
+            </span>
+          </CardHead>
+          {/* 暂存区不是常用概念，一句话说清它和「上传」的关系 */}
+          <p className="card-note">已传到存储、还没绑定到任何影片的文件</p>
 
           {storeFiles.error ? <ErrorBlock bare error={storeFiles.error} onRetry={() => storeFiles.refetch()} /> : null}
           {!storeFiles.error && storeFiles.data && storeFiles.data.length === 0 ? (
             <EmptyBlock bare title="暂存区是空的" />
           ) : null}
           {storeFiles.data && storeFiles.data.length > 0 ? (
-            <table className="table" style={{ marginTop: 12 }}>
+            <table className="table table--inset" style={{ marginTop: 10 }}>
               <thead>
                 <tr>
                   <th>文件</th>
@@ -324,7 +302,7 @@ export function UploadView() {
                   <tr key={file.file_name}>
                     <td style={{ color: 'var(--fg-2)' }}>{file.file_name}</td>
                     <td className="num muted">{formatSize(file.file_size)}</td>
-                    <td className="muted">{file.mime_type}</td>
+                    <td className="muted">{fileKind(file.file_name, file.mime_type)}</td>
                     <td>
                       <button
                         className="btn btn--quiet"
@@ -353,48 +331,35 @@ export function UploadView() {
             </button>
           }
         >
-          <label className="field">
-            <span>按片名搜索</span>
-            <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
-          </label>
-          <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
-            {(candidates.data?.items ?? []).map((video: VideoItem) => (
-              <div key={video.video_id} className="pick-row">
-                <span className="pick-row__title">{video.video_title}</span>
-                <button
-                  className="btn btn--ghost"
-                  style={{ marginLeft: 'auto' }}
-                  onClick={async () => {
-                    try {
-                      const res = await uploadApi.archive({
-                        item_type: 'vl',
-                        item_id: video.video_id,
-                        path_type: storage,
-                        file_name: archiving.file_name,
-                      })
-                      toast(`已归档，+${res.carrot} 胡萝卜`, 'success')
-                      setArchiving(null)
-                      storeFiles.refetch()
-                    } catch (err) {
-                      toast(err instanceof Error ? err.message : '归档失败', 'error')
-                    }
-                  }}
-                >
-                  归档到这里
-                </button>
-              </div>
-            ))}
-          </PickList>
+          <TargetPicker
+            onPick={async (target) => {
+              try {
+                const res = await uploadApi.archive({
+                  item_type: target.item_type,
+                  item_id: target.item_id,
+                  path_type: storage,
+                  file_name: archiving.file_name,
+                })
+                toast(`已归档到《${target.title}》，+${res.carrot} 胡萝卜`, 'success')
+                setArchiving(null)
+                storeFiles.refetch()
+                // 归档等于给这个落点加了一份资源，各处列表和余额都要刷新
+                void qc.invalidateQueries({ queryKey: ['video'] })
+                void qc.invalidateQueries({ queryKey: ['videos'] })
+                void qc.invalidateQueries({ queryKey: ['media'] })
+                void qc.invalidateQueries({ queryKey: ['session'] })
+              } catch (err) {
+                toast(err instanceof Error ? err.message : '归档失败', 'error')
+              }
+            }}
+          />
         </Modal>
       ) : null}
 
       {picking ? (
         <Modal
           title={`选择目标 · ${picking.file.name}`}
-          onClose={() => {
-            setPicking(null)
-            setPickedSeries(null)
-          }}
+          onClose={() => setPicking(null)}
           width={460}
           footer={
             <button className="btn btn--ghost" onClick={() => setPicking(null)}>
@@ -402,97 +367,26 @@ export function UploadView() {
             </button>
           }
         >
-          <label className="field">
-            <span>按片名搜索</span>
-            <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
-          </label>
-          {pickedSeries ? (
-            <>
-              <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-                <button className="btn btn--quiet" onClick={() => setPickedSeries(null)}>
-                  换一部
-                </button>
-                <span className="pick-row__title">{pickedSeries.title}</span>
-              </div>
-              {pickedSeasons.data && pickedSeasons.data.length > 1 ? (
-                <label className="field">
-                  <span>季</span>
-                  <select
-                    className="input"
-                    value={pickedSeries.season}
-                    onChange={(e) => setPickedSeries({ ...pickedSeries, season: Number(e.target.value) })}
-                  >
-                    {pickedSeasons.data.map((s) => (
-                      <option key={s.season_id} value={s.season_number}>
-                        {s.season_title || `第 ${s.season_number} 季`}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
-              <PickList loading={pickedEpisodes.isFetching} count={pickedEpisodes.data?.length ?? 0}>
-                {(pickedEpisodes.data ?? []).map((ep) => (
-                  <div key={ep.episode_id} className="pick-row">
-                    <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
-                    <span className="pick-row__title">{ep.episode_title || `第 ${ep.episode_number} 集`}</span>
-                    <button
-                      className="btn btn--ghost"
-                      style={{ marginLeft: 'auto' }}
-                      onClick={() => {
-                        patch(picking.id, {
-                          target: {
-                            item_type: 've',
-                            item_id: ep.episode_id,
-                            title: `${pickedSeries.title} · ${ep.episode_title || `第 ${ep.episode_number} 集`}`,
-                          },
-                          status: 'ready',
-                          message: undefined,
-                        })
-                        setPicking(null)
-                        setPickedSeries(null)
-                      }}
-                    >
-                      选择
-                    </button>
-                  </div>
-                ))}
-              </PickList>
-            </>
-          ) : (
-            <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
-              {(candidates.data?.items ?? []).map((video: VideoItem) => (
-                <div key={video.video_id} className="pick-row">
-                  <span className="pick-row__title">{video.video_title}</span>
-                  <span className="muted" style={{ fontSize: 12 }}>
-                    {video.video_type === 'movie' ? '电影' : '剧集'}
-                  </span>
-                  <button
-                    className="btn btn--ghost"
-                    style={{ marginLeft: 'auto' }}
-                    onClick={() => {
-                      if (video.video_type === 'movie') {
-                        patch(picking.id, {
-                          target: { item_type: 'vl', item_id: video.video_id, title: video.video_title },
-                          status: 'ready',
-                          message: undefined,
-                        })
-                        setPicking(null)
-                        return
-                      }
-                      // 剧集必须选到某一集：资源是挂在集上的
-                      setPickedSeries({ videoId: video.video_id, title: video.video_title, season: 1 })
-                    }}
-                  >
-                    {video.video_type === 'movie' ? '选择' : '选剧集'}
-                  </button>
-                </div>
-              ))}
-            </PickList>
-          )}
+          <TargetPicker
+            onPick={(target) => {
+              patch(picking.id, { target, status: 'ready', message: undefined })
+              setPicking(null)
+            }}
+          />
         </Modal>
       ) : null}
     </>
   )
+}
+
+/** 暂存区里混着视频和字幕，用户要的是「这是什么」而不是 MIME */
+function fileKind(name: string, mime: string): string {
+  const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase()
+  if (mime.startsWith('video/') || ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts'].includes(ext)) return '视频'
+  if (mime.startsWith('audio/') || ['mp3', 'flac', 'm4a', 'wav', 'aac'].includes(ext)) return '音频'
+  if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return '图片'
+  if (['srt', 'ass', 'ssa', 'vtt', 'sub'].includes(ext) || mime.includes('subrip') || mime.includes('ssa')) return '字幕'
+  return '其他'
 }
 
 const STATUS: Record<Status, { label: string; cls: string }> = {
