@@ -181,19 +181,6 @@ const seeks: SeekItem[] = videos.map((v, i) => ({
   seek_carrot: [120, 80, 60, 200, 40, 90, 150, 20][i] ?? 0,
 }))
 
-const playing = [
-  { video_title: '雾港', video_type: 'tv' as const, todb_id: 1001, tmdb_id: 63248, season_number: 2, episode_number: 4, play_speed: 10, upload_pseudonym: 'lin', ua: 'SenPlayer/5.7.4', video_image_logo: null, video_image_poster: poster('play1'), video_image_backdrop: null },
-  { video_title: '冬泳', video_type: 'movie' as const, todb_id: 1006, tmdb_id: 63253, season_number: null, episode_number: null, play_speed: 10, upload_pseudonym: 'zhou', ua: 'Hills/1.4.7', video_image_logo: null, video_image_poster: poster('play2'), video_image_backdrop: null },
-  { video_title: '山海之间', video_type: 'tv' as const, todb_id: 1004, tmdb_id: 63251, season_number: 1, episode_number: 2, play_speed: 20, upload_pseudonym: 'chen', ua: 'Infuse/7.8', video_image_logo: null, video_image_poster: poster('play3'), video_image_backdrop: null },
-]
-
-const rankUpload = [
-  { index: 1, size: 182, username: 'lin', avatar: null },
-  { index: 2, size: 140, username: 'zhou', avatar: null },
-  { index: 3, size: 96, username: 'sorakand', avatar: null },
-  { index: 4, size: 61, username: 'chen', avatar: null },
-  { index: 5, size: 48, username: 'kai', avatar: null },
-]
 
 function hash(input: string): number {
   let h = 0
@@ -235,9 +222,6 @@ export async function mockRequest<T>(
   if (clean === '/api/user/base') return { user_id: user.user_id, username: user.username, avatar: null } as T
   if (clean === '/api/user') return user as T
   if (clean === '/api/carrot/current') return { carrot: user.carrot } as T
-  if (clean === '/api/rank/upload') return rankUpload as T
-  if (clean === '/api/rank/carrot') return rankUpload.map((r) => ({ index: r.index, carrot: r.size * 40, username: r.username, avatar: null })) as T
-  if (clean === '/api/rank/userVideoRecordPlaying') return playing as T
 
   if (clean === '/api/video/list') {
     const wantDeleted = String(query.only_delete ?? '') === '1' || query.only_delete === true
@@ -258,6 +242,74 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/update') return {} as T
   if (clean === '/api/pay/close') return { is_close: true } as T
   if (clean === '/api/whisper/create') return { whisper_id: 9001 } as T
+  if (clean === '/api/rank/carrot') {
+    return [
+      { index: 1, carrot: 175_708, username: 'f1ne', avatar: null, level_name: '化神' },
+      { index: 2, carrot: 157_720, username: 'myles', avatar: null, level_name: '化神' },
+      { index: 3, carrot: 98_410, username: 'sorakand', avatar: null, level_name: '元婴' },
+      { index: 4, carrot: 12_030, username: 'lin', avatar: null, level_name: '金丹' },
+    ] as T
+  }
+  if (clean === '/api/rank/upload') {
+    return [
+      { index: 1, size: 178_189_850_007_795, username: 'chai0047', avatar: null },
+      { index: 2, size: 113_415_056_526_561, username: 'akak5877', avatar: null },
+      { index: 3, size: 8_589_934_592, username: 'sorakand', avatar: null },
+    ] as T
+  }
+  if (clean === '/api/rank/sign') {
+    return [
+      { sign_index: 1, sign_content: null, sign_at: '2026-11-10T16:00:01.000000Z', earn_point: 8, continuous_days: 165, username: 'yangxinyang', avatar: null },
+      { sign_index: 2, sign_content: '今天也要开心', sign_at: '2026-11-10T16:00:01.000000Z', earn_point: 6, continuous_days: 173, username: 'jokerzzr', avatar: null },
+    ] as T
+  }
+  if (clean === '/api/rank/userVideoRecordPlaying') {
+    return [
+      { upload_pseudonym: '掉色人🔥', username: 'myles', video_title: '灵境行者', video_type: 'tv', todb_id: 274035, tmdb_id: 297923, season_number: 1, episode_number: 12, play_speed: 10, play_seconds: 1240, ua: 'Hills Windows/1.6.0', video_image_logo: null, video_image_poster: poster('play1') },
+      { upload_pseudonym: 'lin', username: 'zhou', video_title: '冬泳', video_type: 'movie', todb_id: 1006, tmdb_id: 63253, season_number: null, episode_number: null, play_speed: 20, play_seconds: 320, ua: 'Infuse/7.8.2', video_image_logo: null, video_image_poster: poster('play2') },
+    ] as T
+  }
+  if (clean === '/api/rank/userLiveRecordPlaying') {
+    return [
+      { provider_pseudonym: 'upload_a', username: 'user_a', live_title: 'CCTV3', play_durations: 600, ua: 'Hills/1.4.7 (android; 12)' },
+      { provider_pseudonym: 'upload_b', username: 'user_b', live_title: 'CCTV6', play_durations: 17, ua: 'SenPlayer/5.9.0' },
+    ] as T
+  }
+  if (clean === '/api/lottery/create') {
+    return { lottery_id: `4zwLEpq${Math.random().toString(36).slice(2, 8)}` } as T
+  }
+  if (clean === '/api/lottery/win') {
+    return {
+      lottery_name: '大奖啊',
+      lottery_description: '感谢 xxx 提供',
+      time_start: '2026-03-03 15:50:20',
+      time_end: '2026-03-08 14:20:32',
+      amount: 2,
+      number: 2,
+      users: [
+        { user_id: 'eOEOD2N94s', user_username: 'jason', user_avatar: null, prize_name: '奖品1', prize_description: '兑奖请联系 xxx', join_index: 1, join_at: '2026-03-03 22:40:07', prize_body: null },
+      ],
+    } as T
+  }
+  if (clean === '/api/lottery/cancel') return { is_success: true } as T
+  if (clean === '/api/lottery/stop') return {} as T
+  if (clean === '/api/telegram/vote/create') {
+    return { vote_id: 5, time_end: '2026-11-12T12:00:00.000000Z' } as T
+  }
+  if (clean === '/api/telegram/vote/result') {
+    return {
+      vote_id: String(query.vote_id ?? '2'),
+      question: '元宵特别活动，选少数派者获胜。吃汤圆还是元宵？',
+      options: ['汤圆', '元宵'],
+      time_start: '2026-03-03 20:19:00',
+      time_end: '2026-03-04 08:19:00',
+      users: [
+        { index: 1, option_index: '1', user_id: 'eO9MNJ43Js', username: 'huka', avatar: null, telegram_id: null },
+        { index: 2, option_index: '1', user_id: 'eP310MJ9Rs', username: 'havant', avatar: null, telegram_id: null },
+        { index: 3, option_index: '0', user_id: 'eK3KW0D3Ms', username: 'filosefer', avatar: null, telegram_id: null },
+      ],
+    } as T
+  }
   if (clean === '/api/redPacket/create') return { red_packet_id: 'BLJg3EDpYAno' } as T
   if (clean === '/api/redPacket/receive') {
     const rows = [

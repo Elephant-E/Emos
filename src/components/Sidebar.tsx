@@ -8,6 +8,9 @@ import {
   IconChevron,
   IconFilm,
   IconGift,
+  IconLottery,
+  IconRank,
+  IconVote,
   IconGrid,
   IconInbox,
   IconLive,
@@ -25,34 +28,55 @@ import {
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean }
 
+/**
+ * 按**业务对象**分组，不按「常用/不常用」。
+ *
+ * 原来三组，运营里塞了 8 项（上传、直播、商城、订单、红包、榜单、抽奖、投票），
+ * 把「发布内容」「卖东西」「搞活动」三类混在一起；系统里又混进了用户、资金、悄悄话。
+ * 现在按对象分四组：
+ *   内容 = 片库本身（看什么、传什么）
+ *   交易 = 钱和货
+ *   社区 = 人和活动
+ *   系统 = 基础设施与账号
+ * 概览不属于任何业务域，单独置顶、不带组标题。
+ */
+const PINNED: NavItem[] = [{ to: '/', label: '概览', icon: IconGrid }]
+
 const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
     label: '内容',
     items: [
-      { to: '/', label: '概览', icon: IconGrid },
       { to: '/library', label: '媒体库', icon: IconFilm },
       { to: '/watchlists', label: '片单', icon: IconTag, chev: true },
       { to: '/seek', label: '求片', icon: IconInbox },
       { to: '/music', label: '音乐', icon: IconMusic },
+      { to: '/upload', label: '上传', icon: IconUpload },
+      { to: '/live', label: '直播', icon: IconLive },
     ],
   },
   {
-    label: '运营',
+    label: '交易',
     items: [
-      { to: '/upload', label: '上传', icon: IconUpload },
-      { to: '/live', label: '直播', icon: IconLive },
       { to: '/shop', label: '商城', icon: IconBag },
       { to: '/orders', label: '订单', icon: IconReceipt },
+      { to: '/fund', label: '资金', icon: IconWallet },
+    ],
+  },
+  {
+    label: '社区',
+    items: [
+      { to: '/users', label: '用户', icon: IconShield },
+      { to: '/whisper', label: '悄悄话', icon: IconTag },
       { to: '/redpacket', label: '红包', icon: IconGift },
+      { to: '/rank', label: '榜单', icon: IconRank },
+      { to: '/lottery', label: '抽奖', icon: IconLottery },
+      { to: '/vote', label: '投票', icon: IconVote },
     ],
   },
   {
     label: '系统',
     items: [
       { to: '/lines', label: '线路', icon: IconRoute },
-      { to: '/users', label: '用户', icon: IconShield },
-      { to: '/fund', label: '资金', icon: IconWallet },
-      { to: '/whisper', label: '悄悄话', icon: IconTag },
       { to: '/account', label: '账号', icon: IconUser, chev: true },
     ],
   },
@@ -76,6 +100,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
   const footRef = useRef<HTMLDivElement | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
 
   // ⌘K / Ctrl+K 聚焦搜索框——键帽画在那儿就得能用
   useEffect(() => {
@@ -106,6 +131,12 @@ export function Sidebar({ user }: { user?: UserInfo }) {
       document.removeEventListener('keydown', onKey)
     }
   }, [menuOpen])
+
+  // 菜单 18 项，矮屏下会滚动；切页时把当前项滚进视野，别让人找不到自己在哪
+  useEffect(() => {
+    const active = scrollRef.current?.querySelector('.rail__item.is-active')
+    active?.scrollIntoView({ block: 'nearest' })
+  }, [pathname])
 
   useEffect(() => {
     if (!user?.user_id) return
@@ -145,7 +176,21 @@ export function Sidebar({ user }: { user?: UserInfo }) {
         </span>
       </label>
 
-      <div className="rail__scroll">
+      <div className="rail__scroll" ref={scrollRef}>
+      <nav className="rail__nav" style={{ marginTop: 14 }}>
+        {PINNED.map((item) => {
+          const Icon = item.icon
+          const active = pathname === item.to
+          return (
+            <Link key={item.to} to={item.to} className={`rail__item${active ? ' is-active' : ''}`}>
+              <span className="rail__ico">
+                <Icon size={16} />
+              </span>
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
       {GROUPS.map((group) => (
         <div key={group.label}>
           <p className="rail__label">{group.label}</p>

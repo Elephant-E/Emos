@@ -166,3 +166,28 @@ export const IconGift = (p: IconProps) => (
     <path d="M8 6.2C5.6 6.2 4.4 4.6 4.8 3.4c.5-1.3 2.4-.7 3.2 2.8ZM8 6.2c2.4 0 3.6-1.6 3.2-2.8-.5-1.3-2.4-.7-3.2 2.8Z" />
   </Svg>
 )
+
+/** 榜单：三根高低柱 */
+export const IconRank = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 13V8.4M8 13V3.6M13 13V6.2" />
+    <path d="M2 13h12" />
+  </Svg>
+)
+
+/** 抽奖：礼盒 + 上面的结 */
+export const IconLottery = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2.4" y="6.4" width="11.2" height="7" rx="1.2" />
+    <path d="M2.4 9.2h11.2M8 6.4V13.4" />
+    <path d="M8 6.4C6.2 6.4 5.2 5.2 5.6 4.2c.4-1 1.9-.6 2.4 2.2ZM8 6.4c1.8 0 2.8-1.2 2.4-2.2-.4-1-1.9-.6-2.4 2.2Z" />
+  </Svg>
+)
+
+/** 投票：三行选项 + 一个勾 */
+export const IconVote = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3 4.2h4.2M3 8h4.2M3 11.8h4.2" />
+    <path d="M9.6 8.2l1.6 1.6 2.8-3.2" />
+  </Svg>
+)

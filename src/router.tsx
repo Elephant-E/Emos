@@ -23,6 +23,9 @@ import { UserSearchView } from '@/views/UserSearchView'
 import { WhisperView } from '@/views/WhisperView'
 import { FundView } from '@/views/FundView'
 import { RedPacketView } from '@/views/RedPacketView'
+import { RankView } from '@/views/RankView'
+import { LotteryView } from '@/views/LotteryView'
+import { VoteView } from '@/views/VoteView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -347,6 +350,53 @@ function RedPacketRoute() {
   return <RedPacketView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
 }
 
+const rankRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/rank',
+  validateSearch: (s: Record<string, unknown>): { tab: 'carrot' | 'upload' | 'sign' | 'playing' | 'live' } => ({
+    tab: s.tab === 'upload' || s.tab === 'sign' || s.tab === 'playing' || s.tab === 'live' ? s.tab : 'carrot',
+  }),
+  component: RankRoute,
+})
+
+function RankRoute() {
+  const search = rankRoute.useSearch()
+  const navigate = rankRoute.useNavigate()
+  return <RankView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const lotteryRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/lottery',
+  validateSearch: (s: Record<string, unknown>): { tab: 'create' | 'winners'; id: string } => ({
+    tab: s.tab === 'winners' ? 'winners' : 'create',
+    id: asString(s.id),
+  }),
+  component: LotteryRoute,
+})
+
+function LotteryRoute() {
+  const search = lotteryRoute.useSearch()
+  const navigate = lotteryRoute.useNavigate()
+  return <LotteryView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
+const voteRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/vote',
+  validateSearch: (s: Record<string, unknown>): { tab: 'create' | 'result'; id: string } => ({
+    tab: s.tab === 'result' ? 'result' : 'create',
+    id: asString(s.id),
+  }),
+  component: VoteRoute,
+})
+
+function VoteRoute() {
+  const search = voteRoute.useSearch()
+  const navigate = voteRoute.useNavigate()
+  return <VoteView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
 const whisperRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/whisper',
@@ -473,6 +523,9 @@ const routeTree = rootRoute.addChildren([
     fundRoute,
     whisperRoute,
     redPacketRoute,
+    rankRoute,
+    lotteryRoute,
+    voteRoute,
     userSearchRoute,
     userDetailRoute,
     watchlistsRoute,

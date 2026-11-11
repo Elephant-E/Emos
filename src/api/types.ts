@@ -429,3 +429,133 @@ export interface RedPacketCreateBody {
   /** 独占：bot 只显示封面文件、不显示寄语 */
   is_exclusive?: boolean
 }
+
+/** 萝卜排行榜（GET /api/rank/carrot） */
+export interface RankCarrotRow {
+  index: number
+  carrot: number
+  username: string
+  avatar: string | null
+  level_name?: string | null
+}
+
+/** 上传量排行榜（GET /api/rank/upload），size 是字节 */
+export interface RankUploadRow {
+  index: number
+  size: number
+  username: string
+  avatar: string | null
+}
+
+/** 签到排行榜（GET /api/rank/sign） */
+export interface RankSignRow {
+  sign_index: number
+  sign_content: string | null
+  sign_at: string
+  earn_point: number
+  continuous_days: number
+  username: string
+  avatar: string | null
+}
+
+/** 正在播放 · 影片（最近 3 分钟） */
+export interface RankPlayingVideoRow {
+  username: string
+  video_title: string
+  video_type: 'movie' | 'tv'
+  todb_id: number | null
+  tmdb_id: number | null
+  season_number: number | null
+  episode_number: number | null
+  /** 10 = 1 倍速，20 = 2 倍速 */
+  play_speed: number | null
+  play_seconds: number | null
+  ua: string | null
+  upload_pseudonym?: string | null
+  video_image_poster?: string | null
+  video_image_logo?: string | null
+}
+
+/** 正在播放 · 直播 */
+export interface RankPlayingLiveRow {
+  username: string
+  live_title: string
+  play_durations: number
+  ua: string | null
+  provider_pseudonym?: string | null
+}
+
+export interface VoteCreateBody {
+  /** 问题 100 字内 */
+  question: string
+  /** 简介 200 字内 */
+  description?: string
+  /** 选项 2-12 个 */
+  options: string[]
+  /** 过期时间，最低 60 秒 */
+  seconds: number
+  /** 是否允许撤回 */
+  allows_revoting?: boolean
+  /** 是否投票结束后才公布结果 */
+  hide_results_until_closes?: boolean
+}
+
+export interface VoteResult {
+  vote_id: string
+  question: string
+  options: string[]
+  time_start: string
+  time_end: string
+  users: Array<{
+    index: number
+    option_index: string
+    user_id: string
+    username: string
+    avatar: string | null
+    telegram_id: string | null
+  }>
+}
+
+export interface LotteryPrize {
+  name: string
+  description?: string | null
+  /** 数量 1-100 */
+  number: number
+  /** 自动发奖内容；给了就要和 number 对上 */
+  bodys?: string[]
+}
+
+export interface LotteryCreateBody {
+  name: string
+  description?: string
+  /** YYYY-MM-DD HH:mm:ss */
+  time_start: string
+  /** YYYY-MM-DD HH:mm:ss，一周内 */
+  time_end: string
+  /** 参加费用 1-5w */
+  amount: number
+  /** 0 = 时间开奖；>0 = 人数开奖 */
+  number?: number
+  rule_carrot?: number
+  rule_sign?: number
+  prizes: LotteryPrize[]
+}
+
+export interface LotteryWinner {
+  lottery_name: string
+  lottery_description: string | null
+  time_start: string
+  time_end: string
+  amount: number
+  number: number
+  users: Array<{
+    user_id: string
+    user_username: string
+    user_avatar: string | null
+    prize_name: string
+    prize_description: string | null
+    join_index: number
+    join_at: string
+    prize_body: string | null
+  }>
+}

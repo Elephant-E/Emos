@@ -1,6 +1,6 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, MessageResult, MusicSong, RedPacketCreateBody, RedPacketReceiver, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
+  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
 
 const q = (o: Record<string, unknown>) => o
@@ -325,6 +325,27 @@ export const redPacketApi = {
   create: (body: RedPacketCreateBody) => request<{ red_packet_id: string }>('/api/redPacket/create', { method: 'POST', body }),
   receive: (params: { red_packet_id: string; page?: number; page_size?: number }) =>
     request<ListResult<RedPacketReceiver>>('/api/redPacket/receive', { query: params }),
+}
+
+export const rankApi = {
+  carrot: () => request<RankCarrotRow[]>('/api/rank/carrot'),
+  upload: () => request<RankUploadRow[]>('/api/rank/upload'),
+  sign: () => request<RankSignRow[]>('/api/rank/sign'),
+  playingVideo: () => request<RankPlayingVideoRow[]>('/api/rank/userVideoRecordPlaying'),
+  playingLive: () => request<RankPlayingLiveRow[]>('/api/rank/userLiveRecordPlaying'),
+}
+
+export const lotteryApi = {
+  create: (body: LotteryCreateBody) => request<{ lottery_id: string }>('/api/lottery/create', { method: 'POST', body }),
+  win: (lotteryId: string) => request<LotteryWinner>('/api/lottery/win', { query: { lottery_id: lotteryId } }),
+  cancel: (lotteryId: string) => request<{ is_success: boolean }>('/api/lottery/cancel', { method: 'PUT', query: { lottery_id: lotteryId } }),
+  stop: (lotteryId: string) => request<unknown>('/api/lottery/stop', { method: 'PUT', query: { lottery_id: lotteryId } }),
+}
+
+export const voteApi = {
+  create: (body: VoteCreateBody) =>
+    request<{ vote_id: number; time_end: string }>('/api/telegram/vote/create', { method: 'POST', body }),
+  result: (voteId: string) => request<VoteResult>('/api/telegram/vote/result', { query: { vote_id: voteId } }),
 }
 
 export const fundApi = {
