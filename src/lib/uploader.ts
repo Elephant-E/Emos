@@ -287,7 +287,7 @@ export async function uploadTemporary(file: File): Promise<{ url: string }> {
   form.append('file', file)
   form.append('emos_id', userId)
 
-  const res = await fetch('https://temporary.emos.best/upload', {
+  const res = await fetch(`${import.meta.env.VITE_TEMPORARY_ORIGIN || 'https://temporary.emos.best'}/upload`, {
     method: 'POST',
     headers: authHeader(),
     body: form,
