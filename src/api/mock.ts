@@ -488,8 +488,8 @@ export async function mockRequest<T>(
   if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
   if (clean === '/api/video/record/list') {
     return paginate([
-      { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_username: 'sorakand' },
-      { video_id: 2, video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_username: 'lin' },
+      { video_id: 1, video_media_id: 'md_1', video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_username: 'sorakand', video_image_poster: poster('night') },
+      { video_id: 2, video_media_id: 'md_2', video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_username: 'lin', video_image_poster: poster('fog') },
     ], 1, 6) as T
   }
   if (clean === '/api/user/stats/video/history') {
@@ -499,8 +499,10 @@ export async function mockRequest<T>(
   }
   if (clean === '/api/video/media/listAll') {
     return paginate([
-      { media_id: 'md_del_1', media_name: '4K HDR · h265', media_file_size: 8_589_934_592, user_pseudonym: 'sorakand', is_self_upload: true, is_can_restore: true, created_at: '2026-10-01T10:00:00Z', deleted_at: '2026-11-01T10:00:00Z' },
-      { media_id: 'md_del_2', media_name: '1080p · h264', media_file_size: 2_147_483_648, user_pseudonym: 'lin', is_self_upload: false, is_can_restore: false, created_at: '2026-09-01T10:00:00Z', deleted_at: '2026-10-20T10:00:00Z' },
+      { media_id: 'md_del_1', media_name: '4K HDR · h265', media_file_size: 8_589_934_592, user_pseudonym: 'sorakand', is_self_upload: true, is_can_restore: true, created_at: '2026-10-01T10:00:00Z', deleted_at: '2026-11-01T10:00:00Z',
+        video_id: 1, video_title: '夜航西飞', video_type: 'movie', season_number: 1, episode_number: 1, season_title: '第 1 季', episode_title: '第 1 集' },
+      { media_id: 'md_del_2', media_name: '1080p · h264', media_file_size: 2_147_483_648, user_pseudonym: 'lin', is_self_upload: false, is_can_restore: false, created_at: '2026-09-01T10:00:00Z', deleted_at: '2026-10-20T10:00:00Z',
+        video_id: 2, video_title: '雾港', video_type: 'tv', season_number: 1, episode_number: 2, season_title: '第 1 季', episode_title: '第 2 集' },
     ], Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
   if (clean === '/api/video/media/restore') return { carrot: 3 } as T
