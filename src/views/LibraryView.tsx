@@ -71,7 +71,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 拉取中
               </span>
             ) : null}
-            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, size: 20, q: '', by: 'media_id' }}>
+            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, page_size: 20, q: '', by: 'media_id' }}>
               回收站
             </Link>
           </>

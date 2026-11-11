@@ -40,7 +40,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
             .join(' · ') || undefined
         }
         tools={
-          <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, category: 0, q: '', sort: '', scope: 'all' }}>
+          <Link className="btn btn--ghost" to="/shop" search={{ tab: 'products', page: 1, page_size: 20, category: 0, q: '', sort: '', scope: 'all' }}>
             回到商城
           </Link>
         }

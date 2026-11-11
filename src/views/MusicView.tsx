@@ -13,6 +13,7 @@ import { } from '@/lib/format'
 
 export interface MusicSearch {
   page: number
+  page_size: number
   tab: 'songs' | 'albums' | 'persons'
   q: string
   filter: '' | 'no_media' | 'favorite'
@@ -37,9 +38,9 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   useEffect(() => setTerm(search.q), [search.q])
 
   // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
-  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', 20, search.filter)
-  const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums')
-  const persons = useMusicPersons(search.page, search.q, search.tab === 'persons')
+  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', search.page_size, search.filter)
+  const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums', search.page_size)
+  const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
@@ -209,7 +210,13 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
               })}
             </tbody>
           </table>
-          <Pager total={active.data.total} page={search.page} pageSize={active.data.page_size} onPage={(page) => onSearch({ page })} />
+          <Pager
+            total={active.data.total}
+            page={search.page}
+            pageSize={search.page_size}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+          />
         </ListCard>
       ) : null}
     </>

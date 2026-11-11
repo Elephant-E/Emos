@@ -11,7 +11,7 @@ import { formatDateTime } from '@/lib/format'
 
 export interface LinesSearch {
   page: number
-  size: number
+  page_size: number
   q: string
 }
 
@@ -40,7 +40,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
     if (!q) return true
     return line.name.toLowerCase().includes(q) || line.url.toLowerCase().includes(q) || (line.tagline ?? '').toLowerCase().includes(q)
   })
-  const paged = rows.slice((search.page - 1) * search.size, search.page * search.size)
+  const paged = rows.slice((search.page - 1) * search.page_size, search.page * search.page_size)
 
   return (
     <>
@@ -142,10 +142,10 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           <Pager
             total={rows.length}
             page={search.page}
-            pageSize={search.size}
+            pageSize={search.page_size}
             sizes={[20, 50]}
             onPage={(page) => onSearch({ page })}
-            onPageSize={(size) => onSearch({ size, page: 1 })}
+            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
           />
         </div>
       ) : null}

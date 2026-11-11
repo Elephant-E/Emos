@@ -3,7 +3,8 @@ export function asPage(value: unknown, fallback = 1): number {
   return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback
 }
 
-export const PAGE_SIZES = [20, 50, 100] as const
+/** 全站允许的每页条数。30 是基金订单的上限，100 是商品列表的上限 */
+export const PAGE_SIZES = [20, 30, 50, 100] as const
 
 export function asPageSize(value: unknown, fallback = 20): number {
   const n = Number(value)

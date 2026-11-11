@@ -120,7 +120,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
         })),
         all: () => {
           close()
-          void navigate({ to: '/music', search: { page: 1, tab: 'songs', q, filter: '' } })
+          void navigate({ to: '/music', search: { page: 1, page_size: 20, tab: 'songs', q, filter: '' } })
         },
       },
       {

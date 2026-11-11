@@ -15,6 +15,7 @@ import { formatDateTime, formatThousand } from '@/lib/format'
 
 export interface OrdersSearch {
   page: number
+  page_size: number
   pay: 'all' | 'paid' | 'unpaid'
   delivery: 'all' | 'sent' | 'pending'
   q: string
@@ -49,8 +50,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
   }
   // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表
-  const shopOrders = useShopOrders(search.page, filter, 10, !mineScope)
-  const mineOrders = useShopMineOrders(search.page, filter, 10, mineScope)
+  const shopOrders = useShopOrders(search.page, filter, search.page_size, !mineScope)
+  const mineOrders = useShopMineOrders(search.page, filter, search.page_size, mineScope)
   const orders = mineScope ? mineOrders : shopOrders
   const actions = useShopMutations()
   // 店铺订单和自己下的单走两个接口，判断只写一处
@@ -296,7 +297,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               })}
             </tbody>
           </table>
-          <Pager total={orders.data.total} page={search.page} pageSize={orders.data.page_size} onPage={(page) => onSearch({ page })} />
+          <Pager
+            total={orders.data.total}
+            page={search.page}
+            pageSize={search.page_size}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+          />
         </ListCard>
       ) : null}
 

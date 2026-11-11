@@ -609,7 +609,7 @@ export function useShopMineOrders(
   enabled = true,
 ) {
   return useQuery({
-    queryKey: ['shop', 'mineOrders', page, filter] as const,
+    queryKey: ['shop', 'mineOrders', page, pageSize, filter] as const,
     queryFn: () => shopApi.ordersUser({ page, page_size: pageSize, ...filter }),
     enabled,
   })
@@ -622,7 +622,7 @@ export function useShopOrders(
   enabled = true,
 ) {
   return useQuery({
-    queryKey: ['shop', 'orders', page, filter] as const,
+    queryKey: ['shop', 'orders', page, pageSize, filter] as const,
     queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
     enabled,
   })
@@ -736,7 +736,7 @@ export function useMusicSongs(
   filter: '' | 'no_media' | 'favorite' = '',
 ) {
   return useQuery({
-    queryKey: ['music', 'songs', page, term, filter] as const,
+    queryKey: ['music', 'songs', page, pageSize, term, filter] as const,
     queryFn: () =>
       musicApi.songs({
         page,
@@ -751,7 +751,7 @@ export function useMusicSongs(
 
 export function useMusicAlbums(page: number, term: string, enabled = true, pageSize = 20) {
   return useQuery({
-    queryKey: ['music', 'albums', page, term] as const,
+    queryKey: ['music', 'albums', page, pageSize, term] as const,
     queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
     enabled,
   })
@@ -759,7 +759,7 @@ export function useMusicAlbums(page: number, term: string, enabled = true, pageS
 
 export function useMusicPersons(page: number, term: string, enabled = true, pageSize = 20) {
   return useQuery({
-    queryKey: ['music', 'persons', page, term] as const,
+    queryKey: ['music', 'persons', page, pageSize, term] as const,
     queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
     enabled,
   })

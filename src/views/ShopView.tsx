@@ -40,6 +40,7 @@ const TABS: Array<{ key: Tab; label: string }> = [
 export function ShopView({
   tab,
   page,
+  pageSize,
   categoryId,
   q,
   sort,
@@ -48,6 +49,7 @@ export function ShopView({
 }: {
   tab: Tab
   page: number
+  pageSize: number
   categoryId: number
   q: string
   sort: '' | 'sales' | 'price'
@@ -56,6 +58,7 @@ export function ShopView({
   onSearch: (patch: {
     tab?: Tab
     page?: number
+    page_size?: number
     category?: number
     q?: string
     sort?: '' | 'sales' | 'price'
@@ -73,7 +76,7 @@ export function ShopView({
     page,
     sellerId: mine ? (seller.data?.seller_id ?? 0) : 0,
     categoryId,
-    pageSize: 12,
+    pageSize,
     name: q,
     sortBy: sort,
     onlyUp: !mine,
@@ -365,7 +368,13 @@ export function ShopView({
                   ))}
                 </tbody>
               </table>
-              <Pager total={products.data.total} page={page} pageSize={products.data.page_size} onPage={(next) => onSearch({ page: next })} />
+              <Pager
+                total={products.data.total}
+                page={page}
+                pageSize={pageSize}
+                onPage={(next) => onSearch({ page: next })}
+                onPageSize={(next) => onSearch({ page_size: next, page: 1 })}
+              />
             </ListCard>
           ) : null}
       </>

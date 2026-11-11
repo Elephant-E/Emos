@@ -154,7 +154,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const qc = useQueryClient()
   const orders = useQuery({
     queryKey: ['fund', 'orders', page, pageSize] as const,
-    queryFn: () => fundApi.orders({ page, page_size: pageSize }),
+    // 接口上限 30（传 50 直接 422），老链接里超限的值在这里夹住
+    queryFn: () => fundApi.orders({ page, page_size: Math.min(30, pageSize) }),
     // 只在基金订单 tab 取数，切到支付服务或胡萝卜时不请求
     enabled: tab === 'orders',
   })

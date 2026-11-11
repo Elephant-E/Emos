@@ -145,6 +145,7 @@ const shopRoute = createRoute({
   validateSearch: (s: Record<string, unknown>): {
     tab: 'products' | 'categories' | 'seller'
     page: number
+    page_size: number
     category: number
     q: string
     sort: '' | 'sales' | 'price'
@@ -153,6 +154,7 @@ const shopRoute = createRoute({
   } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
     page: asPage(s.page),
+    page_size: asPageSize(s.page_size),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
     q: asString(s.q),
     sort: s.sort === 'sales' || s.sort === 'price' ? s.sort : '',
@@ -168,6 +170,7 @@ function ShopRoute() {
     <ShopView
       tab={search.tab}
       page={search.page}
+      pageSize={search.page_size}
       categoryId={search.category}
       q={search.q}
       sort={search.sort}
@@ -182,12 +185,14 @@ const ordersRoute = createRoute({
   path: '/orders',
   validateSearch: (s: Record<string, unknown>): {
     page: number
+    page_size: number
     pay: 'all' | 'paid' | 'unpaid'
     delivery: 'all' | 'sent' | 'pending'
     q: string
     scope: 'mine' | 'shop'
   } => ({
     page: asPage(s.page),
+    page_size: asPageSize(s.page_size),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
     q: asString(s.q),
@@ -221,7 +226,7 @@ function LiveRoute() {
 
 export interface LinesSearch {
   page: number
-  size: number
+  page_size: number
   q: string
 }
 
@@ -230,7 +235,7 @@ const linesRoute = createRoute({
   path: '/lines',
   validateSearch: (s: Record<string, unknown>): LinesSearch => ({
     page: asPage(s.page),
-    size: asPageSize(s.size),
+    page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),
   component: LinesRoute,
@@ -245,10 +250,10 @@ function LinesRoute() {
 const recycleRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/recycle',
-  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; size: number; q: string; by: 'media_id' | 'user_id' } => ({
+  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; page_size: number; q: string; by: 'media_id' | 'user_id' } => ({
     tab: s.tab === 'video' ? 'video' : 'media',
     page: asPage(s.page),
-    size: asPageSize(s.size),
+    page_size: asPageSize(s.page_size),
     q: asString(s.q),
     by: s.by === 'user_id' ? ('user_id' as const) : ('media_id' as const),
   }),
@@ -262,13 +267,13 @@ function RecycleRoute() {
     <RecycleView
       tab={search.tab}
       page={search.page}
-      pageSize={search.size}
+      pageSize={search.page_size}
       q={search.q}
       by={search.by}
       onQuery={(q, by) => navigate({ search: { ...search, q, by, page: 1 } })}
-      onTab={(tab) => navigate({ search: { tab, page: 1, size: search.size, q: '', by: 'media_id' } })}
+      onTab={(tab) => navigate({ search: { tab, page: 1, page_size: search.page_size, q: '', by: 'media_id' } })}
       onPage={(page) => navigate({ search: { ...search, page } })}
-      onPageSize={(size) => navigate({ search: { ...search, size, page: 1 } })}
+      onPageSize={(page_size) => navigate({ search: { ...search, page_size, page: 1 } })}
     />
   )
 }
@@ -278,12 +283,14 @@ const musicRoute = createRoute({
   path: '/music',
   validateSearch: (s: Record<string, unknown>): {
     page: number
+    page_size: number
     tab: 'songs' | 'albums' | 'persons'
     q: string
     /** songs tab 的过滤：空 / 无资源 / 我收藏的 */
     filter: '' | 'no_media' | 'favorite'
   } => ({
     page: asPage(s.page),
+    page_size: asPageSize(s.page_size),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
     q: asString(s.q),
     filter: s.filter === 'no_media' || s.filter === 'favorite' ? s.filter : '',
@@ -312,16 +319,16 @@ const payRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/pay',
   beforeLoad: () => {
-    throw redirect({ to: '/fund', search: { tab: 'merchant', page: 1, size: 20 } })
+    throw redirect({ to: '/fund', search: { tab: 'merchant', page: 1, page_size: 20 } })
   },
 })
 
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
-  validateSearch: (s: Record<string, unknown>): { page: number; size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
+  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
     page: asPage(s.page),
-    size: asPageSize(s.size),
+    page_size: asPageSize(s.page_size),
     tab: s.tab === 'merchant' ? 'merchant' : s.tab === 'carrot' ? 'carrot' : 'orders',
   }),
   component: FundRoute,
@@ -335,9 +342,9 @@ function FundRoute() {
       tab={search.tab}
       onTab={(tab) => navigate({ search: { ...search, tab } })}
       page={search.page}
-      pageSize={search.size}
+      pageSize={search.page_size}
       onPage={(page) => navigate({ search: { ...search, page } })}
-      onPageSize={(size) => navigate({ search: { ...search, size, page: 1 } })}
+      onPageSize={(page_size) => navigate({ search: { ...search, page_size, page: 1 } })}
     />
   )
 }
