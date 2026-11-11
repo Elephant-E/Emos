@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -60,19 +61,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="音乐分类">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key}
-              className="tab"
-              role="tab"
-              aria-selected={search.tab === tab.key}
-              onClick={() => onSearch({ tab: tab.key, page: 1, q: '' })}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, page: 1, q: '' })} label="音乐分类" />
         <span className="spacer" />
         <input
           className="input"

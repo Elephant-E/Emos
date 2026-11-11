@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
@@ -185,21 +186,15 @@ export function ShopView({
       <>
         <div className="toolbar" style={{ marginTop: 0 }}>
             {mine ? (
-              <div className="tabs">
-                <button className="tab" aria-selected={categoryId === 0} onClick={() => onSearch({ category: 0, page: 1 })}>
-                  全部分类
-                </button>
-                {(categories.data ?? []).map((category) => (
-                  <button
-                    key={category.category_id}
-                    className="tab"
-                    aria-selected={categoryId === category.category_id}
-                    onClick={() => onSearch({ category: category.category_id, page: 1 })}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
+              <Tabs
+                items={[
+                  { key: 0, label: '全部分类' },
+                  ...(categories.data ?? []).map((category) => ({ key: category.category_id, label: category.name })),
+                ]}
+                value={categoryId}
+                onChange={(category) => onSearch({ category, page: 1 })}
+                label="商品分类"
+              />
             ) : null}
             <span className="spacer" />
             <input

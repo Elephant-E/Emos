@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -11,6 +12,11 @@ import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize } from '@/lib/format'
 import { Modal } from '@/components/Modal'
+
+const SONG_TABS = [
+  { key: 'lyrics', label: '歌词' },
+  { key: 'media', label: '资源' },
+] as const
 
 export function SongDetailView({ songId }: { songId: number }) {
   const song = useSong(songId)
@@ -127,14 +133,7 @@ export function SongDetailView({ songId }: { songId: number }) {
       ) : null}
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="详情分区">
-          <button className="tab" role="tab" aria-selected={tab === 'lyrics'} onClick={() => setTab('lyrics')}>
-            歌词
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'media'} onClick={() => setTab('media')}>
-            资源
-          </button>
-        </div>
+        <Tabs items={SONG_TABS} value={tab} onChange={setTab} label="详情分区" />
       </div>
 
       {tab === 'lyrics' ? (

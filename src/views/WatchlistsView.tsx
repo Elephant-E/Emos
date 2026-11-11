@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type { WatchlistFormValues } from '@/components/WatchlistForm'
@@ -81,13 +82,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="范围">
-          {TABS.map((tab) => (
-            <button key={tab.key} className="tab" role="tab" aria-selected={search.scope === tab.key} onClick={() => onSearch({ scope: tab.key, page: 1 })}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs items={TABS} value={search.scope} onChange={(scope) => onSearch({ scope, page: 1 })} label="范围" />
         <span className="spacer" />
         <input
           className="input"

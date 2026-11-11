@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
@@ -127,13 +128,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="账号分区">
-          {TABS.map((item) => (
-            <button key={item.key} className="tab" role="tab" aria-selected={tab === item.key} onClick={() => onTab(item.key)}>
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <Tabs items={TABS} value={tab} onChange={onTab} label="账号分区" />
       </div>
 
       {session.error ? <ErrorBlock error={session.error} onRetry={() => session.refetch()} /> : null}

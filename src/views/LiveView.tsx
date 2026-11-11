@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
+import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -161,22 +162,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="媒体库">
-          <button className="tab" role="tab" aria-selected={search.library === 0} onClick={() => onSearch({ library: 0, channel: 0, page: 1 })}>
-            全部
-          </button>
-          {(library.data ?? []).map((item) => (
-            <button
-              key={item.id}
-              className="tab"
-              role="tab"
-              aria-selected={search.library === item.id}
-              onClick={() => onSearch({ library: item.id, channel: 0, page: 1 })}
-            >
-              {item.title}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          items={[{ key: 0, label: '全部' }, ...(library.data ?? []).map((item) => ({ key: item.id, label: item.title }))]}
+          value={search.library}
+          onChange={(libraryId) => onSearch({ library: libraryId, channel: 0, page: 1 })}
+          label="媒体库"
+        />
         <span className="spacer" />
         <button className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />

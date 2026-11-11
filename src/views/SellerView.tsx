@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
@@ -50,22 +51,12 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {categories.data && categories.data.length > 0 ? (
         <div className="toolbar">
-          <div className="tabs" role="tablist" aria-label="分类">
-            <button className="tab" role="tab" aria-selected={categoryId === 0} onClick={() => setCategoryId(0)}>
-              全部
-            </button>
-            {categories.data.map((category) => (
-              <button
-                key={category.category_id}
-                className="tab"
-                role="tab"
-                aria-selected={categoryId === category.category_id}
-                onClick={() => setCategoryId(category.category_id)}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
+          <Tabs
+            items={[{ key: 0, label: '全部' }, ...categories.data.map((category) => ({ key: category.category_id, label: category.name }))]}
+            value={categoryId}
+            onChange={setCategoryId}
+            label="分类"
+          />
           <span className="spacer" />
           <input
             className="input"

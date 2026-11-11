@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -67,19 +68,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="类型">
-          {TABS.map((tab) => (
-            <button
-              key={tab.key || 'all'}
-              className="tab"
-              role="tab"
-              aria-selected={search.type === tab.key}
-              onClick={() => onSearch({ type: tab.key, page: 1 })}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs items={TABS} value={search.type} onChange={(type) => onSearch({ type, page: 1 })} label="类型" />
         <span className="spacer" />
         <input
           className="input"

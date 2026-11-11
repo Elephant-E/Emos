@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -16,6 +17,11 @@ function useWhispers(tab: 'receiver' | 'sender') {
     staleTime: 30_000,
   })
 }
+
+const WHISPER_TABS = [
+  { key: 'receiver', label: '收到的' },
+  { key: 'sender', label: '发出的' },
+] as const
 
 export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab: (tab: 'receiver' | 'sender') => void }) {
   const qc = useQueryClient()
@@ -63,14 +69,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist">
-          <button className="tab" role="tab" aria-selected={tab === 'receiver'} onClick={() => onTab('receiver')}>
-            收到的
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'sender'} onClick={() => onTab('sender')}>
-            发出的
-          </button>
-        </div>
+        <Tabs items={WHISPER_TABS} value={tab} onChange={onTab} label="悄悄话方向" />
       </div>
 
       {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}

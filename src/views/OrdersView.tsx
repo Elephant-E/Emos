@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -78,13 +79,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="支付状态">
-          {PAY_TABS.map((tab) => (
-            <button key={tab.key} className="tab" role="tab" aria-selected={search.pay === tab.key} onClick={() => onSearch({ pay: tab.key, page: 1 })}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs items={PAY_TABS} value={search.pay} onChange={(pay) => onSearch({ pay, page: 1 })} label="支付状态" />
         <span className="spacer" />
         <input
           className="input"

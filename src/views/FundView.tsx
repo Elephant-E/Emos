@@ -4,6 +4,7 @@ import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { Tabs } from '@/components/Tabs'
 import { Pager } from '@/components/Pager'
 import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -11,6 +12,12 @@ import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
 import { useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
+
+const FUND_TABS = [
+  { key: 'orders', label: '基金订单' },
+  { key: 'merchant', label: '支付服务' },
+  { key: 'carrot', label: '胡萝卜' },
+] as const
 
 function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; pageSize: number; onPage: (page: number) => void; onPageSize: (size: number) => void }) {
   const carrot = useCarrot()
@@ -192,17 +199,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="资金">
-          <button className="tab" role="tab" aria-selected={tab === 'orders'} onClick={() => onTab('orders')}>
-            基金订单
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'merchant'} onClick={() => onTab('merchant')}>
-            支付服务
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'carrot'} onClick={() => onTab('carrot')}>
-            胡萝卜
-          </button>
-        </div>
+        <Tabs items={FUND_TABS} value={tab} onChange={onTab} label="资金" />
       </div>
 
       <div className="content-in" key={tab}>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -10,6 +11,11 @@ import { useDebounced } from '@/lib/useDebounced'
 import {formatRelative, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 type Tab = 'media' | 'video'
+
+const RECYCLE_TABS = [
+  { key: 'media', label: '资源' },
+  { key: 'video', label: '影片' },
+] as const
 
 export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q, by, onQuery }: {
   tab: Tab
@@ -83,14 +89,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       />
 
       <div className="toolbar">
-        <div className="tabs" role="tablist" aria-label="回收类型">
-          <button className="tab" role="tab" aria-selected={tab === 'media'} onClick={() => onTab('media')}>
-            资源
-          </button>
-          <button className="tab" role="tab" aria-selected={tab === 'video'} onClick={() => onTab('video')}>
-            影片
-          </button>
-        </div>
+        <Tabs items={RECYCLE_TABS} value={tab} onChange={onTab} label="回收类型" />
         <span className="spacer" />
 
         {tab === 'media' ? (
