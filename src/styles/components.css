@@ -528,6 +528,8 @@
   font-size: var(--text-xs);
 }
 .pager { display: flex; align-items: center; gap: var(--sp-2); }
+/* 每页条数不可改时，只在同一位置写死实际条数 */
+.pager__size { font-size: var(--text-xs); color: var(--fg-4); font-variant-numeric: tabular-nums; }
 .pager button,
 .pager__current {
   min-width: 28px;

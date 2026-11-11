@@ -43,7 +43,13 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
               </option>
             ))}
           </select>
-        ) : null}
+        ) : (
+          // 上游把每页条数固定死（直播、红包领取记录、片单里的影片），
+          // 放一个点了没反应的开关更糟；这里只把实际条数写出来
+          <span className="pager__size" title="该列表每页条数由接口固定">
+            {pageSize} / 页
+          </span>
+        )}
 
         <div className="pager">
           <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="上一页">

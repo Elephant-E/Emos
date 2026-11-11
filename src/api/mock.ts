@@ -336,7 +336,8 @@ export async function mockRequest<T>(
       { user_id: 'e5EDP1WEVs', username: 'amepiku', avatar: null, carrot: 3, receive_at: '2026-02-17T05:38:02.000000Z' },
       { user_id: 'eQP312ER4s', username: null, avatar: null, carrot: 12, receive_at: '2026-02-16T21:01:31.000000Z' },
     ]
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 15)) as T
+    // 真机该接口固定每页 15 条（传 20/100 都被压回 15）
+    return paginate(rows, Number(query.page ?? 1), 15) as T
   }
   if (clean === '/api/video/record/request') {
     return {
@@ -623,7 +624,8 @@ export async function mockRequest<T>(
   if (watchVideoMatch) {
     const title = String(query.video_title ?? '').trim()
     const rows = title ? watchVideos.filter((v) => v.video_title.includes(title)) : watchVideos
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+    // 真机该接口固定每页 15 条（传别的值会被压回 15）
+    return paginate(rows, Number(query.page ?? 1), 15) as T
   }
 
   const watchSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/video\/search$/)
