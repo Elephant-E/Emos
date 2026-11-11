@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Price, formatPrice } from '@/components/Price'
 import { Modal } from '@/components/Modal'
 import { Poster } from '@/components/Poster'
 import { LoadingBlock } from '@/components/StateBlock'
@@ -68,12 +69,7 @@ export function ProductDetailModal({
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
-              <div className="product-tile__price">
-                <b>{p.price == null ? '—' : `${formatThousand(p.price)} 胡萝卜`}</b>
-                {(p.price ?? 0) > 0 && (p.price_origin ?? 0) > (p.price ?? 0) ? (
-                  <s>{formatThousand(p.price_origin ?? 0)}</s>
-                ) : null}
-              </div>
+              <Price price={p.price} priceOrigin={p.price_origin} />
               <div className="product-tile__meta">
                 <span>库存 {formatThousand(p.stock)}</span>
                 <span>销量 {formatThousand(p.sales)}</span>
@@ -153,7 +149,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
               )
             }
           >
-            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatThousand(total)} 胡萝卜`}
+            {actions.createOrder.isPending ? '下单中…' : `下单 ${formatPrice(total)}`}
           </button>
         </>
       }
@@ -165,7 +161,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
         <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
           <span className="muted" style={{ fontSize: 12 }}>
-            {product.price == null ? '—' : `${formatThousand(product.price)} 胡萝卜`} · 库存 {formatThousand(product.stock)}
+            {formatPrice(product.price)} · 库存 {formatThousand(product.stock)}
           </span>
         </span>
       </div>

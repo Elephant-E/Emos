@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { formatPrice } from '@/components/Price'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
@@ -291,7 +292,7 @@ export function ShopView({
                           </span>
                         </div>
                       </td>
-                      <td className="num">{product.price == null ? '—' : `${formatThousand(product.price)} 胡萝卜`}</td>
+                      <td className="num">{formatPrice(product.price)}</td>
                       <td className="num">{formatThousand(product.stock)}</td>
                       <td className="num">{formatThousand(product.sales)}</td>
                       <td>

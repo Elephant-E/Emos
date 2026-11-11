@@ -1,4 +1,5 @@
 import type { ShopProduct } from '@/api/types'
+import { Price } from '@/components/Price'
 import { IconBag } from '@/components/icons'
 import { Poster } from '@/components/Poster'
 import { formatThousand } from '@/lib/format'
@@ -35,12 +36,7 @@ export function ProductTile({
       </div>
       <div className="product-tile__body">
         <span className="product-tile__name">{product.name}</span>
-        <div className="product-tile__price">
-          <b>{product.price == null ? '—' : `${formatThousand(product.price)} 胡萝卜`}</b>
-          {(product.price ?? 0) > 0 && (product.price_origin ?? 0) > (product.price ?? 0) ? (
-            <s>{formatThousand(product.price_origin ?? 0)}</s>
-          ) : null}
-        </div>
+        <Price price={product.price} priceOrigin={product.price_origin} />
         <div className="product-tile__meta">
           <span>销量 {formatThousand(product.sales)}</span>
           {soldOut ? <span>已售罄</span> : <span>库存 {formatThousand(product.stock)}</span>}
