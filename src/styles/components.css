@@ -168,6 +168,7 @@
   justify-content: space-between;
   gap: var(--pad-card);
   max-width: var(--page-max);
+  margin-inline: auto;
 }
 .crumb {
   display: flex;
@@ -320,6 +321,7 @@
   gap: var(--gap-card);
   margin-top: var(--gap-card);
   max-width: var(--page-max);
+  margin-inline: auto;
 }
 /* 卡片组后面紧跟表格/工具条时补上下间距，否则两者贴在一起 */
 .cards + .table-card,
@@ -377,6 +379,7 @@
   gap: var(--sp-3);
   margin: var(--gap-card) 0 var(--gap-card);
   max-width: var(--page-max);
+  margin-inline: auto;
   flex-wrap: wrap;
 }
 .tabs { display: flex; gap: var(--sp-hair); }
@@ -409,6 +412,7 @@
   overflow-x: auto;
   overflow-y: clip;
   max-width: var(--page-max);
+  margin-inline: auto;
 }
 .table { width: 100%; border-collapse: collapse; }
 .table thead th {

@@ -250,16 +250,16 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       {tab === 'orders' && rows.length > 0 ? (
         <div className="table-card">
-          <table className="table table--fixed table--dense">
+          <table className="table table--dense">
             <thead>
               <tr>
-                <th style={{ width: '30%' }}>订单</th>
+                <th style={{ width: '36%' }}>订单</th>
                 <th className="num" style={{ width: '9%' }}>胡萝卜</th>
                 <th className="num" style={{ width: '9%' }}>承诺补贴</th>
                 <th className="num" style={{ width: '9%' }} title="实际打款的金额">实际打款</th>
                 <th style={{ width: '12%' }}>状态</th>
                 <th style={{ width: '13%' }}>时间</th>
-                <th style={{ width: '18%' }}>操作</th>
+                <th style={{ width: '1%' }}>操作</th>
               </tr>
             </thead>
             <tbody>

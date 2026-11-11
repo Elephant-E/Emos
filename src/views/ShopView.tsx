@@ -289,7 +289,7 @@ export function ShopView({
                     <th className="num" style={{ width: '12%' }}>库存</th>
                     <th className="num" style={{ width: '12%' }}>销量</th>
                     <th style={{ width: '14%' }}>状态</th>
-                    {mine ? <th style={{ width: '16%' }}>操作</th> : null}
+                    {mine ? <th style={{ width: '1%' }}>操作</th> : null}
                   </tr>
                 </thead>
                 <tbody>

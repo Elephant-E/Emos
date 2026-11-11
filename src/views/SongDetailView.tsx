@@ -265,7 +265,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                     <th className="num" style={{ width: '11%' }}>大小</th>
                     <th className="num" style={{ width: '11%' }}>码率</th>
                     <th style={{ width: '14%' }}>上传者</th>
-                    <th style={{ width: '12%' }}>操作</th>
+                    <th style={{ width: '1%' }}>操作</th>
                   </tr>
                 </thead>
                 <tbody>

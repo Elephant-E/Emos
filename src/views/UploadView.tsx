@@ -356,7 +356,7 @@ export function UploadView() {
                 <th style={{ width: '14%' }}>大小</th>
                 <th style={{ width: '22%' }}>目标</th>
                 <th style={{ width: '14%' }}>状态</th>
-                <th style={{ width: '10%' }}>操作</th>
+                <th style={{ width: '1%' }}>操作</th>
               </tr>
             </thead>
             <tbody>

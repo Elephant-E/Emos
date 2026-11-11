@@ -213,7 +213,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                 <th className="num" style={{ width: '10%' }}>求片数</th>
                 <th className="num" style={{ width: '10%' }}>悬赏</th>
                 <th className="num" style={{ width: '14%' }}>更新</th>
-                <th style={{ width: '12%' }}>操作</th>
+                <th style={{ width: '1%' }}>操作</th>
               </tr>
             </thead>
             <tbody>

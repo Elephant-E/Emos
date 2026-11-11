@@ -311,7 +311,7 @@ export function WatchlistDetailView({
                 <th style={{ width: '12%' }}>类型</th>
                 <th className="num" style={{ width: '12%' }}>排序</th>
                 <th style={{ width: item?.is_edit_video ? '18%' : '32%' }}>备注</th>
-                {item?.is_edit_video ? <th style={{ width: '14%' }}>操作</th> : null}
+                {item?.is_edit_video ? <th style={{ width: '1%' }}>操作</th> : null}
               </tr>
             </thead>
             <tbody>
