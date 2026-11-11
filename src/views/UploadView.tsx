@@ -8,7 +8,7 @@ import { IconPlus, IconUpload } from '@/components/icons'
 import { uploadApi, userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { DEFAULT_UPLOAD_STORAGE, UPLOAD_STORAGES, uploadAndSave, type UploadTarget } from '@/lib/uploader'
-import { formatSize } from '@/lib/format'
+import { fileKind, formatSize, isVideoFile } from '@/lib/format'
 import { USE_MOCK } from '@/api/client'
 
 type Status = 'recognizing' | 'need-target' | 'ready' | 'uploading' | 'done' | 'failed'
@@ -36,7 +36,12 @@ export function UploadView() {
     setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
 
   const addFiles = async (files: FileList | File[]) => {
-    const list = Array.from(files)
+    const all = Array.from(files)
+    // 这一页只走「资源上传」（视频绑到某一集），字幕和图片各有各的入口
+    const list = all.filter(isVideoFile)
+    const rejected = all.length - list.length
+    if (rejected) toast(`${rejected} 个不是视频文件，已跳过`, 'error')
+    if (!list.length) return
     const next: QueueItem[] = list.map((file) => ({
       id: `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 7)}`,
       file,
@@ -53,14 +58,30 @@ export function UploadView() {
           const itemType = String(res.item_type ?? 'vl')
           patch(item.id, {
             status: 'ready',
-            target: { item_type: itemType, item_id: itemId, title: String(res.video_title ?? res.title ?? item.file.name) },
+            target: {
+              item_type: itemType,
+              item_id: itemId,
+              title: String(res.video_title ?? res.title ?? item.file.name),
+              video_id: Number(res.video_id ?? 0) || itemId,
+              season: Number(res.video_season_number ?? 0) || undefined,
+              episode: Number(res.video_episode_number ?? 0) || undefined,
+            },
           })
           // recognize 是猜的，video/base 给的才是入库后真正显示的名字
           // （剧集形如「【我推的孩子】 - S01E03 - 漫画原作的电视剧」）
           try {
             const base = await uploadApi.videoBase(itemType, itemId)
             if (base?.title) {
-              patch(item.id, { target: { item_type: itemType, item_id: itemId, title: base.title } })
+              patch(item.id, {
+                target: {
+                  item_type: itemType,
+                  item_id: itemId,
+                  title: base.title,
+                  video_id: Number(res.video_id ?? 0) || itemId,
+                  season: Number(res.video_season_number ?? 0) || undefined,
+                  episode: Number(res.video_episode_number ?? 0) || undefined,
+                },
+              })
             }
           } catch {
             /* 拿不到就沿用识别结果，不影响上传 */
@@ -138,7 +159,17 @@ export function UploadView() {
           <IconPlus />
           选择文件
         </button>
-        <input ref={inputRef} type="file" multiple hidden onChange={(e) => e.target.files && addFiles(e.target.files)} />
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          hidden
+          accept="video/*,.mkv,.ts,.m2ts,.rmvb"
+          onChange={(e) => {
+            if (e.target.files) void addFiles(e.target.files)
+            e.target.value = ''
+          }}
+        />
       </div>
 
       <div
@@ -162,7 +193,7 @@ export function UploadView() {
         </span>
       </div>
 
-      {active.length > 0 ? (
+      {queue.length > 0 ? (
         <div className="table-card" style={{ marginTop: 18 }}>
           <table className="table">
             <thead>
@@ -185,7 +216,7 @@ export function UploadView() {
                           <i style={{ transform: `scaleX(${item.progress.toFixed(3)})` }} />
                         </div>
                       ) : (
-                        <span>{item.message ?? `${item.file.type || '未知类型'}`}</span>
+                        <span>{item.message ?? fileKind(item.file.name, item.file.type)}</span>
                       )}
                     </div>
                   </td>
@@ -210,8 +241,9 @@ export function UploadView() {
                       <Link
                         className="btn btn--quiet"
                         to="/media/$videoId"
-                        params={{ videoId: String(item.target.item_id) }}
-                        search={{ season: 1, episode: 1 }}
+                        // 剧集的 item_id 是 episode_id，跳转要用所属影片
+                        params={{ videoId: String(item.target.video_id ?? item.target.item_id) }}
+                        search={{ season: item.target.season ?? 1, episode: item.target.episode ?? 1 }}
                       >
                         查看
                       </Link>
@@ -249,7 +281,18 @@ export function UploadView() {
         >
           <TargetPicker
             onPick={(target) => {
-              patch(picking.id, { target, status: 'ready', message: undefined })
+              patch(picking.id, {
+                target: {
+                  item_type: target.item_type,
+                  item_id: target.item_id,
+                  title: target.title,
+                  video_id: target.videoId,
+                  season: target.season,
+                  episode: target.episode,
+                },
+                status: 'ready',
+                message: undefined,
+              })
               setPicking(null)
             }}
           />

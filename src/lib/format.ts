@@ -96,3 +96,22 @@ export function realmOf(carrot: number): { name: string; next: number | null } {
   const next = index > 0 ? REALMS[index - 1][0] : null
   return { name: current[1], next }
 }
+
+const VIDEO_EXT = ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts', 'wmv', 'flv', 'webm', 'rmvb']
+
+/** 是不是能当视频上传的文件。mkv 在部分系统上 mime 是 application/octet-stream，按扩展名兜一下 */
+export function isVideoFile(file: { name: string; type: string }): boolean {
+  if (file.type.startsWith('video/')) return true
+  const ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
+  return VIDEO_EXT.includes(ext)
+}
+
+/** 给人看的文件类别：MIME（video/mp4）在界面上没有信息量 */
+export function fileKind(name: string, mime: string): string {
+  const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase()
+  if (mime.startsWith('video/') || VIDEO_EXT.includes(ext)) return '视频'
+  if (mime.startsWith('audio/') || ['mp3', 'flac', 'm4a', 'wav', 'aac'].includes(ext)) return '音频'
+  if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return '图片'
+  if (['srt', 'ass', 'ssa', 'vtt', 'sub'].includes(ext) || mime.includes('subrip') || mime.includes('ssa')) return '字幕'
+  return '其他'
+}

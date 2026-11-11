@@ -446,12 +446,15 @@ export async function mockRequest<T>(
 
   if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
+    // ve 传的是 episode_id，查不到就返回空 title，让调用方沿用识别结果，
+    // 而不是把它覆盖成一句「未知影片」
     const id = Number(query.item_id ?? 0)
+    if (String(query.item_type ?? '') === 've') {
+      const ep = String(query.episode_title ?? '')
+      return { title: ep, video_medias: [] } as T
+    }
     const video = videos.find((v) => v.video_id === id)
-    return {
-      title: video ? (video.video_type === 'tv' ? `${video.video_title} - S01E01 - 第 1 集` : video.video_title) : '未知影片',
-      video_medias: [],
-    } as T
+    return { title: video ? video.video_title : '', video_medias: [] } as T
   }
   if (clean === '/api/video/media/list') {
     const seed = String(query.video_episode_id ?? '') + String(query.video_season_id ?? '')
@@ -789,7 +792,22 @@ export async function mockRequest<T>(
   if (clean === '/api/upload/image/delete') return { is_delete: true } as T
   if (clean === '/api/upload/video/recognize') {
     const name = String(query.file_name ?? '')
-    if (name.includes('雾港')) return { item_type: 've', item_id: 1002, title: '雾港 S2E04' } as T
+    if (name.includes('雾港')) {
+      // 和真机一样带上 video_id 与季集：剧集的 item_id 是 episode_id，
+      // 入库后的「查看」要靠 video_id 才能跳对
+      return {
+        file_type: 'video',
+        video_id: 2,
+        video_type: 'tv',
+        video_title: '雾港',
+        video_season_number: 2,
+        video_episode_number: 4,
+        video_episode_id: 504,
+        video_episode_title: '第 4 集',
+        item_type: 've',
+        item_id: 504,
+      } as T
+    }
     return { message: '未找到对应的视频, 请先同步后使用.' } as T
   }
   if (clean === '/api/upload/getUploadToken') return { file_id: `mock-${Math.random().toString(36).slice(2, 10)}` } as T

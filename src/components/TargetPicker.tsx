@@ -8,6 +8,10 @@ export interface PickTarget {
   item_type: 'vl' | 've'
   item_id: number
   title: string
+  /** 所属影片 + 季集：入库后的「查看」要跳到这一集 */
+  videoId: number
+  season?: number
+  episode?: number
 }
 
 /**
@@ -72,7 +76,14 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
                   onClick={() =>
-                    onPick({ item_type: 've', item_id: ep.episode_id, title: `${series.title} · ${label}` })
+                    onPick({
+                      item_type: 've',
+                      item_id: ep.episode_id,
+                      title: `${series.title} · ${label}`,
+                      videoId: series.videoId,
+                      season: series.season,
+                      episode: ep.episode_number,
+                    })
                   }
                 >
                   选择
@@ -109,7 +120,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
               style={{ marginLeft: 'auto' }}
               onClick={() => {
                 if (video.video_type === 'movie') {
-                  onPick({ item_type: 'vl', item_id: video.video_id, title: video.video_title })
+                  onPick({ item_type: 'vl', item_id: video.video_id, title: video.video_title, videoId: video.video_id })
                   return
                 }
                 // 剧集要选到某一集：资源与字幕都挂在集上

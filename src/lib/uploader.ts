@@ -32,8 +32,13 @@ export const DEFAULT_UPLOAD_STORAGE = 'zn_r2_upload'
 
 export interface UploadTarget {
   item_type: string
+  /** 落点 id：电影是 video_id，剧集是 episode_id */
   item_id: number
   title: string
+  /** 所属影片。剧集的 item_id 不是 video_id，入库后「查看」要用这个 */
+  video_id?: number
+  season?: number
+  episode?: number
 }
 
 export interface UploadResult {
