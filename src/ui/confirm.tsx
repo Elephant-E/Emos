@@ -15,12 +15,6 @@ interface Pending extends ConfirmOptions {
 }
 
 let open: ((options: ConfirmOptions) => Promise<boolean>) | null = null
-let openCount = 0
-
-/** 确认框是叠在弹层之上的，Esc 应只关它，不能穿透到底层弹层 */
-export function isConfirmOpen(): boolean {
-  return openCount > 0
-}
 
 export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
   if (!open) return Promise.resolve(window.confirm(options.title))
@@ -34,7 +28,6 @@ export function ConfirmHost() {
   useEffect(() => {
     open = (options) =>
       new Promise<boolean>((resolve) => {
-        openCount += 1
         const next: Pending = { ...options, resolve }
         current.current = next
         setPending(next)
@@ -46,7 +39,6 @@ export function ConfirmHost() {
 
   const settle = (ok: boolean) => {
     if (!current.current) return
-    openCount = Math.max(0, openCount - 1)
     current.current.resolve(ok)
     current.current = null
     setPending(null)
