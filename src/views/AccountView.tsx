@@ -20,6 +20,7 @@ import {
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
+import { getToken } from '@/api/client'
 
 type Tab = 'profile' | 'invite'
 
@@ -37,6 +38,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const caps = useCapabilities()
 
   const [showPassword, setShowPassword] = useState(false)
+  // 网页之外的项目（播放器、脚本、第三方客户端）要直接用这个令牌，所以要在界面上能拿到
+  const [showToken, setShowToken] = useState(false)
+  const token = getToken() ?? ''
   const [pseudonym, setPseudonym] = useState('')
   const [password, setPassword] = useState<{ password: number | null; second: number } | null>(null)
   const [resetting, setResetting] = useState(false)
@@ -200,6 +204,42 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <article className="card">
               <CardHead title="客户端登录" />
               <dl className="kv stack--top">
+                <div>
+                  <dt>访问令牌</dt>
+                  <dd>
+                    {!token ? (
+                      <span className="muted">未保存</span>
+                    ) : showToken ? (
+                      <button
+                        className="btn btn--quiet tnum"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(token)
+                          toast('已复制令牌', 'success')
+                        }}
+                      >
+                        {token} · 复制
+                      </button>
+                    ) : (
+                      <span className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
+                        <span className="muted tnum">
+                          {token.slice(0, 6)}…{token.slice(-4)}
+                        </span>
+                        <button className="btn btn--quiet" onClick={() => setShowToken(true)}>
+                          显示
+                        </button>
+                        <button
+                          className="btn btn--quiet"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(token)
+                            toast('已复制令牌', 'success')
+                          }}
+                        >
+                          复制
+                        </button>
+                      </span>
+                    )}
+                  </dd>
+                </div>
                 {[
                   ['视频服', user.server_video],
                   ['直播服', user.server_live],
