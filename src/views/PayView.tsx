@@ -30,7 +30,32 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const [transferTo, setTransferTo] = useState('')
   const [amount, setAmount] = useState(10)
   const [sending, setSending] = useState(false)
+  const [closing, setClosing] = useState(false)
   const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
+
+  /** 关闭一个支付订单；关掉之后不可再支付 */
+  const closeOrder = async () => {
+    const no = lookup
+    if (!no) return
+    const ok = await confirmDialog({
+      title: '关闭这个支付订单？',
+      message: `订单号 ${no}`,
+      hint: '关闭后无法再支付，需要重新下单。',
+      confirmText: '关闭',
+      danger: true,
+    })
+    if (!ok) return
+    setClosing(true)
+    try {
+      await payApi.close(no)
+      toast('订单已关闭', 'success')
+      void order.refetch()
+    } catch (error) {
+      toast(error instanceof Error ? error.message : '关闭失败', 'error')
+    } finally {
+      setClosing(false)
+    }
+  }
 
   return (
     <>
@@ -134,6 +159,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </p>
           ) : null}
           {order.data ? (
+            <>
             <div className="detail-stats" style={{ marginTop: 16 }}>
               <div className="detail-stat">
                 <b>{PAY_STATUS[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
@@ -152,6 +178,12 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                 <span>商品</span>
               </div>
             </div>
+            <div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
+              <button className="btn btn--danger-text" disabled={closing} onClick={() => void closeOrder()}>
+                {closing ? '关闭中…' : '关闭订单'}
+              </button>
+            </div>
+            </>
           ) : null}
         </article>
 

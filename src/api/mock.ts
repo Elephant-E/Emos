@@ -242,6 +242,25 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/update') return {} as T
   if (clean === '/api/pay/close') return { is_close: true } as T
   if (clean === '/api/whisper/create') return { whisper_id: 9001 } as T
+  if (clean === '/api/seek/query') {
+    return { seek_id: null, status: 'default', upload_username: null, upload_expired_at: null, is_can_claim: true, request_count: 12, seek_carrot: 80, updated_at: '2026-11-11T12:52:02.000000Z' } as T
+  }
+  if (clean === '/api/seek/history') {
+    return [
+      { username: 'laozig', carrot: 50, created_at: '2026-11-11T12:52:02.000000Z' },
+      { username: 'lin', carrot: 30, created_at: '2026-11-10T08:20:00.000000Z' },
+    ] as T
+  }
+  if (clean === '/api/watch/1234/user' || /\/api\/watch\/\d+\/user$/.test(clean)) {
+    return paginate([
+      { username: 'soa', avatar: null, carrot: 10, expiration_date: '2026-12-01', created_at: '2026-11-01T03:18:52.000000Z' },
+      { username: 'lin', avatar: null, carrot: 0, expiration_date: null, created_at: '2026-10-25T03:18:52.000000Z' },
+    ], Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+  }
+  if (/\/api\/watch\/\d+\/(video|music)\/empty$/.test(clean)) return { count: 3 } as T
+  if (clean === '/api/invite/exit') return {} as T
+  if (clean === '/api/invite/emps') return { carrot: -120 } as T
+  if (clean === '/api/pay/close') return { is_close: true } as T
   if (clean === '/api/rank/carrot') {
     return [
       { index: 1, carrot: 175_708, username: 'f1ne', avatar: null, level_name: '化神' },

@@ -9,6 +9,8 @@ import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/compo
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
+import { useQuery } from '@tanstack/react-query'
+import { formatDateTime } from '@/lib/format'
 import { useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -45,6 +47,31 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
+  // 求片详情：列表只有汇总，谁给过胡萝卜要点开看
+  const [detailFor, setDetailFor] = useState<SeekItem | null>(null)
+  const detail = useQuery({
+    queryKey: ['seek', 'query', detailFor?.id ?? 0] as const,
+    queryFn: () => seekApi.query(detailFor?.id ?? 0),
+    enabled: Boolean(detailFor),
+  })
+  const history = useQuery({
+    queryKey: ['seek', 'history', detailFor?.id ?? 0] as const,
+    queryFn: () => seekApi.history(detailFor?.id ?? 0),
+    enabled: Boolean(detailFor),
+  })
+
+  /** 「详情」在任何状态下都能点开 */
+  const detailButton = (item: SeekItem) => (
+    <button
+      className="btn btn--quiet"
+      onClick={(e) => {
+        e.stopPropagation()
+        setDetailFor(item)
+      }}
+    >
+      详情
+    </button>
+  )
 
   /** 「催片」在不同状态下都要出现，初始悬赏额只写一处 */
   const urgeButton = (item: SeekItem) => (
@@ -246,6 +273,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                               </button>
                             ) : null}
                             {urgeButton(item)}
+                            {detailButton(item)}
                           </>
                         ) : item.status === 'default' ? (
                           <>
@@ -263,6 +291,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                               </button>
                             ) : null}
                             {urgeButton(item)}
+                            {detailButton(item)}
                           </>
                         ) : null}
                       </span>
@@ -274,6 +303,81 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           </table>
           <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
         </ListCard>
+      ) : null}
+
+      {detailFor ? (
+        <Modal
+          title={`求片详情 · ${detailFor.video_title_display}`}
+          width={520}
+          onClose={() => setDetailFor(null)}
+          footer={
+            <button className="btn btn--ghost" onClick={() => setDetailFor(null)}>
+              关闭
+            </button>
+          }
+        >
+          {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
+          {detail.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+          {detail.data ? (
+            <dl className="kv">
+              <div>
+                <dt>状态</dt>
+                <dd>{String(detail.data.status ?? '—')}</dd>
+              </div>
+              <div>
+                <dt>悬赏</dt>
+                <dd>{formatThousand(Number(detail.data.seek_carrot ?? 0))} 胡萝卜</dd>
+              </div>
+              <div>
+                <dt>求片人数</dt>
+                <dd>{formatThousand(Number(detail.data.request_count ?? 0))}</dd>
+              </div>
+              <div>
+                <dt>可认领</dt>
+                <dd className="muted">{detail.data.is_can_claim ? '可以' : '不可以'}</dd>
+              </div>
+              <div>
+                <dt>认领人</dt>
+                <dd className="muted">{String(detail.data.upload_username ?? '—')}</dd>
+              </div>
+              <div>
+                <dt>认领到期</dt>
+                <dd className="muted">{detail.data.upload_expired_at ? formatDateTime(String(detail.data.upload_expired_at)) : '—'}</dd>
+              </div>
+              <div>
+                <dt>更新</dt>
+                <dd className="muted">{formatDateTime(String(detail.data.updated_at ?? ''))}</dd>
+              </div>
+            </dl>
+          ) : null}
+
+          <p className="stat__label" style={{ marginTop: 16 }}>悬赏记录</p>
+          {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
+          {history.isLoading ? <LoadingBlock rows={2} columns={3} /> : null}
+          {(history.data?.length ?? 0) === 0 && !history.isLoading && !history.error ? (
+            <EmptyBlock bare title="还没有人加过胡萝卜" />
+          ) : null}
+          {(history.data?.length ?? 0) > 0 ? (
+            <table className="table table--inset" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>用户</th>
+                  <th className="num" style={{ width: 100 }}>胡萝卜</th>
+                  <th style={{ width: 130 }}>时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(history.data ?? []).map((row, index) => (
+                  <tr key={`${row.username}-${index}`}>
+                    <td className="cell-title__name">{row.username}</td>
+                    <td className="num muted">{row.carrot ? `+${formatThousand(row.carrot)}` : '—'}</td>
+                    <td className="muted">{formatDateTime(row.created_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
+        </Modal>
       ) : null}
 
       {urgeTarget ? (

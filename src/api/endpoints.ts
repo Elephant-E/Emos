@@ -43,6 +43,10 @@ export const inviteApi = {
   create: (inviteUserId: string, inviteRemark?: string | null) =>
     request<unknown>('/api/invite', { method: 'POST', body: { invite_user_id: inviteUserId, invite_remark: inviteRemark ?? null } }),
   revoke: (userId: string) => request<{ invite_remaining: number }>('/api/invite/revoke', { method: 'POST', body: { user_id: userId } }),
+  /** 退出被邀请的关系；退出后要重新找人邀请 */
+  exit: () => request<unknown>('/api/invite/exit', { method: 'POST' }),
+  /** 邀请某人进入 EMPS，返回花掉的胡萝卜（负数） */
+  emps: (inviteUserId: string) => request<{ carrot: number }>('/api/invite/emps', { method: 'POST', body: { invite_user_id: inviteUserId } }),
   // 返回的是全站扁平树（3000+ 节点），用 invite_user_id 是可以自己按需建子树的
   tree: () =>
     request<Array<{ user_id: string; username: string; invite_user_id: string | null; join_at: string; is_disabled?: boolean }>>(
@@ -156,6 +160,11 @@ export const watchApi = {
   maintainer: (watchId: number, maintainers: string[]) =>
     request<{ maintainers_count: number }>(`/api/watch/${watchId}/maintainer`, { method: 'PUT', body: { maintainers } }),
   emptyVideos: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/video/empty`, { method: 'DELETE' }),
+  subscribers: (watchId: number, params: { page?: number; page_size?: number } = {}) =>
+    request<ListResult<{ username: string; avatar: string | null; carrot: number; expiration_date: string | null; created_at: string }>>(
+      `/api/watch/${watchId}/user`,
+      { query: params },
+    ),
   emptyMusic: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/empty`, { method: 'DELETE' }),
   list: (params: { watch_id?: number; type?: 'video' | 'music'; name?: string; author_id?: string; author_username?: string; is_public?: boolean; is_self?: boolean; is_subscribe?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<WatchItem>>('/api/watch', { query: params }),

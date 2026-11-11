@@ -112,6 +112,41 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     }))
   })()
 
+  /** 邀请进 EMPS：会扣胡萝卜，先确认再发 */
+  const inviteEmps = async () => {
+    const ok = await confirmDialog({
+      title: '邀请 TA 进入 EMPS？',
+      message: `对象：${inviteId.trim()}`,
+      hint: '会消耗你自己的胡萝卜，具体数额由后端结算。',
+      confirmText: '邀请',
+    })
+    if (!ok) return
+    actions.inviteEmps.mutate(inviteId.trim(), {
+      onSuccess: (res) => {
+        toast(`已邀请，花掉 ${Math.abs(res.carrot)} 胡萝卜`, 'success')
+        void session.refetch()
+      },
+    })
+  }
+
+  /** 退出被邀请的关系，不可撤销 */
+  const exitInvite = async () => {
+    const ok = await confirmDialog({
+      title: '退出邀请关系？',
+      message: '退出后你不再挂在邀请人下面，需要重新找人邀请。',
+      hint: '邀请名额与已有的记录不受影响。',
+      confirmText: '退出',
+      danger: true,
+    })
+    if (!ok) return
+    actions.exitInvite.mutate(undefined, {
+      onSuccess: () => {
+        toast('已退出邀请关系', 'success')
+        void session.refetch()
+      },
+    })
+  }
+
   return (
     <>
       <PageHeader
@@ -498,6 +533,19 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 <button className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>
                   邀请
                 </button>
+                <button
+                  className="btn btn--ghost"
+                  disabled={!inviteId.trim() || actions.inviteEmps.isPending}
+                  onClick={() => void inviteEmps()}
+                >
+                  {actions.inviteEmps.isPending ? '邀请中…' : '邀请进 EMPS'}
+                </button>
+              </div>
+              <div className="row" style={{ marginTop: 10, gap: 10 }}>
+                <button className="btn btn--danger-text" onClick={() => void exitInvite()}>
+                  退出邀请关系
+                </button>
+                <span className="card-note">退出后要重新找人邀请</span>
               </div>
             </article>
           </section>

@@ -31,6 +31,8 @@ VERDICTS = {
     ("POST", "/api/upload/music/saveHeadless"): ("skip", "「保存为群星版本」，契约里写明不建议；正常路径是先去 todb 补歌"),
     ("POST", "/api/redPacket/createTelegramHtml"): ("skip", "发到 Telegram 频道，bot 侧入口，后台没有场景"),
     ("GET", "/api/user/base"): ("skip", "字段是 /api/user 的子集，已有 /api/user"),
+    ("POST", "/api/watch/{var}/video/update"): ("skip", "批量重置片单内容的对外接口；契约自己写着「请先联系官方确认」，且每次提交会清空整个片单，不适合放进日常界面"),
+    ("GET", "/api/pay/getUserSign"): ("skip", "真机 403「请先成为服务商」；用户详情里已有「最近签到」（来自邀请数据）"),
     ("GET", "/api/video/media/playUrl"): ("skip", "播放地址按需求不展示"),
     ("GET", "/api/music/song/{var}/media/playUrl"): ("skip", "播放地址按需求不展示"),
     ("GET", "/api/pay/getUserCarrot"): ("skip", "支付服务里查对方余额；本站转赠走 /api/carrot/transfer"),
@@ -48,12 +50,7 @@ VERDICTS = {
     ("POST", "/api/upload/video/saveInternal"): ("tool", "内部入库，服务端任务用"),
 
     # —— 缺口：旧项目有、这里没有 ——
-    ("GET", "/api/seek/query"): ("gap", "求片详情；求片页现在只有列表，看不到谁给了胡萝卜"),
-    ("GET", "/api/seek/history"): ("gap", "求片的胡萝卜记录，同上"),
     ("POST", "/api/watch/{var}/video/update"): ("gap", "批量设置片单内视频；现在只能一条条加/删"),
-    ("GET", "/api/watch/{var}/user"): ("gap", "查看片单订阅用户；旧项目片单详情有"),
-    ("POST", "/api/invite/exit"): ("gap", "退出被邀请的关系；邀请页没有这个入口"),
-    ("POST", "/api/invite/emps"): ("gap", "邀请用户进入 emps"),
     ("GET", "/api/pay/getUserSign"): ("gap", "查用户签到信息（支付服务）"),
 
     # —— 新接口，后台还没评估过 ——
@@ -67,12 +64,7 @@ VERDICTS = {
 }
 
 UNUSED_VERDICTS = {
-    "seekApi.query": ("gap", "求片详情；求片页只有列表，看不到这条求片的完整信息与谁给了胡萝卜"),
-    "seekApi.history": ("gap", "求片的胡萝卜记录，同上"),
-    "watchApi.emptyVideos": ("gap", "清空片单内视频；片单详情现在只能一条条移除"),
-    "watchApi.emptyMusic": ("gap", "清空片单内音乐，同上"),
     "musicApi.moveMedia": ("gap", "音乐资源不能移动，视频详情可以移动到别的集"),
-    "payApi.close": ("gap", "支付服务没有「关闭」入口；申请下来之后只能一直开着"),
     "videoApi.getVideoId": ("tool", "按 todb/tmdb 反查 video_id，页面都有 video_id"),
     "recordApi.change": ("tool", "改观影记录，用户侧行为"),
     "payApi.userCarrot": ("skip", "见 pay/transfer：本站转赠走 carrot 域"),

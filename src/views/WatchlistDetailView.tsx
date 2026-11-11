@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { watchApi } from '@/api/endpoints'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -25,7 +27,18 @@ export interface WatchDetailSearch {
 }
 
 /** 片单详情头部：影视、音乐两种片单共用，只有计数单位不同 */
-function WatchlistHead({ item, count, countLabel }: { item: WatchItem; count: number; countLabel: string }) {
+function WatchlistHead({
+  item,
+  count,
+  countLabel,
+  onSubscribers,
+}: {
+  item: WatchItem
+  count: number
+  countLabel: string
+  /** 片单主才能看订阅名单，传了才可点 */
+  onSubscribers?: () => void
+}) {
   return (
     <section className="detail-head">
       <div className="detail-head__row">
@@ -50,7 +63,17 @@ function WatchlistHead({ item, count, countLabel }: { item: WatchItem; count: nu
               <span>{countLabel}</span>
             </div>
             <div className="detail-stat">
-              <b>{formatThousand(item.subscribe_count)}</b>
+              {onSubscribers ? (
+                <button
+                  className="detail-stat__link tnum"
+                  onClick={onSubscribers}
+                  title="看订阅用户"
+                >
+                  {formatThousand(item.subscribe_count)}
+                </button>
+              ) : (
+                <b>{formatThousand(item.subscribe_count)}</b>
+              )}
               <span>订阅</span>
             </div>
             <div className="detail-stat">
@@ -93,6 +116,14 @@ export function WatchlistDetailView({
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
   const [maintainerIds, setMaintainerIds] = useState<string[]>([])
+  // 订阅用户与清空：都是片单主才有的操作
+  const [subsOpen, setSubsOpen] = useState(false)
+  const [subsPage, setSubsPage] = useState(1)
+  const subs = useQuery({
+    queryKey: ['watch', 'subscribers', watchId, subsPage] as const,
+    queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 20 }),
+    enabled: subsOpen,
+  })
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
@@ -134,6 +165,32 @@ export function WatchlistDetailView({
     )
   }
 
+  /** 清空片单内容：影视走 video/empty，音乐走 music/empty，都不可撤销 */
+  const clearAll = async () => {
+    const count = isMusic ? (songs.data?.total ?? 0) : (item?.video_count ?? 0)
+    if (!count) {
+      toast('这份片单已经是空的', 'error')
+      return
+    }
+    const ok = await confirmDialog({
+      title: '清空这份片单？',
+      message: `会把里面的 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'} 全部移除。`,
+      hint: '片单本身保留，只清内容；这个操作不能在界面上撤销。',
+      confirmText: '清空',
+      danger: true,
+    })
+    if (!ok) return
+    try {
+      if (isMusic) await watchApi.emptyMusic(watchId)
+      else await watchApi.emptyVideos(watchId)
+      toast('已清空', 'success')
+      void watch.refetch()
+      void songs.refetch()
+    } catch (error) {
+      toast(error instanceof Error ? error.message : '清空失败', 'error')
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -170,6 +227,9 @@ export function WatchlistDetailView({
                   <button className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
                     动态抓取
                   </button>
+                  <button className="btn btn--danger-text" onClick={() => void clearAll()}>
+                    清空
+                  </button>
                 </>
               ) : null}
             </>
@@ -184,6 +244,14 @@ export function WatchlistDetailView({
           item={item}
           count={isMusic ? (songs.data?.total ?? 0) : item.video_count}
           countLabel={isMusic ? '首' : '影片'}
+          onSubscribers={
+            item.is_self
+              ? () => {
+                  setSubsPage(1)
+                  setSubsOpen(true)
+                }
+              : undefined
+          }
         />
       ) : null}
 
@@ -408,6 +476,46 @@ export function WatchlistDetailView({
       ) : null}
 
 
+
+      {subsOpen ? (
+        <Modal
+          title={`订阅用户 · ${item?.name ?? ''}`}
+          width={520}
+          onClose={() => setSubsOpen(false)}
+          footer={
+            <button className="btn btn--ghost" onClick={() => setSubsOpen(false)}>
+              关闭
+            </button>
+          }
+        >
+          {subs.error ? <ErrorBlock bare error={subs.error} onRetry={() => subs.refetch()} /> : null}
+          {subs.isLoading ? <LoadingBlock bare rows={4} columns={4} /> : null}
+          {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? (
+            <EmptyBlock bare title="还没有人订阅" />
+          ) : null}
+          {(subs.data?.items.length ?? 0) > 0 ? (
+            <table className="table table--inset">
+              <thead>
+                <tr>
+                  <th>用户</th>
+                  <th className="num" style={{ width: 90 }}>付费</th>
+                  <th style={{ width: 110 }}>到期</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(subs.data?.items ?? []).map((row, index) => (
+                  <tr key={`${row.username}-${index}`}>
+                    <td className="cell-title__name">{row.username}</td>
+                    <td className="num muted">{row.carrot ? formatThousand(row.carrot) : '—'}</td>
+                    <td className="muted">{row.expiration_date ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
+          {subs.data ? <Pager total={subs.data.total} page={subsPage} pageSize={20} onPage={setSubsPage} /> : null}
+        </Modal>
+      ) : null}
 
       {maintainerOpen && item ? (
         <Modal

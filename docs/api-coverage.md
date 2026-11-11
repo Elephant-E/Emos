@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**159** 个封装。
+代码（`src/api/endpoints.ts`）：**162** 个封装。
 
-- 已接且有界面调用：**148**
-- 已接但无调用：**8**
-- 未接：**32**
+- 已接且有界面调用：**156**
+- 已接但无调用：**3**
+- 未接：**29**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -17,8 +17,6 @@
 |---|---|---|
 | 登录相关 | link登录跳转 | `GET /link` |
 | 用户相关 | 简单的信息 | `GET /api/user/base` |
-| 邀请相关 | 退出邀请 | `POST /api/invite/exit` |
-| 邀请相关 | 邀请用户进入emps | `POST /api/invite/emps` |
 | 上传相关 / 视频 | 内部入库 | `POST /api/upload/video/saveInternal` |
 | 上传相关 / 音乐 | 保存为群星版本 | `POST /api/upload/music/saveHeadless` |
 | 上传相关 / 分片上传 | 客户端上传分片 | `PUT https://emos.local/xxxx` |
@@ -28,7 +26,6 @@
 | 视频相关 / 资源相关 | 获取播放地址 | `GET /api/video/media/playUrl` |
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
-| 片单相关 | 查看已订阅用户 | `GET /api/watch/{var}/user` |
 | 支付相关 | 转账给用户 | `POST /api/pay/transfer` |
 | 支付相关 | 创建订单 | `POST /api/pay/create` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
@@ -61,21 +58,13 @@
 |---|---|---|---|
 | 视频相关 / 观影记录 | `recordApi.change` | `PUT /api/video/record/change` | 改观影记录，用户侧行为 |
 | 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
-| 片单相关 / 视频类 | `watchApi.emptyVideos` | `DELETE /api/watch/{var}/video/empty` | 清空片单内视频；片单详情现在只能一条条移除 |
-| 片单相关 / 音乐类 | `watchApi.emptyMusic` | `DELETE /api/watch/{var}/music/empty` | 清空片单内音乐，同上 |
-| 求片相关 | `seekApi.query` | `GET /api/seek/query` | 求片详情；求片页只有列表，看不到这条求片的完整信息与谁给了胡萝卜 |
-| 求片相关 | `seekApi.history` | `GET /api/seek/history` | 求片的胡萝卜记录，同上 |
-| 支付相关 | `payApi.close` | `PUT /api/pay/close` | 支付服务没有「关闭」入口；申请下来之后只能一直开着 |
 | 支付相关 | `payApi.userCarrot` | `GET /api/pay/getUserCarrot` | 见 pay/transfer：本站转赠走 carrot 域 |
 
 ## 该补的缺口
 
 | 分组 | 接口 | 方法 路径 | 说明 |
 |---|---|---|---|
-| 邀请相关 | 退出邀请 | `POST /api/invite/exit` | 退出被邀请的关系；邀请页没有这个入口 |
-| 邀请相关 | 邀请用户进入emps | `POST /api/invite/emps` | 邀请用户进入 emps |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量设置片单内视频；现在只能一条条加/删 |
-| 片单相关 | 查看已订阅用户 | `GET /api/watch/{var}/user` | 查看片单订阅用户；旧项目片单详情有 |
 | 支付相关 | 查询用户签到信息 | `GET /api/pay/getUserSign` | 查用户签到信息（支付服务） |
 
 ## 刻意不接 / 后台工具
