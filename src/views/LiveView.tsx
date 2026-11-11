@@ -355,8 +355,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <ImagePicker
               label="频道封面"
               value={form.image_url}
-              width={120}
-              height={120}
               onChange={(url, fileId) => setForm((prev) => (prev ? { ...prev, image_url: url, image_poster: fileId ?? null } : prev))}
             />
           )}

@@ -639,8 +639,6 @@ export function ShopView({
             <ImagePicker
               label="店铺封面"
               value={sellerForm.cover_url}
-              width={160}
-              height={90}
               onChange={(url) => setSellerForm((prev) => (prev ? { ...prev, cover_url: url } : prev))}
             />
           ) : null}

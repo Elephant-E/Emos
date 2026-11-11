@@ -15,8 +15,9 @@ export function ImagePicker({
   value,
   onChange,
   label = '图片',
-  width = 120,
-  height = 120,
+  // 默认铺满一行：各表单里的封面位统一成同一个形状，不要各写一套尺寸
+  width = '100%',
+  height = 116,
   readonly = false,
 }: {
   value?: string | null
