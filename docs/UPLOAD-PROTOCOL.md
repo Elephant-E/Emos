@@ -60,7 +60,14 @@ POST /api/upload/video/save     { item_type, item_id, file_id } → { count, car
 POST /api/upload/subtitle/save  { item_type, item_id, file_id } → { carrot, subtitle_id }
 ```
 
-`item_type`：电影 `vl`、电视剧集 `ve`。
+`item_type`：电影 `vl`（`item_id` 是 `video_id`）、电视剧集 `ve`（`item_id` 是 `episode_id`）。
+
+**电影没有季集**（真机实测：电影的 `/season` 与 `/episode` 都返回空数组），所以：
+- 资源与字幕都挂影片级 `vl`
+- 影片详情页对电影不显示「季与集」那一栏
+- 上传页识别电影返回 `item_type: "vl"`，识别剧集返回 `ve` + `episode_id`
+
+上传页的**手动选目标**也要能落到集：选到剧集后依次选季、选集，否则资源挂不上去。
 
 视频保存可能返回 422「视频正在合并中 请等待1分钟后再保存试下」——这是正常的等待信号。
 
@@ -116,5 +123,11 @@ Header:   Authorization: Bearer <token>
 `GET /api/upload/store/file?path_type=` 列暂存文件，
 `POST /api/upload/store/archive` 把暂存文件归档到某部影片。
 
-它和上面三个都不一样：**文件已经传上去了，只是还没入库**。界面上「暂存盘」
-下拉只用于浏览暂存区，不要和「上传落点」混成一个概念。
+它和上面三个都不一样：**文件已经传上去了，只是还没入库**。
+
+**需要单独申请权限**：`store/file` 对没有权限的账号返回
+`422 {"message":"请先申请权限后使用"}`。所以上传页对这种情况整块不显示
+（连「暂存盘」下拉一起），而不是挂一块错误提示。
+
+「暂存盘」下拉只决定浏览哪个盘，不是上传参数，放在暂存区那张卡里，
+不要和「上传落点」（`getUploadToken` 的 `file_storage`）混成一个概念。
