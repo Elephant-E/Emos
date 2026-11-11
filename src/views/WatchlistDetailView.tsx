@@ -364,7 +364,6 @@ export function WatchlistDetailView({
                   <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
                   <span className="meta-sm">
                     {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
-                    {c.genres?.length ? ` · ${c.genres.slice(0, 2).map((g) => g.name).join('/')}` : ''}
                   </span>
                 </span>
                 <button
@@ -638,7 +637,7 @@ function WatchMusicRows({
           <Pager
             total={songs.data.total}
             page={search.page}
-            pageSize={search.page_size}
+            pageSize={songs.data.page_size || search.page_size}
             onPage={(page) => onSearch({ page })}
             onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
           />

@@ -442,7 +442,7 @@ export function VideoDetailView({
           <p className="stat__label">演职员</p>
           <div className="person-grid">
             {persons.data.items.slice(0, 8).map((person) => (
-              <div key={person.id} className="person-card">
+              <div key={person.person_id_tmdb ?? person.name} className="person-card">
                 <span className={`person-card__photo${person.image_profile ? '' : ' is-empty'}`}>
                   {person.image_profile ? (
                     <img

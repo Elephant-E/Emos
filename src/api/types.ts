@@ -49,7 +49,7 @@ export interface UserInfo extends UserBase {
   slot_remaining: number
   size_upload: number
   /** 服的登录密码；must_otp 为 true 时是一次性密码 */
-  password: string
+  password: string | null
   carrot: number
   sign: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
@@ -131,19 +131,22 @@ export interface VideoEpisode {
 export interface VideoPerson {
   /** 文件 id（不是 URL），拼 https://image.theotherdb.org/original/{id} 使用 */
   image_profile: string | null
-  id: number
-  person_id: number
+  /** 本地人物 id —— 来自 TMDb 的人没有，实测 39/39 为 null */
+  id: number | null
+  person_id: number | null
+  /** TMDb 人物 id，实际能用来做唯一标识的是它 */
+  person_id_tmdb: number | null
   name: string
   original_name: string | null
-  image_profile_url: string | null
   job: string | null
   title: string | null
   tagline: string | null
   birthday: string | null
-  gender: number | null
+  /** 契约里是 unknow / male / female / other 这样的字符串 */
+  gender: string | null
   birthplace: string | null
   biography: string | null
-  is_adult: boolean
+  is_adult: boolean | null
 }
 
 export interface VideoMedia {
@@ -216,8 +219,6 @@ export interface WatchVideoCandidate {
   video_date_air: string | null
   video_is_adult: boolean
   video_image_poster: string | null
-  /** with_genre 时才返回 */
-  genres?: Array<{ name: string }>
 }
 
 export type SeekStatus = 'default' | 'upload' | 'complete' | 'cancel' | 'forget'
@@ -297,7 +298,7 @@ export interface ShopProduct {
   category_id: number
   cover_url: string | null
   name: string
-  price: number | null
+  price: number
   price_origin: number
   stock: number
   sales: number
@@ -311,8 +312,8 @@ export interface ShopProduct {
   /** 只有 product/info 会返回（Postman 契约里没写，实测有） */
   seller?: { seller_id: number; name: string; description: string | null; cover_url: string | null } | null
   category_name?: string
-  description?: string | null
-  exchange_way?: string | null
+  description: string | null
+  exchange_way: string | null
 }
 
 export interface ShopSeller {

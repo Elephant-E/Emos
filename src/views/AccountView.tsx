@@ -187,11 +187,13 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 <div>
                   <dt>登录密码</dt>
                   <dd>
-                    {showPassword ? (
+                    {!user.password ? (
+                      <span className="muted">未设置密码</span>
+                    ) : showPassword ? (
                       <button
                         className="btn btn--quiet tnum"
                         onClick={() => {
-                          void navigator.clipboard.writeText(user.password)
+                          void navigator.clipboard.writeText(user.password ?? '')
                           toast('已复制密码', 'success')
                         }}
                       >
