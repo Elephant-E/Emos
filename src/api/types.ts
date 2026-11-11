@@ -249,35 +249,6 @@ export interface SeekItem {
   seek_carrot: number
 }
 
-export interface RankUpload {
-  index: number
-  size: number
-  username: string
-  avatar: string | null
-}
-
-export interface RankCarrot {
-  index: number
-  carrot: number
-  username: string
-  avatar: string | null
-}
-
-export interface PlayingNow {
-  video_title: string
-  video_type: VideoType
-  todb_id: number
-  tmdb_id: number | null
-  season_number: number | null
-  episode_number: number | null
-  play_speed: number
-  upload_pseudonym: string | null
-  ua: string
-  video_image_logo: string | null
-  video_image_poster: string | null
-  video_image_backdrop: string | null
-}
-
 export interface CarrotHistory {
   trigger_type: string
   trigger_type_string: string
@@ -394,11 +365,6 @@ export interface MusicSong {
   is_favorite?: boolean
   count_medias?: number
   person_artists: Array<{ person_id?: number; name: string }>
-}
-
-export interface MusicArtistRef {
-  person_id?: number
-  name: string
 }
 
 export interface UserDetail {

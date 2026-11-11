@@ -1,5 +1,3 @@
-type Search = Record<string, unknown>
-
 export function asPage(value: unknown, fallback = 1): number {
   const n = Number(value)
   return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback
@@ -16,5 +14,3 @@ export function asString(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value : fallback
 }
 
-
-export type { Search }

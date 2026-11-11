@@ -352,7 +352,6 @@
 /* 卡片组后面紧跟表格/工具条时补上下间距，否则两者贴在一起 */
 .cards + .table-card,
 .cards + .toolbar,
-.cards + .media-grid,
 .cards + .product-grid,
 .cards + section { margin-top: 24px; }
 
@@ -597,7 +596,6 @@
   
   .page { padding: 18px 24px 40px; }
   .page-title { font-size: 36px; }
-  .posters { display: none; }
 }
 @media (max-width: 900px) {
   .shell { grid-template-columns: var(--rail-w-icon) minmax(0, 1fr); }
@@ -625,7 +623,6 @@
   .tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab { flex: none; white-space: nowrap; }
-    .legend { padding-top: 0; }
 }
 
 .modal-overlay {
@@ -1282,7 +1279,6 @@
 .table .btn--primary:hover { background: transparent; color: var(--fg); }
 .table .btn--danger-text { color: var(--fg-3); }
 .table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
-.table td.action-cell { white-space: nowrap; }
 .table .action-group { display: inline-flex; gap: 12px; }
 .table .row-menu { margin-right: -6px; }
 .modal__head .btn--icon { margin-right: -6px; }
