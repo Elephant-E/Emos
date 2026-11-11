@@ -14,6 +14,7 @@ import type { WatchItem } from '@/api/types'
 import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
@@ -239,19 +240,7 @@ export function WatchlistDetailView({
             </thead>
             <tbody>
               {videos.data.items.map((video) => (
-                <tr
-                  key={video.video_id}
-                  tabIndex={0}
-                  role="link"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => openVideo(video.video_id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      openVideo(video.video_id)
-                    }
-                  }}
-                >
+                <tr key={video.video_id} {...rowLink(() => openVideo(video.video_id))}>
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (
@@ -589,16 +578,7 @@ function WatchMusicRows({
               {songs.data.items.map((song: import('@/api/types').MusicSong) => (
                 <tr
                   key={song.song_id}
-                  tabIndex={0}
-                  role="link"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } })
-                    }
-                  }}
+                  {...rowLink(() => navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } }))}
                 >
                   <td>
                     <span className="cell-title__name">{song.name}</span>

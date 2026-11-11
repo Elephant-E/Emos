@@ -456,6 +456,10 @@
 .table--fixed .cell-title { min-width: 0; }
 .table--fixed td { overflow: hidden; }
 
+/* 可点的表格行（rowLink 会给 tr 加 role），光标不用每个调用点各写一次内联 */
+.table tbody tr[role='link'],
+.table tbody tr[role='button'] { cursor: pointer; }
+
 .table tbody td {
   height: 38px;
   padding: 7px 24px;

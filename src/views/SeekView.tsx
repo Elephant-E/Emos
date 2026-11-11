@@ -12,6 +12,7 @@ import { seekApi } from '@/api/endpoints'
 import { useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
@@ -165,17 +166,15 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                 return (
                   <tr
                     key={item.id}
-                    tabIndex={item.video_list_id ? 0 : undefined}
-                    role={item.video_list_id ? 'link' : undefined}
-                    style={item.video_list_id ? { cursor: 'pointer' } : undefined}
-                    onClick={() => {
-                      if (!item.video_list_id) return
-                      navigate({
-                        to: '/media/$videoId',
-                        params: { videoId: String(item.video_list_id) },
-                        search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
-                      })
-                    }}
+                    {...rowLink(
+                      () =>
+                        navigate({
+                          to: '/media/$videoId',
+                          params: { videoId: String(item.video_list_id) },
+                          search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+                        }),
+                      Boolean(item.video_list_id),
+                    )}
                     onKeyDown={(e) => {
                       if (!item.video_list_id) return
                       if (e.key !== 'Enter' && e.key !== ' ') return

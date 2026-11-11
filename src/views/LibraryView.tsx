@@ -8,6 +8,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
+import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
@@ -127,19 +128,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             </thead>
             <tbody>
               {data.items.map((video) => (
-                <tr
-                  key={video.video_id}
-                  tabIndex={0}
-                  role="link"
-                  onClick={() => openDetail(video.video_id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      openDetail(video.video_id)
-                    }
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
+                <tr key={video.video_id} {...rowLink(() => openDetail(video.video_id))}>
                   <td>
                     <div className="cell-title">
                       {video.video_image_poster ? (

@@ -13,6 +13,7 @@ import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
 import { Pager } from '@/components/Pager'
@@ -159,8 +160,9 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               {data.items.map((watch) => (
                 <tr
                   key={watch.id}
-                  onClick={() => navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } })}
-                  style={{ cursor: 'pointer' }}
+                  {...rowLink(() =>
+                    navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } }),
+                  )}
                 >
                   <td>
                     <div className="cell-title">

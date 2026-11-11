@@ -11,6 +11,7 @@ import { IconPlus } from '@/components/icons'
 import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { rowLink } from '@/lib/rowLink'
 import { formatRelative } from '@/lib/format'
 
 export interface LiveSearch {
@@ -202,15 +203,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 return (
                   <Fragment key={item.id}>
                   <tr
-                    onClick={() => onSearch({ channel: selected ? 0 : item.id })}
-                    tabIndex={0}
-                    role="button"
-                    onKeyDown={(e) => {
-                      if (e.key !== 'Enter' && e.key !== ' ') return
-                      e.preventDefault()
-                      onSearch({ channel: selected ? 0 : item.id })
-                    }}
-                    style={{ cursor: 'pointer' }}
+                    {...rowLink(() => onSearch({ channel: selected ? 0 : item.id }), true, 'button')}
                     className={selected ? 'is-expanded' : undefined}
                   >
                     <td>
