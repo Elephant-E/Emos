@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { InlineSortInput } from '@/components/InlineSortInput'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -274,21 +275,16 @@ export function WatchlistDetailView({
                   </td>
                   <td className="num">
                     {item?.is_edit_video ? (
-                      <input
-                        className="input input--cell tnum"
-                        type="number"
-                        aria-label={`${video.video_title} 的排序`}
-                        defaultValue={video.sort}
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onBlur={(e) => {
-                          const next = Number(e.target.value)
-                          if (!Number.isFinite(next) || next === video.sort) return
+                      <InlineSortInput
+                        value={video.sort}
+                        label={`${video.video_title} 的排序`}
+                        stopRowClick
+                        onCommit={(sort) =>
                           updateVideoEntry.mutate(
-                            { videoId: video.video_id, sort: next, remark: video.remark ?? null },
+                            { videoId: video.video_id, sort, remark: video.remark ?? null },
                             { onSuccess: () => toast('已调整排序', 'success') },
                           )
-                        }}
+                        }
                       />
                     ) : (
                       video.sort

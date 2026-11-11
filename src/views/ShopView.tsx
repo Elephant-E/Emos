@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { InlineSortInput } from '@/components/InlineSortInput'
 import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
@@ -388,19 +389,15 @@ export function ShopView({
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
                     <span className="spacer" />
                     {isSeller ? (
-                      <input
-                        className="input input--cell tnum"
-                        type="number"
-                        aria-label={`${category.name} 的排序`}
-                        defaultValue={category.sort}
-                        onBlur={(e) => {
-                          const next = Number(e.target.value)
-                          if (!Number.isFinite(next) || next === category.sort) return
+                      <InlineSortInput
+                        value={category.sort}
+                        label={`${category.name} 的排序`}
+                        onCommit={(sort) =>
                           actions.sortCategory.mutate(
-                            { categoryId: category.category_id, sort: next },
+                            { categoryId: category.category_id, sort },
                             { onSuccess: () => toast('已调整排序', 'success') },
                           )
-                        }}
+                        }
                       />
                     ) : (
                       <span className="meta-sm">排序 {category.sort}</span>
