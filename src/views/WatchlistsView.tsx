@@ -228,7 +228,13 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               ))}
             </tbody>
           </table>
-          <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
+          <Pager
+            total={data.total}
+            page={search.page}
+            pageSize={search.page_size}
+            onPage={(page) => onSearch({ page })}
+            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+          />
         </ListCard>
       ) : null}
 

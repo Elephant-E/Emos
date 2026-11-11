@@ -447,7 +447,7 @@ const seekRoute = createRoute({
     mine: boolean
   } => ({
     page: asPage(s.page),
-    page_size: 20,
+    page_size: asPageSize(s.page_size),
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
     q: typeof s.q === 'string' ? s.q : '',
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
@@ -473,7 +473,7 @@ const watchlistsRoute = createRoute({
     q: string
   } => ({
     page: asPage(s.page),
-    page_size: 20,
+    page_size: asPageSize(s.page_size),
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
     type: s.type === 'music' ? 'music' : 'video',
     q: typeof s.q === 'string' ? s.q : '',

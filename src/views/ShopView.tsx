@@ -63,7 +63,8 @@ export function ShopView({
     scope?: 'all' | 'mine'
   }) => void
 }) {
-  const [panel, setPanel] = useState<Tab | null>(tab === 'products' ? null : tab)
+  // 浮层用 URL 的 tab 表达：刷新、返回、面包屑都能对上，避免两套状态
+  const panel = tab === 'products' ? null : tab
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
   const mine = scope === 'mine'
@@ -167,10 +168,10 @@ export function ShopView({
             </div>
             {isSeller && mine ? (
               <>
-                <button type="button" className="btn btn--ghost" onClick={() => setPanel('categories')}>
+                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'categories' })}>
                   分类
                 </button>
-                <button type="button" className="btn btn--ghost" onClick={() => setPanel('seller')}>
+                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'seller' })}>
                   店铺
                 </button>
               </>
@@ -363,7 +364,7 @@ export function ShopView({
         <Modal
           title="分类管理"
           width={560}
-          onClose={() => setPanel(null)}
+          onClose={() => onSearch({ tab: 'products' })}
           onSubmit={() => {
             // 分类输入框有内容时回车才创建，否则不拦截
             if (newCategory.trim()) createCategory()
@@ -434,7 +435,7 @@ export function ShopView({
       ) : null}
 
       {panel === 'seller' ? (
-        <Modal title="店铺设置" width={560} onClose={() => setPanel(null)}>
+        <Modal title="店铺设置" width={560} onClose={() => onSearch({ tab: 'products' })}>
           <>
             <p className="stat__label">店铺信息</p>
             {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
