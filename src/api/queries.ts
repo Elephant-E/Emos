@@ -653,7 +653,7 @@ export function useShopMutations() {
     }),
     createCategory: useMutation({ mutationFn: (p: { name: string; sort: number }) => shopApi.createCategory(p.name, p.sort), onSuccess: invalidate }),
     removeCategory: useMutation({ mutationFn: (categoryId: number) => shopApi.deleteCategory(categoryId), onSuccess: invalidate }),
-    saveSeller: useMutation({ mutationFn: (payload: { name: string; description: string }) => shopApi.sellerUpdate(payload), onSuccess: invalidate }),
+    saveSeller: useMutation({ mutationFn: (payload: { name: string; description: string; cover_url?: string | null }) => shopApi.sellerUpdate(payload), onSuccess: invalidate }),
     applySeller: useMutation({ mutationFn: (p: { name: string; description: string }) => shopApi.sellerApply(p.name, p.description), onSuccess: invalidate }),
     deliver: useMutation({
       mutationFn: (p: { orderNo: string; sent: boolean }) => shopApi.delivery(p.orderNo, p.sent),

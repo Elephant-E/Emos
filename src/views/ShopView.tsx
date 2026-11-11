@@ -96,7 +96,7 @@ export function ShopView({
   useEffect(() => setTerm(q), [q])
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: q })
   const [newCategory, setNewCategory] = useState('')
-  const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
+  const [sellerForm, setSellerForm] = useState<{ name: string; description: string; cover_url: string | null } | null>(null)
 
   // createOrUpdate 是整体覆盖：payload 里少 description / exchange_way / time_start /
   // time_end / user_buy_max 都会把它们清空，编辑时用商品详情补齐原值
@@ -479,7 +479,13 @@ export function ShopView({
                   <button type="button"
                     className="btn btn--ghost"
                     style={{ marginTop: 12 }}
-                    onClick={() => setSellerForm({ name: seller.data!.name ?? '', description: seller.data!.description ?? '' })}
+                    onClick={() =>
+                      setSellerForm({
+                        name: seller.data!.name ?? '',
+                        description: seller.data!.description ?? '',
+                        cover_url: seller.data!.cover_url ?? null,
+                      })
+                    }
                   >
                     编辑店铺
                   </button>
@@ -487,7 +493,7 @@ export function ShopView({
                   <button type="button"
                     className="btn btn--primary"
                     style={{ marginTop: 12 }}
-                    onClick={() => setSellerForm({ name: '', description: '' })}
+                    onClick={() => setSellerForm({ name: '', description: '', cover_url: null })}
                   >
                     申请开店（扣 3000 胡萝卜）
                   </button>
@@ -601,7 +607,10 @@ export function ShopView({
                 className="btn btn--primary"
                 disabled={!sellerForm.name.trim() || actions.applySeller.isPending}
                 onClick={async () => {
-                  const payload = { name: sellerForm.name.trim(), description: sellerForm.description.trim() }
+                  // 开店申请（pay/apply）没有封面字段，只有已开店的更新才带
+                  const payload = isSeller
+                    ? { name: sellerForm.name.trim(), description: sellerForm.description.trim(), cover_url: sellerForm.cover_url }
+                    : { name: sellerForm.name.trim(), description: sellerForm.description.trim() }
                   const onSuccess = () => {
                     toast(isSeller ? '已保存' : '已提交申请', 'success')
                     setSellerForm(null)
@@ -626,6 +635,15 @@ export function ShopView({
             </>
           }
         >
+          {isSeller ? (
+            <ImagePicker
+              label="店铺封面"
+              value={sellerForm.cover_url}
+              width={160}
+              height={90}
+              onChange={(url) => setSellerForm((prev) => (prev ? { ...prev, cover_url: url } : prev))}
+            />
+          ) : null}
           <label className="field">
             <span>店铺名称</span>
             <input className="input" value={sellerForm.name} maxLength={30} onChange={(e) => setSellerForm({ ...sellerForm, name: e.target.value })} autoFocus />

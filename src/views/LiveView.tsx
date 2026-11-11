@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { ListCard } from '@/components/ListCard'
+import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
@@ -35,8 +36,18 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   const media = useLiveMedia(search.channel, mediaPage)
   const actions = useLiveMutations()
 
-  const [creating, setCreating] = useState(false)
-  const [form, setForm] = useState({ title: '', library: 100, description: '' })
+  // 新增与编辑共用一个表单；id 为空即新增。image_poster 存图库 file_id，image_url 只用于预览
+  const [form, setForm] = useState<{
+    id: number | null
+    title: string
+    library: number
+    description: string
+    tagline: string
+    image_poster: string | null
+    image_url: string | null
+    /** 官方频道（code 非空）的封面不可改 */
+    lockedCover: boolean
+  } | null>(null)
   const [addingSource, setAddingSource] = useState(false)
   const [source, setSource] = useState({ name: '', path_type: 'm3u8', path_url: '' })
 
@@ -59,18 +70,21 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   }
 
   const submitChannel = () => {
-    if (!form.title.trim() || actions.saveChannel.isPending) return
+    if (!form || !form.title.trim() || actions.saveChannel.isPending) return
     actions.saveChannel.mutate(
       {
+        id: form.id,
         live_library_id: form.library,
         title: form.title.trim(),
         description: form.description.trim() || null,
+        tagline: form.tagline.trim() || null,
+        // 官方频道的封面只读，不提交这个字段
+        ...(form.lockedCover ? {} : { image_poster: form.image_poster }),
       },
       {
         onSuccess: () => {
           toast('频道已创建', 'success')
-          setCreating(false)
-          setForm({ title: '', library: search.library || 100, description: '' })
+          setForm(null)
         },
       },
     )
@@ -178,7 +192,21 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           label="媒体库"
         />
         <span className="spacer" />
-        <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
+        <button type="button"
+          className="btn btn--primary"
+          onClick={() =>
+            setForm({
+              id: null,
+              title: '',
+              library: search.library || library.data?.[0]?.id || 100,
+              description: '',
+              tagline: '',
+              image_poster: null,
+              image_url: null,
+              lockedCover: false,
+            })
+          }
+        >
           <IconPlus />
           新增频道
         </button>
@@ -233,31 +261,54 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <td className="num">{item.sort}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
-                      {item.code ? (
-                        // 官方频道不可删除；保留禁用态，行高才和其它行一致
-                        <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
-                          删除
-                        </button>
-                      ) : item.is_can_edit ? (
-                        <button type="button"
-                          className="btn btn--danger-text"
-                        disabled={actions.removeChannel.isPending}
-                          onClick={async (e) => {
-                            e.stopPropagation()
-                            const ok = await confirmDialog({
-                              title: `删除频道「${item.title}」？`,
-                              message: '该频道下的所有直播源会一并删除。',
-                              hint: '观看端会立即不可用。',
-                              confirmText: '删除',
-                              danger: true,
-                            })
-                            if (!ok) return
-                            actions.removeChannel.mutate(item.id, { onSuccess: () => toast('已删除', 'success') })
-                          }}
-                        >
-                          删除
-                        </button>
-                      ) : null}
+                      {item.is_can_edit ? (
+                        <span className="action-group">
+                          <button type="button"
+                            className="btn btn--quiet"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setForm({
+                                id: item.id,
+                                title: item.title,
+                                library: item.live_library_id ?? search.library ?? 100,
+                                description: item.description ?? '',
+                                tagline: item.tagline ?? '',
+                                image_poster: null,
+                                image_url: item.image_poster_url,
+                                lockedCover: Boolean(item.code),
+                              })
+                            }}
+                          >
+                            编辑
+                          </button>
+                          {item.code ? (
+                            <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
+                              删除
+                            </button>
+                          ) : (
+                            <button type="button"
+                              className="btn btn--danger-text"
+                              disabled={actions.removeChannel.isPending}
+                              onClick={async (e) => {
+                                e.stopPropagation()
+                                const ok = await confirmDialog({
+                                  title: `删除频道「${item.title}」？`,
+                                  message: '该频道下的所有直播源会一并删除。',
+                                  hint: '观看端会立即不可用。',
+                                  confirmText: '删除',
+                                  danger: true,
+                                })
+                                if (!ok) return
+                                actions.removeChannel.mutate(item.id, { onSuccess: () => toast('频道已删除', 'success') })
+                              }}
+                            >
+                              删除
+                            </button>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
                     </td>
                   </tr>
                   {selected ? (
@@ -275,26 +326,40 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         </>
       ) : null}
 
-      {creating ? (
+      {form ? (
         <Modal
-          title="新增频道"
-          onClose={() => setCreating(false)}
+          title={form.id ? `编辑频道 · ${form.title}` : '新增频道'}
+          onClose={() => setForm(null)}
           onSubmit={submitChannel}
           footer={
             <>
-              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setForm(null)}>
                 取消
               </button>
               <button type="button"
                 className="btn btn--primary"
-                disabled={!form.title.trim()}
+                disabled={!form.title.trim() || actions.saveChannel.isPending}
                 onClick={submitChannel}
               >
-                创建
+                {form.id ? '保存' : '创建'}
               </button>
             </>
           }
         >
+          {form.lockedCover ? (
+            <>
+              <ImagePicker label="频道封面" value={form.image_url} readonly onChange={() => {}} />
+              <p className="card-note">官方频道的封面不可修改</p>
+            </>
+          ) : (
+            <ImagePicker
+              label="频道封面"
+              value={form.image_url}
+              width={120}
+              height={120}
+              onChange={(url, fileId) => setForm((prev) => (prev ? { ...prev, image_url: url, image_poster: fileId ?? null } : prev))}
+            />
+          )}
           <label className="field">
             <span>频道名称</span>
             <input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
@@ -308,6 +373,10 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 </option>
               ))}
             </select>
+          </label>
+          <label className="field">
+            <span>宣传词</span>
+            <input className="input" value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="三网直达 1080p" />
           </label>
           <label className="field">
             <span>简介</span>

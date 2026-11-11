@@ -1734,6 +1734,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .image-picker__empty:hover { border-color: var(--line-hot); color: var(--fg-3); }
 
+.image-picker__list { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .image-picker__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -2021,3 +2022,4 @@ input.input[type='number'] { min-width: 0; }
   cursor: pointer;
 }
 .search-panel__all:hover { color: var(--fg-2); }
+

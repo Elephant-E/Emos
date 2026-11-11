@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { ImagePicker } from '@/components/ImagePicker'
 import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
@@ -275,12 +276,20 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 ) : null}
               </CardHead>
               <div className="card-body" style={{ display: 'grid', gap: 12 }}>
+                <ImagePicker
+                  label="封面图"
+                  value={coverUrl && coverKind === 'image' ? coverUrl : null}
+                  onChange={(url) => {
+                    setCoverUrl(url ?? '')
+                    setCoverKind(url ? 'image' : null)
+                  }}
+                />
                 <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
                   <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
-                    {coverBusy ? '上传中…' : coverUrl ? '换一张' : '上传图片 / 音频'}
+                    {coverBusy ? '上传中…' : '上传音频'}
                     <input
                       type="file"
-                      accept="image/*,audio/*"
+                      accept="audio/*"
                       hidden
                       disabled={coverBusy}
                       onChange={(e) => {

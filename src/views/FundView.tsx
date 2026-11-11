@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ListCard } from '@/components/ListCard'
+import { ImagePickerMulti } from '@/components/ImagePicker'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -165,7 +166,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const [carrot, setCarrot] = useState('100')
   const [evidenceFor, setEvidenceFor] = useState<Row | null>(null)
   const [remark, setRemark] = useState('')
-  const [images, setImages] = useState('')
+  const [images, setImages] = useState<string[]>([])
 
   // 下单前先问「能不能参加」：后端用 message 说明原因（如活动只能参加 1 次）。
   // 检查失败（码不对会 404）不拦，交给 create 报错
@@ -202,14 +203,14 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
     mutationFn: (orderNo: string) =>
       fundApi.evidence({
         order_no: orderNo,
-        images: images.split(/\s+/).map((s) => s.trim()).filter(Boolean),
+        images,
         remark: remark.trim(),
       }),
     onSuccess: () => {
       toast('凭证已提交', 'success')
       setEvidenceFor(null)
       setRemark('')
-      setImages('')
+      setImages([])
       qc.invalidateQueries({ queryKey: ['fund'] })
     },
   })
@@ -288,7 +289,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                         onClick={() => {
                           setEvidenceFor(row)
                           setRemark('')
-                          setImages('')
+                          setImages([])
                         }}
                       >
                         提交凭证
@@ -351,11 +352,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               </button>
               <button type="button"
                 className="btn btn--primary"
-                disabled={
-                  submitEvidence.isPending ||
-                  images.trim().split(/\s+/).filter(Boolean).length === 0 ||
-                  images.trim().split(/\s+/).filter(Boolean).some((u) => !/^https?:\/\//.test(u))
-                }
+                disabled={submitEvidence.isPending || images.length === 0}
                 onClick={() => submitEvidence.mutate(String(evidenceFor.order_no ?? ''))}
               >
                 {submitEvidence.isPending ? '提交中…' : '提交'}
@@ -364,10 +361,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           }
         >
           <div className="stack">
-            <label className="field">
-              <span>图片地址（每行一个）</span>
-              <textarea className="input" rows={3} value={images} onChange={(e) => setImages(e.target.value)} placeholder="https://..." />
-            </label>
+            <ImagePickerMulti label="凭证图片" value={images} onChange={setImages} />
             <label className="field">
               <span>备注</span>
               <textarea className="input" rows={2} value={remark} onChange={(e) => setRemark(e.target.value)} />

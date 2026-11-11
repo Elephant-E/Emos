@@ -17,14 +17,29 @@ export function ImagePicker({
   label = '图片',
   width = 120,
   height = 120,
+  readonly = false,
 }: {
   value?: string | null
-  onChange: (url: string | null) => void
+  /** 第二个参数是图库 file_id：直播封面这类接口收文件 id 而不是直链 */
+  onChange: (url: string | null, fileId?: string | null) => void
   label?: string
   width?: number | string
   height?: number | string
+  /** 只展示不给改（官方频道封面这类）：外观与可编辑态一致，只是没有按钮 */
+  readonly?: boolean
 }) {
   const [open, setOpen] = useState(false)
+
+  if (readonly) {
+    return (
+      <div className="field">
+        <span>{label}</span>
+        <div className="image-picker__slot" style={{ width, height }}>
+          {value ? <img src={value} alt="" /> : null}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -59,8 +74,8 @@ export function ImagePicker({
       {open ? (
         <ImagePickerModal
           onClose={() => setOpen(false)}
-          onPick={(url) => {
-            onChange(url)
+          onPick={(url, fileId) => {
+            onChange(url, fileId)
             setOpen(false)
           }}
         />
@@ -69,10 +84,64 @@ export function ImagePicker({
   )
 }
 
-function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (url: string) => void }) {
+/**
+ * 多张图（基金凭证这类）：仍然用同一个图库弹窗与同一套 slot 样式，
+ * 各页面不要再自己拼一套「图片列表 + 上传按钮」。
+ */
+export function ImagePickerMulti({
+  value,
+  onChange,
+  label = '图片',
+  width = 120,
+  height = 90,
+}: {
+  value: string[]
+  onChange: (urls: string[]) => void
+  label?: string
+  width?: number | string
+  height?: number | string
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <div className="field">
+        <span>{label}</span>
+        <div className="row" style={{ flexWrap: 'wrap', gap: 'var(--sp-2)' }}>
+          {value.map((url) => (
+            <div key={url} className="image-picker__slot" style={{ width, height }}>
+              <img src={url} alt="" />
+              <div className="image-picker__actions">
+                <button type="button" className="btn btn--quiet" onClick={() => onChange(value.filter((item) => item !== url))}>
+                  移除
+                </button>
+              </div>
+            </div>
+          ))}
+          <button type="button" className="image-picker__empty" style={{ width, height }} onClick={() => setOpen(true)}>
+            <IconPlus size={16} />
+            <span>添加</span>
+          </button>
+        </div>
+      </div>
+
+      {open ? (
+        <ImagePickerModal
+          onClose={() => setOpen(false)}
+          onPick={(url) => {
+            onChange(value.includes(url) ? value : [...value, url])
+            setOpen(false)
+          }}
+        />
+      ) : null}
+    </>
+  )
+}
+
+function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (url: string, fileId: string) => void }) {
   const qc = useQueryClient()
   const [term, setTerm] = useState('')
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState<{ url: string; fileId: string } | null>(null)
   const [uploading, setUploading] = useState(0)
   const [removing, setRemoving] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -148,7 +217,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
           <button type="button" className="btn btn--ghost" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
             {upload.isPending ? `上传中 ${Math.round(uploading * 100)}%` : '上传图片'}
           </button>
-          <button type="button" className="btn btn--primary" onClick={() => selected && onPick(selected)} disabled={!selected}>
+          <button type="button" className="btn btn--primary" onClick={() => selected && onPick(selected.url, selected.fileId)} disabled={!selected}>
             使用这张
           </button>
         </>
@@ -182,8 +251,8 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
 
       <div className="image-picker__grid">
         {imageRows.map((img) => (
-          <div key={img.file_id} className={`image-picker__cell${selected === img.url ? ' is-picked' : ''}`}>
-            <button type="button" className="image-picker__thumb" onClick={() => setSelected(img.url)}>
+          <div key={img.file_id} className={`image-picker__cell${selected?.url === img.url ? ' is-picked' : ''}`}>
+            <button type="button" className="image-picker__thumb" onClick={() => setSelected({ url: img.url, fileId: img.file_id })}>
               <img src={img.url} alt={img.file_name} loading="lazy" />
             </button>
             <button
