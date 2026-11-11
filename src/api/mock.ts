@@ -450,11 +450,25 @@ export async function mockRequest<T>(
     // 而不是把它覆盖成一句「未知影片」
     const id = Number(query.item_id ?? 0)
     if (String(query.item_type ?? '') === 've') {
-      const ep = String(query.episode_title ?? '')
-      return { title: ep, video_medias: [] } as T
+      // 集上也可能已经有资源，查重要能测到
+      return {
+        title: '',
+        video_medias: [
+          { media_id: 'md_ep1', media_name: '1080p · h264', media_file_size: 2048, user_pseudonym: 'zhou', is_self_upload: false },
+        ],
+      } as T
     }
     const video = videos.find((v) => v.video_id === id)
-    return { title: video ? video.video_title : '', video_medias: [] } as T
+    // 带上已有资源：查重（同大小）和「已有 N 个资源」都靠它
+    return {
+      title: video ? video.video_title : '',
+      video_medias: video
+        ? [
+            { media_id: 'md_base1', media_name: '4K HDR · h265 · 中字', media_file_size: 8_589_934_592, user_pseudonym: 'sorakand', is_self_upload: false },
+            { media_id: 'md_base2', media_name: '1080p · h264', media_file_size: 2048, user_pseudonym: 'lin', is_self_upload: true },
+          ]
+        : [],
+    } as T
   }
   if (clean === '/api/video/media/list') {
     const seed = String(query.video_episode_id ?? '') + String(query.video_season_id ?? '')
