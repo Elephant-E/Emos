@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { DecisionShell, useDecisionKeys } from './decision'
 
 export interface PromptOptions {
   title: string
@@ -54,66 +55,48 @@ export function PromptHost() {
     setPending(null)
   }
 
+  const canSubmit = !pending?.required || value.trim().length > 0
+
   useEffect(() => {
-    if (!pending) return
-    inputRef.current?.focus()
-    inputRef.current?.select()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopImmediatePropagation()
-        return settle(null)
-      }
-      if (e.key !== 'Enter') return
-      e.preventDefault()
-      const trimmed = value.trim()
-      if (pending.required && !trimmed) return
-      settle(trimmed)
+    if (pending) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
     }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [pending, value])
+  }, [pending])
+
+  useDecisionKeys(
+    Boolean(pending),
+    () => settle(null),
+    () => {
+      if (canSubmit) settle(value.trim())
+    },
+  )
 
   if (!pending) return null
 
-  const canSubmit = !pending.required || value.trim().length > 0
-
   return (
-    <div
-      className="modal-overlay modal-overlay--decision"
-      onClick={(e) => e.target === e.currentTarget && settle(null)}
+    <DecisionShell
+      title={pending.title}
+      role="dialog"
+      danger
+      message={pending.message}
+      cancelText={pending.cancelText}
+      confirmText={pending.confirmText}
+      dangerConfirm
+      confirmDisabled={!canSubmit}
+      onCancel={() => settle(null)}
+      onConfirm={() => settle(value.trim())}
     >
-      <div className="confirm" role="dialog" aria-modal="true" aria-label={pending.title}>
-        <div className="confirm__head">
-          <span className="confirm__dot confirm__dot--danger" />
-          <h2 className="confirm__title">{pending.title}</h2>
-        </div>
-
-        {pending.message ? <p className="confirm__msg">{pending.message}</p> : null}
-
-        <label className="field" style={{ marginTop: 12 }}>
-          <span>{pending.label}</span>
-          <input
-            ref={inputRef}
-            className="input"
-            value={value}
-            placeholder={pending.placeholder}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </label>
-
-        <div className="confirm__foot">
-          <button className="btn btn--ghost" onClick={() => settle(null)}>
-            {pending.cancelText ?? '取消'}
-          </button>
-          <button
-            className="btn btn--danger"
-            disabled={!canSubmit}
-            onClick={() => settle(value.trim())}
-          >
-            {pending.confirmText ?? '确定'}
-          </button>
-        </div>
-      </div>
-    </div>
+      <label className="field" style={{ marginTop: 12 }}>
+        <span>{pending.label}</span>
+        <input
+          ref={inputRef}
+          className="input"
+          value={value}
+          placeholder={pending.placeholder}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </label>
+    </DecisionShell>
   )
 }

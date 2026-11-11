@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { DecisionShell, useDecisionKeys } from './decision'
 
 export interface ConfirmOptions {
   title: string
@@ -51,57 +52,23 @@ export function ConfirmHost() {
     setPending(null)
   }
 
-  useEffect(() => {
-    if (!pending) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopImmediatePropagation()
-        return settle(false)
-      }
-      if (e.key !== 'Enter') return
-      const active = document.activeElement as HTMLElement | null
-      if (active?.dataset.confirmAction === 'cancel') return
-      e.preventDefault()
-      settle(true)
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  })
+  useDecisionKeys(Boolean(pending), () => settle(false), () => settle(true))
 
   if (!pending) return null
 
   return (
-    <div
-      className="modal-overlay modal-overlay--decision"
-      onClick={(e) => e.target === e.currentTarget && settle(false)}
-    >
-      <div className="confirm" role="alertdialog" aria-modal="true" aria-label={pending.title}>
-        <div className="confirm__head">
-          <span className={`confirm__dot${pending.danger ? ' confirm__dot--danger' : ''}`} />
-          <h2 className="confirm__title">{pending.title}</h2>
-        </div>
-
-        {pending.message ? <p className="confirm__msg">{pending.message}</p> : null}
-        {pending.hint ? <p className="confirm__hint">{pending.hint}</p> : null}
-
-        <div className="confirm__foot">
-          <button
-            className="btn btn--ghost"
-            data-confirm-action="cancel"
-            autoFocus={pending.danger}
-            onClick={() => settle(false)}
-          >
-            {pending.cancelText ?? '取消'}
-          </button>
-          <button
-            className={pending.danger ? 'btn btn--danger' : 'btn btn--primary'}
-            onClick={() => settle(true)}
-            autoFocus={!pending.danger}
-          >
-            {pending.confirmText ?? '确定'}
-          </button>
-        </div>
-      </div>
-    </div>
+    <DecisionShell
+      title={pending.title}
+      danger={pending.danger}
+      message={pending.message}
+      hint={pending.hint}
+      cancelText={pending.cancelText}
+      confirmText={pending.confirmText}
+      dangerConfirm={pending.danger}
+      cancelAutoFocus={pending.danger}
+      confirmAutoFocus={!pending.danger}
+      onCancel={() => settle(false)}
+      onConfirm={() => settle(true)}
+    />
   )
 }
