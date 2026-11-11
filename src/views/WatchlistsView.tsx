@@ -31,6 +31,14 @@ const TABS: Array<{ key: WatchSearch['scope']; label: string }> = [
   { key: 'subscribed', label: '我订阅的' },
 ]
 
+/** 空态标题：搜索没命中优先，其次按范围 */
+function emptyTitle(q: string, scope: WatchSearch['scope']): string {
+  if (q) return `没有找到「${q}」`
+  if (scope === 'self') return '还没有自己建的片单'
+  if (scope === 'subscribed') return '还没有订阅任何片单'
+  return '还没有片单'
+}
+
 export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSearch: (patch: Partial<WatchSearch>) => void }) {
   const navigate = useNavigate()
   const qc = useQueryClient()
@@ -130,15 +138,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               </button>
             )
           }
-          title={
-            search.q
-              ? `没有找到「${search.q}」`
-              : search.scope === 'self'
-                ? '还没有自己建的片单'
-                : search.scope === 'subscribed'
-                  ? '还没有订阅任何片单'
-                  : '还没有片单'
-          }
+          title={emptyTitle(search.q, search.scope)}
         />
       ) : null}
 

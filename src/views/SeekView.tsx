@@ -32,6 +32,14 @@ const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[
   { key: 'complete', label: '已完成', statuses: ['complete'] },
 ]
 
+/** 空态标题：搜索没命中优先，其次按「只看我认领的」和类型 */
+function emptyTitle(q: string, mine: boolean, type: string): string {
+  if (q) return `没有找到「${q}」`
+  if (mine) return '没有我认领的求片'
+  if (type) return `没有${type === 'movie' ? '电影' : '剧集'}类的求片`
+  return '没有求片'
+}
+
 export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (patch: Partial<SeekSearch>) => void }) {
   const qc = useQueryClient()
   const navigate = useNavigate()
@@ -116,15 +124,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           action={
             search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
           }
-          title={
-            search.q
-              ? `没有找到「${search.q}」`
-              : search.mine
-                ? '没有我认领的求片'
-                : search.type
-                  ? `没有${search.type === 'movie' ? '电影' : '剧集'}类的求片`
-                  : '没有求片'
-          }
+          title={emptyTitle(search.q, search.mine, search.type)}
         />
       ) : null}
 

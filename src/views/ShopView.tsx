@@ -7,7 +7,7 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -219,7 +219,10 @@ export function ShopView({
           ) : null}
           {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
           {mine && products.data && products.data.items.length === 0 ? (
-            <EmptyBlock title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'} />
+            <EmptyBlock
+              title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
+              action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+            />
           ) : null}
 
           {/* 全站视图走 browse（滚动加载），它的加载与空态之前完全没接 */}
@@ -228,7 +231,10 @@ export function ShopView({
           ) : null}
           {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
           {!mine && !browse.isLoading && browseItems.length === 0 ? (
-            <EmptyBlock title={q ? `没有找到「${q}」` : '还没有在售商品'} />
+            <EmptyBlock
+              title={q ? `没有找到「${q}」` : '还没有在售商品'}
+              action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+            />
           ) : null}
 
           {!mine && browseItems.length > 0 ? (
