@@ -1349,9 +1349,9 @@ input.input[type='number'] { min-width: 0; }
 /* 片单封面是横图（实测 600×495 / 1280×720 / 1920×1080） */
 .poster-img--wide { width: 44px; height: 25px; }
 /* 直播频道 logo 与商品封面是方图 */
-.poster-img--square { width: 28px; height: 28px; border-radius: 6px; }
+.poster-img--square { width: 28px; height: 28px; }
 .thumb--wide { width: 44px; height: 25px; }
-.thumb--square { width: 28px; height: 28px; border-radius: 6px; }
+.thumb--square { width: 28px; height: 28px; }
 
 
 /* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
@@ -1999,9 +1999,7 @@ input.input[type='number'] { min-width: 0; }
   cursor: pointer;
 }
 .search-panel__row.is-active { background: rgba(255, 255, 255, 0.06); }
-.search-panel__poster { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; }
-/* 没有图的行也留出同样的位置，否则标题会贴到左边、与有图的行错开 */
-.search-panel__slot { flex: none; min-width: 28px; display: flex; align-items: center; }
+.search-panel__poster { width: 28px; height: 28px; }
 .search-panel__loading,
 .search-panel__all {
   padding: var(--sp-1) var(--sp-2);

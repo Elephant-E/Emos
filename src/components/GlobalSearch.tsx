@@ -350,11 +350,10 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
                     onMouseEnter={() => setActive(index)}
                     onClick={() => hit.open()}
                   >
-                    <span className="search-panel__slot">
-                      {hit.poster ? (
-                        <Poster src={hit.poster} name={hit.title} shape="square" className="search-panel__poster" />
-                      ) : null}
-                    </span>
+                    {/* 没有图就不占位：不画方框、也不留空白 */}
+                    {hit.poster ? (
+                      <Poster src={hit.poster} name={hit.title} shape="square" className="search-panel__poster" />
+                    ) : null}
                     <span>
                       <span className="cell-title__name">{hit.title}</span>
                       {hit.sub ? <span className="cell-title__code">{hit.sub}</span> : null}
