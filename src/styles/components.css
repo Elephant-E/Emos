@@ -429,7 +429,6 @@
 .table--fixed { table-layout: fixed; }
 .table--fixed .cell-title { min-width: 0; }
 .table--fixed td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cell-title__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 可点的表格行（rowLink 会给 tr 加 role），光标不用每个调用点各写一次内联 */
 .table tbody tr[role='link'],
@@ -462,7 +461,15 @@
   overflow: hidden;
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
-.cell-title__name { display: block; color: var(--fg); font-size: var(--text-sm); }
+.cell-title__name {
+  display: block;
+  color: var(--fg);
+  font-size: var(--text-sm);
+  /* 长片名/长用户名在固定列宽下省略，避免撑破表格 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .cell-title__code {
   display: block;
   margin-top: var(--sp-hair);

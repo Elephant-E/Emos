@@ -361,7 +361,9 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                           <td>
                             <div className="cell-title">
                               <span className="thumb">{(row.user_username || '?').slice(0, 1)}</span>
-                              <span className="cell-title__name">{row.user_username}</span>
+                              <span>
+                                <span className="cell-title__name">{row.user_username}</span>
+                              </span>
                             </div>
                           </td>
                           <td>{row.prize_name}</td>

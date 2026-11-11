@@ -354,7 +354,9 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                       <td>
                         <div className="cell-title">
                           <span className="thumb">{(row.username ?? row.user_id).slice(0, 1)}</span>
-                          <span className="cell-title__name">{row.username ?? '—'}</span>
+                          <span>
+                            <span className="cell-title__name">{row.username ?? '—'}</span>
+                          </span>
                         </div>
                       </td>
                       <td className="muted">{row.user_id}</td>

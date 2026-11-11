@@ -63,7 +63,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               <thead>
                 <tr>
                   <th style={{ width: 64 }} className="num">#</th>
-                  <th>用户</th>
+                  <th className="th-thumb">用户</th>
                   <th className="num" style={{ width: '20%' }}>胡萝卜</th>
                 </tr>
               </thead>
@@ -92,7 +92,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               <thead>
                 <tr>
                   <th style={{ width: 64 }} className="num">#</th>
-                  <th>用户</th>
+                  <th className="th-thumb">用户</th>
                   <th className="num" style={{ width: '20%' }}>上传量</th>
                 </tr>
               </thead>
@@ -103,7 +103,9 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                     <td>
                       <div className="cell-title">
                         <span className="thumb">{row.username.slice(0, 1)}</span>
-                        <span className="cell-title__name">{row.username}</span>
+                        <span>
+                          <span className="cell-title__name">{row.username}</span>
+                        </span>
                       </div>
                     </td>
                     <td className="num">{formatSize(row.size)}</td>
@@ -118,7 +120,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               <thead>
                 <tr>
                   <th style={{ width: 64 }} className="num">#</th>
-                  <th>用户</th>
+                  <th className="th-thumb">用户</th>
                   <th style={{ width: '18%' }}>签到时间</th>
                   <th className="num" style={{ width: '12%' }}>胡萝卜</th>
                   <th className="num" style={{ width: '12%' }}>连续天数</th>
@@ -131,7 +133,9 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                     <td>
                       <div className="cell-title">
                         <span className="thumb">{row.username.slice(0, 1)}</span>
-                        <span className="cell-title__name">{row.username}</span>
+                        <span>
+                          <span className="cell-title__name">{row.username}</span>
+                        </span>
                       </div>
                     </td>
                     <td className="muted">{formatDateTime(row.sign_at)}</td>
@@ -147,7 +151,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
             <table className="table">
               <thead>
                 <tr>
-                  <th style={{ width: '36%' }}>在看</th>
+                  <th className="th-thumb" style={{ width: '36%' }}>在看</th>
                   <th style={{ width: '16%' }}>季集</th>
                   <th>用户</th>
                   <th className="num" style={{ width: '12%' }}>倍速</th>
@@ -164,7 +168,9 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                         ) : (
                           <span className="thumb">{row.video_title.slice(0, 1)}</span>
                         )}
-                        <span className="cell-title__name">{row.video_title}</span>
+                        <span>
+                          <span className="cell-title__name">{row.video_title}</span>
+                        </span>
                       </div>
                     </td>
                     <td className="muted">
@@ -185,7 +191,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
             <table className="table">
               <thead>
                 <tr>
-                  <th style={{ width: '34%' }}>频道</th>
+                  <th className="th-thumb" style={{ width: '34%' }}>频道</th>
                   <th>用户</th>
                   <th style={{ width: '18%' }}>已看</th>
                   <th style={{ width: '22%' }}>客户端</th>
@@ -194,7 +200,14 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               <tbody>
                 {(live.data ?? []).map((row, index) => (
                   <tr key={`${row.username}-${row.live_title}-${index}`}>
-                    <td className="cell-title__name">{row.live_title}</td>
+                    <td>
+                      <div className="cell-title">
+                        <span className="thumb">{row.live_title.slice(0, 1)}</span>
+                        <span>
+                          <span className="cell-title__name">{row.live_title}</span>
+                        </span>
+                      </div>
+                    </td>
                     <td className="muted">{row.username}</td>
                     <td className="num muted">{Math.max(0, Math.round(row.play_durations / 60))} 分钟</td>
                     <td className="muted text-xs">{row.ua ?? '—'}</td>

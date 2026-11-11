@@ -20,7 +20,6 @@
   --c-blue: #5aa2ff;
   --c-red: #f2704a;
   /* 间距：只允许这一组值，见 docs/SPEC-UI.md §1 */
-  --sp-0: 0;
   --sp-hair: 2px;
   --sp-1: 4px;
   --sp-2: 8px;

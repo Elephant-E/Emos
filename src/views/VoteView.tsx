@@ -271,7 +271,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                     <thead>
                       <tr>
                         <th style={{ width: 64 }} className="num">#</th>
-                        <th style={{ width: '32%' }}>用户</th>
+                        <th className="th-thumb" style={{ width: '32%' }}>用户</th>
                         <th>选了</th>
                       </tr>
                     </thead>
@@ -282,7 +282,9 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                           <td>
                             <div className="cell-title">
                               <span className="thumb">{(row.username || '?').slice(0, 1)}</span>
-                              <span className="cell-title__name">{row.username}</span>
+                              <span>
+                                <span className="cell-title__name">{row.username}</span>
+                              </span>
                             </div>
                           </td>
                           <td className="muted">{result.data?.options[Number(row.option_index)] ?? '—'}</td>
