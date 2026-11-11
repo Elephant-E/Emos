@@ -178,9 +178,6 @@ export function useVideoPage(params: {
   title?: string
   type?: VideoType
   tmdb_id?: number
-  todb_id?: number
-  video_id?: number
-  only_delete?: boolean
   enabled?: boolean
 }) {
   return useQuery({

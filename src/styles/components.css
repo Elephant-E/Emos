@@ -565,6 +565,10 @@
   transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
   min-width: 200px;
 }
+/* 200px 是文本框的下限；下拉和数字框应该按内容/显式宽度走 ——
+   否则写死 width:130 / maxWidth:100 会被这个下限默默盖掉 */
+select.input,
+input.input[type='number'] { min-width: 0; }
 .input::placeholder { color: var(--fg-3); }
 .input:hover { border-color: rgba(255, 255, 255, 0.26); }
 .input:focus { border-color: rgba(255, 255, 255, 0.4); background: #24231f; }
