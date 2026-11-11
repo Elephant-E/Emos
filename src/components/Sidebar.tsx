@@ -25,6 +25,7 @@ import {
   IconTag,
   IconUpload,
   IconUser,
+  IconChevron,
 } from './icons'
 
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }> }
@@ -193,7 +194,9 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
         >
           <Avatar url={user?.avatar} name={user?.pseudonym || user?.username || '?'} />
           <span className="rail__account-name">{user?.pseudonym || user?.username || '未登录'}</span>
-          <span className="rail__account-caret">▾</span>
+          <span className="rail__account-caret">
+            <IconChevron size={14} strokeWidth={1.7} />
+          </span>
         </button>
 
         {menuOpen ? (

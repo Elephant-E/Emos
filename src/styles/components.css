@@ -933,7 +933,11 @@ input.input[type='number'] { min-width: 0; }
 }
 .rail__account:hover { color: var(--fg-2); }
 .rail__account-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rail__account-caret { color: var(--fg-4); font-size: var(--text-xs); line-height: 1; }
+.rail__account-caret { display: inline-flex; align-items: center; color: var(--fg-3); flex: none; }
+.rail__account-caret svg { transform: rotate(90deg); transition: transform 160ms var(--ease); }
+/* 用 270° 而不是 -90°：从 90° 转到 270° 是一段连续的半圈，
+   若写成 -90° 会先退回 0°（指向右）再转上去，看起来像抖了一下 */
+.rail__account[aria-expanded='true'] .rail__account-caret svg { transform: rotate(270deg); }
 
 .rail__menu {
   position: absolute;
