@@ -44,6 +44,20 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
+
+  /** 「催片」在不同状态下都要出现，初始悬赏额只写一处 */
+  const urgeButton = (item: SeekItem) => (
+    <button
+      className="btn btn--quiet"
+      onClick={(e) => {
+        e.stopPropagation()
+        setUrgeTarget(item)
+        setCarrot(10)
+      }}
+    >
+      催片
+    </button>
+  )
   const session = useSession()
   const myNames = [session.data?.pseudonym, session.data?.username].filter(Boolean) as string[]
   const [carrot, setCarrot] = useState(10)
@@ -208,72 +222,50 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
                       <span className="action-group">
-                      {item.status === 'upload' ? (
-                        <>
-                          <Link
-                            className="btn btn--quiet"
-                            to="/upload"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            去上传
-                          </Link>
-                          {isMine ? (
-                            <button
-                              className="btn btn--quiet"
-                              disabled={cancelClaim.isPending}
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                const ok = await confirmDialog({
-                                  title: '撤回这个认领？',
-                                  message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
-                                  confirmText: '撤回',
-                                  danger: true,
-                                })
-                                if (!ok) return
-                                cancelClaim.mutate(item.id)
-                              }}
-                            >
-                              撤回
-                            </button>
-                          ) : null}
-                          <button
-                            className="btn btn--quiet"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setUrgeTarget(item)
-                              setCarrot(10)
-                            }}
-                          >
-                            催片
-                          </button>
-                        </>
-                      ) : item.status === 'default' ? (
-                        <>
-                          {item.is_can_claim ? (
-                            <button
-                              className="btn btn--ghost"
-                              aria-busy={claim.isPending && claim.variables === item.id}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                claim.mutate(item.id)
-                              }}
-                              disabled={claim.isPending && claim.variables === item.id}
-                            >
-                              认领
-                            </button>
-                          ) : null}
-                          <button
-                            className="btn btn--quiet"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setUrgeTarget(item)
-                              setCarrot(10)
-                            }}
-                          >
-                            催片
-                          </button>
-                        </>
-                      ) : null}
+                        {item.status === 'upload' ? (
+                          <>
+                            <Link className="btn btn--quiet" to="/upload" onClick={(e) => e.stopPropagation()}>
+                              去上传
+                            </Link>
+                            {isMine ? (
+                              <button
+                                className="btn btn--quiet"
+                                disabled={cancelClaim.isPending}
+                                onClick={async (e) => {
+                                  e.stopPropagation()
+                                  const ok = await confirmDialog({
+                                    title: '撤回这个认领？',
+                                    message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
+                                    confirmText: '撤回',
+                                    danger: true,
+                                  })
+                                  if (!ok) return
+                                  cancelClaim.mutate(item.id)
+                                }}
+                              >
+                                撤回
+                              </button>
+                            ) : null}
+                            {urgeButton(item)}
+                          </>
+                        ) : item.status === 'default' ? (
+                          <>
+                            {item.is_can_claim ? (
+                              <button
+                                className="btn btn--ghost"
+                                aria-busy={claim.isPending && claim.variables === item.id}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  claim.mutate(item.id)
+                                }}
+                                disabled={claim.isPending && claim.variables === item.id}
+                              >
+                                认领
+                              </button>
+                            ) : null}
+                            {urgeButton(item)}
+                          </>
+                        ) : null}
                       </span>
                     </td>
                   </tr>
