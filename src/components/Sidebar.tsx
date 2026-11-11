@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
 import { setToken } from '@/api/client'
 import type { UserInfo } from '@/api/types'
@@ -86,28 +86,12 @@ function Avatar({ url, name, size }: { url?: string | null; name: string; size?:
   )
 }
 
-export function Sidebar({ user }: { user?: UserInfo }) {
+export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const navigate = useNavigate()
-  const [term, setTerm] = useState('')
-  const searchRef = useRef<HTMLInputElement>(null)
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
   const footRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
-
-  // ⌘K / Ctrl+K 聚焦搜索框，与输入框右侧的键帽提示一致
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        searchRef.current?.focus()
-        searchRef.current?.select()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -150,25 +134,14 @@ export function Sidebar({ user }: { user?: UserInfo }) {
 
       </div>
 
-      <label className="rail__search">
+      <button type="button" className="rail__search" onClick={onOpenSearch} aria-label="全局搜索">
         <IconSearch size={15} />
-        <input
-          type="search"
-          value={term}
-          placeholder="搜索片名"
-          aria-label="搜索片名"
-          onChange={(e) => setTerm(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key !== 'Enter') return
-            navigate({ to: '/library', search: { page: 1, page_size: 20, q: term.trim(), type: '' } })
-          }}
-          ref={searchRef}
-        />
+        <span className="rail__search-text">搜索</span>
         <span className="rail__keys">
           <kbd>⌘</kbd>
           <kbd>K</kbd>
         </span>
-      </label>
+      </button>
 
       <div className="rail__scroll" ref={scrollRef}>
       <nav className="rail__nav" style={{ marginTop: 12 }}>

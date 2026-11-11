@@ -1927,3 +1927,57 @@ input.input[type='number'] { min-width: 0; }
 .toolbar-field .input { min-width: 150px; }
 /* 页头工具区里的下拉（评分）：和旁边按钮同高，宽度按内容走 */
 .head-tools .input { width: auto; min-width: 96px; height: 32px; }
+
+/* 全局搜索面板（⌘K）：分组的命中列表，键盘上下选择 */
+.rail__search-text {
+  flex: 1;
+  text-align: left;
+  color: var(--fg-4);
+  font-size: var(--text-sm);
+}
+.rail__search {
+  width: 100%;
+  cursor: pointer;
+}
+.search-panel {
+  display: grid;
+  gap: var(--sp-3);
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-bottom: var(--sp-2);
+}
+.search-panel__group { display: grid; gap: var(--sp-hair); }
+.search-panel__label {
+  margin: var(--sp-2) 0 var(--sp-hair);
+  padding: 0 var(--sp-2);
+  font-size: var(--text-2xs);
+  color: var(--fg-4);
+  letter-spacing: 0.06em;
+}
+.search-panel__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-1) var(--sp-2);
+  border: 0;
+  border-radius: var(--r-item);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.search-panel__row.is-active { background: rgba(255, 255, 255, 0.06); }
+.search-panel__poster { width: 26px; height: 34px; border-radius: var(--r-item); }
+.search-panel__loading,
+.search-panel__all {
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--fg-4);
+}
+.search-panel__all {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.search-panel__all:hover { color: var(--fg-2); }
