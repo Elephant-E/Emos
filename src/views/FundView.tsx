@@ -87,15 +87,19 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, index) => (
+              {rows.map((row, index) => {
+                // point 恒为正数（金额大小），收支方向在 type：earn / cost
+                const signed = row.type === 'cost' ? -Number(row.point) : Number(row.point)
+                return (
                 <tr key={index}>
                   <td className="text-body">{String(row.trigger_type_string ?? row.trigger_type ?? '—')}</td>
-                  <td className={Number(row.point) >= 0 ? 'num mark-up' : 'num mark-down'}>
-                    {Number(row.point) > 0 ? '+' : ''}{String(row.point)}
+                  <td className={signed >= 0 ? 'num mark-up' : 'num mark-down'}>
+                    {signed > 0 ? '+' : ''}{formatThousand(signed)}
                   </td>
                   <td className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
           <Pager total={history.data?.total ?? 0} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} />
@@ -257,7 +261,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
             </thead>
             <tbody>
               {rows.map((row) => {
-                const orderNo = String(row.no ?? row.order_no ?? '')
+                const orderNo = String(row.order_no ?? '')
                 return (
                   <tr key={orderNo}>
                     <td>
@@ -277,7 +281,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                         className="btn btn--quiet"
                         onClick={() => {
                           setEvidenceFor(row)
-                          setRemark(String(row.remark ?? ''))
+                          setRemark('')
                           setImages('')
                         }}
                       >
@@ -331,7 +335,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       {evidenceFor ? (
         <Modal
-          title={`提交凭证 · ${String(evidenceFor.no ?? evidenceFor.order_no ?? '')}`}
+          title={`提交凭证 · ${String(evidenceFor.order_no ?? '')}`}
           width={460}
           onClose={() => setEvidenceFor(null)}
           footer={
@@ -346,7 +350,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                   images.trim().split(/\s+/).filter(Boolean).length === 0 ||
                   images.trim().split(/\s+/).filter(Boolean).some((u) => !/^https?:\/\//.test(u))
                 }
-                onClick={() => submitEvidence.mutate(String(evidenceFor.no ?? evidenceFor.order_no ?? ''))}
+                onClick={() => submitEvidence.mutate(String(evidenceFor.order_no ?? ''))}
               >
                 {submitEvidence.isPending ? '提交中…' : '提交'}
               </button>

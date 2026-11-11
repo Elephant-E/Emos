@@ -60,6 +60,21 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   // 空态要能分清「筛掉了」和「本来没有」
   const filtered = Boolean(search.q) || search.pay !== 'all' || search.delivery !== 'all'
 
+  // 实测后端只对 is_delivery 生效，is_pay / order_title / order_no 会被忽略，
+  // 所以在当前页上再筛一遍：后端生效时等于没筛，不生效时也不会把已支付的算进「待支付」
+  const visibleOrders = (orders.data?.items ?? []).filter((order) => {
+    if (search.pay !== 'all') {
+      const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+      if (search.pay === 'paid' ? !paid : paid) return false
+    }
+    if (search.q) {
+      const term = search.q.toLowerCase()
+      const hit = String(order.order_no ?? '').toLowerCase().includes(term) || String(order.order_title ?? '').toLowerCase().includes(term)
+      if (!hit) return false
+    }
+    return true
+  })
+
 
   return (
     <>
@@ -103,7 +118,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-      {orders.data && orders.data.items.length === 0 ? (
+      {orders.data && visibleOrders.length === 0 ? (
         <EmptyBlock
           title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
           action={
@@ -116,8 +131,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         />
       ) : null}
 
-      {orders.data && orders.data.items.length > 0 ? (
-        <ListCard items={orders.data.items} total={orders.data.total} idKey={(o) => o.order_no}>
+      {orders.data && visibleOrders.length > 0 ? (
+        <ListCard items={visibleOrders} total={orders.data.total} idKey={(o) => o.order_no}>
           <table className="table">
             <thead>
               <tr>
@@ -170,9 +185,9 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                       </span>
                     </td>
                     <td>
-                      <span className={`badge ${sent ? 'badge--ok' : order.urge_number > 0 ? 'badge--warn' : 'badge--off'}`}>
+                      <span className={`badge ${sent ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'}`}>
                         <i />
-                        {sent ? '已发货' : order.urge_number > 0 ? `催发货 ${order.urge_number}` : '待发货'}
+                        {sent ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
                       </span>
                     </td>
                     <td className="num muted">{formatDateTime(order.created_at)}</td>

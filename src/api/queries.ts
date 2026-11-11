@@ -174,11 +174,20 @@ export function useVideoPage(params: {
   title?: string
   type?: VideoType
   tmdb_id?: number
+  /** 纯数字搜索：先当站内 video_id，查不到再当 tmdb_id（两个 id 空间不重叠） */
+  numericId?: number
   enabled?: boolean
 }) {
   return useQuery({
     queryKey: qk.videos(params),
-    queryFn: () => videoApi.list(params),
+    queryFn: async () => {
+      if (params.numericId) {
+        const byVideoId = await videoApi.list({ ...params, video_id: params.numericId, tmdb_id: undefined })
+        if ((byVideoId.total ?? 0) > 0) return byVideoId
+        return videoApi.list({ ...params, video_id: undefined, tmdb_id: params.numericId })
+      }
+      return videoApi.list(params)
+    },
     enabled: params.enabled ?? true,
   })
 }
@@ -251,7 +260,7 @@ export function useWatchVideos(watchId: number, params: { page: number; page_siz
 
 export function useWatchMusic(
   watchId: number,
-  params: { page: number; page_size: number; song_title?: string },
+  params: { page: number; page_size: number; song_name?: string },
   enabled = true,
 ) {
   return useQuery({
@@ -282,7 +291,7 @@ export function useWatchMusicMutations(watchId: number) {
 export function useWatchMusicSearch(watchId: number, title: string) {
   return useQuery({
     queryKey: ['watch', watchId, 'musicSearch', title] as const,
-    queryFn: () => watchApi.searchMusic(watchId, { song_title: title, page_size: 8 }),
+    queryFn: () => watchApi.searchMusic(watchId, { song_name: title, page_size: 8 }),
     enabled: title.trim().length > 0,
   })
 }
@@ -345,7 +354,7 @@ export function useSubtitles(
 export function usePersons(videoId: number) {
   return useQuery({
     queryKey: ['video', videoId, 'persons'] as const,
-    queryFn: () => videoApi.persons({ video_list_id: videoId }),
+    queryFn: () => videoApi.persons({ video_list_id: videoId, page: 1, page_size: 20 }),
     enabled: videoId > 0,
   })
 }
@@ -563,14 +572,15 @@ export function useShopCounts(sellerId: number) {
     queryFn: () => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: true, is_delivery: false }),
     enabled,
   })
-  // 没有销量统计接口，只能把商品拉回来自己加
+  // 没有销量统计接口，只能把商品拉回来自己加。
+  // 服务端 page_size 硬顶 100（实测传 200 只回 100），所以按响应里的实际条数判是否被截断
   const salesRows = useQuery({
     queryKey: ['shop', 'count', 'sales', sellerId] as const,
-    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 200, sort_by: 'sort', sort_order: 'asc' }),
+    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 100, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
   const salesTotal = salesRows.data?.items.reduce((sum, p) => sum + (p.sales ?? 0), 0)
-  const salesCapped = (salesRows.data?.total ?? 0) > 200
+  const salesCapped = (salesRows.data?.total ?? 0) > (salesRows.data?.page_size ?? 100)
   return {
     productsAll: productsAll.data?.total,
     productsOnSale: productsOnSale.data?.total,

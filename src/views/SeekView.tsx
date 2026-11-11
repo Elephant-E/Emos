@@ -29,7 +29,8 @@ export interface SeekSearch {
 }
 
 const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[] }> = [
-  { key: 'all', label: '全部', statuses: ['default', 'upload', 'complete'] },
+  // 五个状态都要带上：只查前三个会漏掉已取消/已遗忘（实测漏 1468 条）
+  { key: 'all', label: '全部', statuses: ['default', 'upload', 'complete', 'cancel', 'forget'] },
   { key: 'default', label: '求片中', statuses: ['default'] },
   { key: 'upload', label: '已认领', statuses: ['upload'] },
   { key: 'complete', label: '已完成', statuses: ['complete'] },
@@ -343,7 +344,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             <dl className="kv">
               <div>
                 <dt>状态</dt>
-                <dd>{String(detail.data.status ?? '—')}</dd>
+                <dd>{SEEK_STATUS[String(detail.data.status ?? '')]?.label ?? String(detail.data.status ?? '—')}</dd>
               </div>
               <div>
                 <dt>悬赏</dt>

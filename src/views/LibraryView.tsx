@@ -38,12 +38,12 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 
-  // 纯数字按 TMDB ID 搜，其余按片名
+  // 纯数字：先当站内 ID 查，查不到再当 TMDB ID（见 useVideoPage）；其余按片名
   const numeric = /^\d{1,12}$/.test(search.q.trim())
   const { data, isLoading, error, refetch, isFetching } = useVideoPage({
     page: search.page,
     page_size: search.page_size,
-    tmdb_id: numeric ? Number(search.q) : undefined,
+    numericId: numeric ? Number(search.q) : undefined,
     title: numeric ? undefined : search.q || undefined,
     type: (search.type || undefined) as VideoType | undefined,
   })

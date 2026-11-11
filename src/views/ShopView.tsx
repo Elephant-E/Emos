@@ -23,13 +23,12 @@ import type { ShopProduct } from '@/api/types'
 
 type Tab = 'products' | 'categories' | 'seller'
 
+/** 文档枚举：default / examine / pass / disable */
 const SELLER_STATUS: Record<string, string> = {
   pass: '营业中',
-  normal: '营业中',
   examine: '审核中',
-  review: '审核中',
-  reject: '被驳回',
-  closed: '已关闭',
+  default: '未开店',
+  disable: '已禁用',
 }
 
 const TABS: Array<{ key: Tab; label: string }> = [
@@ -96,15 +95,22 @@ export function ShopView({
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
-  // createOrUpdate 是整体覆盖，payload 里少 description / exchange_way 会把它们清空。
-  // 列表接口是否带这两个字段没有保证，编辑时用商品详情补齐原值
+  // createOrUpdate 是整体覆盖：payload 里少 description / exchange_way / time_start /
+  // time_end / user_buy_max 都会把它们清空，编辑时用商品详情补齐原值
   const editingDetail = useShopProduct(editing?.product_id ?? 0)
   useEffect(() => {
     const detail = editingDetail.data
     if (!detail || !editing?.product_id || detail.product_id !== editing.product_id) return
     setEditing((prev) =>
       prev && prev.product_id === detail.product_id
-        ? { ...prev, description: prev.description ?? detail.description, exchange_way: prev.exchange_way ?? detail.exchange_way }
+        ? {
+            ...prev,
+            description: prev.description ?? detail.description,
+            exchange_way: prev.exchange_way ?? detail.exchange_way,
+            time_start: prev.time_start ?? detail.time_start,
+            time_end: prev.time_end ?? detail.time_end,
+            user_buy_max: prev.user_buy_max ?? detail.user_buy_max,
+          }
         : prev,
     )
   }, [editingDetail.data, editing?.product_id])
@@ -135,9 +141,13 @@ export function ShopView({
         exchange_way: editing.exchange_way ?? null,
         price: Math.max(1, Number(editing.price) || 1),
         price_origin: Math.max(1, Number(editing.price_origin) || 1),
-        stock: editing.stock ?? 0,
+        // 接口要求库存 1–5000，0 会 422；原值与时间窗按详情回填，避免被覆盖清空
+        stock: Math.min(5000, Math.max(1, Number(editing.stock) || 1)),
         sort: editing.sort ?? 80,
         is_up: editing.is_up ?? false,
+        time_start: editing.time_start ?? null,
+        time_end: editing.time_end ?? null,
+        user_buy_max: editing.user_buy_max ?? null,
       },
       {
         onSuccess: () => {

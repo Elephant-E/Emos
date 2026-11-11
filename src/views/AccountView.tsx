@@ -29,6 +29,16 @@ const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'invite', label: '邀请' },
 ]
 
+/** 设备名来自客户端上报，可能是 URL 编码（如 Apple%20TV） */
+function decodeDeviceName(raw?: string | null): string {
+  if (!raw) return ''
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
+}
+
 export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   const session = useSession()
   const devices = useVideoDevices()
@@ -337,7 +347,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     {(devices.data ?? []).map((device) => (
                       <tr key={device.device_id}>
                         <td>
-                          <span className="cell-title__name">{device.device_name || '未命名设备'}</span>
+                          <span className="cell-title__name">{decodeDeviceName(device.device_name) || '未命名设备'}</span>
                           <span className="cell-title__code">
                             {device.device_client} {device.device_version}
                           </span>

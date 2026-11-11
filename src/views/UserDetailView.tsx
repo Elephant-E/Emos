@@ -197,8 +197,10 @@ export function UserDetailView({ userId }: { userId: string }) {
 
       <section className="cards cards--wide">
         <article className="card">
+          {/* /api/video/record/request 对 admin 忽略 user_id（实测传不存在的 id 也回全站 62 条），
+              所以这里展示的是全站最近播放，不能标成「该用户」 */}
           <CardHead title="最近播放">
-            <span className="muted tnum-sm">近一周</span>
+            <span className="muted tnum-sm">近一周 · 全站</span>
           </CardHead>
           <CardTable
             loading={records.isLoading}

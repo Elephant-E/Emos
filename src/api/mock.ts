@@ -605,14 +605,14 @@ export async function mockRequest<T>(
 
   const watchMusicSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/music\/search$/)
   if (watchMusicSearchMatch) {
-    const title = String(query.song_title ?? '').trim()
+    const title = String(query.song_name ?? '').trim()
     const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
 
   const watchMusicMatch = clean.match(/^\/api\/watch\/(\d+)\/music$/)
   if (watchMusicMatch) {
-    const title = String(query.song_title ?? '').trim()
+    const title = String(query.song_name ?? '').trim()
     const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
@@ -747,15 +747,15 @@ export async function mockRequest<T>(
     // ?nonadmin 用于在 mock 下预览普通用户视角（这两个接口对普通用户 403）
     if (new URLSearchParams(location.search).has('nonadmin')) throw Object.assign(new Error('无权限'), { status: 403 })
     const rows = [
-      { user: { username: 'lin' }, order_no: '20261101093012shopA1', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'pay', urge_number: 0, buy_number: 1, time_pay: '2026-11-01 09:31:00', time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-11-01T09:30:12Z' },
-      { user: { username: 'zhou' }, order_no: '20261030201455shopB2', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'pay', urge_number: 2, buy_number: 1, time_pay: '2026-10-30 20:15:00', time_delivery: '2026-10-31 09:00:00', time_urge: '2026-10-31 08:00:00', remark_shop: '已发邮箱', remark_user: null, created_at: '2026-10-30T20:14:55Z' },
-      { user: { username: 'chen' }, order_no: '20261028113300shopC3', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 2, time_pay: null, time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-10-28T11:33:00Z' },
+      { user: { username: 'lin' }, order_no: '20261101093012shopA1', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'paid', urge_number: 0, buy_number: 1, time_pay: '2026-11-01 09:31:00', time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-11-01T09:30:12Z' },
+      { user: { username: 'zhou' }, order_no: '20261030201455shopB2', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'paid', urge_number: 2, buy_number: 1, time_pay: '2026-10-30 20:15:00', time_delivery: '2026-10-31 09:00:00', time_urge: '2026-10-31 08:00:00', remark_shop: '已发邮箱', remark_user: null, created_at: '2026-10-30T20:14:55Z' },
+      { user: { username: 'chen' }, order_no: '20261028113300shopC3', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'unpaid', urge_number: 0, buy_number: 2, time_pay: null, time_delivery: null, time_urge: null, remark_shop: null, remark_user: null, created_at: '2026-10-28T11:33:00Z' },
     ]
     let filtered = rows
     const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
     const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
-    if (truthy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay === 'pay')
-    if (falsy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay !== 'pay')
+    if (truthy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay === 'paid' || r.status_pay === 'pay')
+    if (falsy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay !== 'paid' && r.status_pay !== 'pay')
     if (truthy(query.is_delivery)) filtered = filtered.filter((r) => Boolean(r.time_delivery))
     if (falsy(query.is_delivery)) filtered = filtered.filter((r) => !r.time_delivery)
     if (query.order_title) filtered = filtered.filter((r) => r.order_title.includes(String(query.order_title)))
@@ -773,11 +773,11 @@ export async function mockRequest<T>(
     const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
     const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
     let rows = [
-      { user: { username: 'sorakand' }, order_no: '20261110190000shopMOCK', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'default', urge_number: 0, buy_number: 1, time_pay: null, time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-10T19:00:00Z' },
-      { user: { username: 'sorakand' }, order_no: '20261109120000shopPAID', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'pay', urge_number: 0, buy_number: 1, time_pay: '2026-11-09 12:01:00', time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-09T12:00:00Z' },
+      { user: { username: 'sorakand' }, order_no: '20261110190000shopMOCK', product_id: 1000, price_order: 68, price_settle: 60, order_title: '限量海报 A3', order_cover_url: poster('shop1'), status_pay: 'unpaid', urge_number: 0, buy_number: 1, time_pay: null, time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-10T19:00:00Z' },
+      { user: { username: 'sorakand' }, order_no: '20261109120000shopPAID', product_id: 1001, price_order: 198, price_settle: 180, order_title: '一年会员兑换码', order_cover_url: poster('shop2'), status_pay: 'paid', urge_number: 0, buy_number: 1, time_pay: '2026-11-09 12:01:00', time_delivery: null, remark_shop: null, remark_user: null, created_at: '2026-11-09T12:00:00Z' },
     ]
-    if (truthy(query.is_pay)) rows = rows.filter((r) => r.status_pay === 'pay')
-    if (falsy(query.is_pay)) rows = rows.filter((r) => r.status_pay !== 'pay')
+    if (truthy(query.is_pay)) rows = rows.filter((r) => r.status_pay === 'paid' || r.status_pay === 'pay')
+    if (falsy(query.is_pay)) rows = rows.filter((r) => r.status_pay !== 'paid' && r.status_pay !== 'pay')
     if (truthy(query.is_delivery)) rows = rows.filter((r) => Boolean(r.time_delivery))
     if (falsy(query.is_delivery)) rows = rows.filter((r) => !r.time_delivery)
     if (query.order_title) rows = rows.filter((r) => r.order_title.includes(String(query.order_title)))
@@ -821,14 +821,18 @@ export async function mockRequest<T>(
     return paginate(rows, 1, 20) as T
   }
   if (clean === '/api/carrot/history') {
-    const rows = Array.from({ length: 8 }, (_, i) => ({
-      trigger_type: i % 2 ? 'upload' : 'sign',
-      trigger_type_string: i % 2 ? '上传奖励' : '签到',
-      type: i % 2 ? 'in' : 'in',
-      point: i % 2 ? 3 : 2,
-      expired_at: null,
-      created_at: `2026-11-0${(i % 9) + 1}T08:00:00.000000Z`,
-    }))
+    // 真机：point 恒为正，方向在 type（earn / cost）
+    const rows = Array.from({ length: 8 }, (_, i) => {
+      const cost = i % 4 === 3
+      return {
+        trigger_type: cost ? 'system_penalty' : i % 2 ? 'upload' : 'sign',
+        trigger_type_string: cost ? '罚款' : i % 2 ? '上传奖励' : '签到',
+        type: cost ? 'cost' : 'earn',
+        point: cost ? 1 : i % 2 ? 3 : 2,
+        expired_at: null,
+        created_at: `2026-11-0${(i % 9) + 1}T08:00:00.000000Z`,
+      }
+    })
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/ban/list') {

@@ -1360,6 +1360,9 @@ input.input[type='number'] { min-width: 0; }
 .meta-end { margin-left: auto; font-size: var(--text-2xs); }
 .mark-up { color: var(--c-green); }
 .mark-down { color: var(--c-red); }
+/* 表格单元格自己有 color（.table tbody td），特异性更高，必须再写一层才生效 */
+.table .mark-up { color: var(--c-green); }
+.table .mark-down { color: var(--c-red); }
 
 .card-head .stat__label,
 .card--stat > .stat__label { margin: 0; }

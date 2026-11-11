@@ -70,7 +70,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   })
   const seeks = useQuery({
     queryKey: ['global-search', 'seek', q] as const,
-    queryFn: () => seekApi.list({ video_title: q, page: 1, page_size: PAGE_SIZE, status: ['default', 'upload', 'complete'] }),
+    queryFn: () => seekApi.list({ video_title: q, page: 1, page_size: PAGE_SIZE, status: ['default', 'upload', 'complete', 'cancel', 'forget'] }),
     enabled: ready,
     staleTime: 60_000,
   })

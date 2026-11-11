@@ -110,8 +110,9 @@ export const videoApi = {
     request<VideoEpisode[]>(`/api/video/${videoId}/episode`, {
       query: { season_number: seasonNumber, with_seek: true, with_seek_is_request: true },
     }),
-  persons: (params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) =>
-    request<ListResult<VideoPerson>>('/api/video/persons', { query: params }),
+  // 该接口默认 page_size=1（实测 total 8 只回 1 条），必须显式传分页
+  persons: (params: { video_list_id: number; video_season_id?: number; video_episode_id?: number; page?: number; page_size?: number }) =>
+    request<ListResult<VideoPerson>>('/api/video/persons', { query: { page: 1, page_size: 20, ...params } }),
 }
 
 export const mediaApi = {
@@ -181,10 +182,11 @@ export const watchApi = {
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'POST', body: { sort, remark } }),
   removeVideo: (watchId: number, videoId: number) =>
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'DELETE' }),
-  music: (watchId: number, params: { song_title?: string; page?: number; page_size?: number }) =>
+  // 后端认的是 song_name（song_title 会被忽略，返回全库 52 万条）
+  music: (watchId: number, params: { song_name?: string; page?: number; page_size?: number }) =>
     request<ListResult<MusicSong>>(`/api/watch/${watchId}/music`, { query: params }),
   removeMusic: (watchId: number, songId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'DELETE' }),
-  searchMusic: (watchId: number, params: { song_title?: string; page?: number; page_size?: number }) =>
+  searchMusic: (watchId: number, params: { song_name?: string; page?: number; page_size?: number }) =>
     request<ListResult<MusicSong>>(`/api/watch/${watchId}/music/search`, { query: params }),
   addMusic: (watchId: number, songId: number, sort = 80, remark: string | null = null) =>
     request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'POST', body: { sort, remark } }),

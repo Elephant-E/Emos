@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
+import { Poster } from '@/components/Poster'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -116,10 +117,12 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           <table className="table">
             <thead>
               <tr>
-                <th style={{ width: '40%' }} className="th-thumb">{search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}</th>
+                <th style={{ width: '40%' }} className={search.tab === 'songs' ? undefined : 'th-thumb'}>
+                  {search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}
+                </th>
                 <th style={{ width: '26%' }}>艺人</th>
                 <th className="num" style={{ width: '12%' }}>
-                  {search.tab === 'songs' ? '时长' : '发行'}
+                  {search.tab === 'songs' ? '时长' : search.tab === 'persons' ? '生日' : '发行'}
                 </th>
                 <th style={{ width: '12%' }}>状态</th>
                 <th style={{ width: 44 }} />
@@ -148,14 +151,30 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                   >
                     <td>
                       <span className="cell-title">
+                        {isAlbum ? (
+                          <Poster src={row.image_poster_url as string} name={name} shape="square" />
+                        ) : isSong ? null : (
+                          <Poster src={row.image_profile_url as string} name={name} shape="square" />
+                        )}
                         <span>
                           <span className="cell-title__name">{name}</span>
                           {row.tagline ? <span className="cell-title__code">{String(row.tagline)}</span> : null}
                         </span>
                       </span>
                     </td>
-                    <td className="muted">{artists || String(row.original_name ?? '—')}</td>
-                    <td className="num muted">{isSong ? duration(Number(row.duration ?? 0)) : String(row.release_date ?? '—')}</td>
+                    <td className="muted">
+                      {artists ||
+                        (search.tab === 'persons'
+                          ? String(row.birthplace ?? row.birthday ?? '—')
+                          : String(row.original_name ?? '—'))}
+                    </td>
+                    <td className="num muted">
+                      {isSong
+                        ? duration(Number(row.duration ?? 0))
+                        : search.tab === 'persons'
+                          ? String(row.birthday ?? '—')
+                          : String(row.release_date ?? '—')}
+                    </td>
                     <td>
                       {isSong && row.has_media === false ? (
                         <span className="badge badge--wait">
@@ -164,6 +183,8 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                         </span>
                       ) : isAlbum && row.count_song ? (
                         <span className="muted">{String(row.count_song)} 首</span>
+                      ) : search.tab === 'persons' ? (
+                        <span className="muted">{row.is_virtual === '0' || row.is_virtual === 0 ? '真人' : '虚拟'}</span>
                       ) : (
                         <span className="muted">—</span>
                       )}

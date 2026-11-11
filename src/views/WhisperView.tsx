@@ -130,9 +130,9 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                       ) : null}
                     </td>
                     <td className="muted">
-                      {/* sender_is_anonymous 说的是发起方。只有收件箱的「来自」列指发起方，
-                          发件箱的「发给」列是收件人，匿名与否与这一列无关 */}
-                      {tab === 'receiver' && row.sender_is_anonymous ? '匿名' : String(peer)}
+                      {/* 收件箱判匿名看 sender_user 是否为空（该端点没有 sender_is_anonymous）；
+                          发件箱这一列是收件人，与匿名无关 */}
+                      {tab === 'receiver' && !row.sender_user ? '匿名' : String(peer)}
                     </td>
                     <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
                     {tab === 'receiver' ? (

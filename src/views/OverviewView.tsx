@@ -342,8 +342,9 @@ export function OverviewView() {
                   <span className="muted meta-end">
                     {String(row.created_at).slice(5, 10)}
                   </span>
-                  <span className="tnum" style={{ color: row.point >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
-                    {row.point > 0 ? '+' : ''}{row.point}
+                  <span className="tnum" style={{ color: (row.type === 'cost' ? -Number(row.point) : Number(row.point)) >= 0 ? 'var(--c-green)' : 'var(--c-red)' }}>
+                    {(row.type === 'cost' ? -Number(row.point) : Number(row.point)) > 0 ? '+' : ''}
+                    {row.type === 'cost' ? -Number(row.point) : Number(row.point)}
                   </span>
                 </li>
               ))}

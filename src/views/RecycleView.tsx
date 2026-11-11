@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
-import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
+import { useCapabilities, useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
@@ -39,6 +39,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
   useDebounced(term, (next) => onQuery(next, by), { current: q })
 
+  const caps = useCapabilities()
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0
   const rows = (active.data?.items ?? []) as Array<Record<string, unknown>>
@@ -157,7 +158,9 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                 {rows.map((row) => {
                   const mediaId = String(row.media_id ?? '')
                   const name = String(row.media_name ?? mediaId)
-                  const canRestore = row.is_can_restore === true
+                  // 实测 is_can_restore 在真机上恒为 false（含本人上传），不能当唯一门槛；
+                  // 有权限的用户直接给按钮，真正不可恢复时由接口报错
+                  const canRestore = row.is_can_restore === true || Boolean(row.is_self_upload) || Boolean(caps.isAdmin)
                   return (
                     <tr key={mediaId}>
                       <td>

@@ -32,6 +32,17 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [lyricForm, setLyricForm] = useState({ type: 'text', language: 'zh-CN', content: '' })
+
+  const removeLyric = async (lyricId: number) => {
+    const ok = await confirmDialog({
+      title: '删除这份歌词？',
+      message: '删除后不可恢复。',
+      confirmText: '删除',
+      danger: true,
+    })
+    if (!ok) return
+    actions.deleteLyric.mutate(lyricId, { onSuccess: () => toast('已删除', 'success') })
+  }
   // music_song_id 是目标歌曲的 id（契约原话「将资源移动到当前歌曲下」）
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
   const [moveTerm, setMoveTerm] = useState('')
@@ -175,8 +186,21 @@ export function SongDetailView({ songId }: { songId: number }) {
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
                   <span style={{ color: 'var(--fg-2)' }}>{String(row.type ?? 'text').toUpperCase()}</span>
                   <span className="meta-sm">
-                    {String(row.language ?? '—')} · {String(row.name ?? '—')} · {formatDateTime(String(row.created_at ?? ''))}
+                    {String(row.language ?? '—')}
+                    {(row.user as { username?: string } | undefined)?.username
+                      ? ` · ${String((row.user as { username?: string }).username)}`
+                      : ''}
+                    {' · '}
+                    {formatDateTime(String(row.created_at ?? ''))}
                   </span>
+                  <button type="button"
+                    className="btn btn--quiet"
+                    style={{ marginLeft: 'auto' }}
+                    disabled={actions.deleteLyric.isPending}
+                    onClick={() => void removeLyric(Number(row.lyric_id))}
+                  >
+                    删除
+                  </button>
                 </div>
                 <pre
                   style={{

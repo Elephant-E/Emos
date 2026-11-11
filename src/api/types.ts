@@ -342,7 +342,7 @@ export interface ShopOrder {
   order_title: string
   order_cover_url: string | null
   status_pay: string
-  urge_number: number
+  urge_number: number | null
   buy_number: number
   time_pay: string | null
   time_delivery: string | null
@@ -556,6 +556,7 @@ export interface LotteryWinner {
     prize_description: string | null
     join_index: number
     join_at: string
-    prize_body: string | null
+    /** 真机响应里没有该字段 */
+    prize_body?: string | null
   }>
 }

@@ -142,7 +142,7 @@ export function WatchlistDetailView({
   // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮
   const songs = useWatchMusic(
     id,
-    { page: search.page, page_size: search.page_size, song_title: search.q || undefined },
+    { page: search.page, page_size: search.page_size, song_name: search.q || undefined },
     isMusic,
   )
 

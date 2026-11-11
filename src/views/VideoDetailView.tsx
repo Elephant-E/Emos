@@ -224,7 +224,8 @@ export function VideoDetailView({
                     {genre.name}
                   </span>
                 ))}
-                {video.seek_is_request && video.request_count > 0 ? (
+                {/* seek_is_request 为 false 也可能存在求片（实测 seek_id 有值却 false），按 id/count 判断 */}
+                {video.request_count > 0 || video.seek_id ? (
                   <span className="chip" style={{ color: 'var(--c-yellow)', borderColor: 'rgba(255,197,61,.4)' }}>
                     {video.request_count} 人求片
                   </span>
