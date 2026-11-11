@@ -89,7 +89,7 @@ export function WatchlistDetailView({
   const [adding, setAdding] = useState(false)
   const [addingSong, setAddingSong] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; sort: number; remark: string } | null>(null)
+  const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
   const [maintainerIds, setMaintainerIds] = useState<string[]>([])
   const [dynamicOpen, setDynamicOpen] = useState(false)
@@ -299,7 +299,6 @@ export function WatchlistDetailView({
                           setRemarkFor({
                             videoId: video.video_id,
                             title: video.video_title,
-                            sort: video.sort,
                             remark: video.remark ?? '',
                           })
                         }}
@@ -478,7 +477,8 @@ export function WatchlistDetailView({
                   updateVideoEntry.mutate(
                     {
                       videoId: remarkFor.videoId,
-                      sort: remarkFor.sort,
+                      // sort 从当前列表取，不用弹窗打开那一刻的值
+                      sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
                       remark: remarkFor.remark.trim() || null,
                     },
                     {
