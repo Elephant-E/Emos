@@ -1825,12 +1825,8 @@
   height: 100%;
   object-fit: cover;
 }
-/* 封面加载失败时退回首字：组件里一直在设 data-fallback，但规则一直没写 */
-.product-tile__cover[data-fallback]::after {
-  content: attr(data-fallback);
-  font-size: 28px;
-  color: var(--fg-5);
-}
+/* 商品封面是正方形；<Poster> 的首字兜底在列表里是 30×40 的缩略块，这里要撑满 */
+.product-tile__cover .thumb { width: 100%; height: 100%; border-radius: 0; font-size: 28px; }
 .product-tile__body { padding: 14px 16px 16px; display: grid; gap: 7px; }
 .product-tile__name {
   font-size: 14px;
@@ -1912,3 +1908,7 @@
 
 /* 次要的小字：灰色、11.5px。这个组合在各页面重复了十几次 */
 .meta-sm { font-size: 11.5px; color: var(--fg-4); }
+
+/* 弹窗里两列并排的字段。左列窄一点的那档用来放「类型 / 数量」这类短字段 */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row--wide { grid-template-columns: 120px 1fr; }

@@ -509,7 +509,7 @@ export function ShopView({
             value={editing.cover_url ?? null}
             onChange={(url) => setEditing({ ...editing, cover_url: url })}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="field-row">
             <label className="field">
               <span>售价</span>
               <input className="input" type="number" min={1} value={editing.price ?? 1} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />

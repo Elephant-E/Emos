@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Modal } from '@/components/Modal'
+import { Poster } from '@/components/Poster'
 import { LoadingBlock } from '@/components/StateBlock'
 import { useShopMutations, useShopProduct } from '@/api/queries'
 import { formatThousand } from '@/lib/format'
@@ -63,14 +64,7 @@ export function ProductDetailModal({
         <>
           <div style={{ display: 'flex', gap: 16 }}>
             <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
-              {p.cover_url ? <img
-                src={p.cover_url}
-                alt={p.name}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                  e.currentTarget.parentElement?.setAttribute('data-fallback', p.name.slice(0, 1))
-                }}
-              /> : p.name.slice(0, 1)}
+              <Poster src={p.cover_url} name={p.name} />
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
@@ -103,7 +97,7 @@ export function ProductDetailModal({
           {p.description ? <p className="card-note" style={{ marginTop: 14 }}>{p.description}</p> : null}
           {p.exchange_way ? <p className="card-note">兑换方式：{p.exchange_way}</p> : null}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12, marginTop: 14 }}>
+          <div className="field-row field-row--wide" style={{ marginTop: 14 }}>
             <label className="field">
               <span>数量</span>
               <input
@@ -166,14 +160,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
     >
       <div className="row" style={{ gap: 12 }}>
         <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
-          {product.cover_url ? <img
-            src={product.cover_url}
-            alt={product.name}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-              e.currentTarget.parentElement?.setAttribute('data-fallback', product.name.slice(0, 1))
-            }}
-          /> : product.name.slice(0, 1)}
+          <Poster src={product.cover_url} name={product.name} />
         </div>
         <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>

@@ -1,5 +1,6 @@
 import type { ShopProduct } from '@/api/types'
 import { IconBag } from '@/components/icons'
+import { Poster } from '@/components/Poster'
 import { formatThousand } from '@/lib/format'
 
 /**
@@ -30,15 +31,7 @@ export function ProductTile({
       }}
     >
       <div className="product-tile__cover">
-        {product.cover_url ? <img
-          src={product.cover_url}
-          alt={product.name}
-          loading="lazy"
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
-            e.currentTarget.parentElement?.setAttribute('data-fallback', product.name.slice(0, 1))
-          }}
-        /> : product.name.slice(0, 1)}
+        <Poster src={product.cover_url} name={product.name} />
       </div>
       <div className="product-tile__body">
         <span className="product-tile__name">{product.name}</span>

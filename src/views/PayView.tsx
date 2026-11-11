@@ -117,7 +117,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         </article>
       </section>
 
-      <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+      <section className="cards cards--2">
         <article className="card" style={{ display: base.error ? 'none' : undefined }}>
           <p className="stat__label">查询订单</p>
           <div className="row-input" style={{ marginTop: 10 }}>

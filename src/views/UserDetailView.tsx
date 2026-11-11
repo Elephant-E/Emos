@@ -83,7 +83,7 @@ export function UserDetailView({ userId }: { userId: string }) {
 
       {(
         <>
-          <section className="cards" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
+          <section className="cards cards--4">
             <StatCard
               label="账号状态"
               word
@@ -119,7 +119,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             />
           </section>
 
-          <section className="cards" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+          <section className="cards cards--2">
             <article className="card">
               <CardHead title="资料">
               </CardHead>

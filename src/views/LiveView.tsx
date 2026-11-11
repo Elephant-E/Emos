@@ -299,20 +299,16 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <span>频道名称</span>
             <input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <label className="field">
-            </label>
-            <label className="field">
-              <span>媒体库</span>
-              <select className="input" value={form.library} onChange={(e) => setForm({ ...form, library: Number(e.target.value) })}>
-                {(library.data ?? []).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+          <label className="field">
+            <span>媒体库</span>
+            <select className="input" value={form.library} onChange={(e) => setForm({ ...form, library: Number(e.target.value) })}>
+              {(library.data ?? []).map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.title}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="field">
             <span>简介</span>
             <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
@@ -344,7 +340,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <span>源名称</span>
             <input className="input" value={source.name} onChange={(e) => setSource({ ...source, name: e.target.value })} placeholder="三网直达 1080p" autoFocus />
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 12 }}>
+          <div className="field-row field-row--wide">
             <label className="field">
               <span>类型</span>
               <select className="input" value={source.path_type} onChange={(e) => setSource({ ...source, path_type: e.target.value })}>
