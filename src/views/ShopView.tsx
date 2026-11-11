@@ -69,17 +69,17 @@ export function ShopView({
   const mine = scope === 'mine'
   // 逛全站时只显示上架的——下架商品对买家不存在
   // 表格只在「我的店铺」用；全站是卡片网格，走 browse
-  const products = useShopProducts(
+  const products = useShopProducts({
     page,
-    mine ? (seller.data?.seller_id ?? 0) : 0,
+    sellerId: mine ? (seller.data?.seller_id ?? 0) : 0,
     categoryId,
-    12,
-    q,
-    sort,
-    !mine,
+    pageSize: 12,
+    name: q,
+    sortBy: sort,
+    onlyUp: !mine,
     // 等 seller 回来再查，否则 seller_id=0 会把全站商品填进「我的店铺」
-    mine && Boolean(seller.data?.seller_id),
-  )
+    enabled: mine && Boolean(seller.data?.seller_id),
+  })
   // 卡片视图用滚动加载；表格视图仍分页
   const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true, enabled: !mine })
   const browseItems = browse.data?.pages.flatMap((p) => p.items) ?? []

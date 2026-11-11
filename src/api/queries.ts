@@ -463,31 +463,52 @@ export function useShopCategories(sellerId?: number) {
   })
 }
 
-export function useShopProducts(
-  page: number,
-  sellerId: number,
-  categoryId: number,
+/** 商品列表的查询参数（分页与滚动加载两条路径共用，字段名容易写错，只写一处） */
+function shopProductsQuery(p: {
+  sellerId: number
+  page: number
+  pageSize: number
+  categoryId?: number
+  name?: string
+  sortBy?: '' | 'sales' | 'price'
+  onlyUp?: boolean
+}) {
+  return shopApi.products({
+    seller_id: p.sellerId || undefined,
+    page: p.page,
+    page_size: p.pageSize,
+    category_id: p.categoryId || undefined,
+    name: p.name || undefined,
+    is_up: p.onlyUp ? true : undefined,
+    // 后端只认这几个；updated_at / created_at 会 422
+    sort_by: p.sortBy || 'sort',
+    sort_order: p.sortBy ? 'desc' : 'asc',
+  })
+}
+
+export function useShopProducts({
+  page,
+  sellerId,
+  categoryId = 0,
   pageSize = 12,
   name = '',
-  sortBy: '' | 'sales' | 'price' = '',
+  sortBy = '',
   /** 只查上架的。逛全站商品时用，管理自己店铺时不传（要能看到下架的） */
   onlyUp = false,
   enabled = true,
-) {
+}: {
+  page: number
+  sellerId: number
+  categoryId?: number
+  pageSize?: number
+  name?: string
+  sortBy?: '' | 'sales' | 'price'
+  onlyUp?: boolean
+  enabled?: boolean
+}) {
   return useQuery({
     queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy, onlyUp] as const,
-    queryFn: () =>
-      shopApi.products({
-        seller_id: sellerId || undefined,
-        page,
-        page_size: pageSize,
-        category_id: categoryId || undefined,
-        name: name || undefined,
-        is_up: onlyUp ? true : undefined,
-        // 后端只认这几个；updated_at / created_at 会 422
-        sort_by: sortBy || 'sort',
-        sort_order: sortBy ? 'desc' : 'asc',
-      }),
+    queryFn: () => shopProductsQuery({ sellerId, page, pageSize, categoryId, name, sortBy, onlyUp }),
     enabled,
   })
 }
@@ -512,16 +533,7 @@ export function useShopProductsInfinite(params: {
     enabled,
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      shopApi.products({
-        seller_id: sellerId || undefined,
-        page: pageParam,
-        page_size: pageSize,
-        category_id: categoryId || undefined,
-        name: name || undefined,
-        is_up: onlyUp ? true : undefined,
-        sort_by: sortBy || 'sort',
-        sort_order: sortBy ? 'desc' : 'asc',
-      }),
+      shopProductsQuery({ sellerId, page: pageParam, pageSize, categoryId, name, sortBy, onlyUp }),
     getNextPageParam: (last, pages) => (last.items.length < pageSize ? undefined : pages.length + 1),
   })
 }
