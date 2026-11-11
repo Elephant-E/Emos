@@ -56,7 +56,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
 
   const submit = async () => {
     const filled = options.map((o) => o.trim()).filter(Boolean)
-    if (!question.trim()) return toast('写个问题', 'error')
+    if (!question.trim()) return toast('缺少问题', 'error')
     if (filled.length < 2) return toast('至少两个选项', 'error')
     if (filled.length > MAX_OPTIONS) return toast(`最多 ${MAX_OPTIONS} 个选项`, 'error')
     setSending(true)
@@ -117,14 +117,14 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
           <section className="cards cards--form">
             <article className="card card--tight">
               <CardHead title="投票" />
-              <div className="card-body" style={{ display: 'grid', gap: 14 }}>
+              <div className="card-body stack">
                 <label className="field">
                   <span>问题</span>
                   <input className="input" maxLength={100} value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="100 字内" />
                 </label>
                 <label className="field">
                   <span>简介</span>
-                  <input className="input" maxLength={200} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="可选，200 字内" />
+                  <input className="input" maxLength={200} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="200 字内" />
                 </label>
                 <label className="field">
                   <span>持续时间</span>
@@ -200,9 +200,9 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
 
             <article className="card card--tight">
               <CardHead title="说明" />
-              <div className="card-body" style={{ display: 'grid', gap: 8 }}>
-                <p className="card-note">投票发在 Telegram 群里，至少 2 个、最多 12 个选项。</p>
-                <p className="card-note">「结束后公布」在投票进行中不显示票数。</p>
+              <div className="card-body">
+                <p className="card-note">至少 2 个、最多 12 个选项。</p>
+                <p className="card-note">「结束后公布」时，投票进行中不显示票数。</p>
               </div>
             </article>
           </section>
@@ -240,7 +240,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                       {formatDateTime(result.data?.time_start)} → {formatDateTime(result.data?.time_end)}
                     </span>
                   </CardHead>
-                  <div className="card-body" style={{ display: 'grid', gap: 10 }}>
+                  <div className="card-body stack">
                     {(result.data?.options ?? []).map((option, index) => {
                       const count = tally.get(index) ?? 0
                       const share = totalVotes > 0 ? count / totalVotes : 0
@@ -252,7 +252,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                               {formatThousand(count)} 票 · {Math.round(share * 100)}%
                             </span>
                           </div>
-                          <div className="progress-line" style={{ marginTop: 6 }}>
+                          <div className="progress-line" style={{ marginTop: 8 }}>
                             <i style={{ transform: `scaleX(${share.toFixed(3)})` }} />
                           </div>
                         </div>
@@ -264,7 +264,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               </section>
 
               {totalVotes === 0 ? (
-                <EmptyBlock title="还没有人投票" />
+                <EmptyBlock title="没有人投票" />
               ) : (
                 <div className="table-card" style={{ marginTop: 18 }}>
                   <table className="table">

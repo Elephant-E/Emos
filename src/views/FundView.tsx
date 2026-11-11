@@ -37,7 +37,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
             label="胡萝卜余额"
             value={carrot.data ? formatThousand(carrot.data.carrot) : '—'}
             unit="个"
-            note="签到、上传、字幕都会获得"
+            note="来源：签到、上传、字幕"
             action={
               <button
                 className="btn btn--quiet"
@@ -51,8 +51,9 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
         </div>
       </section>
 
+      {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
-      {!history.isLoading && rows.length === 0 ? <EmptyBlock title="还没有胡萝卜记录" /> : null}
+      {!history.isLoading && !history.error && rows.length === 0 ? <EmptyBlock title="没有胡萝卜记录" /> : null}
       {rows.length > 0 ? (
         <ListCard items={rows} total={rows.length} idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`} scope={page}>
           <table className="table">
@@ -234,7 +235,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
 
       {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (
-        <EmptyBlock title="还没有基金订单" />
+        <EmptyBlock title="没有基金订单" />
       ) : null}
 
       {tab === 'orders' && rows.length > 0 ? (

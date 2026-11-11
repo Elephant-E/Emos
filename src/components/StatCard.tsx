@@ -20,6 +20,7 @@ export function StatCard({
   tone,
   word,
   loud,
+  secondary,
 }: {
   label: ReactNode
   value: ReactNode
@@ -32,9 +33,11 @@ export function StatCard({
   word?: boolean
   /** 说明用强调色（默认是弱色） */
   loud?: boolean
+  /** 次要指标：数值降到 30px，一屏只留一个 44px 的主数字 */
+  secondary?: boolean
 }) {
   return (
-    <article className="card card--stat">
+    <article className={secondary ? 'card card--stat card--secondary' : 'card card--stat'}>
       {action ? <CardHead title={label}>{action}</CardHead> : <p className="stat__label">{label}</p>}
       <p className="stat__value" style={tone === 'danger' ? { color: 'var(--c-red)' } : undefined}>
         {word ? <span className="stat__word stat__word--sm">{value}</span> : value}

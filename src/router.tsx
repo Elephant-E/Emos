@@ -44,7 +44,16 @@ const rootRoute = createRootRoute({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: () => <LoginView onDone={() => (location.href = '/')} />,
+  /** 登录后回到被 401 打断的那一页；只接受站内路径，避免开放跳转 */
+  component: () => (
+    <LoginView
+      onDone={() => {
+        const next = new URLSearchParams(location.search).get('next')
+        const safe = next && next.startsWith('/') && !next.startsWith('//') ? next : '/'
+        location.href = safe
+      }}
+    />
+  ),
 })
 
 const appLayout = createRoute({
@@ -84,8 +93,8 @@ const videoDetailRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/media/$videoId',
   validateSearch: (s: Record<string, unknown>): { season: number; episode: number } => ({
-    season: Number(s.season ?? 1),
-    episode: Number(s.episode ?? 1),
+    season: asPage(s.season),
+    episode: asPage(s.episode),
   }),
   component: VideoDetailRoute,
 })
@@ -126,7 +135,8 @@ const sellerRoute = createRoute({
 
 function SellerRoute() {
   const { sellerId } = sellerRoute.useParams()
-  return <SellerView sellerId={Number(sellerId) || 0} />
+  // 非法 id 不能退化成 0 —— 0 在接口里等于「我的店铺」，会静默打开自己的店
+  return <SellerView sellerId={Number.isFinite(Number(sellerId)) && Number(sellerId) > 0 ? Number(sellerId) : 0} />
 }
 
 const shopRoute = createRoute({

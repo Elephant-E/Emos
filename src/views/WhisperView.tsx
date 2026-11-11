@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
@@ -9,6 +10,19 @@ import { toast } from '@/ui/toast'
 import { formatDateTime } from '@/lib/format'
 
 type Row = Record<string, unknown>
+
+/**
+ * 正文最多两行。`.table tbody td` 是 nowrap，一条长悄悄话会把整行撑到几千 px，
+ * 页面出现横向滚动。CSS 文件这轮不动，先用内联样式收住。
+ */
+const CLAMP_TWO_LINES: CSSProperties = {
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  whiteSpace: 'normal',
+  overflowWrap: 'anywhere',
+}
 
 function useWhispers(tab: 'receiver' | 'sender') {
   return useQuery({
@@ -76,7 +90,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       {list.isLoading ? <LoadingBlock rows={6} columns={3} /> : null}
 
       {!list.isLoading && !list.error && rows.length === 0 ? (
-        <EmptyBlock title={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'} />
+        <EmptyBlock title={tab === 'receiver' ? '没有收到悄悄话' : '没有发出悄悄话'} />
       ) : null}
 
       {rows.length > 0 ? (
@@ -87,7 +101,8 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                 <th style={{ width: '42%' }}>内容</th>
                 <th style={{ width: '18%' }}>{tab === 'receiver' ? '来自' : '发给'}</th>
                 <th style={{ width: '18%' }}>时间</th>
-                <th style={{ width: '120px' }}>操作</th>
+                {/* 整表不可操作（发出的页只能看）就连这一列一起不渲染 */}
+                {tab === 'receiver' ? <th style={{ width: '120px' }}>操作</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -106,16 +121,24 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                 const reply = row.receiver_content
                 return (
                   <tr key={id}>
-                    <td>
-                      <span className="cell-title__name">{String(body ?? '—')}</span>
-                      {reply && reply !== body ? <span className="cell-title__code">回复：{String(reply)}</span> : null}
+                    <td style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
+                      <span className="cell-title__name" style={CLAMP_TWO_LINES} title={String(body ?? '—')}>
+                        {String(body ?? '—')}
+                      </span>
+                      {reply && reply !== body ? (
+                        <span className="cell-title__code" style={CLAMP_TWO_LINES} title={String(reply)}>
+                          回复：{String(reply)}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="muted">
-                      {row.sender_is_anonymous ? '匿名' : String(peer)}
+                      {/* sender_is_anonymous 说的是发起方。只有收件箱的「来自」列指发起方，
+                          发件箱的「发给」列是收件人，匿名与否与这一列无关 */}
+                      {tab === 'receiver' && row.sender_is_anonymous ? '匿名' : String(peer)}
                     </td>
                     <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
-                    <td>
-                      {tab === 'receiver' ? (
+                    {tab === 'receiver' ? (
+                      <td>
                         <button
                           className="btn btn--quiet"
                           onClick={() => {
@@ -125,10 +148,8 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                         >
                           回复
                         </button>
-                      ) : (
-                        <span className="muted">—</span>
-                      )}
-                    </td>
+                      </td>
+                    ) : null}
                   </tr>
                 )
               })}
@@ -167,7 +188,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
               rows={4}
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="写点什么"
+              placeholder="回复内容"
             />
           </div>
         </Modal>

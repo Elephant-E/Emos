@@ -48,6 +48,15 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
     type: (search.type || undefined) as VideoType | undefined,
   })
 
+  // 分页器 props 只写一份：正常分支和「页码越界」分支共用，否则后者会漏掉每页条数
+  const pagerProps = {
+    total: data?.total ?? 0,
+    page: search.page,
+    pageSize: search.page_size,
+    onPage: (page: number) => onSearch({ page }),
+    onPageSize: (page_size: number) => onSearch({ page: 1, page_size }),
+  }
+
 
   return (
     <>
@@ -95,17 +104,19 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       {!error && !isLoading && data && data.items.length === 0 ? (
         // 区分「真没有数据」和「页码越界」：后者总条数是有值的
         data.total > 0 ? (
-          <>
+          // 空态和分页器同属一张卡，不要一个在卡里、一个裸在页面上
+          <div className="table-card">
             <EmptyBlock
+              bare
               title="这一页没有内容"
               hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
-              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回第一页</button>}
             />
-            <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
-          </>
+            <Pager {...pagerProps} />
+          </div>
         ) : (
           <EmptyBlock
-            title={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
+            title={search.q ? `没有找到「${search.q}」` : '片库为空'}
             action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
           />
         )
@@ -136,9 +147,10 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                       <span>
                         <span className="cell-title__name">{video.video_title}</span>
                         {(() => {
+                          const genres = video.genres ?? []
                           const sub = [
                             video.video_origin_title,
-                            video.genres.length ? video.genres.slice(0, 2).map((g) => g.name).join('/') : null,
+                            genres.length ? genres.slice(0, 2).map((g) => g.name).join('/') : null,
                           ].filter(Boolean)
                           return sub.length ? <span className="cell-title__code">{sub.join(' · ')}</span> : null
                         })()}
@@ -169,13 +181,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               ))}
             </tbody>
           </table>
-          <Pager
-            total={data.total}
-            page={search.page}
-            pageSize={search.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page: 1, page_size })}
-          />
+          <Pager {...pagerProps} />
         </ListCard>
       ) : null}
     </>

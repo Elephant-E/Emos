@@ -3,7 +3,7 @@ export function asPage(value: unknown, fallback = 1): number {
   return Number.isFinite(n) && n >= 1 ? Math.floor(n) : fallback
 }
 
-const PAGE_SIZES = [10, 20, 50, 100] as const
+export const PAGE_SIZES = [20, 50, 100] as const
 
 export function asPageSize(value: unknown, fallback = 20): number {
   const n = Number(value)

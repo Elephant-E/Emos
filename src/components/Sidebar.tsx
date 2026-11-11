@@ -26,7 +26,7 @@ import {
   IconUser,
 } from './icons'
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; tail?: string; chev?: boolean }
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; chev?: boolean }
 
 /**
  * 按**业务对象**分组，不按「常用/不常用」。
@@ -177,7 +177,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
       </label>
 
       <div className="rail__scroll" ref={scrollRef}>
-      <nav className="rail__nav" style={{ marginTop: 14 }}>
+      <nav className="rail__nav" style={{ marginTop: 12 }}>
         {PINNED.map((item) => {
           const Icon = item.icon
           const active = pathname === item.to
@@ -209,7 +209,6 @@ export function Sidebar({ user }: { user?: UserInfo }) {
                       <IconChevron size={13} />
                     </span>
                   ) : null}
-                  {item.tail ? <span className="rail__tail">{item.tail}</span> : null}
                 </Link>
               )
             })}

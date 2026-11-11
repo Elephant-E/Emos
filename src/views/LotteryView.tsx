@@ -60,10 +60,10 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
     setPrizes((prev) => prev.map((p, i) => (i === index ? { ...p, ...changes } : p)))
 
   const submit = async () => {
-    if (!name.trim()) return toast('抽奖要有个名字', 'error')
-    if (!timeStart || !timeEnd) return toast('设置开始和结束时间', 'error')
+    if (!name.trim()) return toast('缺少名称', 'error')
+    if (!timeStart || !timeEnd) return toast('需要开始和结束时间', 'error')
     if (toApiTime(timeEnd) <= toApiTime(timeStart)) return toast('结束时间要晚于开始时间', 'error')
-    if (prizes.some((p) => !p.name.trim())) return toast('每个奖品都要有名字', 'error')
+    if (prizes.some((p) => !p.name.trim())) return toast('奖品名称必填', 'error')
     if (prizes.some((p) => !Number(p.number) || Number(p.number) < 1)) return toast('奖品数量至少 1', 'error')
 
     const cost = Number(amount) || 1
@@ -88,7 +88,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       }),
     }
     const ok = await confirmDialog({
-      title: '确认创建抽奖？',
+      title: '创建抽奖？',
       message: `${body.name}，${body.prizes.length} 个奖品，每人 ${cost} 胡萝卜参与。`,
       hint: body.number ? `满 ${body.number} 人开奖，或到结束时间开奖。` : '到结束时间开奖。',
       confirmText: '创建',
@@ -156,7 +156,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                     onSearch({ tab: 'winners', id: created })
                   }}
                 >
-                  看中奖名单
+                  中奖名单
                 </button>
                 <button className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再建一个
@@ -168,7 +168,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           <section className="cards cards--form">
             <article className="card card--tight">
               <CardHead title="抽奖" />
-              <div className="card-body" style={{ display: 'grid', gap: 14 }}>
+              <div className="card-body stack">
                 <label className="field">
                   <span>名称</span>
                   <input className="input" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} placeholder="50 字内" />
@@ -213,7 +213,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                     加一个
                   </button>
                 </CardHead>
-                <div style={{ display: 'grid', gap: 10 }}>
+                <div className="stack">
                   {prizes.map((prize, index) => (
                     <div key={index} className="row" style={{ gap: 8, alignItems: 'flex-start' }}>
                       <label className="field" style={{ flex: '1 1 140px' }}>
@@ -250,7 +250,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       {prizes.length > 1 ? (
                         <button
                           className="btn btn--danger-text"
-                          style={{ marginTop: 22 }}
+                          style={{ marginTop: 24 }}
                           onClick={() => setPrizes((prev) => prev.filter((_, i) => i !== index))}
                         >
                           删除
@@ -270,10 +270,8 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
 
             <article className="card card--tight">
               <CardHead title="说明" />
-              <div className="card-body" style={{ display: 'grid', gap: 8 }}>
-                <p className="card-note">开始与结束都在一周内，到结束时间无论人数是否达标都会开奖。</p>
-                <p className="card-note">开奖人数填 0 表示到点开奖；填了数字就是「满多少人开奖」。</p>
-                <p className="card-note">自动发奖内容按奖品数量逐条填，数量对不上后端会拒。</p>
+              <div className="card-body">
+                <p className="card-note">开始与结束时间在一周内，到结束时间无论人数是否达标都会开奖。</p>
               </div>
             </article>
           </section>
@@ -297,7 +295,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           </div>
 
           {!search.id ? (
-            <EmptyBlock title="输入抽奖 ID 查中奖名单" />
+            <EmptyBlock title="输入抽奖 ID 查名单" />
           ) : winners.error ? (
             <ErrorBlock error={winners.error} onRetry={() => winners.refetch()} />
           ) : winners.isLoading ? (
@@ -320,7 +318,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                     {winners.data?.lottery_description ? (
                       <p className="card-note">{winners.data.lottery_description}</p>
                     ) : null}
-                    <dl className="kv" style={{ marginTop: 10 }}>
+                    <dl className="kv stack--top">
                       <div>
                         <dt>时间</dt>
                         <dd className="muted">
@@ -345,7 +343,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               </section>
 
               {(winners.data?.users.length ?? 0) === 0 ? (
-                <EmptyBlock title="还没开奖或没人中奖" />
+                <EmptyBlock title="没有中奖记录" />
               ) : (
                 <div className="table-card" style={{ marginTop: 18 }}>
                   <table className="table">

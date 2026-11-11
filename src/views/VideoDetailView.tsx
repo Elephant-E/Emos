@@ -71,12 +71,23 @@ export function VideoDetailView({
 
   const caps = useCapabilities()
   const seekApply = useSeekApply()
-  const media = useMediaList({
-    video_list_id: videoId,
-    video_season_id: currentEpisode?.season_id,
-    video_episode_id: currentEpisode?.episode_id,
-  })
-  const subtitles = useSubtitles({ video_list_id: videoId, video_episode_id: currentEpisode?.episode_id })
+  // 电影没有季集（真机实测 /season 与 /episode 都返回空数组），资源与字幕挂影片级（vl）；
+  // 剧集则挂在单集上：选中集之前不发请求，否则只带 video_list_id 的请求会返回整部剧
+  // 所有集的资源，却显示在「第 N 集」标题下
+  const isMovie = detail.data?.video_type === 'movie'
+  const episodeReady = isMovie || Boolean(currentEpisode)
+  const media = useMediaList(
+    {
+      video_list_id: videoId,
+      video_season_id: currentEpisode?.season_id,
+      video_episode_id: currentEpisode?.episode_id,
+    },
+    episodeReady,
+  )
+  const subtitles = useSubtitles(
+    { video_list_id: videoId, video_episode_id: currentEpisode?.episode_id },
+    episodeReady,
+  )
   const persons = usePersons(videoId)
   const actions = useVideoMutations(videoId)
 
@@ -100,8 +111,6 @@ export function VideoDetailView({
   useEffect(() => setMoveSeason(1), [moveTargetId])
 
   const video = detail.data
-  // 电影没有季集（真机实测 /season 与 /episode 都返回空数组），资源与字幕挂影片级（vl）
-  const isMovie = video?.video_type === 'movie'
 
   const pick = (nextSeason: number, nextEpisode: number) => {
     setSeason(nextSeason)
@@ -126,7 +135,7 @@ export function VideoDetailView({
                 onClick={() => {
                   // 接口要的是 TODB 的 id，不是站内的 video_id
                   if (!video?.todb_id) {
-                    toast('这部影片没有 TODB 记录，无法同步', 'error')
+                    toast('无 TODB 记录，无法同步', 'error')
                     return
                   }
                   actions.syncVideo.mutate(video.todb_id, { onSuccess: () => toast('已开始同步', 'success') })
@@ -190,7 +199,7 @@ export function VideoDetailView({
       {!detail.isLoading && !detail.error && !video ? (
         <EmptyBlock
           title="找不到这部影片"
-          hint="它可能已被删除（去回收站看看），或这个 ID 不存在。"
+          hint="可能已删除，或该 ID 不存在。"
           action={
             <Link className="btn btn--ghost" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               回到媒体库
@@ -205,8 +214,8 @@ export function VideoDetailView({
             {video.video_image_poster ? (
               <Poster src={video.video_image_poster} name={video.video_title} className="poster-img detail-head__poster" />
             ) : null}
-            <div style={{ display: 'grid', gap: 10, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span className="zone">
                   <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                   {VIDEO_TYPE_LABEL[video.video_type]}
@@ -257,6 +266,7 @@ export function VideoDetailView({
             </span>
           </CardHead>
 
+          {seasons.error ? <ErrorBlock bare error={seasons.error} onRetry={() => seasons.refetch()} /> : null}
           {seasons.isLoading ? <div className="skeleton" style={{ height: 34, marginTop: 12 }} /> : null}
           {seasons.data && seasons.data.length > 0 ? (
             <select
@@ -275,8 +285,9 @@ export function VideoDetailView({
             </select>
           ) : null}
 
+          {episodes.error ? <ErrorBlock bare error={episodes.error} onRetry={() => episodes.refetch()} /> : null}
           {episodes.isLoading ? <div className="skeleton" style={{ height: 160, marginTop: 12 }} /> : null}
-          {episodes.data && seasonEpisodes.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
+          {!episodes.error && episodes.data && seasonEpisodes.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
 
           {seasonEpisodes.length > 0 ? (
             <>
@@ -332,8 +343,10 @@ export function VideoDetailView({
             </CardHead>
 
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
+            {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
+            {!episodeReady ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '本片还没有资源' : '本集还没有资源'} hint="可在上传页入库。" /> : null}
 
             {media.data && media.data.length > 0 ? (
               <table className="table table--inset">
@@ -414,7 +427,9 @@ export function VideoDetailView({
                 }}
               />
             </CardHead>
-            {subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
+            {subtitles.error ? <ErrorBlock bare error={subtitles.error} onRetry={() => subtitles.refetch()} /> : null}
+            {!episodeReady ? <LoadingBlock bare rows={2} columns={3} /> : null}
+            {!subtitles.error && subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
             {subtitles.data && subtitles.data.length > 0 ? (
               <table className="table table--inset">
                 <thead>
@@ -656,7 +671,7 @@ export function VideoDetailView({
 
           {!moveKeyword && (!moveVideo || moveVideo.type !== 'movie') ? (
             <>
-              <div className="tabs pick-tabs__scroll">
+              <div className="tabs pick-tabs__scroll" role="tablist" aria-label="选择季">
                 {(moveSeasons.data ?? []).map((s) => (
                   <button
                     key={s.season_id}

@@ -120,7 +120,7 @@ export function WatchlistForm({
         <TagInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
       </label>
       <label className="field">
-        <span>订阅所需胡萝卜（0 为免费，最高 50000）</span>
+        <span>订阅胡萝卜（0 免费，上限 50000）</span>
         <input
           className="input tnum"
           type="number"
@@ -145,7 +145,7 @@ export function WatchlistForm({
             checked={form.is_show_empty}
             onChange={(e) => setForm({ ...form, is_show_empty: e.target.checked })}
           />
-          内容为空时仍展示
+          空片单仍展示
         </label>
       </div>
     </Modal>

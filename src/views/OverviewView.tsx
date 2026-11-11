@@ -15,14 +15,14 @@ import { formatSize, formatThousand, realmOf } from '@/lib/format'
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
 
 const LINES_IDLE = [
-  '今天还没看片，要不要挑一部～',
-  '今天还没动，片单里有一部等你～',
-  '还没开演，挑一部慢慢看～',
-  '今天还没看片，来点轻松的还是烧脑的～',
-  '屏幕还黑着，随手挑一部吧～',
-  '不如现在开一部，正好赶上～',
-  '今天还没看片，先把想看的那部补上～',
-  '还没开始看，随便点一部都是新的～',
+  '今天还没有观看记录',
+  '片单里有待看内容',
+  '今天还没有开始观看',
+  '观看记录为空',
+  '今日无观看',
+  '尚未开始观看',
+  '今天还没有看片',
+  '暂无观看记录',
 ]
 
 function pickByDay<T>(pool: readonly T[], date: Date, salt = 0): T {
@@ -45,8 +45,14 @@ export function OverviewView() {
   ]
   // 加载中先照常占位，否则首屏看起来像「今天没有待办」
   const todoItems = todos.isLoading ? todoAll : todoAll.filter((item) => (item.value ?? 0) > 0)
-  // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡
-  const showWatchlists = !todos.isLoading && todoItems.length === 0
+  // useTodos 把每个接口的失败吞成 null，管理员这边三个都是 null 就是「一个待办都没读出来」。
+  // 失败和 0 是两回事，这种情况要给错误态；非管理员本来就没这三个权限（403 → null），不算故障
+  const todosFailed =
+    Boolean(todos.error) ||
+    Boolean(caps.isAdmin && todos.data && [todos.data.seeks, todos.data.orders, todos.data.bans].every((value) => value == null))
+  // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡；
+  // 取不到时也不换，免得把失败掩成「没有待办」
+  const showWatchlists = !todos.isLoading && !todosFailed && todoItems.length === 0
   const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
@@ -100,7 +106,7 @@ export function OverviewView() {
   const unfinished = watching.data?.length ?? 0
   const todayText =
     unfinished > 0
-      ? `还有 ${unfinished} 部没看完${pickByDay(['～', '，接着看吧～', '，从上次停下的地方继续～'], now)}`
+      ? `还有 ${unfinished} 部未看完${pickByDay(['', '，接着看', '，待继续'], now)}`
       : pickByDay(LINES_IDLE, now)
 
   return (
@@ -128,7 +134,7 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards cards--todos" style={{ marginTop: 16 }}>
+        <section className="cards cards--todos">
           {todoItems.map((item) => (
             <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
@@ -142,11 +148,16 @@ export function OverviewView() {
         </section>
       ) : null}
 
+      {/* 待办取不到时占住待办位，别让失败看起来像「今天没有待办」 */}
+      {todosFailed ? (
+        <ErrorBlock bare error={todos.error ?? new Error('待办没取到')} onRetry={() => todos.refetch()} />
+      ) : null}
+
       {session.error ? (
         <ErrorBlock error={session.error} onRetry={() => session.refetch()} />
       ) : null}
 
-      <section className="cards cards--4" style={{ marginTop: 16 }}>
+      <section className="cards cards--4">
         <article className="card card--stat card--secondary">
           <p className="stat__label">
             签到
@@ -155,16 +166,11 @@ export function OverviewView() {
               disabled={signedToday || sign.isPending}
               onClick={() => setSigning(true)}
             >
-              {signedToday ? '今天已签' : '立即签到'}
+              {signedToday ? '今天已签' : '签到'}
             </button>
           </p>
           <p className="stat__value">
-            {!ready ? (
-              <>
-                —
-                <small>读取中</small>
-              </>
-            ) : signedToday ? (
+            {!ready ? '—' : signedToday ? (
               <>
                 {signInfo?.continuous_days ?? 0}
                 <small>天连续</small>
@@ -212,7 +218,7 @@ export function OverviewView() {
             <small>累计</small>
           </p>
           <p className="stat__delta stat__delta--quiet">
-            {!ready ? '读取中' : caps.canUpload ? '进入上传' : '上传权限未开通'}
+            {!ready ? '—' : caps.canUpload ? '上传权限已开通' : '上传权限未开通'}
           </p>
         </Link>
       </section>
@@ -233,7 +239,7 @@ export function OverviewView() {
           ) : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
-            <p className="card-note">还没有未看完的内容</p>
+            <p className="card-note">没有未看完的内容</p>
           ) : null}
 
           <ul className="stack">
@@ -295,18 +301,18 @@ export function OverviewView() {
           {stats.data && stats.data.activeDays === 0 ? (
             <p className="card-note">
               {(watching.data?.length ?? 0) > 0
-                ? '统计只覆盖到昨天，今天的观看还没计入。'
+                ? '统计只覆盖到昨天，今日观看未计入'
                 : '本周还没有观看记录'}
             </p>
           ) : null}
 
-          <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 6, height: 60 }}>
+          <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
             {(stats.data?.weeks[0] ?? []).map((day, _i, arr) => {
               const minutes = Math.round(day.seconds / 60)
               const peak = Math.max(...arr.map((d) => d.seconds), 1)
               const h = minutes <= 0 ? 8 : Math.max(8, Math.round((day.seconds / peak) * 44))
               return (
-                <span key={day.date} title={`${day.date} · ${minutes > 0 ? `${minutes} 分钟` : '没看'}`} style={{ display: 'grid', gap: 6, justifyItems: 'center' }}>
+                <span key={day.date} title={`${day.date} · ${minutes > 0 ? `${minutes} 分钟` : '没看'}`} style={{ display: 'grid', gap: 8, justifyItems: 'center' }}>
                   <span
                     style={{
                       width: 18,
@@ -411,11 +417,8 @@ export function OverviewView() {
               value={signNote}
               maxLength={10}
               autoFocus
-              placeholder="对自己说点什么…（最多 10 字）"
+              placeholder="最多 10 字"
               onChange={(event) => setSignNote(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') sign.mutate(signNote.trim() || undefined)
-              }}
             />
           </div>
         </Modal>

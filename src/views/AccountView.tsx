@@ -117,7 +117,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     const ok = await confirmDialog({
       title: '邀请 TA 进入 EMPS？',
       message: `对象：${inviteId.trim()}`,
-      hint: '会消耗你自己的胡萝卜，具体数额由后端结算。',
+      hint: '会消耗胡萝卜，数额由后端结算。',
       confirmText: '邀请',
     })
     if (!ok) return
@@ -133,7 +133,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const exitInvite = async () => {
     const ok = await confirmDialog({
       title: '退出邀请关系？',
-      message: '退出后你不再挂在邀请人下面，需要重新找人邀请。',
+      message: '退出后不再挂在邀请人下面，需重新找人邀请。',
       hint: '邀请名额与已有的记录不受影响。',
       confirmText: '退出',
       danger: true,
@@ -196,15 +196,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               label="累计上传"
               value={formatSize(user.size_upload)}
               note={user.is_can_upload ? '上传权限已开通' : '上传权限未开通'}
+              secondary
             />
-            <StatCard label="片单槽位" value={user.slot_remaining} unit="个可用" note="可用胡萝卜兑换" />
+            <StatCard label="片单槽位" value={user.slot_remaining} unit="个可用" note="可用胡萝卜兑换" secondary />
           </section>
 
           <section className="cards cards--wide">
             <article className="card">
-              <CardHead title="客户端登录">
-                <span className="muted tnum-sm">在播放器里填这些地址</span>
-              </CardHead>
+              <CardHead title="客户端登录" />
               <dl className="kv stack--top">
                 {[
                   ['视频服', user.server_video],
@@ -255,7 +254,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </dl>
               {otpMode ? (
                 <p className="card-note stack--top">
-                  这个账号开的是动态密码登录，没有固定密码可设。
+                  该账号使用动态密码，无固定密码。
                 </p>
               ) : null}
             </article>
@@ -271,7 +270,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     onClick={async () => {
                       const ok = await confirmDialog({
                         title: '让所有设备下线？',
-                        message: '包括你正在用的这一台，之后需要在播放器里重新登录。',
+                        message: '包括当前设备，之后需在播放器重新登录。',
                         confirmText: '全部下线',
                         danger: true,
                       })
@@ -285,6 +284,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </CardHead>
               <CardTable
                 loading={devices.isLoading}
+                error={devices.error}
+                onRetry={() => devices.refetch()}
                 empty="没有登录中的设备"
                 count={devices.data?.length ?? 0}
                 loadingCols={3}
@@ -346,9 +347,15 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     <input className="input" value={pseudonym} onChange={(e) => setPseudonym(e.target.value)} placeholder="对外显示的名字" />
                     <button
                       className="btn btn--ghost"
-                      disabled={actions.setPseudonym.isPending || pseudonym === (user.pseudonym ?? '')}
+                      // 空笔名会被 buildUrl 丢掉 name 参数，后端只能回一个没信息的 422，这里直接拦住
+                      disabled={
+                        actions.setPseudonym.isPending ||
+                        !pseudonym.trim() ||
+                        pseudonym.trim() === (user.pseudonym ?? '')
+                      }
+                      title={pseudonym.trim() ? undefined : '笔名不能为空'}
                       onClick={() =>
-                        actions.setPseudonym.mutate(pseudonym, {
+                        actions.setPseudonym.mutate(pseudonym.trim(), {
                           onSuccess: () => toast('笔名已更新', 'success'),
                         })
                       }
@@ -473,7 +480,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       })
                     }}
                   >
-                    {actions.exchangeSlot.isPending ? '兑换中…' : '用胡萝卜兑换片单槽位'}
+                    {actions.exchangeSlot.isPending ? '兑换中…' : '兑换片单槽位'}
                   </button>
                   {/* 动态密码与固定密码是二选一：由 must_otp 决定，接口层没有切换入口 */}
                   {otpMode ? (
@@ -490,7 +497,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     </button>
                   ) : (
                     <button className="btn btn--ghost" onClick={() => setResetting(true)}>
-                      重置登录密码
+                      重置密码
                     </button>
                   )}
                 </div>
@@ -502,7 +509,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         动态密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
                       </>
                     ) : (
-                      <>这个账号用的是固定密码，不需要动态密码。</>
+                      <>该账号使用固定密码。</>
                     )}
                   </p>
                 ) : null}
@@ -528,7 +535,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             />
             <article className="card">
               <p className="stat__label">邀请用户</p>
-              <div className="row-input" style={{ marginTop: 10 }}>
+              <div className="row-input" style={{ marginTop: 12 }}>
                 <input className="input" placeholder="用户 ID（e 开头 s 结尾）" value={inviteId} onChange={(e) => setInviteId(e.target.value)} />
                 <button className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>
                   邀请
@@ -541,9 +548,9 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   {actions.inviteEmps.isPending ? '邀请中…' : '邀请进 EMPS'}
                 </button>
               </div>
-              <div className="row" style={{ marginTop: 10, gap: 10 }}>
+              <div className="row" style={{ marginTop: 12, gap: 12 }}>
                 <button className="btn btn--danger-text" onClick={() => void exitInvite()}>
-                  退出邀请关系
+                  退出邀请
                 </button>
                 <span className="card-note">退出后要重新找人邀请</span>
               </div>
@@ -551,7 +558,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           </section>
 
           {myTree.length > 0 ? (
-            <section className="cards cards--wide" style={{ marginTop: 18 }}>
+            <section className="cards cards--wide">
               <article className="card">
                 <CardHead title="我的邀请">
                   <span className="muted tnum-sm">
@@ -686,7 +693,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       {resetting ? (
         <Modal
           title="重置登录密码"
-          hint="6 位数字。重置后所有已登录设备需要重新登录。"
+          hint="6 位数字；重置后所有设备需重新登录。"
           onClose={() => setResetting(false)}
           onSubmit={() => {
             if (/^\d{6}$/.test(newPassword) && !actions.resetPassword.isPending) actions.resetPassword.mutate(newPassword)
@@ -768,7 +775,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <input className="input" value={inviteId} onChange={(e) => setInviteId(e.target.value)} autoFocus />
           </label>
           <label className="field">
-            <span>备注（仅自己可见）</span>
+            <span>备注，仅自己可见</span>
             <input className="input" value={inviteRemark} onChange={(e) => setInviteRemark(e.target.value)} />
           </label>
         </Modal>

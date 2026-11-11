@@ -1,5 +1,55 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
+
+/**
+ * 决策框的焦点管理，做法与 components/Modal.tsx 一致：
+ * 打开时把焦点交给框内第一个可交互元素，Tab 在框内循环，
+ * 关闭时把焦点还给打开之前那个元素（不然焦点会掉回 body）。
+ *
+ * 框内自己做 autoFocus 时（取消/确定按钮、prompt 的输入框），
+ * 这里只补 Tab 循环，不抢它的焦点。
+ */
+function useFocusTrap(boxRef: RefObject<HTMLElement>) {
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    const box = boxRef.current
+    const focusables = () =>
+      Array.from(
+        box?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      )
+
+    // 下一帧再确认一次：兄弟组件的 effect 可能刚把焦点放进框里（比如 prompt 的输入框）
+    if (!box?.contains(document.activeElement)) {
+      requestAnimationFrame(() => {
+        if (box?.contains(document.activeElement)) return
+        focusables()[0]?.focus()
+      })
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return
+      const list = focusables()
+      if (list.length === 0) return
+      const first = list[0]
+      const last = list[list.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      previous?.focus?.()
+    }
+  }, [boxRef])
+}
 
 /**
  * 决策框外壳：遮罩 + 圆角卡片 + 头部 + 说明 + 底部两个按钮。
@@ -39,11 +89,14 @@ export function DecisionShell({
   onConfirm: () => void
 }) {
   const idRef = useRef(newLayerId('decision'))
+  const boxRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const id = idRef.current
     pushLayer(id)
     return () => popLayer(id)
   }, [])
+
+  useFocusTrap(boxRef)
 
   return (
     <div
@@ -54,7 +107,7 @@ export function DecisionShell({
         onCancel()
       }}
     >
-      <div className="confirm" role={role} aria-modal="true" aria-label={title}>
+      <div className="confirm" ref={boxRef} role={role} aria-modal="true" aria-label={title}>
         <div className="confirm__head">
           <span className={`confirm__dot${danger ? ' confirm__dot--danger' : ''}`} />
           <h2 className="confirm__title">{title}</h2>

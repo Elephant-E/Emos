@@ -40,7 +40,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
     const ok = await confirmDialog({
       title: '关闭这个支付订单？',
       message: `订单号 ${no}`,
-      hint: '关闭后无法再支付，需要重新下单。',
+      hint: '关闭后无法支付。',
       confirmText: '关闭',
       danger: true,
     })
@@ -76,22 +76,22 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock
           title="还不是支付服务商"
-          hint="查单与收款需要服务商身份。"
+          hint="需要服务商身份。"
           action={
             <button
               className="btn btn--primary"
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '申请成为支付服务商？',
-                  message: '申请将扣除 5000 胡萝卜，且不退还。',
-                  hint: '提交后需要联系管理员审核，审核不通过也不退还。',
+                  message: '扣除 5000 胡萝卜，不退还。',
+                  hint: '提交后由管理员审核，不通过也不退还。',
                   confirmText: '确认申请',
                   danger: true,
                 })
                 if (!ok) return
                 try {
-                  await payApi.apply('我的支付服务', '由后台发起申请')
-                  toast('已提交申请，等待审核', 'success')
+                  await payApi.apply('我的支付服务', '后台发起')
+                  toast('已提交，等待审核', 'success')
                   void base.refetch()
                 } catch (error) {
                   toast(error instanceof Error ? error.message : '提交失败', 'error')
@@ -145,7 +145,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       <section className="cards cards--2">
         <article className="card" style={{ display: base.error ? 'none' : undefined }}>
           <p className="stat__label">查询订单</p>
-          <div className="row-input" style={{ marginTop: 10 }}>
+          <div className="row-input stack--top">
             <input className="input" placeholder="订单号" value={no} onChange={(e) => setNo(e.target.value)} />
             <button className="btn btn--ghost" disabled={!no.trim()} onClick={() => setLookup(no.trim())}>
               查询
@@ -160,7 +160,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           ) : null}
           {order.data ? (
             <>
-            <div className="detail-stats" style={{ marginTop: 16 }}>
+            <div className="detail-stats" style={{ marginTop: 18 }}>
               <div className="detail-stat">
                 <b>{PAY_STATUS[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
                 <span>支付状态</span>
@@ -189,7 +189,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
 
         <article className="card">
           <p className="stat__label">转赠胡萝卜</p>
-          <div className="row-input" style={{ marginTop: 10 }}>
+          <div className="row-input stack--top">
             <input className="input" placeholder="对方用户 ID" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} />
             <input
               className="input"
@@ -204,6 +204,13 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               className="btn btn--primary"
               disabled={!transferTo.trim() || amount < 2 || amount > 6000 || sending}
               onClick={async () => {
+                const ok = await confirmDialog({
+                  title: '确认转赠？',
+                  message: `转给 ${transferTo.trim()}，${amount} 胡萝卜。`,
+                  hint: '转出后不可撤回。',
+                  confirmText: '转赠',
+                })
+                if (!ok) return
                 setSending(true)
                 try {
                   const res = await carrotApi.transfer(transferTo.trim(), amount)

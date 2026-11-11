@@ -25,8 +25,17 @@ export function InlineSortInput({
       onClick={stopRowClick ? (e) => e.stopPropagation() : undefined}
       onKeyDown={stopRowClick ? (e) => e.stopPropagation() : undefined}
       onBlur={(e) => {
-        const next = Number(e.target.value)
-        if (!Number.isFinite(next) || next === value) return
+        // 清空后 Number('') === 0，会把排序写成 0 排到最前；空值与非法值一律当作放弃修改
+        const raw = e.target.value.trim()
+        if (!raw) {
+          e.target.value = String(value)
+          return
+        }
+        const next = Number(raw)
+        if (!Number.isFinite(next) || next === value) {
+          e.target.value = String(value)
+          return
+        }
         onCommit(next)
       }}
     />

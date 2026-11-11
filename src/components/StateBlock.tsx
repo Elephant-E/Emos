@@ -6,7 +6,7 @@ export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: n
       <div style={{ padding: 16 }}>
         <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 18 }} />
         {Array.from({ length: rows }).map((_, r) => (
-          <div key={r} style={{ display: 'flex', gap: 16, marginBottom: 14, alignItems: 'center' }}>
+          <div key={r} style={{ display: 'flex', gap: 16, marginBottom: 12, alignItems: 'center' }}>
             <div className="skeleton" style={{ height: 40, width: 34, flex: 'none' }} />
             {Array.from({ length: columns }).map((__, c) => (
               <div
@@ -56,7 +56,7 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
         <span className="state__icon" style={{ color: 'var(--c-red)' }}>
           <IconAlert />
         </span>
-        <p className="state__title">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
+        <p className="state__title">{timedOut ? '连不上服务器' : '没有取到数据'}</p>
         {!timedOut && message ? <p className="state__hint">{message}</p> : null}
         <div className="state__actions">
           {onRetry ? (

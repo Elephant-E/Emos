@@ -52,12 +52,8 @@ export interface Capabilities {
 
 export function useCapabilities(): Capabilities {
   const { data } = useSession()
-  const seller = useQuery({
-    queryKey: ['shop', 'seller'] as const,
-    queryFn: () => shopApi.sellerBase(),
-    staleTime: 5 * 60_000,
-    retry: false,
-  })
+  // 与 useShopSeller() 是同一个接口，共用一份缓存（否则每个页面各拉一次）
+  const seller = useShopSeller()
 
   const isAdmin = Boolean(data?.roles?.includes('admin'))
   return {
@@ -325,19 +321,27 @@ export function useEpisodes(videoId: number, seasonNumber: number) {
   })
 }
 
-export function useMediaList(params: { video_list_id: number; video_season_id?: number; video_episode_id?: number }) {
+export function useMediaList(
+  params: { video_list_id: number; video_season_id?: number; video_episode_id?: number },
+  /** 剧集要等选中集才查；否则 media/list 会返回整部剧所有集的资源 */
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['media', params] as const,
     // 接口返回的就是数组（真机实测），不需要再嗅探信封
     queryFn: () => mediaApi.list(params) as unknown as Promise<Array<Record<string, unknown>>>,
+    enabled: params.video_list_id > 0 && enabled,
   })
 }
 
-export function useSubtitles(params: { video_list_id: number; video_episode_id?: number }) {
+export function useSubtitles(
+  params: { video_list_id: number; video_episode_id?: number },
+  enabled = true,
+) {
   return useQuery({
     queryKey: ['subtitles', params] as const,
     queryFn: () => subtitleApi.list(params),
-    enabled: params.video_list_id > 0,
+    enabled: params.video_list_id > 0 && enabled,
   })
 }
 
@@ -357,6 +361,7 @@ export function useVideoMutations(videoId: number) {
     qc.invalidateQueries({ queryKey: ['media'] })
     qc.invalidateQueries({ queryKey: ['subtitles'] })
     qc.invalidateQueries({ queryKey: ['session'] })     // 删除会扣胡萝卜
+    qc.invalidateQueries({ queryKey: ['carrot'] })
   }
 
   return {
@@ -396,7 +401,7 @@ export function useInviteTree() {
 
 export function useCarrotHistory(page: number, pageSize = 10) {
   return useQuery({
-    queryKey: ['carrot', 'history', page] as const,
+    queryKey: ['carrot', 'history', page, pageSize] as const,
     queryFn: () => carrotApi.history({ page, page_size: pageSize }),
   })
 }
@@ -532,7 +537,13 @@ export function useShopProductsInfinite(params: {
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       shopProductsQuery({ sellerId, page: pageParam, pageSize, categoryId, name, sortBy, onlyUp }),
-    getNextPageParam: (last, pages) => (last.items.length < pageSize ? undefined : pages.length + 1),
+    // 后端可能收敛 page_size（片单影片固定 15 的先例），拿响应里的实际条数判断，
+    // 否则首页返回少于请求条数时会直接判定「没有下一页」
+    getNextPageParam: (last, pages) => {
+      const actual = Number(last.page_size) || pageSize
+      if (last.items.length < actual) return undefined
+      return pages.length + 1
+    },
   })
 }
 
@@ -619,6 +630,7 @@ export function useShopMutations() {
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ['shop'] })
     qc.invalidateQueries({ queryKey: ['session'] })
+    qc.invalidateQueries({ queryKey: ['carrot'] })   // 下单/退款都会动余额
   }
   return {
     toggleUp: useMutation({ mutationFn: (productId: number) => shopApi.productUp(productId), onSuccess: invalidate }),
@@ -774,7 +786,11 @@ export function useSongMedia(songId: number) {
 
 export function useMusicMutations(songId = 0) {
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['music'] })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['music'] })
+    qc.invalidateQueries({ queryKey: ['session'] })  // 删资源会扣胡萝卜
+    qc.invalidateQueries({ queryKey: ['carrot'] })
+  }
   return {
     favorite: useMutation({ mutationFn: (p: { type: string; value: number }) => musicApi.favorite(p.type, p.value), onSuccess: invalidate }),
     rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
@@ -826,6 +842,8 @@ export function useRecycleMutations() {
     qc.invalidateQueries({ queryKey: ['recycle'] })
     qc.invalidateQueries({ queryKey: ['videos'] })
     qc.invalidateQueries({ queryKey: ['video'] })
+    qc.invalidateQueries({ queryKey: ['session'] })  // 恢复会扣胡萝卜
+    qc.invalidateQueries({ queryKey: ['carrot'] })
   }
   return {
     restoreMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.restore(mediaId), onSuccess: invalidate }),
@@ -910,6 +928,10 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
     onSuccess: invalidate,
   })
+  // 清空内容：影视、音乐各一个接口。invalidate 是 ['watch'] 前缀，
+  // 覆盖 ['watch', id, 'videos', …] 与 ['watch', id, 'music', …]，清空后列表不会再留旧行
+  const clearVideos = useMutation({ mutationFn: () => watchApi.emptyVideos(watchId), onSuccess: invalidate })
+  const clearMusic = useMutation({ mutationFn: () => watchApi.emptyMusic(watchId), onSuccess: invalidate })
   const subscribe = useMutation({ mutationFn: () => watchApi.subscribe(watchId), onSuccess: invalidate })
   const toggleShow = useMutation({ mutationFn: () => watchApi.show(watchId), onSuccess: invalidate })
   const setDynamic = useMutation({ mutationFn: (url: string | null) => watchApi.dynamic(watchId, url), onSuccess: invalidate })
@@ -945,7 +967,7 @@ export function useWatchMutations(watchId: number) {
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
   return {
-    addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic,
+    addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic, clearVideos, clearMusic,
     subscribe, toggleShow, setDynamic, sort, update, setMaintainers,
   }
 }

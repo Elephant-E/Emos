@@ -36,7 +36,7 @@ export async function confirmDelete({
     title,
     message: owner ? `由 ${owner} 上传。${message}` : message,
     label: '理由',
-    placeholder: '请说明删除原因',
+    placeholder: '删除原因',
     required: true,
     confirmText: '删除',
   })

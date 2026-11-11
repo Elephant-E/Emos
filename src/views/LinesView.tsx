@@ -66,10 +66,10 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
 
       {lines.error ? <ErrorBlock error={lines.error} onRetry={() => lines.refetch()} /> : null}
       {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
-      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
+      {lines.data && lines.data.length === 0 ? <EmptyBlock title="没有线路" /> : null}
       {lines.data && lines.data.length > 0 && rows.length === 0 ? (
         <EmptyBlock
-          title={`没有匹配「${search.q}」的线路`}
+          title={`没有找到「${search.q}」`}
           action={<ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />}
         />
       ) : null}
@@ -78,7 +78,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         <EmptyBlock
           title="这一页没有内容"
           hint={`共 ${rows.length} 条，当前在第 ${search.page} 页`}
-          action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+          action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回第一页</button>}
         />
       ) : null}
 
@@ -122,7 +122,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                           const ok = await confirmDialog({
                             title: `删除线路「${line.name}」？`,
                             message: '使用这条线路的客户端会立刻失效。',
-                            hint: '建议先在客户端切到其它线路。',
+                            hint: '先在客户端切到其它线路。',
                             confirmText: '删除',
                             danger: true,
                           })
@@ -170,7 +170,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           }
         >
           <label className="field">
-            <span>名称（建议用自己 ID）</span>
+            <span>名称（用自己 ID）</span>
             <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="@proxy" autoFocus />
           </label>
           <label className="field">

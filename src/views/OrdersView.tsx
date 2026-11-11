@@ -11,7 +11,7 @@ import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/querie
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, formatThousand } from '@/lib/format'
 
 export interface OrdersSearch {
   page: number
@@ -57,6 +57,9 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   // 店铺订单和自己下的单走两个接口，判断只写一处
   const remove = mineScope ? actions.removeOrder : actions.deleteOrder
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
+  // 支付 / 发货 / 关键词三个筛选维度任一偏离默认值就算「筛过」，
+  // 空态要能分清「筛掉了」和「本来没有」，否则用户不知道该改哪里
+  const filtered = Boolean(search.q) || search.pay !== 'all' || search.delivery !== 'all'
 
 
   return (
@@ -100,7 +103,18 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-      {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" /> : null}
+      {orders.data && orders.data.items.length === 0 ? (
+        <EmptyBlock
+          title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
+          action={
+            filtered ? (
+              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
+                清空筛选
+              </button>
+            ) : undefined
+          }
+        />
+      ) : null}
 
       {orders.data && orders.data.items.length > 0 ? (
         <ListCard items={orders.data.items} total={orders.data.total} idKey={(o) => o.order_no}>
@@ -167,9 +181,19 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                         {mineScope && !paid ? (
                           <button
                             className="btn btn--primary"
-                            onClick={() =>
+                            disabled={actions.payOrder.isPending}
+                            onClick={async () => {
+                              // price_order 是单价，实付 = 单价 × 数量
+                              const total = order.price_order * (order.buy_number ?? 1)
+                              const ok = await confirmDialog({
+                                title: '支付订单？',
+                                message: `「${order.order_title}」 ${order.order_no}`,
+                                hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
+                                confirmText: '支付',
+                              })
+                              if (!ok) return
                               actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
-                            }
+                            }}
                           >
                             付款
                           </button>
@@ -205,7 +229,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             className="btn btn--quiet"
                             onClick={() =>
                               actions.urgeOrder.mutate(order.order_no, {
-                                onSuccess: () => toast('已催发货', 'success'),
+                                onSuccess: () => toast('已提醒发货', 'success'),
                               })
                             }
                           >
@@ -269,27 +293,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
             <>
               <button className="btn btn--ghost" onClick={() => setRemarking(null)}>
                 取消
-              </button>
-              <button
-                className="btn btn--ghost"
-                onClick={async () => {
-                  const ok = await confirmDialog({
-                    title: '删除这个订单？',
-                    message: `订单 ${remarking.orderNo} 会从列表移除。`,
-                    hint: '此操作不可撤销。',
-                    confirmText: '删除',
-                    danger: true,
-                  })
-                  if (!ok) return
-                  remove.mutate(remarking.orderNo, {
-                    onSuccess: () => {
-                      toast('已删除', 'success')
-                      setRemarking(null)
-                    },
-                  })
-                }}
-              >
-                删除订单
               </button>
               <button
                 className="btn btn--primary"

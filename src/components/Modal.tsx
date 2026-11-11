@@ -2,6 +2,15 @@ import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from '@/ui/layers'
 
+/** 弹层内可聚焦元素；焦点陷阱与「首个可聚焦项」两处共用 */
+export function focusablesOf(root: HTMLElement | null): HTMLElement[] {
+  return Array.from(
+    root?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ) ?? [],
+  )
+}
+
 export function Modal({
   title,
   hint,
@@ -29,38 +38,47 @@ export function Modal({
     return () => popLayer(id)
   }, [])
 
+  /**
+   * 焦点只在挂载/卸载时处理。
+   *
+   * 这里不能用 [onClose, onSubmit] 做依赖：调用点几乎都传内联箭头函数，
+   * 每次渲染都是新引用，effect 会在弹窗内每敲一个字就重跑一遍 ——
+   * 清理函数把焦点还给「上一次 effect 开始时」的元素（通常是 autoFocus 的
+   * 第一个输入框），于是第二个字段只能输进一个字符，后续按键全落到名称上。
+   */
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     const box = boxRef.current
-    const focusables = () =>
-      Array.from(
-        box?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      )
-
     // 如果弹窗内部没有自动聚焦的元素，把焦点交给第一个可聚焦项
     if (!box?.contains(document.activeElement)) {
-      requestAnimationFrame(() => focusables()[0]?.focus())
+      requestAnimationFrame(() => focusablesOf(box)[0]?.focus())
     }
+    return () => previous?.focus?.()
+  }, [])
 
+  // 键盘处理单独一个 effect；回调放进 ref，依赖为空，避免上面那类重跑
+  const handlers = useRef({ onClose, onSubmit })
+  handlers.current = { onClose, onSubmit }
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
+      const { onClose: close, onSubmit: submit } = handlers.current
       // 输入类控件里的回车属于输入本身，不该触发整表单提交
-      if (event.key === 'Enter' && onSubmit && !target?.closest('textarea, .tag-field')) {
+      if (event.key === 'Enter' && submit && !target?.closest('textarea, .tag-field')) {
         event.preventDefault()
-        onSubmit()
+        submit()
         return
       }
       if (event.key === 'Escape') {
         // 叠着的时候只关最上面那层（确认框/输入框也在同一个栈里）
         if (!isTopLayer(idRef.current)) return
         event.stopPropagation()
-        onClose()
+        close()
         return
       }
       if (event.key !== 'Tab') return
-      const list = focusables()
+      const list = focusablesOf(boxRef.current)
       if (list.length === 0) return
       const first = list[0]
       const last = list[list.length - 1]
@@ -72,13 +90,9 @@ export function Modal({
         first.focus()
       }
     }
-
     document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      previous?.focus?.()
-    }
-  }, [onClose, onSubmit])
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   return (
     <div

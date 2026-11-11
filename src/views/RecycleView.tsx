@@ -9,7 +9,7 @@ import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/qu
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
-import {formatRelative, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import {formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 type Tab = 'media' | 'video'
 
@@ -42,19 +42,24 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0
   const rows = (active.data?.items ?? []) as Array<Record<string, unknown>>
+  // media/listAll 不保证返回 is_can_restore（契约里该字段挂在 media/list 上），
+  // 所以只有明确为 true 才给动作；整页都没有就不渲染操作列
+  const restorable = rows.some((row) => row.is_can_restore === true)
 
   const restoreMedia = async (mediaId: string, label: string) => {
     const ok = await confirmDialog({
-      title: '恢复这个资源？',
-      message: `「${label}」会回到原来的影片下，播放端立即可见。`,
-      hint: '恢复会扣除胡萝卜，金额见恢复后的提示。',
+      title: '恢复资源？',
+      message: `「${label}」会回到原影片下，播放端立即可见。`,
+      hint: '恢复会扣除胡萝卜。',
       confirmText: '恢复',
     })
     if (!ok) return
     setBusy(mediaId)
     try {
-      await actions.restoreMedia.mutateAsync(mediaId)
-      toast('已恢复', 'success')
+      // 接口返回本次额度变化（恢复为负值）；不显示用户就不知道扣了多少
+      const res = await actions.restoreMedia.mutateAsync(mediaId)
+      const spent = -(Number((res as { carrot?: number } | null)?.carrot) || 0)
+      toast(spent > 0 ? `已恢复，扣除 ${formatThousand(spent)} 胡萝卜` : '已恢复', 'success')
     } catch (error) {
       toast(error instanceof Error ? error.message : '恢复失败', 'error')
     } finally {
@@ -64,7 +69,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
   const restoreVideo = async (videoId: number, label: string) => {
     const ok = await confirmDialog({
-      title: '恢复这部影片？',
+      title: '恢复影片？',
       message: `《${label}》会重新出现在媒体库里。`,
       confirmText: '恢复',
     })
@@ -73,7 +78,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
     try {
       // 该接口是 toggle：只有返回 is_delete 为 false 才算真的恢复
       const res = await actions.restoreVideo.mutateAsync(videoId)
-      if (res?.is_delete) toast('这部影片仍是删除状态，请重试', 'error')
+      if (res?.is_delete) toast('影片仍为删除状态，请重试', 'error')
       else toast('已恢复', 'success')
     } catch (error) {
       toast(error instanceof Error ? error.message : '恢复失败', 'error')
@@ -128,7 +133,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           action={
             q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined
           }
-          title={q ? `没有找到「${q}」` : '回收站是空的'}
+          title={q ? `没有找到「${q}」` : '回收站为空'}
           
         />
       ) : null}
@@ -144,16 +149,14 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th className="num" style={{ width: '12%' }}>大小</th>
                   <th style={{ width: '14%' }}>存储</th>
                   <th className="num" style={{ width: '12%' }}>入库时间</th>
-                  <th style={{ width: '96px' }}>
-                    操作
-                  </th>
+                  {restorable ? <th style={{ width: '96px' }}>操作</th> : null}
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => {
                   const mediaId = String(row.media_id ?? '')
                   const name = String(row.media_name ?? mediaId)
-                  const canRestore = row.is_can_restore !== false
+                  const canRestore = row.is_can_restore === true
                   return (
                     <tr key={mediaId}>
                       <td>
@@ -167,17 +170,19 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                       <td className="muted">{String(row.storage_title ?? '—')}</td>
                       <td className="num muted">{formatRelative(String(row.created_at ?? ''))}</td>
-                      <td>
-                        {canRestore ? (
-                          <button
-                            className="btn btn--quiet"
-                            disabled={busy === mediaId}
-                            onClick={() => restoreMedia(mediaId, name)}
-                          >
-                            {busy === mediaId ? '恢复中…' : '恢复'}
-                          </button>
-                        ) : null}
-                      </td>
+                      {restorable ? (
+                        <td>
+                          {canRestore ? (
+                            <button
+                              className="btn btn--quiet"
+                              disabled={busy === mediaId}
+                              onClick={() => restoreMedia(mediaId, name)}
+                            >
+                              {busy === mediaId ? '恢复中…' : '恢复'}
+                            </button>
+                          ) : null}
+                        </td>
+                      ) : null}
                     </tr>
                   )
                 })}

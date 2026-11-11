@@ -40,7 +40,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                   const ok = await confirmDialog({
                     title: `解除 ${name || userId} 的封禁？`,
                     message: banned.disable_reason ? `原因：${banned.disable_reason}` : undefined,
-                    hint: '解除后对方可以立即恢复访问。',
+                    hint: '解除后立即恢复访问。',
                     confirmText: '解除',
                   })
                   if (!ok) return
@@ -55,8 +55,8 @@ export function UserDetailView({ userId }: { userId: string }) {
                 onClick={async () => {
                   const ok = await confirmDialog({
                     title: `封禁 ${name || userId}？`,
-                    message: '该用户将无法继续访问服务。',
-                    hint: '可在封禁列表里随时解除。',
+                    message: '该用户将无法访问服务。',
+                    hint: '可在封禁列表解除。',
                     confirmText: '封禁',
                     danger: true,
                   })
@@ -78,164 +78,174 @@ export function UserDetailView({ userId }: { userId: string }) {
 
       {limited ? (
         <p className="card-note" style={{ marginTop: 4 }}>
-          当前账号没有服务商权限，看不到余额、观影权限与注册时间。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请成为服务商</Link>后可看全。
+          无服务商权限，余额、观影权限与注册时间不可见。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请服务商</Link>后可看全。
         </p>
       ) : null}
 
-      {(
-        <>
-          <section className="cards cards--4">
-            <StatCard
-              label="账号状态"
-              word
-              tone={banned ? 'danger' : undefined}
-              value={banned ? '已封禁' : bans.isLoading ? '检查中' : '未在封禁记录'}
-              note={
-                banned
-                  ? `该账号注册于 ${formatRelative(banned.created_at)}`
-                  : bans.isLoading
-                    ? '正在核对封禁列表'
-                    : '未出现在封禁列表中'
-              }
-            />
+      {/* 无服务商权限时 pay 取不到，多数指标显示「—」；但封禁状态、邀请关系来自其它接口，
+          照常渲染，把权限缺口留在上面的提示里，不整段隐藏 */}
+      <section className="cards cards--4">
+        <StatCard
+          label="账号状态"
+          word
+          tone={banned ? 'danger' : undefined}
+          value={bans.isLoading ? '检查中' : bans.error ? '—' : banned ? '已封禁' : '未封禁'}
+          note={
+            bans.error ? (
+              <>
+                封禁状态取不到
+                <button className="btn btn--quiet" onClick={() => void bans.refetch()}>
+                  重试
+                </button>
+              </>
+            ) : banned ? (
+              `该账号注册于 ${formatRelative(banned.created_at)}`
+            ) : bans.isLoading ? (
+              '核对中'
+            ) : (
+              '未在封禁列表'
+            )
+          }
+        />
 
-            <StatCard
-              label="胡萝卜"
-              value={info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
-              unit="个"
-              note={info?.carrot == null ? '需要服务商权限' : '当前余额'}
-            />
+        <StatCard
+          label="胡萝卜"
+          value={info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
+          unit="个"
+          note={info?.carrot == null ? '需要服务商权限' : '当前余额'}
+        />
 
-            <StatCard
-              label="上传量"
-              value={info ? formatSize(info.size_upload).replace(/\s/g, '') : '—'}
-              note="累计入库体积"
-            />
+        <StatCard
+          label="上传量"
+          value={info ? formatSize(info.size_upload).replace(/\s/g, '') : '—'}
+          note="累计入库体积"
+          secondary
+        />
 
-            <StatCard
-              label="邀请关系"
-              word
-              value={invited ? '由我邀请' : '—'}
-              note={invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
-            />
-          </section>
+        <StatCard
+          label="邀请关系"
+          word
+          value={invited ? '由我邀请' : '—'}
+          note={invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
+        />
+      </section>
 
-          <section className="cards cards--2">
-            <article className="card">
-              <CardHead title="资料">
-              </CardHead>
-              <div className="card-body">
-                <dl className="kv">
-                  <div>
-                    <dt>用户 ID</dt>
-                    <dd className="tnum">{userId}</dd>
-                  </div>
-                  <div>
-                    <dt>用户名</dt>
-                    <dd>{name || '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>Telegram</dt>
-                    <dd>{info?.telegram_user_id ?? banned?.telegram_user_id ?? '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>邀请人</dt>
-                    <dd>{banned?.invite_pseudonym ?? info?.invite_user_id ?? '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>注册时间</dt>
-                    <dd>{info ? formatDateTime(info.created_at) : '—'}</dd>
-                  </div>
-                  {banned ? (
-                    <div>
-                      <dt>封禁原因</dt>
-                      <dd style={{ color: 'var(--c-red)' }}>{banned.disable_reason ?? '—'}</dd>
-                    </div>
-                  ) : null}
-                </dl>
+      <section className="cards cards--2">
+        <article className="card">
+          <CardHead title="资料">
+          </CardHead>
+          <div className="card-body">
+            <dl className="kv">
+              <div>
+                <dt>用户 ID</dt>
+                <dd className="tnum">{userId}</dd>
               </div>
-            </article>
-
-            <article className="card">
-              <CardHead title="最近活跃">
-                <Link className="btn btn--quiet" to="/account" search={{ tab: 'invite' }}>
-                  邀请记录
-                </Link>
-              </CardHead>
-              <div className="card-body">
-                <dl className="kv">
-                  <div>
-                    <dt>邀请时间</dt>
-                    <dd>{invited ? formatDateTime(String(invited.invite_at)) : invite.isLoading ? '读取中…' : '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>最近播放</dt>
-                    <dd>{invited ? formatDateTime(invited.last_video_player as string) : '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>最近签到</dt>
-                    <dd>{invited ? formatDateTime(invited.last_user_sign as string) : '—'}</dd>
-                  </div>
-                  <div>
-                    <dt>最近 Telegram</dt>
-                    <dd>{invited?.last_telegram_message ? formatDateTime(String(invited.last_telegram_message)) : '—'}</dd>
-                  </div>
-                </dl>
+              <div>
+                <dt>用户名</dt>
+                <dd>{name || '—'}</dd>
               </div>
-            </article>
-          </section>
+              <div>
+                <dt>Telegram</dt>
+                <dd>{info?.telegram_user_id ?? banned?.telegram_user_id ?? '—'}</dd>
+              </div>
+              <div>
+                <dt>邀请人</dt>
+                <dd>{banned?.invite_pseudonym ?? info?.invite_user_id ?? '—'}</dd>
+              </div>
+              <div>
+                <dt>注册时间</dt>
+                <dd>{info ? formatDateTime(info.created_at) : '—'}</dd>
+              </div>
+              {banned ? (
+                <div>
+                  <dt>封禁原因</dt>
+                  <dd style={{ color: 'var(--c-red)' }}>{banned.disable_reason ?? '—'}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </div>
+        </article>
 
-          <section className="cards cards--wide">
-            <article className="card">
-              <CardHead title="最近播放">
-                <span className="muted tnum-sm">近一周</span>
-              </CardHead>
-              <CardTable
-                loading={records.isLoading}
-                empty="近一周没有播放记录"
-                count={(records.data?.items ?? []).length}
-                loadingRows={3}
-                loadingCols={4}
-              >
-                <table className="table table--inset">
-                  <thead>
-                    <tr>
-                      <th>影片</th>
-                      <th style={{ width: 150 }}>时间</th>
-                      <th style={{ width: 140 }}>来源 IP</th>
-                      <th style={{ width: 180 }}>客户端</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(records.data?.items ?? []).map((row, index) => (
-                      <tr key={`${String(row.video_media_id)}-${index}`}>
-                        <td>
-                          <Link
-                            to="/media/$videoId"
-                            params={{ videoId: String(row.video_id) }}
-                            search={{ season: 0, episode: 1 }}
-                            className="cell-title__name"
-                            style={{ color: 'var(--fg)' }}
-                          >
-                            {String(row.video_title ?? '—')}
-                          </Link>
-                          <span className="cell-title__code">{String(row.video_media_id ?? '')}</span>
-                        </td>
-                        <td className="muted">{formatDateTime(String(row.time ?? ''))}</td>
-                        <td className="muted tnum">
-                          {String(row.ip ?? '—')}
-                          {row.is_proxy ? ' · 代理' : ''}
-                        </td>
-                        <td className="muted ellipsis">{String(row.ua ?? '—')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardTable>
-            </article>
-          </section>
-        </>
-      )}
+        <article className="card">
+          <CardHead title="最近活跃">
+            <Link className="btn btn--quiet" to="/account" search={{ tab: 'invite' }}>
+              邀请记录
+            </Link>
+          </CardHead>
+          <div className="card-body">
+            <dl className="kv">
+              <div>
+                <dt>邀请时间</dt>
+                <dd>{invited ? formatDateTime(String(invited.invite_at)) : invite.isLoading ? '读取中…' : '—'}</dd>
+              </div>
+              <div>
+                <dt>最近播放</dt>
+                <dd>{invited ? formatDateTime(invited.last_video_player as string) : '—'}</dd>
+              </div>
+              <div>
+                <dt>最近签到</dt>
+                <dd>{invited ? formatDateTime(invited.last_user_sign as string) : '—'}</dd>
+              </div>
+              <div>
+                <dt>最近 Telegram</dt>
+                <dd>{invited?.last_telegram_message ? formatDateTime(String(invited.last_telegram_message)) : '—'}</dd>
+              </div>
+            </dl>
+          </div>
+        </article>
+      </section>
+
+      <section className="cards cards--wide">
+        <article className="card">
+          <CardHead title="最近播放">
+            <span className="muted tnum-sm">近一周</span>
+          </CardHead>
+          <CardTable
+            loading={records.isLoading}
+            error={records.error}
+            onRetry={() => records.refetch()}
+            empty="近一周无播放记录"
+            count={(records.data?.items ?? []).length}
+            loadingRows={3}
+            loadingCols={4}
+          >
+            <table className="table table--inset">
+              <thead>
+                <tr>
+                  <th>影片</th>
+                  <th style={{ width: 150 }}>时间</th>
+                  <th style={{ width: 140 }}>来源 IP</th>
+                  <th style={{ width: 180 }}>客户端</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(records.data?.items ?? []).map((row, index) => (
+                  <tr key={`${String(row.video_media_id)}-${index}`}>
+                    <td>
+                      <Link
+                        to="/media/$videoId"
+                        params={{ videoId: String(row.video_id) }}
+                        search={{ season: 0, episode: 1 }}
+                        className="cell-title__name"
+                        style={{ color: 'var(--fg)' }}
+                      >
+                        {String(row.video_title ?? '—')}
+                      </Link>
+                      <span className="cell-title__code">{String(row.video_media_id ?? '')}</span>
+                    </td>
+                    <td className="muted">{formatDateTime(String(row.time ?? ''))}</td>
+                    <td className="muted tnum">
+                      {String(row.ip ?? '—')}
+                      {row.is_proxy ? ' · 代理' : ''}
+                    </td>
+                    <td className="muted ellipsis">{String(row.ua ?? '—')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardTable>
+        </article>
+      </section>
     </>
   )
 }

@@ -64,7 +64,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               onClick={() =>
                 actions.favorite.mutate(
                   { type: 'ms', value: songId },
-                  { onSuccess: () => toast('已切换收藏', 'success') },
+                  { onSuccess: () => toast('收藏已更新', 'success') },
                 )
               }
             >
@@ -115,14 +115,14 @@ export function SongDetailView({ songId }: { songId: number }) {
           <div className="detail-head__row">
             <Poster src={song.data.image_poster_url} name={song.data.name} className="poster-img detail-head__poster" />
             <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 {song.data.is_favorite ? (
                   <span className="badge badge--ok">
                     <i />
                     已收藏
                   </span>
                 ) : null}
-                {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">还没有填写艺人</span> : null}
+                {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">未填写艺人</span> : null}
               </div>
               {song.data.description ? <p className="detail-desc">{song.data.description}</p> : null}
               {song.data.tagline ? <p className="meta-sm">{song.data.tagline}</p> : null}
@@ -164,7 +164,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
                 bare
-                title="还没有歌词"
+                title="没有歌词"
                 action={
                   <button className="btn btn--primary" onClick={() => setAdding(true)}>
                     添加歌词
@@ -174,7 +174,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             ) : null}
             {(lyrics.data ?? []).map((row, index) => (
               <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 18 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
                   <span style={{ color: 'var(--fg-2)' }}>{String(row.type ?? 'text').toUpperCase()}</span>
                   <span className="meta-sm">
                     {String(row.language ?? '—')} · {String(row.name ?? '—')} · {formatDateTime(String(row.created_at ?? ''))}
@@ -233,7 +233,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                 }}
               />
             </CardHead>
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title="没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <table className="table table--inset">
                 <thead>
@@ -311,7 +311,7 @@ export function SongDetailView({ songId }: { songId: number }) {
       {moving ? (
         <Modal
           title={`移动 · ${moving.name}`}
-          hint="音频会挪到选中的那首歌下面，本页的资源列表会少一条。"
+          hint="音频会移到选中的歌曲下，本页资源列表少一条。"
           width={460}
           onClose={() => setMoving(null)}
           footer={
@@ -336,7 +336,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             // 计数要按过滤后的算：只剩当前这首歌时应当显示「没有」
             count={moveTargetsCandidates.length}
             emptyText={
-              (moveTargets.data?.items ?? []).length > 0 ? '已经在这首歌下面了' : undefined
+              (moveTargets.data?.items ?? []).length > 0 ? '已在该歌曲下' : undefined
             }
           >
             {moveTargetsCandidates.map((row) => (

@@ -48,7 +48,7 @@ export function ProductDetailModal({
                   {
                     onSuccess: (res) => {
                       onBought()
-                      toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
+                      toast(`订单 ${res.no} 已创建，待付款`, 'success')
                     },
                   },
                 )
@@ -90,10 +90,10 @@ export function ProductDetailModal({
             </div>
           </div>
 
-          {p.description ? <p className="card-note" style={{ marginTop: 14 }}>{p.description}</p> : null}
+          {p.description ? <p className="card-note" style={{ marginTop: 12 }}>{p.description}</p> : null}
           {p.exchange_way ? <p className="card-note">兑换方式：{p.exchange_way}</p> : null}
 
-          <div className="field-row field-row--wide" style={{ marginTop: 14 }}>
+          <div className="field-row field-row--wide" style={{ marginTop: 12 }}>
             <label className="field">
               <span>数量</span>
               <input
@@ -106,7 +106,7 @@ export function ProductDetailModal({
               />
             </label>
             <label className="field">
-              <span>备注（给商户看）</span>
+              <span>备注（商户可见）</span>
               <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
             </label>
           </div>
@@ -143,7 +143,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
                 {
                   onSuccess: (res) => {
                     onClose()
-                    toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
+                    toast(`订单 ${res.no} 已创建，待付款`, 'success')
                   },
                 },
               )
@@ -165,7 +165,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
           </span>
         </span>
       </div>
-      <label className="field" style={{ marginTop: 14 }}>
+      <label className="field" style={{ marginTop: 12 }}>
         <span>数量</span>
         <input
           className="input tnum"
@@ -177,7 +177,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
         />
       </label>
       <label className="field">
-        <span>备注（给商户看）</span>
+        <span>备注（商户可见）</span>
         <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
       </label>
     </Modal>

@@ -4,6 +4,7 @@ import { Modal } from '@/components/Modal'
 import { uploadApi } from '@/api/endpoints'
 import { uploadImage } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { IconPlus } from '@/components/icons'
 
 /**
@@ -149,9 +150,9 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
         onChange={(e) => setTerm(e.target.value)}
       />
 
-      {images.isLoading ? <p className="muted">读取图库…</p> : null}
+      {images.isLoading ? <p className="muted">读取中…</p> : null}
       {images.data && images.data.items.length === 0 ? (
-        <p className="muted">{term ? `没有找到「${term}」` : '图库还是空的'}</p>
+        <p className="muted">{term ? `没有找到「${term}」` : '图库为空'}</p>
       ) : null}
 
       <div className="image-picker__grid">
@@ -166,8 +167,19 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
               aria-label={`删除 ${img.file_name}`}
               disabled={removing === img.file_id}
               onClick={() => {
-                setRemoving(img.file_id)
-                remove.mutate(img.file_id)
+                // 图片可能已被商品或片单引用，删掉后那些位置会变成裂图，且不可撤销
+                void (async () => {
+                  const ok = await confirmDialog({
+                    title: '删除这张图？',
+                    message: img.file_name,
+                    hint: '删除后，引用它的位置会显示为空白。',
+                    confirmText: '删除',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  setRemoving(img.file_id)
+                  remove.mutate(img.file_id)
+                })()
               }}
             >
               ×

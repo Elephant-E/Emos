@@ -44,7 +44,7 @@ function WatchlistHead({
       <div className="detail-head__row">
         <Poster src={item.image_poster_url} name={String(item.name ?? '?')} className="poster-img detail-head__poster" />
         <div style={{ display: 'grid', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
               <i />
               {item.is_public ? '公开' : '私密'}
@@ -131,7 +131,7 @@ export function WatchlistDetailView({
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const [addTerm, setAddTerm] = useState('')
   const candidates = useWatchSearch(id, addTerm)
-  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers } = useWatchMutations(id)
+  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers, clearVideos, clearMusic } = useWatchMutations(id)
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
@@ -159,7 +159,7 @@ export function WatchlistDetailView({
         {watch.error ? (
           <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} />
         ) : (
-          <EmptyBlock title="片单不存在，或没有查看权限" />
+          <EmptyBlock title="片单不存在或无权限" />
         )}
       </>
     )
@@ -174,21 +174,23 @@ export function WatchlistDetailView({
     }
     const ok = await confirmDialog({
       title: '清空这份片单？',
-      message: `会把里面的 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'} 全部移除。`,
-      hint: '片单本身保留，只清内容；这个操作不能在界面上撤销。',
+      message: `移除全部 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'}。`,
+      hint: '片单保留，内容清空；界面不能撤销。',
       confirmText: '清空',
       danger: true,
     })
     if (!ok) return
-    try {
-      if (isMusic) await watchApi.emptyMusic(watchId)
-      else await watchApi.emptyVideos(watchId)
-      toast('已清空', 'success')
-      void watch.refetch()
-      void songs.refetch()
-    } catch (error) {
-      toast(error instanceof Error ? error.message : '清空失败', 'error')
-    }
+    // 走 mutation：成功后 ['watch'] 前缀失效，影片/歌曲列表、头部计数一起重取。
+    // 原来手动 refetch 只刷 watch 与 songs，影片列表仍显示已删除的行
+    const empty = isMusic ? clearMusic : clearVideos
+    empty.mutate(undefined, {
+      onSuccess: () => {
+        toast('已清空', 'success')
+        // 清空后总数为 0，停在越界页会只剩空表，退回第 1 页
+        if (search.page !== 1) go({ page: 1 })
+      },
+      // 失败提示交给全局 MutationCache，不要在这里再弹一条
+    })
   }
 
   return (
@@ -227,7 +229,11 @@ export function WatchlistDetailView({
                   <button className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
                     动态抓取
                   </button>
-                  <button className="btn btn--danger-text" onClick={() => void clearAll()}>
+                  <button
+                    className="btn btn--danger-text"
+                    disabled={clearVideos.isPending || clearMusic.isPending}
+                    onClick={() => void clearAll()}
+                  >
                     清空
                   </button>
                 </>
@@ -259,7 +265,7 @@ export function WatchlistDetailView({
         <input
           className="input"
           type="search"
-          placeholder={isMusic ? '搜歌名' : '在该片单里搜片名'}
+          placeholder={isMusic ? '搜歌名' : '搜片名'}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
@@ -288,7 +294,9 @@ export function WatchlistDetailView({
         <>
 
       {videos.error ? <ErrorBlock error={videos.error} onRetry={() => videos.refetch()} /> : null}
-      {videos.isLoading ? <LoadingBlock bare rows={6} columns={4} /> : null}
+      {/* 加载 / 空态 / 表格三者同一个外壳：表格在 .table-card 里，骨架和空态也包卡，
+          否则先看到裸骨架、再跳出一张卡；音乐分支（WatchMusicRows）同样是包卡的 */}
+      {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
         <EmptyBlock title="片单里还没有影片" />
@@ -466,11 +474,11 @@ export function WatchlistDetailView({
           }
         >
           <label className="field">
-            <span>抓取地址（留空关闭）</span>
+            <span>抓取地址，留空关闭</span>
             <input className="input" value={dynamicUrl} onChange={(e) => setDynamicUrl(e.target.value)} placeholder="https://…" />
           </label>
           <p className="state__hint" style={{ textAlign: 'left' }}>
-            填了地址后，片单会按该地址定期同步内容；清空即关闭。
+            填入地址后按该地址定期同步，清空即关闭。
           </p>
         </Modal>
       ) : null}
@@ -551,7 +559,7 @@ export function WatchlistDetailView({
             <TagInput
               value={maintainerIds}
               onChange={setMaintainerIds}
-              placeholder="输入用户 ID 后回车，全部清空即取消维护者"
+              placeholder="输入用户 ID 后回车；清空即取消维护者"
               autoFocus
             />
           </div>
@@ -593,7 +601,7 @@ export function WatchlistDetailView({
           }
         >
           <label className="field">
-            <span>备注（只有自己看得到）</span>
+            <span>备注，仅自己可见</span>
             <textarea
               className="input"
               style={{ minHeight: 90 }}
@@ -668,7 +676,7 @@ function WatchMusicRows({
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
 
       {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (
-        <EmptyBlock title="这个片单还没有歌" />
+        <EmptyBlock title="片单里还没有歌" />
       ) : null}
 
       {songs.data && songs.data.items.length > 0 ? (

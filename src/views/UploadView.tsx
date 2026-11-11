@@ -200,7 +200,7 @@ export function UploadView() {
         }
       } catch {
         // 识别只是个便利，失败不该挡路：直接转成「手动选目标」
-        patch(item.id, { status: 'need-target', message: '没能识别出是哪一部，手动选一下' })
+        patch(item.id, { status: 'need-target', message: '未能识别，手动选择目标' })
       }
     }
   }
@@ -341,9 +341,9 @@ export function UploadView() {
         onClick={() => inputRef.current?.click()}
       >
         <IconUpload size={20} />
-        <span>把视频、字幕或音乐拖到这里，或点击选择文件</span>
+        <span>拖入视频、字幕或音乐，或选择文件</span>
         <span className="muted text-xs">
-          视频 (MP4/MKV)、字幕 (SRT/ASS)、音乐 (MP3/FLAC)，可多选
+          视频 MP4/MKV · 字幕 SRT/ASS · 音乐 MP3/FLAC · 可多选
         </span>
       </div>
 

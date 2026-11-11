@@ -13,7 +13,7 @@ import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useShopCategories, useShopCounts, useShopMutations, useShopProducts, useShopProductsInfinite, useShopSeller } from '@/api/queries'
+import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProducts, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -95,6 +95,19 @@ export function ShopView({
   const [newCategory, setNewCategory] = useState('')
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string } | null>(null)
 
+  // createOrUpdate 是整体覆盖，payload 里少 description / exchange_way 会把它们清空。
+  // 列表接口是否带这两个字段没有保证，编辑时用商品详情补齐原值
+  const editingDetail = useShopProduct(editing?.product_id ?? 0)
+  useEffect(() => {
+    const detail = editingDetail.data
+    if (!detail || !editing?.product_id || detail.product_id !== editing.product_id) return
+    setEditing((prev) =>
+      prev && prev.product_id === detail.product_id
+        ? { ...prev, description: prev.description ?? detail.description, exchange_way: prev.exchange_way ?? detail.exchange_way }
+        : prev,
+    )
+  }, [editingDetail.data, editing?.product_id])
+
   const createCategory = () => {
     if (!newCategory.trim() || actions.createCategory.isPending) return
     actions.createCategory.mutate(
@@ -117,6 +130,8 @@ export function ShopView({
         category_id: categoryId,
         name: editing.name,
         cover_url: editing.cover_url ?? null,
+        description: editing.description ?? null,
+        exchange_way: editing.exchange_way ?? null,
         price: editing.price ?? 1,
         price_origin: editing.price_origin ?? 1,
         stock: editing.stock ?? 0,
@@ -173,7 +188,7 @@ export function ShopView({
             value={counts.ordersPending ?? '—'}
             unit="单"
             /* 取不到（比如非管理员，订单接口 403）时不能写「都发完了」 */
-            note={counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
+            note={counts.ordersPending === undefined ? '暂无数据' : counts.ordersPending > 0 ? '需要处理' : '已发完'}
           />
           <StatCard label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
           <StatCard label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
@@ -204,7 +219,8 @@ export function ShopView({
               <button
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
-                title={categories.data?.length ? undefined : '先创建至少一个分类'}
+                // 分类取不到和确实没有分类是两回事：前者重试就好，别引导用户去建重复分类
+                title={categories.data?.length ? undefined : categories.error ? '分类没取到，请先重试' : '先创建至少一个分类'}
                 onClick={() => setEditing({ stock: 100, price_origin: 100, price: 1, sort: 80, category_id: categories.data?.[0]?.category_id })}
               >
                   <IconPlus />
@@ -220,7 +236,7 @@ export function ShopView({
           {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
           {mine && products.data && products.data.items.length === 0 ? (
             <EmptyBlock
-              title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
+              title={q ? `没有找到「${q}」` : categoryId ? '分类下没有商品' : '没有商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
             />
           ) : null}
@@ -232,7 +248,7 @@ export function ShopView({
           {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
           {!mine && !browse.isLoading && browseItems.length === 0 ? (
             <EmptyBlock
-              title={q ? `没有找到「${q}」` : '还没有在售商品'}
+              title={q ? `没有找到「${q}」` : '没有在售商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
             />
           ) : null}
@@ -369,12 +385,13 @@ export function ShopView({
               ) : null}
             </CardHead>
 
-            {categories.isLoading ? <LoadingBlock bare rows={3} columns={2} /> : null}
-            {categories.data && categories.data.length === 0 ? <EmptyBlock bare title="还没有分类" /> : null}
+            {categories.error ? <ErrorBlock bare error={categories.error} onRetry={() => categories.refetch()} /> : null}
+            {!categories.error && categories.isLoading ? <LoadingBlock bare rows={3} columns={2} /> : null}
+            {!categories.error && categories.data && categories.data.length === 0 ? <EmptyBlock bare title="没有分类" /> : null}
             {categories.data && categories.data.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
                 {categories.data.map((category) => (
-                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
                     <span className="spacer" />
                     {isSeller ? (
@@ -384,7 +401,7 @@ export function ShopView({
                         onCommit={(sort) =>
                           actions.sortCategory.mutate(
                             { categoryId: category.category_id, sort },
-                            { onSuccess: () => toast('已调整排序', 'success') },
+                            { onSuccess: () => toast('排序已保存', 'success') },
                           )
                         }
                       />
@@ -437,11 +454,11 @@ export function ShopView({
                     <span>店铺 ID</span>
                   </div>
                 </div>
-                {seller.data.description ? <p className="detail-desc" style={{ marginTop: 14 }}>{seller.data.description}</p> : null}
+                {seller.data.description ? <p className="detail-desc" style={{ marginTop: 12 }}>{seller.data.description}</p> : null}
                 {isSeller ? (
                   <button
                     className="btn btn--ghost"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 12 }}
                     onClick={() => setSellerForm({ name: seller.data!.name ?? '', description: seller.data!.description ?? '' })}
                   >
                     编辑店铺
@@ -449,10 +466,10 @@ export function ShopView({
                 ) : (
                   <button
                     className="btn btn--primary"
-                    style={{ marginTop: 16 }}
+                    style={{ marginTop: 12 }}
                     onClick={() => setSellerForm({ name: '', description: '' })}
                   >
-                    申请开店
+                    申请开店（扣 3000 胡萝卜）
                   </button>
                 )}
               </>
@@ -491,6 +508,26 @@ export function ShopView({
             value={editing.cover_url ?? null}
             onChange={(url) => setEditing({ ...editing, cover_url: url })}
           />
+          <label className="field">
+            <span>简介</span>
+            <textarea
+              className="input"
+              maxLength={200}
+              placeholder="200 字内"
+              value={editing.description ?? ''}
+              onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>兑换方式</span>
+            <textarea
+              className="input"
+              maxLength={1000}
+              placeholder="1000 字内"
+              value={editing.exchange_way ?? ''}
+              onChange={(e) => setEditing({ ...editing, exchange_way: e.target.value })}
+            />
+          </label>
           <div className="field-row">
             <label className="field">
               <span>售价</span>
@@ -533,7 +570,7 @@ export function ShopView({
       {sellerForm ? (
         <Modal
           title={isSeller ? '编辑店铺' : '申请开店'}
-          hint={isSeller ? '修改后会重新进入审核。' : '提交后由管理员审核，通过后才能上架商品。'}
+          hint={isSeller ? '修改后会重新进入审核。' : '提交后扣除 3000 胡萝卜，不退还；审核通过后才能上架商品。'}
           onClose={() => setSellerForm(null)}
           footer={
             <>
@@ -542,15 +579,26 @@ export function ShopView({
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!sellerForm.name.trim()}
-                onClick={() => {
+                disabled={!sellerForm.name.trim() || actions.applySeller.isPending}
+                onClick={async () => {
                   const payload = { name: sellerForm.name.trim(), description: sellerForm.description.trim() }
                   const onSuccess = () => {
                     toast(isSeller ? '已保存' : '已提交申请', 'success')
                     setSellerForm(null)
                   }
-                  if (isSeller) actions.saveSeller.mutate(payload, { onSuccess })
-                  else actions.applySeller.mutate(payload, { onSuccess })
+                  if (isSeller) {
+                    actions.saveSeller.mutate(payload, { onSuccess })
+                    return
+                  }
+                  const ok = await confirmDialog({
+                    title: '申请开店？',
+                    message: '扣除 3000 胡萝卜，不退还。',
+                    hint: '提交后由管理员审核，通过后才能上架商品。',
+                    confirmText: '确认申请',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  actions.applySeller.mutate(payload, { onSuccess })
                 }}
               >
                 {isSeller ? '保存' : '提交申请'}

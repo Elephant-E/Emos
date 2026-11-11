@@ -44,7 +44,7 @@ export function ProductToolbar({
   style?: CSSProperties
 }) {
   return (
-    <div className="toolbar product-toolbar" style={style}>
+    <div className="toolbar" style={style}>
       {showCategories ? (
         <Tabs
           items={[{ key: 0, label: allLabel }, ...categories.map((c) => ({ key: c.id, label: c.name }))]}

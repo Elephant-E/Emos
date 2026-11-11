@@ -50,14 +50,14 @@ export function LoginView({ onDone }: { onDone: () => void }) {
       setPhase('error')
       setMessage(
         aborted
-          ? '验证超时，服务器没有及时响应。检查网络后重试。'
+          ? '验证超时，请检查网络。'
           : status === 401
-            ? '令牌无效或已失效，请重新获取。'
+            ? '令牌无效或已失效。'
             : status === 403
-              ? '这个令牌没有后台权限。'
+              ? '令牌无后台权限。'
               : status === 0
-                ? '连不上服务器，检查网络后重试。'
-                : (error as Error).message || '验证失败，稍后再试。',
+                ? '连不上服务器。'
+                : (error as Error).message || '验证失败。',
       )
     }
   }
@@ -100,10 +100,10 @@ export function LoginView({ onDone }: { onDone: () => void }) {
         <div className="login__card">
           <p className="login__kicker">登录</p>
           <a className="btn login__cta" href={authUrl()}>
-            使用 EMOS 账号登录
+            账号登录
           </a>
 
-          <p className="login__or"><span>或使用访问令牌</span></p>
+          <p className="login__or"><span>或访问令牌</span></p>
 
           <form
               className="login__manual"
@@ -150,7 +150,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
                 </p>
               ) : null}
               <button className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
-                {phase === 'checking' ? '正在验证…' : '用令牌进入'}
+                {phase === 'checking' ? '正在验证…' : '令牌登录'}
               </button>
           </form>
         </div>

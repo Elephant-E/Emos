@@ -9,7 +9,7 @@ import { useRef, useState } from 'react'
 export function TagInput({
   value,
   onChange,
-  placeholder = '输入后回车添加',
+  placeholder = '回车添加',
   allowEmpty = true,
   autoFocus = false,
 }: {

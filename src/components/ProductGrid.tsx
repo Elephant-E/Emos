@@ -18,7 +18,7 @@ export function ProductGrid({
   products: ShopProduct[]
   hasMore: boolean
   loadingMore: boolean
-  /** 触底加载失败：真机后端偶发 504，不能让用户以为「到底了」 */
+  /** 触底加载失败：真机后端偶发 504，不能让用户以为「没有更多了」 */
   loadError?: boolean
   onLoadMore: () => void
   onOpen: (product: ShopProduct) => void
@@ -58,12 +58,12 @@ export function ProductGrid({
       {!loadingMore && loadError ? (
         <p style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>
           <button className="btn btn--quiet" onClick={onLoadMore}>
-            没加载出来，重试
+            重试
           </button>
         </p>
       ) : null}
       {!hasMore && products.length > 0 ? (
-        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>到底了</p>
+        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>没有更多了</p>
       ) : null}
     </>
   )

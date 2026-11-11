@@ -38,8 +38,8 @@ const TABS: Array<{ key: SeekSearch['tab']; label: string; statuses: SeekStatus[
 /** 空态标题：搜索没命中优先，其次按「只看我认领的」和类型 */
 function emptyTitle(q: string, mine: boolean, type: string): string {
   if (q) return `没有找到「${q}」`
-  if (mine) return '没有我认领的求片'
-  if (type) return `没有${type === 'movie' ? '电影' : '剧集'}类的求片`
+  if (mine) return '没有认领的求片'
+  if (type) return `没有${type === 'movie' ? '电影' : '剧集'}类求片`
   return '没有求片'
 }
 
@@ -122,6 +122,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
   const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: () => { invalidate(); toast('已催片', 'success') } })
 
+  // 数量留空时 Number('') 是 0，非法输入还可能是 NaN；NaN 与任何数比较都为 false，
+  // 会让按钮保持可用并把空值提交出去，所以只有落在 1 – 5000 的有限数才算可提交
+  const carrotValid = Number.isFinite(carrot) && carrot >= 1 && carrot <= 5000
+
 
   return (
     <>
@@ -162,12 +166,30 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!error && !isLoading && data && data.items.length === 0 ? (
-        <EmptyBlock
-          action={
-            search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
-          }
-          title={emptyTitle(search.q, search.mine, search.type)}
-        />
+        // 区分「确实没有求片」和「页码越界」：后者的总条数是有值的
+        data.total > 0 ? (
+          // 空态和分页器同属一张卡，且要给回第一页的入口，否则越界后没有出口
+          <div className="table-card">
+            <EmptyBlock
+              bare
+              title="这一页没有内容"
+              hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
+              action={
+                <button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>
+                  回第一页
+                </button>
+              }
+            />
+            <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
+          </div>
+        ) : (
+          <EmptyBlock
+            action={
+              search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
+            }
+            title={emptyTitle(search.q, search.mine, search.type)}
+          />
+        )
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
@@ -202,16 +224,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         }),
                       Boolean(item.video_list_id),
                     )}
-                    onKeyDown={(e) => {
-                      if (!item.video_list_id) return
-                      if (e.key !== 'Enter' && e.key !== ' ') return
-                      e.preventDefault()
-                      navigate({
-                        to: '/media/$videoId',
-                        params: { videoId: String(item.video_list_id) },
-                        search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
-                      })
-                    }}
                   >
                     <td>
                       <div className="cell-title">
@@ -260,8 +272,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                                 onClick={async (e) => {
                                   e.stopPropagation()
                                   const ok = await confirmDialog({
-                                    title: '撤回这个认领？',
-                                    message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
+                                    title: '撤回认领？',
+                                    message: '撤回后重新变为待认领，已上传的资源保留。',
                                     confirmText: '撤回',
                                     danger: true,
                                   })
@@ -316,8 +328,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </button>
           }
         >
-          {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
-          {detail.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+          {detail.error ? <ErrorBlock bare error={detail.error} onRetry={() => detail.refetch()} /> : null}
+          {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
           {detail.data ? (
             <dl className="kv">
               <div>
@@ -352,10 +364,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           ) : null}
 
           <p className="stat__label" style={{ marginTop: 16 }}>悬赏记录</p>
-          {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
-          {history.isLoading ? <LoadingBlock rows={2} columns={3} /> : null}
+          {history.error ? <ErrorBlock bare error={history.error} onRetry={() => history.refetch()} /> : null}
+          {history.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
           {(history.data?.length ?? 0) === 0 && !history.isLoading && !history.error ? (
-            <EmptyBlock bare title="还没有人加过胡萝卜" />
+            <EmptyBlock bare title="没有悬赏记录" />
           ) : null}
           {(history.data?.length ?? 0) > 0 ? (
             <table className="table table--inset" style={{ marginTop: 8 }}>
@@ -392,7 +404,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               </button>
               <button
                 className="btn btn--primary"
-                disabled={urge.isPending || carrot < 1 || carrot > 5000}
+                disabled={urge.isPending || !carrotValid}
                 onClick={() => {
                   urge.mutate({ id: urgeTarget.id, carrot: Math.min(5000, Math.max(1, carrot)) })
                   setUrgeTarget(null)
@@ -408,7 +420,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             <input className="input" type="number" min={1} max={5000} value={carrot} onChange={(e) => setCarrot(Number(e.target.value))} />
           </label>
           <p className="state__hint" style={{ textAlign: 'left' }}>
-            提交后立即从余额扣除。
+            提交后从余额扣除。
           </p>
         </Modal>
       ) : null}

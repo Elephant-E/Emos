@@ -1,3 +1,4 @@
+import { PAGE_SIZES } from '@/lib/search'
 import { useEffect, useState } from 'react'
 import { IconLeft, IconRight } from './icons'
 
@@ -7,10 +8,10 @@ interface PagerProps {
   pageSize: number
   onPage: (page: number) => void
   onPageSize?: (size: number) => void
-  sizes?: number[]
+  sizes?: readonly number[]
 }
 
-export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 50, 100] }: PagerProps) {
+export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_SIZES }: PagerProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const [jump, setJump] = useState(String(page))
 
@@ -27,7 +28,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 
       <span>
         共 {total.toLocaleString('zh-CN')} 条 · 第 {page} / {totalPages} 页
       </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {onPageSize ? (
           <select
             className="input"
@@ -55,7 +56,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 
         </div>
 
         {totalPages > 5 ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <span className="muted text-xs">跳至</span>
             <input
               className="input"

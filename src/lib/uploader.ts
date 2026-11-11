@@ -48,6 +48,8 @@ export interface UploadResult {
 
 type Token = {
   type?: string
+  /** 业务失败时只有这个字段（HTTP 仍是 200） */
+  message?: string
   file_id?: string
   user_id?: string
   data?: {
@@ -78,6 +80,9 @@ async function uploadObject(
     fileStorage,
   )) as Token
 
+  // 业务失败是 HTTP 200 + { message }（例如「此资源您一周内上传过」），
+  // 不先判 message 会把它盖成误导性的「没有返回 file_id」
+  if (raw.message) throw new Error(raw.message)
   const fileId = raw.file_id ?? ''
   const uploadUrl = raw.data?.upload_url ?? ''
   if (!fileId || !uploadUrl) throw new Error('服务端没有返回 file_id / upload_url')
@@ -270,7 +275,7 @@ export async function uploadImage(
  * 临时上传：不属于「入库」体系，只换一个可以直接用的直链。
  * 服务是独立的 temporary.emos.best，单文件 80MB，FormData 带 file + emos_id。
  *
- * 当前后台没有任何调用者，这是刻意保留的：能力的说明在
+ * 当前用于红包封面（RedPacketView），刻意保留：能力的说明在
  * docs/UPLOAD-PROTOCOL.md 与 docs/WIKI-NOTES.md，将来做红包封面一类
  * 「要一张能直接用的图」的功能时需要它。不要因为「零引用」删掉。
  */

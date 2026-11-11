@@ -67,7 +67,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {!query.isLoading && products.length === 0 ? (
         <EmptyBlock
-          title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
+          title={keyword ? `这家店没有「${keyword}」` : '店铺没有在售商品'}
           action={
             keyword ? <ClearSearchButton onClick={() => { setTerm(''); setKeyword('') }} /> : undefined
           }

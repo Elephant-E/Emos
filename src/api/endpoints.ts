@@ -3,7 +3,6 @@ import type {
   BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
 
-const q = (o: Record<string, unknown>) => o
 
 export const sessionApi = {
   /** 验 token 用：只回 { is_sign, user_id }，比拉整份 /api/user 轻得多 */
@@ -375,4 +374,3 @@ export const whisperApi = {
   reply: (whisperId: number, content: string) => request<{ whisper_id: number }>('/api/whisper/reply', { method: 'POST', body: { whisper_id: whisperId, content } }),
 }
 
-export { q }
