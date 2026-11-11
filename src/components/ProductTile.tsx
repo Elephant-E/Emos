@@ -32,7 +32,7 @@ export function ProductTile({
       }}
     >
       <div className="product-tile__cover">
-        <Poster src={product.cover_url} name={product.name} />
+        <Poster src={product.cover_url} name={product.name} shape="square" />
       </div>
       <div className="product-tile__body">
         <span className="product-tile__name">{product.name}</span>

@@ -285,7 +285,7 @@ export function ShopView({
                       <td>
                         <div className="cell-title">
                           {product.cover_url ? (
-                            <Poster src={product.cover_url} name={product.name} />
+                            <Poster src={product.cover_url} name={product.name} shape="square" />
                           ) : (
                             <span className="thumb">{product.name.slice(0, 1)}</span>
                           )}

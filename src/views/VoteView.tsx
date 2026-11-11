@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { UserCell } from '@/components/UserCell'
 import { Pager } from '@/components/Pager'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
@@ -280,12 +281,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                         <tr key={`${row.user_id}-${row.index}`}>
                           <td className="num muted tnum">{row.index}</td>
                           <td>
-                            <div className="cell-title">
-                              <span className="thumb">{(row.username || '?').slice(0, 1)}</span>
-                              <span>
-                                <span className="cell-title__name">{row.username}</span>
-                              </span>
-                            </div>
+                            <UserCell name={row.username} avatar={row.avatar} />
                           </td>
                           <td className="muted">{result.data?.options[Number(row.option_index)] ?? '—'}</td>
                         </tr>

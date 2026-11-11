@@ -6,7 +6,6 @@ import { PickList } from '@/components/PickList'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { uploadSong } from '@/lib/uploader'
@@ -113,7 +112,6 @@ export function SongDetailView({ songId }: { songId: number }) {
       {song.data ? (
         <section className="detail-head">
           <div className="detail-head__row">
-            <Poster src={song.data.image_poster_url} name={song.data.name} className="poster-img detail-head__poster" />
             <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 {song.data.is_favorite ? (

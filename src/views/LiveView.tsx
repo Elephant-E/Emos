@@ -209,7 +209,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                   >
                     <td>
                       <div className="cell-title">
-                        <Poster src={item.image_poster_url} name={item.title} />
+                        <Poster src={item.image_poster_url} name={item.title} shape="square" />
                         <span>
                           <span className="cell-title__name">
                             {item.title}

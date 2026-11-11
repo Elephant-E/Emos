@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
+import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList } from '@/api/queries'
@@ -74,15 +75,15 @@ export function UserSearchView() {
               {rows.map((row) => (
                 <tr key={row.user_id}>
                   <td>
-                    <div className="cell-title">
-                      <span className="thumb">{(row.username ?? row.user_id).slice(0, 1)}</span>
-                      <span>
-                        <Link to="/users/$userId" params={{ userId: row.user_id }} className="cell-title__name">
+                    <UserCell
+                      name={row.username ?? row.user_id}
+                      avatar={row.avatar}
+                      nameNode={
+                        <Link to="/users/$userId" params={{ userId: row.user_id }}>
                           {row.username ?? row.user_id}
                         </Link>
-                        <span className="cell-title__code">{row.user_id}</span>
-                      </span>
-                    </div>
+                      }
+                    />
                   </td>
                   <td className="muted ellipsis">{row.disable_reason ?? '—'}</td>
                   <td className="num muted">{formatRelative(row.created_at)}</td>

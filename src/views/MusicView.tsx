@@ -3,7 +3,6 @@ import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
@@ -148,17 +147,12 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                     style={{ cursor: isSong ? 'pointer' : 'default' }}
                   >
                     <td>
-                      <div className="cell-title">
-                        {row.image_poster_url || row.image_profile_url ? (
-                          <Poster src={String(row.image_poster_url ?? row.image_profile_url)} name={String(row.name ?? row.title ?? "?")} />
-                        ) : (
-                          <span className="thumb">{name.slice(0, 1)}</span>
-                        )}
+                      <span className="cell-title">
                         <span>
                           <span className="cell-title__name">{name}</span>
                           {row.tagline ? <span className="cell-title__code">{String(row.tagline)}</span> : null}
                         </span>
-                      </div>
+                      </span>
                     </td>
                     <td className="muted">{artists || String(row.original_name ?? '—')}</td>
                     <td className="num muted">{isSong ? duration(Number(row.duration ?? 0)) : String(row.release_date ?? '—')}</td>

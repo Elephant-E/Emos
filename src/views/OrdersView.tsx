@@ -137,7 +137,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                   <tr key={order.order_no}>
                     <td>
                       <div className="cell-title">
-                        <Poster src={order.order_cover_url} name={order.order_title} />
+                        <Poster src={order.order_cover_url} name={order.order_title} shape="square" />
                         <span>
                           <span className="cell-title__name">{order.order_title}</span>
                           <span className="cell-title__code">

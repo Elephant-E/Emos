@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { UserCell } from '@/components/UserCell'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Poster } from '@/components/Poster'
@@ -72,13 +73,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   <tr key={`${row.index}-${row.username}`}>
                     <td className="num muted tnum">{row.index}</td>
                     <td>
-                      <div className="cell-title">
-                        <span className="thumb">{row.username.slice(0, 1)}</span>
-                        <span>
-                          <span className="cell-title__name">{row.username}</span>
-                          {row.level_name ? <span className="cell-title__code">{row.level_name}</span> : null}
-                        </span>
-                      </div>
+                      <UserCell name={row.username} avatar={row.avatar} sub={row.level_name} />
                     </td>
                     <td className="num">{formatThousand(row.carrot)}</td>
                   </tr>
@@ -101,12 +96,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   <tr key={`${row.index}-${row.username}`}>
                     <td className="num muted tnum">{row.index}</td>
                     <td>
-                      <div className="cell-title">
-                        <span className="thumb">{row.username.slice(0, 1)}</span>
-                        <span>
-                          <span className="cell-title__name">{row.username}</span>
-                        </span>
-                      </div>
+                      <UserCell name={row.username} avatar={row.avatar} />
                     </td>
                     <td className="num">{formatSize(row.size)}</td>
                   </tr>

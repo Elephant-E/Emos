@@ -156,6 +156,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           group: 'seek' as const,
           title: row.video_title_display,
           sub: [row.video_type === 'movie' ? '电影' : '剧集', `${formatThousand(row.count_request)} 人求`].join(' · '),
+          poster: row.video_image_poster,
           open: () => {
             close()
             void navigate({
@@ -253,7 +254,11 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
                         onMouseEnter={() => setActive(index)}
                         onClick={() => hit.open()}
                       >
-                        <Poster src={hit.poster} name={hit.title} className="poster-img search-panel__poster" />
+                        {hit.group === 'watch' && hit.poster ? (
+                          <Poster src={hit.poster} name={hit.title} shape="wide" className="search-panel__poster" />
+                        ) : hit.group === 'seek' && hit.poster ? (
+                          <Poster src={hit.poster} name={hit.title} className="search-panel__poster" />
+                        ) : null}
                         <span>
                           <span className="cell-title__name">{hit.title}</span>
                           {hit.sub ? <span className="cell-title__code">{hit.sub}</span> : null}

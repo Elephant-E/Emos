@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { Pager } from '@/components/Pager'
@@ -352,12 +353,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   {(records.data?.items ?? []).map((row) => (
                     <tr key={`${row.user_id}-${row.receive_at}`}>
                       <td>
-                        <div className="cell-title">
-                          <span className="thumb">{(row.username ?? row.user_id).slice(0, 1)}</span>
-                          <span>
-                            <span className="cell-title__name">{row.username ?? '—'}</span>
-                          </span>
-                        </div>
+                        <UserCell name={row.username ?? row.user_id} avatar={row.avatar} />
                       </td>
                       <td className="muted">{row.user_id}</td>
                       <td className="num">+{formatThousand(row.carrot)}</td>

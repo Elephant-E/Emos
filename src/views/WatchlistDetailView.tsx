@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { InlineSortInput } from '@/components/InlineSortInput'
+import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -42,7 +43,7 @@ function WatchlistHead({
   return (
     <section className="detail-head">
       <div className="detail-head__row">
-        <Poster src={item.image_poster_url} name={String(item.name ?? '?')} className="poster-img detail-head__poster" />
+        <Poster src={item.image_poster_url} name={String(item.name ?? '?')} shape="wide" className="detail-head__poster" />
         <div style={{ display: 'grid', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
@@ -512,7 +513,9 @@ export function WatchlistDetailView({
               <tbody>
                 {(subs.data?.items ?? []).map((row, index) => (
                   <tr key={`${row.username}-${index}`}>
-                    <td className="cell-title__name">{row.username}</td>
+                    <td>
+                      <UserCell name={row.username} avatar={row.avatar} />
+                    </td>
                     <td className="num muted">{row.carrot ? formatThousand(row.carrot) : '—'}</td>
                     <td className="muted">{row.expiration_date ?? '—'}</td>
                   </tr>
@@ -747,7 +750,6 @@ function WatchMusicRows({
           <PickList loading={songCandidates.isFetching} query={songTerm} count={(songCandidates.data?.items ?? []).length}>
             {(songCandidates.data?.items ?? []).map((sg) => (
               <div key={sg.song_id} className="pick-row">
-                <Poster src={sg.image_poster_url} name={String(sg.name ?? '?')} />
                 <span className="pick-row__text">
                   <span className="ellipsis" style={{ fontSize: 13.5 }}>{sg.name}</span>
                   <span className="meta-sm">{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>

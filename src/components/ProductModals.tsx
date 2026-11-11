@@ -65,7 +65,7 @@ export function ProductDetailModal({
         <>
           <div style={{ display: 'flex', gap: 16 }}>
             <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
-              <Poster src={p.cover_url} name={p.name} />
+              <Poster src={p.cover_url} name={p.name} shape="square" />
             </div>
             <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
@@ -156,7 +156,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
     >
       <div className="row" style={{ gap: 12 }}>
         <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
-          <Poster src={product.cover_url} name={product.name} />
+          <Poster src={product.cover_url} name={product.name} shape="square" />
         </div>
         <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
