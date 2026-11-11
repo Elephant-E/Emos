@@ -41,21 +41,21 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   const mineScope = search.scope === 'mine'
-  // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表
-  const shopOrders = useShopOrders(search.page, {
+  // 两个视角共用同一份筛选；原来这段抄了两遍，改一处忘一处就会出现
+  // 「店铺订单能搜到、我的订单搜不到」
+  const filter = {
     ...pay.filter,
     ...delivery.filter,
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
-  }, 10, !mineScope)
-  // 「我的订单」也要吃搜索与两个状态筛选，之前只传了页码
-  const mineOrders = useShopMineOrders(search.page, {
-    ...pay.filter,
-    ...delivery.filter,
-    ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
-  }, 10, mineScope)
+  }
+  // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表
+  const shopOrders = useShopOrders(search.page, filter, 10, !mineScope)
+  const mineOrders = useShopMineOrders(search.page, filter, 10, mineScope)
   const orders = mineScope ? mineOrders : shopOrders
   const actions = useShopMutations()
+  // 店铺订单和自己下的单走两个接口，判断只写一处
+  const remove = mineScope ? actions.removeOrder : actions.deleteOrder
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
 
 
@@ -245,9 +245,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                               danger: true,
                             })
                             if (!ok) return
-                            // 店铺订单和自己下的单是两个接口
-                            const mutation = mineScope ? actions.removeOrder : actions.deleteOrder
-                            mutation.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+                            remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
                           }}
                         >
                           删除
@@ -283,7 +281,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     danger: true,
                   })
                   if (!ok) return
-                  ;(mineScope ? actions.removeOrder : actions.deleteOrder).mutate(remarking.orderNo, {
+                  remove.mutate(remarking.orderNo, {
                     onSuccess: () => {
                       toast('已删除', 'success')
                       setRemarking(null)

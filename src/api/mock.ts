@@ -632,6 +632,8 @@ export async function mockRequest<T>(
     if (falsy(query.is_pay)) filtered = filtered.filter((r) => r.status_pay !== 'pay')
     if (truthy(query.is_delivery)) filtered = filtered.filter((r) => Boolean(r.time_delivery))
     if (falsy(query.is_delivery)) filtered = filtered.filter((r) => !r.time_delivery)
+    if (query.order_title) filtered = filtered.filter((r) => r.order_title.includes(String(query.order_title)))
+    if (query.order_no) filtered = filtered.filter((r) => r.order_no === String(query.order_no))
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/shop/order/user/create') {
