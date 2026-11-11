@@ -174,7 +174,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                     </td>
                     <td className="muted">{row.username}</td>
                     <td className="num muted">{row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—'}</td>
-                    <td className="muted" style={{ fontSize: 12 }}>{row.ua ?? '—'}</td>
+                    <td className="muted text-xs">{row.ua ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -197,7 +197,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                     <td className="cell-title__name">{row.live_title}</td>
                     <td className="muted">{row.username}</td>
                     <td className="num muted">{Math.max(0, Math.round(row.play_durations / 60))} 分钟</td>
-                    <td className="muted" style={{ fontSize: 12 }}>{row.ua ?? '—'}</td>
+                    <td className="muted text-xs">{row.ua ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

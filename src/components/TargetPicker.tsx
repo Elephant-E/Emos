@@ -112,7 +112,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
         {(search.data?.items ?? []).map((video) => (
           <div key={video.video_id} className="pick-row">
             <span className="pick-row__title">{video.video_title}</span>
-            <span className="muted" style={{ fontSize: 12 }}>
+            <span className="muted text-xs">
               {video.video_type === 'movie' ? '电影' : '剧集'}
             </span>
             <button

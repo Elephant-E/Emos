@@ -1,4 +1,4 @@
-import { asPage, asPageSize, asString } from '@/lib/search'
+import { asBool, asPage, asPageSize, asString } from '@/lib/search'
 import { createRootRoute, createRoute, createRouter, Outlet, redirect } from '@tanstack/react-router'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { OverviewView } from '@/views/OverviewView'
@@ -441,7 +441,7 @@ const seekRoute = createRoute({
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
     q: typeof s.q === 'string' ? s.q : '',
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
-    mine: s.mine === true || s.mine === '1' || s.mine === 'true',
+    mine: asBool(s.mine),
   }),
   component: SeekRoute,
 })

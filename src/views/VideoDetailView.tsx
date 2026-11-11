@@ -325,7 +325,7 @@ export function VideoDetailView({
           <article className="card card--tight">
             <CardHead title="资源">
               {currentEpisode && !isMovie ? (
-                <span className="muted" style={{ fontSize: 12 }}>
+                <span className="muted text-xs">
                   {currentEpisode.episode_title}
                 </span>
               ) : null}
@@ -615,7 +615,7 @@ export function VideoDetailView({
               {(moveSearch.data?.items ?? []).map((v) => (
                 <div key={v.video_id} className="pick-row">
                   <span className="pick-row__title">{v.video_title}</span>
-                  <span className="muted" style={{ fontSize: 12 }}>{v.video_type === 'movie' ? '电影' : '剧集'}</span>
+                  <span className="muted text-xs">{v.video_type === 'movie' ? '电影' : '剧集'}</span>
                   <button
                     className="btn btn--quiet"
                     onClick={() => {

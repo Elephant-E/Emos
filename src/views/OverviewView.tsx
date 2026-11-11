@@ -69,16 +69,21 @@ export function OverviewView() {
       setSignNote('')
       refreshCarrot()
     },
+    // 自己处理提示（下面的 skipErrorToast），否则 429 会同时弹「已经签过了」和一条错误
+    meta: { skipErrorToast: true },
     onError: (error) => {
       const status = (error as { status?: number }).status
       const message = (error as Error).message ?? ''
+      setSigning(false)
       if (status === 429 || message.includes('重复')) {
         // 重复签到不是故障，是今天已经签过了
         toast('今天已经签过了', 'info')
-        setSigning(false)
         setSignNote('')
         refreshCarrot()
+        return
       }
+      const text = message || '签到失败'
+      toast(status && !text.includes(`（${status}）`) ? `${text}（${status}）` : text, 'error')
     },
   })
 
@@ -259,7 +264,7 @@ export function OverviewView() {
                       {total > 0 ? <i style={{ transform: `scaleX(${ratio.toFixed(3)})` }} /> : null}
                     </span>
                   </span>
-                  <span className="muted tnum" style={{ fontSize: 12 }}>
+                  <span className="muted tnum text-xs">
                     {total > 0 ? `${Math.round(ratio * 100)}%` : '时长未知'}
                   </span>
                   </Link>
@@ -319,7 +324,7 @@ export function OverviewView() {
           </div>
 
           {stats.data && stats.data.activeDays > 0 ? (
-            <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+            <p className="card-note stack--top">
               本周 {stats.data.activeDays} 天有观看，共 {Math.round(stats.data.totalSeconds / 60)} 分钟
             </p>
           ) : null}

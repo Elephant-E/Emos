@@ -76,12 +76,16 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       number: Number(number) || 0,
       rule_carrot: Number(ruleCarrot) || 0,
       rule_sign: Number(ruleSign) || 0,
-      prizes: prizes.map((p) => ({
-        name: p.name.trim(),
-        description: p.description?.trim() || null,
-        number: Number(p.number),
-        bodys: (p.bodys ?? []).filter((b) => b.trim()),
-      })),
+      prizes: prizes.map((p) => {
+        const bodys = (p.bodys ?? []).map((b) => b.trim()).filter(Boolean)
+        return {
+          name: p.name.trim(),
+          description: p.description?.trim() || null,
+          number: Number(p.number),
+          // 契约：「存在时需和奖品数量对应」。空数组也算存在，别赌后端容错
+          ...(bodys.length ? { bodys } : {}),
+        }
+      }),
     }
     const ok = await confirmDialog({
       title: '确认创建抽奖？',

@@ -14,6 +14,26 @@
 
 **不要写死行高**（28/52 这类）。行高由内容决定，对齐靠栅格结构。
 
+## 1.5 字号：只有三档 + 展示级
+
+正文及以下**只有三个令牌**，不要写裸 px：
+
+| 令牌 | 值 | 用在哪 |
+|---|---|---|
+| `--text-2xs` | 11.5px | 表格副行（`cell-title__code`）、侧栏组标题、角标 |
+| `--text-xs` | 12.5px | 表头、badge、chip、说明文字 |
+| `--text-sm` | 13.5px | 正文、表格单元格、按钮、卡片说明 |
+| `--text-body` | 14px | 侧栏导航项 |
+
+工具类：`.text-2xs` / `.text-xs` / `.text-sm`。
+
+为什么合并：改造前实际在用的是 `10 / 11 / 11.5 / 12 / 12.5 / 13 / 13.5` 七个值，
+相邻两档只差 0.5px —— 那是历次改动累积的漂移，不是设计决定。现在 12 归到 12.5、
+13 归到 13.5，视觉差异不可见，但改一处不会再牵动全局。
+
+展示级字号（`.page-title` 36px、`.stat__value` 44px、`.detail-stat b` 19px 等）
+保持各自的值，靠**用得少**来维持秩序：一屏只应该有一个 40px 以上的数字。
+
 ## 2. 卡片结构
 
 ```
@@ -25,7 +45,7 @@
 
 .card--stat         三行 auto + row-gap --stack
 ├ .stat__label
-├ .stat__value      42px / line-height 1 / tabular-nums
+├ .stat__value      44px / line-height 1 / tabular-nums
 └ .stat__delta      12.5px --fg-3
 ```
 

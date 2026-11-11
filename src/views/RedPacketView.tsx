@@ -245,7 +245,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 </label>
                 <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
                   {Number(carrot) > balance ? (
-                    <span className="muted" style={{ fontSize: 12 }}>余额不够，最多 {formatThousand(balance)}</span>
+                    <span className="muted text-xs">余额不够，最多 {formatThousand(balance)}</span>
                   ) : null}
                   <button
                     className="btn btn--primary"

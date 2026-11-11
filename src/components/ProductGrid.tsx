@@ -63,7 +63,7 @@ export function ProductGrid({
         </p>
       ) : null}
       {!hasMore && products.length > 0 ? (
-        <p className="muted" style={{ textAlign: 'center', marginTop: 16, fontSize: 12, width: '100%' }}>到底了</p>
+        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>到底了</p>
       ) : null}
     </>
   )

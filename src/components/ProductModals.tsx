@@ -160,7 +160,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
         </div>
         <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
-          <span className="muted" style={{ fontSize: 12 }}>
+          <span className="muted text-xs">
             {formatPrice(product.price)} · 库存 {formatThousand(product.stock)}
           </span>
         </span>

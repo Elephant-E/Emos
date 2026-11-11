@@ -205,7 +205,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               <CardHead title="客户端登录">
                 <span className="muted tnum-sm">在播放器里填这些地址</span>
               </CardHead>
-              <dl className="kv" style={{ marginTop: 'var(--stack)' }}>
+              <dl className="kv stack--top">
                 {[
                   ['视频服', user.server_video],
                   ['直播服', user.server_live],
@@ -254,7 +254,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 </div>
               </dl>
               {otpMode ? (
-                <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+                <p className="card-note stack--top">
                   这个账号开的是动态密码登录，没有固定密码可设。
                 </p>
               ) : null}
@@ -629,7 +629,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   </tbody>
                 </table>
                 {inviteRows.length > 50 ? (
-                  <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+                  <p className="card-note stack--top">
                     只列出前 50 位。
                   </p>
                 ) : null}

@@ -300,7 +300,7 @@ export function UploadView() {
             ))}
           </select>
         </label>
-        <span className="muted" style={{ fontSize: 12 }}>
+        <span className="muted text-xs">
           {UPLOAD_STORAGES.find((opt) => opt.value === fileStorage)?.hint ?? ''}
         </span>
         <span className="spacer" />
@@ -342,7 +342,7 @@ export function UploadView() {
       >
         <IconUpload size={20} />
         <span>把视频、字幕或音乐拖到这里，或点击选择文件</span>
-        <span className="muted" style={{ fontSize: 12 }}>
+        <span className="muted text-xs">
           视频 (MP4/MKV)、字幕 (SRT/ASS)、音乐 (MP3/FLAC)，可多选
         </span>
       </div>
@@ -417,7 +417,7 @@ export function UploadView() {
                           </Link>
                         ) : null
                       ) : item.status === 'duplicate' ? (
-                        <span className="muted" style={{ fontSize: 12 }}>
+                        <span className="muted text-xs">
                           已跳过
                         </span>
                       ) : item.status === 'uploading' ? (
@@ -501,7 +501,7 @@ export function UploadView() {
             {(songs.data?.items ?? []).map((song) => (
               <div key={song.song_id} className="pick-row">
                 <span className="pick-row__title">{song.name}</span>
-                <span className="muted" style={{ fontSize: 12 }}>
+                <span className="muted text-xs">
                   {(song.person_artists ?? []).map((a) => a.name).join(' / ')}
                   {song.has_media ? ' · 已有音频' : ''}
                 </span>

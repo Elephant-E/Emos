@@ -342,7 +342,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             {moveTargetsCandidates.map((row) => (
                 <div key={row.song_id} className="pick-row">
                   <span className="pick-row__title">{row.name}</span>
-                  <span className="muted" style={{ fontSize: 12 }}>
+                  <span className="muted text-xs">
                     {(row.person_artists ?? []).map((artist) => artist.name).join(' / ')}
                   </span>
                   <button

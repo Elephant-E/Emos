@@ -66,7 +66,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       qc.invalidateQueries({ queryKey: ['watches'] })
       qc.invalidateQueries({ queryKey: ['session'] })
     },
-    onError: (error) => toast(error instanceof Error ? error.message : '删除失败', 'error'),
   })
 
   const create = useMutation({

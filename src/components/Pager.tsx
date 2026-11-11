@@ -56,7 +56,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 
 
         {totalPages > 5 ? (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <span className="muted" style={{ fontSize: 12 }}>跳至</span>
+            <span className="muted text-xs">跳至</span>
             <input
               className="input"
               style={{ height: 28, width: 56, textAlign: 'center', fontSize: 12.5, minWidth: 0 }}
@@ -67,7 +67,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = [20, 
               aria-label="跳转页码"
               inputMode="numeric"
             />
-            <span className="muted" style={{ fontSize: 12 }}>
+            <span className="muted text-xs">
               页
             </span>
           </span>
