@@ -15,6 +15,17 @@
 | `refactor-audit-api.md` | 字段：类型 ↔ 真实返回逐条核对 | 3 个幽灵字段 + 4 个复合类型 |
 | **`refactor-closeout.md`** | **上面三份的处理结果与「刻意不做」清单** | **先看这一份** |
 
+## 当前有效的报告（`docs/review/`）
+
+按「现在还需不需要看」分两类。上面表格里的是仍在使用的；
+其余按轮次的审查记录移到 `docs/review/archive/`，只作历史留档 ——
+其中的结论大半已经落地或失效（例如暂存区后来整体删除，相关条目自然作废），
+**不要照着 archive 里的清单改代码**。
+
+`docs/review/archive/` 里是 20 份按轮次的记录：`function` / `interaction` /
+`motion` / `ia` / `fields` / `api-round3·5` / `ui-round2·5·6` / `refactor-round1`
+及其后续轮。
+
 ## 已修的
 
 - API 四份报告的 P1/P2 全部处理，状态见 `API-FIX-STATUS.md`

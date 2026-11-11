@@ -219,7 +219,6 @@ export async function mockRequest<T>(
     ] as T
   }
   if (clean === '/api/user/server/videoLogout') return { logout_count: 1 } as T
-  if (clean === '/api/user/base') return { user_id: user.user_id, username: user.username, avatar: null } as T
   if (clean === '/api/user') return user as T
   if (clean === '/api/carrot/current') return { carrot: user.carrot } as T
 
@@ -251,7 +250,7 @@ export async function mockRequest<T>(
       { username: 'lin', carrot: 30, created_at: '2026-11-10T08:20:00.000000Z' },
     ] as T
   }
-  if (clean === '/api/watch/1234/user' || /\/api\/watch\/\d+\/user$/.test(clean)) {
+  if (/\/api\/watch\/\d+\/user$/.test(clean)) {
     return paginate([
       { username: 'soa', avatar: null, carrot: 10, expiration_date: '2026-12-01', created_at: '2026-11-01T03:18:52.000000Z' },
       { username: 'lin', avatar: null, carrot: 0, expiration_date: null, created_at: '2026-10-25T03:18:52.000000Z' },
@@ -592,7 +591,6 @@ export async function mockRequest<T>(
     } as T
   }
 
-  if (clean === '/api/video/media/playUrl') return { url: 'http://emos.local/play/mock' } as T
   if (clean === '/api/video/media/move') return { carrot: 0 } as T
   if (clean === '/api/video/media/rename') return { carrot: 1 } as T
   if (clean === '/api/video/media/delete') return { carrot: 3 } as T
@@ -868,7 +866,6 @@ export async function mockRequest<T>(
       },
     ] as T
   }
-  if (/\/api\/music\/song\/\d+\/media\/playUrl$/.test(clean)) return { url: 'https://music.emosstore.sbs/files/test/mock.flac' } as T
   if (/\/api\/music\/song\/\d+\/media\/move$/.test(clean)) return { carrot: 0 } as T
   if (/\/api\/music\/song\/\d+\/media\/delete$/.test(clean)) return { carrot: -1 } as T
 
