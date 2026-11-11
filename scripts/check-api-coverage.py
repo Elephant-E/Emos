@@ -48,17 +48,6 @@ VERDICTS = {
     ("POST", "/api/upload/video/saveInternal"): ("tool", "内部入库，服务端任务用"),
 
     # —— 缺口：旧项目有、这里没有 ——
-    ("GET", "/api/rank/carrot"): ("gap", "萝卜排行榜，旧项目 CarrotModal 有"),
-    ("GET", "/api/rank/upload"): ("gap", "上传量排行榜，旧项目 UploadRankModal 有"),
-    ("GET", "/api/rank/sign"): ("gap", "签到排行榜，旧项目 SignRankModal 有"),
-    ("GET", "/api/rank/userVideoRecordPlaying"): ("gap", "正在播放，旧项目 ViewingModal 有"),
-    ("GET", "/api/rank/userLiveRecordPlaying"): ("gap", "正在播放（直播），同上"),
-    ("POST", "/api/telegram/vote/create"): ("gap", "创建投票，旧项目 VoteModal 有"),
-    ("GET", "/api/telegram/vote/result"): ("gap", "查看投票结果，同上"),
-    ("POST", "/api/lottery/create"): ("gap", "创建抽奖，旧项目 LotteryModal 有"),
-    ("GET", "/api/lottery/win"): ("gap", "中奖列表，同上"),
-    ("PUT", "/api/lottery/cancel"): ("gap", "取消抽奖，同上"),
-    ("PUT", "/api/lottery/stop"): ("gap", "手动开奖，同上"),
     ("GET", "/api/seek/query"): ("gap", "求片详情；求片页现在只有列表，看不到谁给了胡萝卜"),
     ("GET", "/api/seek/history"): ("gap", "求片的胡萝卜记录，同上"),
     ("POST", "/api/watch/{var}/video/update"): ("gap", "批量设置片单内视频；现在只能一条条加/删"),

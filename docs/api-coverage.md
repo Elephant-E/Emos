@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**148** 个封装。
+代码（`src/api/endpoints.ts`）：**159** 个封装。
 
-- 已接且有界面调用：**137**
+- 已接且有界面调用：**148**
 - 已接但无调用：**8**
-- 未接：**43**
+- 未接：**32**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -29,23 +29,12 @@
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
 | 片单相关 | 查看已订阅用户 | `GET /api/watch/{var}/user` |
-| 榜单相关 | 萝卜排行榜 | `GET /api/rank/carrot` |
-| 榜单相关 | 上传量排行榜 | `GET /api/rank/upload` |
-| 榜单相关 | 正在播放 | `GET /api/rank/userVideoRecordPlaying` |
-| 榜单相关 | 正在播放-live | `GET /api/rank/userLiveRecordPlaying` |
-| 榜单相关 | 签到排行榜 | `GET /api/rank/sign` |
 | 支付相关 | 转账给用户 | `POST /api/pay/transfer` |
 | 支付相关 | 创建订单 | `POST /api/pay/create` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
 | 支付相关 | 给用户发送邮件通知 | `POST /api/pay/sendNotifyEmail` |
 | 支付相关 | 查询用户签到信息 | `GET /api/pay/getUserSign` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |
-| Telegram相关 / 投票 | 创建投票 | `POST /api/telegram/vote/create` |
-| Telegram相关 / 投票 | 查看投票结果 | `GET /api/telegram/vote/result` |
-| 抽奖相关 | 创建抽奖 | `POST /api/lottery/create` |
-| 抽奖相关 | 查看中奖列表 | `GET /api/lottery/win` |
-| 抽奖相关 | 取消抽奖 | `PUT /api/lottery/cancel` |
-| 抽奖相关 | 手动开奖 | `PUT /api/lottery/stop` |
 | 音乐相关 / 其他 | 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` |
 | 音乐相关 / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
 | 音乐相关 / 音乐 | 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` |
@@ -87,18 +76,7 @@
 | 邀请相关 | 邀请用户进入emps | `POST /api/invite/emps` | 邀请用户进入 emps |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量设置片单内视频；现在只能一条条加/删 |
 | 片单相关 | 查看已订阅用户 | `GET /api/watch/{var}/user` | 查看片单订阅用户；旧项目片单详情有 |
-| 榜单相关 | 萝卜排行榜 | `GET /api/rank/carrot` | 萝卜排行榜，旧项目 CarrotModal 有 |
-| 榜单相关 | 上传量排行榜 | `GET /api/rank/upload` | 上传量排行榜，旧项目 UploadRankModal 有 |
-| 榜单相关 | 正在播放 | `GET /api/rank/userVideoRecordPlaying` | 正在播放，旧项目 ViewingModal 有 |
-| 榜单相关 | 正在播放-live | `GET /api/rank/userLiveRecordPlaying` | 正在播放（直播），同上 |
-| 榜单相关 | 签到排行榜 | `GET /api/rank/sign` | 签到排行榜，旧项目 SignRankModal 有 |
 | 支付相关 | 查询用户签到信息 | `GET /api/pay/getUserSign` | 查用户签到信息（支付服务） |
-| Telegram相关 / 投票 | 创建投票 | `POST /api/telegram/vote/create` | 创建投票，旧项目 VoteModal 有 |
-| Telegram相关 / 投票 | 查看投票结果 | `GET /api/telegram/vote/result` | 查看投票结果，同上 |
-| 抽奖相关 | 创建抽奖 | `POST /api/lottery/create` | 创建抽奖，旧项目 LotteryModal 有 |
-| 抽奖相关 | 查看中奖列表 | `GET /api/lottery/win` | 中奖列表，同上 |
-| 抽奖相关 | 取消抽奖 | `PUT /api/lottery/cancel` | 取消抽奖，同上 |
-| 抽奖相关 | 手动开奖 | `PUT /api/lottery/stop` | 手动开奖，同上 |
 
 ## 刻意不接 / 后台工具
 
