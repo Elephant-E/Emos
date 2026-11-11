@@ -793,6 +793,7 @@ export async function mockRequest<T>(
     ] as T
   }
   if (/\/api\/music\/song\/\d+\/media\/playUrl$/.test(clean)) return { url: 'https://music.emosstore.sbs/files/test/mock.flac' } as T
+  if (/\/api\/music\/song\/\d+\/media\/move$/.test(clean)) return { carrot: 0 } as T
   if (/\/api\/music\/song\/\d+\/media\/delete$/.test(clean)) return { carrot: -1 } as T
 
   if (/\/api\/music\/song\/\d+\/lyric\/list$/.test(clean)) {

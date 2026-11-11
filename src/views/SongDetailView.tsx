@@ -1,5 +1,8 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import { musicApi } from '@/api/endpoints'
+import { PickList } from '@/components/PickList'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
@@ -30,6 +33,16 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [lyricForm, setLyricForm] = useState({ type: 'text', language: 'zh-CN', content: '' })
+  // 移动音频：music_song_id 是**目标**歌曲的 id（契约原话「将资源移动到当前歌曲下」）
+  const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
+  const [moveTerm, setMoveTerm] = useState('')
+  const moveTargets = useQuery({
+    queryKey: ['music', 'move-target', moveTerm],
+    queryFn: () => musicApi.songSearch({ name: moveTerm, page: 1, page_size: 10 }),
+    enabled: Boolean(moving) && moveTerm.trim().length > 0,
+  })
+  /** 挪到当前这首歌下面没有意义，过滤掉 */
+  const moveTargetsCandidates = (moveTargets.data?.items ?? []).filter((row) => row.song_id !== songId)
 
   return (
     <>
@@ -259,6 +272,26 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td>
                         <span className="action-group">
                           <button
+                            className="btn btn--quiet"
+                            onClick={() =>
+                              void musicApi.playUrl(songId, String(row.media_id)).then((res) => {
+                                void navigator.clipboard?.writeText(res.url)
+                                toast('播放地址已复制', 'success')
+                              })
+                            }
+                          >
+                            播放地址
+                          </button>
+                          <button
+                            className="btn btn--quiet"
+                            onClick={() => {
+                              setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
+                              setMoveTerm('')
+                            }}
+                          >
+                            移动
+                          </button>
+                          <button
                             className="btn btn--danger-text"
                             onClick={async () => {
                               // 音频列表没有 is_self_upload，归属看 user
@@ -287,6 +320,65 @@ export function SongDetailView({ songId }: { songId: number }) {
             ) : null}
           </article>
         </section>
+      ) : null}
+
+      {moving ? (
+        <Modal
+          title={`移动 · ${moving.name}`}
+          hint="音频会挪到选中的那首歌下面，本页的资源列表会少一条。"
+          width={460}
+          onClose={() => setMoving(null)}
+          footer={
+            <button className="btn btn--ghost" onClick={() => setMoving(null)}>
+              取消
+            </button>
+          }
+        >
+          <label className="field">
+            <span>目标歌曲</span>
+            <input
+              className="input"
+              autoFocus
+              value={moveTerm}
+              onChange={(e) => setMoveTerm(e.target.value)}
+              placeholder="按歌名搜索"
+            />
+          </label>
+          <PickList
+            loading={moveTargets.isFetching}
+            query={moveTerm}
+            // 计数要按过滤后的算：只剩当前这首歌时应当显示「没有」
+            count={moveTargetsCandidates.length}
+            emptyText={
+              (moveTargets.data?.items ?? []).length > 0 ? '已经在这首歌下面了' : undefined
+            }
+          >
+            {moveTargetsCandidates.map((row) => (
+                <div key={row.song_id} className="pick-row">
+                  <span className="pick-row__title">{row.name}</span>
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    {(row.person_artists ?? []).map((artist) => artist.name).join(' / ')}
+                  </span>
+                  <button
+                    className="btn btn--ghost"
+                    style={{ marginLeft: 'auto' }}
+                    onClick={() =>
+                      musicApi
+                        .moveMedia(row.song_id, moving.mediaId)
+                        .then(() => {
+                          toast('已移动', 'success')
+                          setMoving(null)
+                          void media.refetch()
+                        })
+                        .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
+                    }
+                  >
+                    移到这里
+                  </button>
+              </div>
+            ))}
+          </PickList>
+        </Modal>
       ) : null}
 
       {adding ? (
