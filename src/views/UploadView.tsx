@@ -35,14 +35,30 @@ export function UploadView() {
   const [fileStorage, setFileStorage] = useState<string>(DEFAULT_UPLOAD_STORAGE)
   const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
+  // 手动选目标：小说/电影直接落影片级（vl），剧集要再选到季与集（ve）
+  const [pickedSeries, setPickedSeries] = useState<{ videoId: number; title: string; season: number } | null>(null)
+  const pickedSeasons = useQuery({
+    queryKey: ['upload', 'seasons', pickedSeries?.videoId ?? 0],
+    queryFn: () => videoApi.seasons(pickedSeries?.videoId ?? 0),
+    enabled: Boolean(pickedSeries?.videoId),
+  })
+  const pickedEpisodes = useQuery({
+    queryKey: ['upload', 'episodes', pickedSeries?.videoId ?? 0, pickedSeries?.season ?? 0],
+    queryFn: () => videoApi.episodes(pickedSeries?.videoId ?? 0, pickedSeries?.season),
+    enabled: Boolean(pickedSeries?.videoId) && pickedSeries!.season >= 0,
+  })
   const [term, setTerm] = useState('')
 
-  const disks = useQuery({ queryKey: ['upload', 'disks'], queryFn: () => uploadApi.disks() })
+  const disks = useQuery({ queryKey: ['upload', 'disks'], queryFn: () => uploadApi.disks(), retry: false })
   const storeFiles = useQuery({
     queryKey: ['upload', 'store', storage],
     queryFn: () => uploadApi.storeFiles(storage),
     enabled: Boolean(storage),
+    retry: false,
   })
+  // 暂存区要单独申请权限（422「请先申请权限后使用」），没有时整块不出现
+  const storeDenied = (storeFiles.error as { status?: number } | null)?.status === 422
+  const showStore = Boolean(storage) && !storeDenied && !storeFiles.isLoading
   const candidates = useQuery({
     queryKey: ['upload', 'search', term],
     queryFn: () => videoApi.search({ title: term, page: 1, page_size: 8 }),
@@ -89,8 +105,9 @@ export function UploadView() {
         } else {
           patch(item.id, { status: 'need-target', message: String(res.message ?? '无法自动识别') })
         }
-      } catch (err) {
-        patch(item.id, { status: 'need-target', message: err instanceof Error ? err.message : '识别失败' })
+      } catch {
+        // 识别只是个便利，失败不该挡路：直接转成「手动选目标」
+        patch(item.id, { status: 'need-target', message: '没能识别出是哪一部，手动选一下' })
       }
     }
   }
@@ -149,16 +166,6 @@ export function UploadView() {
             {UPLOAD_STORAGES.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="toolbar-field">
-          <span>暂存盘</span>
-          <select className="input" value={storage} onChange={(e) => setStorage(e.target.value)} aria-label="暂存盘">
-            {(disks.data ?? []).map((disk) => (
-              <option key={disk} value={disk}>
-                {disk}
               </option>
             ))}
           </select>
@@ -266,6 +273,7 @@ export function UploadView() {
         </div>
       ) : null}
 
+      {showStore ? (
       <section className="cards cards--wide" style={{ marginTop: 22 }}>
         <article className="card">
           <div className="card-head">
@@ -276,9 +284,25 @@ export function UploadView() {
                 <small>个文件</small>
               </p>
             </div>
-            <span className="muted" style={{ fontSize: 12 }}>
-              {storage || '未选择存储'}
-            </span>
+            {(disks.data ?? []).length > 1 ? (
+              <select
+                className="input"
+                style={{ width: 160 }}
+                value={storage}
+                onChange={(e) => setStorage(e.target.value)}
+                aria-label="暂存盘"
+              >
+                {(disks.data ?? []).map((disk) => (
+                  <option key={disk} value={disk}>
+                    {disk}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="muted" style={{ fontSize: 12 }}>
+                {storage}
+              </span>
+            )}
           </div>
 
           {storeFiles.error ? <ErrorBlock bare error={storeFiles.error} onRetry={() => storeFiles.refetch()} /> : null}
@@ -316,6 +340,7 @@ export function UploadView() {
           ) : null}
         </article>
       </section>
+      ) : null}
 
       {archiving ? (
         <Modal
@@ -365,8 +390,11 @@ export function UploadView() {
 
       {picking ? (
         <Modal
-          title={`选择影片 · ${picking.file.name}`}
-          onClose={() => setPicking(null)}
+          title={`选择目标 · ${picking.file.name}`}
+          onClose={() => {
+            setPicking(null)
+            setPickedSeries(null)
+          }}
           width={460}
           footer={
             <button className="btn btn--ghost" onClick={() => setPicking(null)}>
@@ -378,24 +406,89 @@ export function UploadView() {
             <span>按片名搜索</span>
             <input className="input" autoFocus value={term} onChange={(e) => setTerm(e.target.value)} placeholder="输入片名" />
           </label>
-          <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
-            {(candidates.data?.items ?? []).map((video: VideoItem) => (
-              <div key={video.video_id} className="pick-row">
-                <span className="pick-row__title">{video.video_title}</span>
-                <button
-                  className="btn btn--ghost"
-                  style={{ marginLeft: 'auto' }}
-                  onClick={() => {
-                    const target = { item_type: 'vl', item_id: video.video_id, title: video.video_title }
-                    patch(picking.id, { target, status: 'ready', message: undefined })
-                    setPicking(null)
-                  }}
-                >
-                  选择
+          {pickedSeries ? (
+            <>
+              <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+                <button className="btn btn--quiet" onClick={() => setPickedSeries(null)}>
+                  换一部
                 </button>
+                <span className="pick-row__title">{pickedSeries.title}</span>
               </div>
-            ))}
-          </PickList>
+              {pickedSeasons.data && pickedSeasons.data.length > 1 ? (
+                <label className="field">
+                  <span>季</span>
+                  <select
+                    className="input"
+                    value={pickedSeries.season}
+                    onChange={(e) => setPickedSeries({ ...pickedSeries, season: Number(e.target.value) })}
+                  >
+                    {pickedSeasons.data.map((s) => (
+                      <option key={s.season_id} value={s.season_number}>
+                        {s.season_title || `第 ${s.season_number} 季`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
+              <PickList loading={pickedEpisodes.isFetching} count={pickedEpisodes.data?.length ?? 0}>
+                {(pickedEpisodes.data ?? []).map((ep) => (
+                  <div key={ep.episode_id} className="pick-row">
+                    <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
+                    <span className="pick-row__title">{ep.episode_title || `第 ${ep.episode_number} 集`}</span>
+                    <button
+                      className="btn btn--ghost"
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => {
+                        patch(picking.id, {
+                          target: {
+                            item_type: 've',
+                            item_id: ep.episode_id,
+                            title: `${pickedSeries.title} · ${ep.episode_title || `第 ${ep.episode_number} 集`}`,
+                          },
+                          status: 'ready',
+                          message: undefined,
+                        })
+                        setPicking(null)
+                        setPickedSeries(null)
+                      }}
+                    >
+                      选择
+                    </button>
+                  </div>
+                ))}
+              </PickList>
+            </>
+          ) : (
+            <PickList loading={candidates.isFetching} query={term} count={(candidates.data?.items ?? []).length}>
+              {(candidates.data?.items ?? []).map((video: VideoItem) => (
+                <div key={video.video_id} className="pick-row">
+                  <span className="pick-row__title">{video.video_title}</span>
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    {video.video_type === 'movie' ? '电影' : '剧集'}
+                  </span>
+                  <button
+                    className="btn btn--ghost"
+                    style={{ marginLeft: 'auto' }}
+                    onClick={() => {
+                      if (video.video_type === 'movie') {
+                        patch(picking.id, {
+                          target: { item_type: 'vl', item_id: video.video_id, title: video.video_title },
+                          status: 'ready',
+                          message: undefined,
+                        })
+                        setPicking(null)
+                        return
+                      }
+                      // 剧集必须选到某一集：资源是挂在集上的
+                      setPickedSeries({ videoId: video.video_id, title: video.video_title, season: 1 })
+                    }}
+                  >
+                    {video.video_type === 'movie' ? '选择' : '选剧集'}
+                  </button>
+                </div>
+              ))}
+            </PickList>
+          )}
         </Modal>
       ) : null}
     </>

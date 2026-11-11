@@ -100,6 +100,8 @@ export function VideoDetailView({
   useEffect(() => setMoveSeason(1), [moveTargetId])
 
   const video = detail.data
+  // 电影没有季集（真机实测 /season 与 /episode 都返回空数组），资源与字幕挂影片级（vl）
+  const isMovie = video?.video_type === 'movie'
 
   const pick = (nextSeason: number, nextEpisode: number) => {
     setSeason(nextSeason)
@@ -138,11 +140,13 @@ export function VideoDetailView({
                 className="btn btn--ghost"
                 disabled={seekApply.isPending}
                 onClick={async () => {
-                  // 电影按整部（vl）求，剧集按当前这一集（ve）求；正片季的季号是 0
-                  const isMovie = season === 0
+                  // 电影按整部（vl）求，剧集按当前这一集（ve）求
                   const itemType = isMovie ? 'vl' : 've'
                   const itemId = isMovie ? video.video_id : currentEpisode?.episode_id
-                  if (!itemId) return
+                  if (!itemId) {
+                    toast(isMovie ? '这部影片没有可用的记录' : '还没选中具体某一集', 'error')
+                    return
+                  }
                   const ok = await confirmDialog({
                     title: '代为发起求片？',
                     message: isMovie ? `为《${video.video_title}》发起求片。` : `为第 ${episode} 集发起求片。`,
@@ -244,7 +248,8 @@ export function VideoDetailView({
       ) : null}
 
       {video ? (
-      <div className="detail-body">
+      <div className={isMovie ? 'detail-body detail-body--single' : 'detail-body'}>
+        {isMovie ? null : (
         <article className="card card--tight">
           <CardHead title="季与集">
             <span className="muted tnum-sm">
@@ -314,18 +319,21 @@ export function VideoDetailView({
             </>
           ) : null}
         </article>
+        )}
 
         <div className="detail-col">
           <article className="card card--tight">
             <CardHead title="资源">
-              <span className="muted" style={{ fontSize: 12 }}>
-                {currentEpisode?.episode_title ?? ''}
-              </span>
+              {currentEpisode && !isMovie ? (
+                <span className="muted" style={{ fontSize: 12 }}>
+                  {currentEpisode.episode_title}
+                </span>
+              ) : null}
             </CardHead>
 
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title="这一集还没有资源" hint="去上传页把文件入库到这里。" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
 
             {media.data && media.data.length > 0 ? (
               <table className="table table--inset">
@@ -380,11 +388,21 @@ export function VideoDetailView({
                 onChange={async (event) => {
                   const file = event.target.files?.[0]
                   event.target.value = ''
-                  if (!file || !currentEpisode) return
+                  // 电影没有季集，字幕挂影片级（vl）；剧集挂当前这一集（ve）
+                  const target = isMovie
+                    ? { item_type: 'vl', item_id: videoId }
+                    : currentEpisode
+                      ? { item_type: 've', item_id: currentEpisode.episode_id }
+                      : null
+                  if (!file) return
+                  if (!target) {
+                    toast('还没选中具体某一集', 'error')
+                    return
+                  }
                   setSubBusy(true)
                   setSubProgress(0)
                   try {
-                    await uploadSubtitle(file, { item_type: 've', item_id: currentEpisode.episode_id }, setSubProgress)
+                    await uploadSubtitle(file, target, setSubProgress)
                     toast('字幕已上传', 'success')
                     void subtitles.refetch()
                   } catch (error) {
