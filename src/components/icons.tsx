@@ -51,18 +51,18 @@ export const IconShield = (p: IconProps) => (
 )
 export const IconSearch = (p: IconProps) => (
   <Svg {...p}>
-    <circle cx="6.5" cy="6.5" r="4.2" />
-    <path d="m9.7 9.7 3.1 3.1" />
+    <circle cx="6.95" cy="6.95" r="4.2" />
+    <path d="m10.15 10.15 3.1 3.1" />
   </Svg>
 )
 export const IconChevron = (p: IconProps) => (
   <Svg {...p}>
-    <path d="M5.4 3.6 8.8 7l-3.4 3.4" />
+    <path d="M6.3 4.6 9.7 8l-3.4 3.4" />
   </Svg>
 )
 export const IconPlus = (p: IconProps) => (
   <Svg size={13} strokeWidth={1.7} {...p}>
-    <path d="M6.5 2.4v8.2M2.4 6.5h8.2" />
+    <path d="M8 2.5v11M2.5 8h11" />
   </Svg>
 )
 export const IconLeft = (p: IconProps) => (
@@ -96,7 +96,9 @@ export const IconEmpty = (p: IconProps) => (
 )
 export const IconLogo = ({ size = 18, ...rest }: IconProps) => (
   <svg width={size} height={size} viewBox="0 0 18 18" fill="currentColor" aria-hidden="true" {...rest}>
-    <path d="M9 1.4c1.45 3.5 3.15 5.2 6.65 6.65-3.5 1.45-5.2 3.15-6.65 6.65-1.45-3.5-3.15-5.2-6.65-6.65C5.85 6.6 7.55 4.9 9 1.4Z" />
+    <g transform="translate(0 0.95)">
+      <path d="M9 1.4c1.45 3.5 3.15 5.2 6.65 6.65-3.5 1.45-5.2 3.15-6.65 6.65-1.45-3.5-3.15-5.2-6.65-6.65C5.85 6.6 7.55 4.9 9 1.4Z" />
+    </g>
   </svg>
 )
 
@@ -130,9 +132,12 @@ export const IconReceipt = (p: IconProps) => (
 
 export const IconRoute = (p: IconProps) => (
   <Svg {...p}>
-    <circle cx="3.6" cy="4" r="1.6" />
-    <circle cx="12.4" cy="12" r="1.6" />
-    <path d="M5.2 4h3.2a3.2 3.2 0 0 1 0 6.4H5.6a2.4 2.4 0 0 0 0 4.8h1" />
+    {/* 墨迹重心比 viewBox 中心低 0.8，整体上移对齐 */}
+    <g transform="translate(0 -0.8)">
+      <circle cx="3.6" cy="4" r="1.6" />
+      <circle cx="12.4" cy="12" r="1.6" />
+      <path d="M5.2 4h3.2a3.2 3.2 0 0 1 0 6.4H5.6a2.4 2.4 0 0 0 0 4.8h1" />
+    </g>
   </Svg>
 )
 
@@ -153,8 +158,10 @@ export const IconMusic = (p: IconProps) => (
 
 export const IconWallet = (p: IconProps) => (
   <Svg {...p}>
-    <rect x="2" y="4.4" width="12" height="8.4" rx="1.6" />
-    <path d="M2 7.4h12M10.6 10.6h1.2" />
+    <g transform="translate(0 -0.6)">
+      <rect x="2" y="4.4" width="12" height="8.4" rx="1.6" />
+      <path d="M2 7.4h12M10.6 10.6h1.2" />
+    </g>
   </Svg>
 )
 
@@ -178,16 +185,28 @@ export const IconRank = (p: IconProps) => (
 /** 抽奖：礼盒 + 上面的结 */
 export const IconLottery = (p: IconProps) => (
   <Svg {...p}>
-    <rect x="2.4" y="6.4" width="11.2" height="7" rx="1.2" />
-    <path d="M2.4 9.2h11.2M8 6.4V13.4" />
-    <path d="M8 6.4C6.2 6.4 5.2 5.2 5.6 4.2c.4-1 1.9-.6 2.4 2.2ZM8 6.4c1.8 0 2.8-1.2 2.4-2.2-.4-1-1.9-.6-2.4 2.2Z" />
+    <g transform="translate(0 -0.55)">
+      <rect x="2.4" y="6.4" width="11.2" height="7" rx="1.2" />
+      <path d="M2.4 9.2h11.2M8 6.4V13.4" />
+      <path d="M8 6.4C6.2 6.4 5.2 5.2 5.6 4.2c.4-1 1.9-.6 2.4 2.2ZM8 6.4c1.8 0 2.8-1.2 2.4-2.2-.4-1-1.9-.6-2.4 2.2Z" />
+    </g>
   </Svg>
 )
 
 /** 投票：三行选项 + 一个勾 */
 export const IconVote = (p: IconProps) => (
   <Svg {...p}>
-    <path d="M3 4.2h4.2M3 8h4.2M3 11.8h4.2" />
-    <path d="M9.6 8.2l1.6 1.6 2.8-3.2" />
+    <g transform="translate(-0.5 0)">
+      <path d="M3 4.2h4.2M3 8h4.2M3 11.8h4.2" />
+      <path d="M9.6 8.2l1.6 1.6 2.8-3.2" />
+    </g>
+  </Svg>
+)
+
+/** 悄悄话：对话气泡 */
+export const IconWhisper = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2" y="2.6" width="12" height="8.4" rx="2.2" />
+    <path d="M5.6 11 4.6 13.4l3.2-1.3" />
   </Svg>
 )

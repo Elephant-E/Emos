@@ -12,6 +12,7 @@ import {
   IconLottery,
   IconRank,
   IconVote,
+  IconWhisper,
   IconGrid,
   IconInbox,
   IconLive,
@@ -60,7 +61,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '社区',
     items: [
       { to: '/users', label: '用户', icon: IconShield },
-      { to: '/whisper', label: '悄悄话', icon: IconTag },
+      { to: '/whisper', label: '悄悄话', icon: IconWhisper },
       { to: '/redpacket', label: '红包', icon: IconGift },
       { to: '/rank', label: '榜单', icon: IconRank },
       { to: '/lottery', label: '抽奖', icon: IconLottery },
