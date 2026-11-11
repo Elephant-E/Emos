@@ -6,7 +6,6 @@ import type { UserInfo } from '@/api/types'
 import { USE_MOCK } from '@/api/client'
 import {
   IconBag,
-  IconChevron,
   IconFilm,
   IconGift,
   IconLottery,
@@ -28,7 +27,7 @@ import {
   IconUser,
 } from './icons'
 
-type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; chev?: boolean }
+type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }> }
 
 /** 概览不属于任何业务域，单独置顶、不带组标题 */
 const PINNED: NavItem[] = [{ to: '/', label: '概览', icon: IconGrid }]
@@ -42,7 +41,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '内容',
     items: [
       { to: '/library', label: '媒体库', icon: IconFilm },
-      { to: '/watchlists', label: '片单', icon: IconTag, chev: true },
+      { to: '/watchlists', label: '片单', icon: IconTag },
       { to: '/seek', label: '求片', icon: IconInbox },
       { to: '/music', label: '音乐', icon: IconMusic },
       { to: '/upload', label: '上传', icon: IconUpload },
@@ -72,7 +71,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: '系统',
     items: [
       { to: '/lines', label: '线路', icon: IconRoute },
-      { to: '/account', label: '账号', icon: IconUser, chev: true },
+      { to: '/account', label: '账号', icon: IconUser },
     ],
   },
 ]
@@ -177,11 +176,6 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
                     <Icon size={16} />
                   </span>
                   <span>{item.label}</span>
-                  {item.chev ? (
-                    <span className="rail__ico" style={{ marginLeft: 'auto' }}>
-                      <IconChevron size={13} />
-                    </span>
-                  ) : null}
                 </Link>
               )
             })}

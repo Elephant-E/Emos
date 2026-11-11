@@ -55,11 +55,6 @@ export const IconSearch = (p: IconProps) => (
     <path d="m10.15 10.15 3.1 3.1" />
   </Svg>
 )
-export const IconChevron = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M6.3 4.6 9.7 8l-3.4 3.4" />
-  </Svg>
-)
 export const IconPlus = (p: IconProps) => (
   <Svg size={13} strokeWidth={1.7} {...p}>
     <path d="M8 2.5v11M2.5 8h11" />
