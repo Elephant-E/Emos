@@ -369,6 +369,11 @@ export async function mockRequest<T>(
     if (truthy(query.is_favorite)) rows = rows.filter((x) => x.is_favorite === true)
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
   }
+  if (clean === '/api/music/song/search') {
+    const name = String(query.name ?? '').trim()
+    const rows = name ? songs.filter((x) => x.name.includes(name)) : songs
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
+  }
   if (clean === '/api/music/album/list') {
     const rows = [
       { album_id: 3001, name: '潮汐', image_poster_url: poster('album1'), release_date: '2026-03-01', count_song: 10, person_artists: [{ name: '陈曦' }] },
@@ -831,6 +836,8 @@ export async function mockRequest<T>(
   }
   if (/^\/api\/upload\/multipart\/.+\/complete$/.test(clean)) return { file_id: 'mock-file' } as T
   if (clean === '/api/upload/video/save') return { count: 1, media_id: 'mock-media', carrot: 3 } as T
+  if (clean === '/api/upload/subtitle/save') return { carrot: 2, subtitle_id: 'mock-subtitle' } as T
+  if (clean === '/api/upload/music/save') return { carrot: 2, media_id: 'mock-song' } as T
   if (clean === '/api/user/agreeUploadAgreement') return {} as T
 
   if (/^\/api\/watch\/\d+\/video\/\d+$/.test(clean)) return { count: 1 } as T

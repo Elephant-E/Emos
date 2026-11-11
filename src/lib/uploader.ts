@@ -194,8 +194,18 @@ export async function uploadAndSave(
   }
 
   const fileId = await uploadObject(file, 'video', onProgress, fileStorage)
-  const saved = await uploadApi.saveVideo(target.item_type, target.item_id, fileId)
-  return { media_id: saved.media_id, carrot: saved.carrot }
+  // 「视频正在合并中 请等待1分钟后再保存试下」是正常的等待信号，重试几次
+  let lastError: unknown
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const saved = await uploadApi.saveVideo(target.item_type, target.item_id, fileId)
+      return { media_id: saved.media_id, carrot: saved.carrot }
+    } catch (error) {
+      lastError = error
+      await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)))
+    }
+  }
+  throw lastError
 }
 
 export async function uploadSubtitle(
@@ -204,6 +214,14 @@ export async function uploadSubtitle(
   onProgress: (ratio: number) => void,
   fileStorage?: string,
 ): Promise<void> {
+  if (USE_MOCK) {
+    for (let i = 1; i <= 6; i += 1) {
+      await new Promise((r) => setTimeout(r, 80))
+      onProgress(i / 6)
+    }
+    await uploadApi.saveSubtitle(target.item_type, target.item_id, 'mock-subtitle')
+    return
+  }
   const fileId = await uploadObject(file, 'subtitle', onProgress, fileStorage)
   await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
 }

@@ -97,21 +97,25 @@ export function realmOf(carrot: number): { name: string; next: number | null } {
   return { name: current[1], next }
 }
 
-const VIDEO_EXT = ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts', 'wmv', 'flv', 'webm', 'rmvb']
+const VIDEO_EXT = ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts', 'wmv', 'flv', 'webm', 'rmvb', 'm4v']
+const AUDIO_EXT = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'ape', 'alac', 'dsd', 'dff', 'dsf']
+const SUBTITLE_EXT = ['srt', 'ass', 'ssa', 'vtt', 'sub']
+
+/** 上传页能收的三类文件，其余一律不收 */
+export type UploadKind = 'video' | 'subtitle' | 'music'
+
+export function detectUploadKind(file: { name: string; type: string }): UploadKind | null {
+  if (isVideoFile(file)) return 'video'
+  const ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
+  if (SUBTITLE_EXT.includes(ext) || file.type.includes('subrip') || file.type.includes('ssa')) return 'subtitle'
+  if (file.type.startsWith('audio/') || AUDIO_EXT.includes(ext)) return 'music'
+  return null
+}
 
 /** 是不是能当视频上传的文件。mkv 在部分系统上 mime 是 application/octet-stream，按扩展名兜一下 */
-export function isVideoFile(file: { name: string; type: string }): boolean {
+function isVideoFile(file: { name: string; type: string }): boolean {
   if (file.type.startsWith('video/')) return true
   const ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
   return VIDEO_EXT.includes(ext)
 }
 
-/** 给人看的文件类别：MIME（video/mp4）在界面上没有信息量 */
-export function fileKind(name: string, mime: string): string {
-  const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase()
-  if (mime.startsWith('video/') || VIDEO_EXT.includes(ext)) return '视频'
-  if (mime.startsWith('audio/') || ['mp3', 'flac', 'm4a', 'wav', 'aac'].includes(ext)) return '音频'
-  if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return '图片'
-  if (['srt', 'ass', 'ssa', 'vtt', 'sub'].includes(ext) || mime.includes('subrip') || mime.includes('ssa')) return '字幕'
-  return '其他'
-}

@@ -17,17 +17,36 @@
 
 旧项目（`uploadStore.js` + `identify.js`）在真正传之前有一轮检查，新后台按同样的顺序做：
 
-| 检查 | 做法 | 结果 |
-|---|---|---|
-| 是不是视频 | `isVideoFile()`：mime + 扩展名（`.mkv` 常是 `octet-stream`，靠扩展名兜） | 不是就跳过并提示 |
+| 是哪一类 | `detectUploadKind()`：视频 / 字幕 / 音乐，其余（图片等）不收<br>mime 之外按扩展名兜（`.mkv` 常是 `octet-stream`） | 不支持的跳过并提示 |
 | 队列里有没有同一份 | 文件名 + 大小都和队列里某条相同 | 跳过并提示 |
 | 文件名能不能认出是哪一部 | `GET /api/upload/video/recognize?file_name=` | 认不出 → 待关联，手动选目标 |
-| **落点上是不是已经有这份文件** | `GET /api/upload/video/base?item_type=&item_id=` 的 `video_medias`，比 `media_file_size` | 撞上 → 状态「重复」，**不允许上传** |
+| **落点上是不是已经有这份文件** | `GET /api/upload/video/base?item_type=&item_id=` 的 `video_medias`，比 `media_file_size`<br>只对视频做 | 撞上 → 状态「重复」，**不允许上传** |
 
 查重只比文件大小（旧项目也是这么做的）：转码或重封装过的同一部片大小不同，抓不到。
 命中时状态是「重复」而不是「失败」—— 失败可以重试，重复重试只会把同一份文件再传一遍。
 
 同时把 `video_medias.length` 显示成「已有 N 个资源」，传之前就能看到这个落点上有什么。
+
+### 三类文件走同一条队列
+
+上传页同时收**视频、字幕、音乐**，按类型分流（旧项目 `detectFileType` 也是这么分的）：
+
+| 类型 | 选什么目标 | 上传 | 保存 |
+|---|---|---|---|
+| 视频 | 影片 / 某一集 | `getUploadToken(type=video)` | `upload/video/save` |
+| 字幕 | 影片 / 某一集 | `getUploadToken(type=subtitle)` | `upload/subtitle/save` |
+| 音乐 | 某一首歌 | `getUploadToken(type=music)` | `upload/music/save` |
+
+**图片不在这一页**：商品封面与片单封面走 `ImagePicker`（传一次进图库、到处引用），
+红包封面那类「换一个能直接用的直链」走 `temporary.emos.best`，都不是入库体系。
+
+音乐没有文件名识别可用（旧项目的 `/api/identify` 已 404）：
+
+```
+文件名 → 去掉扩展名与开头音轨号，「歌手 - 歌名」取歌名那段 → GET /api/music/song/search
+  唯一命中 → 直接绑上
+  没有或多条 → 状态「待选歌」，手动搜一首
+```
 
 ### 三步
 
@@ -90,7 +109,8 @@ POST /api/upload/subtitle/save  { item_type, item_id, file_id } → { carrot, su
 
 上传页的**手动选目标**也要能落到集：选到剧集后依次选季、选集，否则资源挂不上去。
 
-视频保存可能返回 422「视频正在合并中 请等待1分钟后再保存试下」——这是正常的等待信号。
+视频保存可能返回 422「视频正在合并中 请等待1分钟后再保存试下」——这是正常的等待信号，
+保存失败会重试 3 次（间隔 3s / 6s / 9s），和旧项目一致。
 
 上传前可以用 `GET /api/upload/video/base?item_type=&item_id=` 拿到准确的
 入库标题，剧集形如 `【我推的孩子】 - S01E03 - 漫画原作的电视剧`。

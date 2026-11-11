@@ -310,6 +310,7 @@ export const musicApi = {
   persons: (params: { person_id?: number; name?: string; page?: number; page_size?: number }) =>
     request<ListResult<Record<string, unknown>>>('/api/music/person/list', { query: params }),
   songs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/list', { query: params }),
+  songSearch: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/search', { query: params }),
   albums: (params: Record<string, unknown>) => request<ListResult<Record<string, unknown>>>('/api/music/album/list', { query: params }),
   favorite: (type: string, value: number) => request<{ is_favorite: boolean }>('/api/music/favorite', { method: 'PUT', query: { type, value } }),
   rating: (type: string, value: number, rating: number) => request<{ rating: number | null }>('/api/music/rating', { method: 'PUT', query: { type, value, rating } }),
