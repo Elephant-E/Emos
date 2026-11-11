@@ -59,7 +59,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             <Link className="btn btn--ghost" to="/music" search={{ page: 1, tab: 'songs', q: '', filter: '' }}>
               返回列表
             </Link>
-            <button
+            <button type="button"
               className="btn btn--ghost"
               onClick={() =>
                 actions.favorite.mutate(
@@ -91,7 +91,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                 </option>
               ))}
             </select>
-            <button
+            <button type="button"
               className="btn btn--danger-text"
               onClick={async () => {
                 const ok = await confirmDialog({
@@ -154,7 +154,7 @@ export function SongDetailView({ songId }: { songId: number }) {
           <article className="card">
             <CardHead title="歌词">
               {(lyrics.data ?? []).length > 0 ? (
-                <button className="btn btn--quiet" onClick={() => setAdding(true)}>
+                <button type="button" className="btn btn--quiet" onClick={() => setAdding(true)}>
                   添加歌词
                 </button>
               ) : null}
@@ -166,7 +166,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                 bare
                 title="还没有歌词"
                 action={
-                  <button className="btn btn--primary" onClick={() => setAdding(true)}>
+                  <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
                     添加歌词
                   </button>
                 }
@@ -206,7 +206,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             <CardHead title="资源">
-              <button className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
+              <button type="button" className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
               </button>
               <input
@@ -268,7 +268,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td className="muted">{String((row.user as { username?: string } | undefined)?.username ?? '—')}</td>
                       <td>
                         <span className="action-group">
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             onClick={() => {
                               setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
@@ -277,7 +277,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                           >
                             移动
                           </button>
-                          <button
+                          <button type="button"
                             className="btn btn--danger-text"
                             onClick={async () => {
                               // 音频列表没有 is_self_upload，归属看 user
@@ -315,7 +315,7 @@ export function SongDetailView({ songId }: { songId: number }) {
           width={460}
           onClose={() => setMoving(null)}
           footer={
-            <button className="btn btn--ghost" onClick={() => setMoving(null)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setMoving(null)}>
               取消
             </button>
           }
@@ -345,7 +345,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                   <span className="muted text-xs">
                     {(row.person_artists ?? []).map((artist) => artist.name).join(' / ')}
                   </span>
-                  <button
+                  <button type="button"
                     className="btn btn--ghost"
                     style={{ marginLeft: 'auto' }}
                     onClick={() =>
@@ -374,10 +374,10 @@ export function SongDetailView({ songId }: { songId: number }) {
           onClose={() => setAdding(false)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setAdding(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setAdding(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!lyricForm.content.trim() || actions.createLyric.isPending}
                 onClick={() =>

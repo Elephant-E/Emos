@@ -132,8 +132,8 @@ export function ShopView({
         cover_url: editing.cover_url ?? null,
         description: editing.description ?? null,
         exchange_way: editing.exchange_way ?? null,
-        price: editing.price ?? 1,
-        price_origin: editing.price_origin ?? 1,
+        price: Math.max(1, Number(editing.price) || 1),
+        price_origin: Math.max(1, Number(editing.price_origin) || 1),
         stock: editing.stock ?? 0,
         sort: editing.sort ?? 80,
         is_up: editing.is_up ?? false,
@@ -158,19 +158,19 @@ export function ShopView({
         tools={
           <>
             <div className="seg" role="group" aria-label="范围">
-              <button aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
+              <button type="button" aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
                 全部商品
               </button>
-              <button aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
+              <button type="button" aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
                 我的店铺
               </button>
             </div>
             {isSeller && mine ? (
               <>
-                <button className="btn btn--ghost" onClick={() => setPanel('categories')}>
+                <button type="button" className="btn btn--ghost" onClick={() => setPanel('categories')}>
                   分类
                 </button>
-                <button className="btn btn--ghost" onClick={() => setPanel('seller')}>
+                <button type="button" className="btn btn--ghost" onClick={() => setPanel('seller')}>
                   店铺
                 </button>
               </>
@@ -216,7 +216,7 @@ export function ShopView({
               placeholder="搜索商品名"
               extra={
                 isSeller && mine ? (
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
                 // 分类取不到和确实没有分类是两回事：前者提示重试，后者提示先建分类
@@ -246,7 +246,7 @@ export function ShopView({
             <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
           ) : null}
           {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
-          {!mine && !browse.isLoading && browseItems.length === 0 ? (
+          {!mine && !browse.isLoading && !browse.error && browseItems.length === 0 ? (
             <EmptyBlock
               title={q ? `没有找到「${q}」` : '还没有在售商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
@@ -309,7 +309,7 @@ export function ShopView({
                       <td>
                         {isSeller ? (
                           <span className="action-group">
-                            <button
+                            <button type="button"
                               className="btn btn--quiet"
                               onClick={() =>
                                 actions.toggleUp.mutate(product.product_id, {
@@ -319,13 +319,13 @@ export function ShopView({
                             >
                               {product.is_up ? '下架' : '上架'}
                             </button>
-                            <button
+                            <button type="button"
                               className="btn btn--quiet"
                               onClick={() => setEditing(product)}
                             >
                               编辑
                             </button>
-                            <button
+                            <button type="button"
                               className="btn btn--danger-text"
                               disabled={actions.removeProduct.isPending}
                               onClick={async () => {
@@ -374,7 +374,7 @@ export function ShopView({
               {isSeller ? (
                 <div className="row-input" style={{ maxWidth: 320 }}>
                   <input className="input" placeholder="新分类名称" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} maxLength={20} />
-                  <button
+                  <button type="button"
                     className="btn btn--ghost"
                     disabled={!newCategory.trim()}
                     onClick={createCategory}
@@ -409,7 +409,7 @@ export function ShopView({
                       <span className="meta-sm">排序 {category.sort}</span>
                     )}
                     {isSeller ? (
-                      <button
+                      <button type="button"
                         className="btn btn--quiet"
                         onClick={async () => {
                           const ok = await confirmDialog({
@@ -456,7 +456,7 @@ export function ShopView({
                 </div>
                 {seller.data.description ? <p className="detail-desc" style={{ marginTop: 12 }}>{seller.data.description}</p> : null}
                 {isSeller ? (
-                  <button
+                  <button type="button"
                     className="btn btn--ghost"
                     style={{ marginTop: 12 }}
                     onClick={() => setSellerForm({ name: seller.data!.name ?? '', description: seller.data!.description ?? '' })}
@@ -464,7 +464,7 @@ export function ShopView({
                     编辑店铺
                   </button>
                 ) : (
-                  <button
+                  <button type="button"
                     className="btn btn--primary"
                     style={{ marginTop: 12 }}
                     onClick={() => setSellerForm({ name: '', description: '' })}
@@ -486,10 +486,10 @@ export function ShopView({
           onSubmit={saveProduct}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setEditing(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id)}
                 onClick={saveProduct}
@@ -531,7 +531,7 @@ export function ShopView({
           <div className="field-row">
             <label className="field">
               <span>售价</span>
-              <input className="input" type="number" min={1} value={editing.price ?? 1} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
+              <input className="input" type="number" min={1} value={editing.price ?? 1} onChange={(e) => setEditing({ ...editing, price: e.target.value === '' ? 0 : Number(e.target.value) })} />
             </label>
             <label className="field">
               <span>原价</span>
@@ -574,10 +574,10 @@ export function ShopView({
           onClose={() => setSellerForm(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setSellerForm(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setSellerForm(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!sellerForm.name.trim() || actions.applySeller.isPending}
                 onClick={async () => {

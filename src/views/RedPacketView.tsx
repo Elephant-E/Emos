@@ -157,7 +157,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span>红包已发出</span>
                 <b className="tnum">{created}</b>
-                <button
+                <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
                     void navigator.clipboard?.writeText(created)
@@ -166,7 +166,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 >
                   复制 ID
                 </button>
-                <button
+                <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
                     onSearch({ tab: 'records', id: created, page: 1 })
@@ -175,7 +175,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 >
                   看领取记录
                 </button>
-                <button className="btn btn--quiet" onClick={() => setCreated(null)}>
+                <button type="button" className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再发一个
                 </button>
               </div>
@@ -190,10 +190,10 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   <label className="field">
                     <span>类型</span>
                     <div className="seg" role="group" aria-label="红包类型">
-                      <button aria-pressed={type === 'default'} onClick={() => setType('default')}>
+                      <button type="button" aria-pressed={type === 'default'} onClick={() => setType('default')}>
                         普通
                       </button>
-                      <button aria-pressed={type === 'password'} onClick={() => setType('password')}>
+                      <button type="button" aria-pressed={type === 'password'} onClick={() => setType('password')}>
                         口令
                       </button>
                     </div>
@@ -201,10 +201,10 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   <label className="field">
                     <span>领取方式</span>
                     <div className="seg" role="group" aria-label="领取方式">
-                      <button aria-pressed={receive === 'average'} onClick={() => setReceive('average')}>
+                      <button type="button" aria-pressed={receive === 'average'} onClick={() => setReceive('average')}>
                         均分
                       </button>
-                      <button aria-pressed={receive === 'random'} onClick={() => setReceive('random')}>
+                      <button type="button" aria-pressed={receive === 'random'} onClick={() => setReceive('random')}>
                         随机
                       </button>
                     </div>
@@ -247,7 +247,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   {Number(carrot) > balance ? (
                     <span className="muted text-xs">余额不够，最多 {formatThousand(balance)}</span>
                   ) : null}
-                  <button
+                  <button type="button"
                     className="btn btn--primary"
                     disabled={sending || (Number(carrot) > 0 && Number(carrot) > balance)}
                     onClick={() => void submit()}
@@ -261,7 +261,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
             <article className="card card--tight">
               <CardHead title="封面">
                 {coverUrl ? (
-                  <button
+                  <button type="button"
                     className="btn btn--quiet"
                     onClick={() => {
                       setCoverUrl('')
@@ -304,10 +304,10 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   <label className="field">
                     <span>独占模式</span>
                     <div className="seg" role="group" aria-label="独占模式">
-                      <button aria-pressed={!exclusive} onClick={() => setExclusive(false)}>
+                      <button type="button" aria-pressed={!exclusive} onClick={() => setExclusive(false)}>
                         寄语 + 封面
                       </button>
-                      <button aria-pressed={exclusive} onClick={() => setExclusive(true)}>
+                      <button type="button" aria-pressed={exclusive} onClick={() => setExclusive(true)}>
                         只显示封面
                       </button>
                     </div>
@@ -324,7 +324,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               <span>红包 ID</span>
               <input className="input" value={idTerm} onChange={(e) => setIdTerm(e.target.value)} placeholder="例如 BLJg3EDpYAno" />
             </label>
-            <button className="btn btn--ghost" onClick={() => onSearch({ id: idTerm.trim(), page: 1 })}>
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ id: idTerm.trim(), page: 1 })}>
               查询
             </button>
           </div>

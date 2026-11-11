@@ -160,7 +160,7 @@ export function OverviewView() {
         <article className="card card--stat card--secondary">
           <p className="stat__label">
             签到
-            <button
+            <button type="button"
               className="btn btn--quiet"
               disabled={signedToday || sign.isPending}
               onClick={() => setSigning(true)}
@@ -401,7 +401,7 @@ export function OverviewView() {
           }}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setSigning(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setSigning(false)}>
                 取消
               </button>
               <button className="btn btn--primary" type="submit" disabled={sign.isPending}>

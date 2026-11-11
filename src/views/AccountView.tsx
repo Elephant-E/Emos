@@ -155,7 +155,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         tools={
           <>
             {user && !user.is_can_upload ? <span className="head-note">无上传权限</span> : null}
-            <button
+            <button type="button"
               className="btn btn--ghost"
               disabled={caps.signedToday || actions.sign.isPending}
               onClick={() =>
@@ -210,7 +210,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     {!token ? (
                       <span className="muted">未保存</span>
                     ) : showToken ? (
-                      <button
+                      <button type="button"
                         className="btn btn--quiet tnum"
                         onClick={() => {
                           void navigator.clipboard.writeText(token)
@@ -224,10 +224,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <span className="muted tnum">
                           {token.slice(0, 6)}…{token.slice(-4)}
                         </span>
-                        <button className="btn btn--quiet" onClick={() => setShowToken(true)}>
+                        <button type="button" className="btn btn--quiet" onClick={() => setShowToken(true)}>
                           显示
                         </button>
-                        <button
+                        <button type="button"
                           className="btn btn--quiet"
                           onClick={() => {
                             void navigator.clipboard.writeText(token)
@@ -249,7 +249,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     <div key={String(label)}>
                       <dt>{label}</dt>
                       <dd>
-                        <button
+                        <button type="button"
                           className="btn btn--quiet"
                           onClick={() => {
                             void navigator.clipboard.writeText(String(url))
@@ -270,7 +270,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     ) : !user.password ? (
                       <span className="muted">未设置</span>
                     ) : showPassword ? (
-                      <button
+                      <button type="button"
                         className="btn btn--quiet tnum"
                         onClick={() => {
                           void navigator.clipboard.writeText(user.password ?? '')
@@ -280,7 +280,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         {user.password} · 复制
                       </button>
                     ) : (
-                      <button className="btn btn--quiet" onClick={() => setShowPassword(true)}>
+                      <button type="button" className="btn btn--quiet" onClick={() => setShowPassword(true)}>
                         显示
                       </button>
                     )}
@@ -299,7 +299,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <article className="card">
               <CardHead title="已登录设备">
                 {devices.data && devices.data.length > 0 ? (
-                  <button
+                  <button type="button"
                     className="btn btn--quiet"
                     disabled={actions.logoutDevice.isPending}
                     onClick={async () => {
@@ -344,7 +344,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         </td>
                         <td className="muted">{device.last_used_at ? formatDateTime(device.last_used_at) : '—'}</td>
                         <td>
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             disabled={actions.logoutDevice.isPending}
                             onClick={async () => {
@@ -380,7 +380,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   <span>笔名</span>
                   <div className="row-input">
                     <input className="input" value={pseudonym} onChange={(e) => setPseudonym(e.target.value)} placeholder="对外显示的名字" />
-                    <button
+                    <button type="button"
                       className="btn btn--ghost"
                       // 空笔名会被 buildUrl 丢掉 name 参数，后端只回一个没信息的 422
                       disabled={
@@ -430,7 +430,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     Telegram {user.telegram_user_id ? `已绑定 ${user.telegram_user_id}` : '未绑定'}
                   </span>
                   {user.telegram_user_id ? (
-                    <button
+                    <button type="button"
                       className="btn btn--danger-text"
                       disabled={actions.unbindTelegram.isPending}
                       onClick={async () => {
@@ -479,7 +479,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {!caps.canUpload ? (
-                    <button
+                    <button type="button"
                       className="btn btn--ghost"
                       onClick={() =>
                         actions.agreeUpload.mutate(undefined, { onSuccess: () => toast('已开启上传权限', 'success') })
@@ -489,14 +489,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     </button>
                   ) : null}
                   {!caps.canDown ? (
-                    <button
+                    <button type="button"
                       className="btn btn--ghost"
                       onClick={() => actions.agreeDown.mutate(undefined, { onSuccess: () => toast('已开启下载权限', 'success') })}
                     >
                       同意下载协议并开通
                     </button>
                   ) : null}
-                  <button
+                  <button type="button"
                     className="btn btn--ghost"
                     disabled={actions.exchangeSlot.isPending}
                     onClick={async () => {
@@ -518,7 +518,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     {actions.exchangeSlot.isPending ? '兑换中…' : '用胡萝卜兑换片单槽位'}
                   </button>
                   {otpMode ? (
-                    <button
+                    <button type="button"
                       className="btn btn--ghost"
                       disabled={actions.temporaryPassword.isPending}
                       onClick={() =>
@@ -530,7 +530,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       {actions.temporaryPassword.isPending ? '获取中…' : '获取动态密码'}
                     </button>
                   ) : (
-                    <button className="btn btn--ghost" onClick={() => setResetting(true)}>
+                    <button type="button" className="btn btn--ghost" onClick={() => setResetting(true)}>
                       重置登录密码
                     </button>
                   )}
@@ -571,10 +571,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               <p className="stat__label">邀请用户</p>
               <div className="row-input" style={{ marginTop: 12 }}>
                 <input className="input" placeholder="用户 ID（e 开头 s 结尾）" value={inviteId} onChange={(e) => setInviteId(e.target.value)} />
-                <button className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>
+                <button type="button" className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>
                   邀请
                 </button>
-                <button
+                <button type="button"
                   className="btn btn--ghost"
                   disabled={!inviteId.trim() || actions.inviteEmps.isPending}
                   onClick={() => void inviteEmps()}
@@ -583,7 +583,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 </button>
               </div>
               <div className="row" style={{ marginTop: 12, gap: 12 }}>
-                <button className="btn btn--danger-text" onClick={() => void exitInvite()}>
+                <button type="button" className="btn btn--danger-text" onClick={() => void exitInvite()}>
                   退出邀请关系
                 </button>
                 <span className="card-note">退出后要重新找人邀请</span>
@@ -631,7 +631,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <td className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</td>
                         <td className="muted">
                           {row.depth === 1 ? (
-                            <button
+                            <button type="button"
                               className="btn btn--quiet"
                               onClick={() => setRemarkFor({ userId: row.userId, username: row.username, remark: row.remark })}
                             >
@@ -645,7 +645,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         </td>
                         <td>
                           {row.depth === 1 ? (
-                            <button
+                            <button type="button"
                               className="btn btn--quiet"
                               onClick={async () => {
                                 const ok = await confirmDialog({
@@ -686,10 +686,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           onClose={() => setRemarkFor(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={actions.remarkInvite.isPending}
                 onClick={() =>
@@ -734,10 +734,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           }}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setResetting(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setResetting(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!/^\d{6}$/.test(newPassword) || actions.resetPassword.isPending}
                 onClick={() =>
@@ -780,10 +780,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           onSubmit={() => { if (inviteId.trim() && !actions.invite.isPending) actions.invite.mutate({ id: inviteId.trim(), remark: inviteRemark.trim() }) }}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setInviting(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setInviting(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={() =>
                   actions.invite.mutate(

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { DecisionShell, useDecisionKeys } from './decision'
+import { DecisionShell } from './decision'
 
 export interface ConfirmOptions {
   title: string
@@ -44,7 +44,6 @@ export function ConfirmHost() {
     setPending(null)
   }
 
-  useDecisionKeys(Boolean(pending), () => settle(false), () => settle(true))
 
   if (!pending) return null
 

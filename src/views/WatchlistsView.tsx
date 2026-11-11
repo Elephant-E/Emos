@@ -106,19 +106,20 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         <input
           className="input"
           type="search"
+            aria-label="搜索片单名"
           placeholder="搜索片单名"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         <div className="seg" role="group" aria-label="片单类型">
-          <button aria-pressed={search.type === 'video'} onClick={() => onSearch({ type: 'video', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'video'} onClick={() => onSearch({ type: 'video', page: 1 })}>
             影视
           </button>
-          <button aria-pressed={search.type === 'music'} onClick={() => onSearch({ type: 'music', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'music'} onClick={() => onSearch({ type: 'music', page: 1 })}>
             音乐
           </button>
         </div>
-        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+        <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />
           新建片单
         </button>
@@ -133,7 +134,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             search.q ? (
               <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />
             ) : (
-              <button className="btn btn--primary" onClick={() => setCreating(true)}>
+              <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
                 新建片单
               </button>
             )
@@ -204,7 +205,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
                   <td onClick={(e) => e.stopPropagation()}>
                     {watch.is_self ? (
-                      <button
+                      <button type="button"
                         className="btn btn--danger-text"
                         disabled={remove.isPending}
                         onClick={async () => {

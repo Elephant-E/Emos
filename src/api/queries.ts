@@ -621,7 +621,13 @@ export function useShopOrders(
 export function useShopMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['shop'] })
+    // 只失效商品与统计：['shop'] 前缀会连带 seller/categories/orders 等 12 个 query
+    qc.invalidateQueries({ queryKey: ['shop', 'products'] })
+    qc.invalidateQueries({ queryKey: ['shop', 'productsInfinite'] })
+    qc.invalidateQueries({ queryKey: ['shop', 'count'] })
+    qc.invalidateQueries({ queryKey: ['shop', 'product'] })
+    qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] })
+    qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
     qc.invalidateQueries({ queryKey: ['session'] })
     qc.invalidateQueries({ queryKey: ['carrot'] })   // 下单/退款都会动余额
   }
@@ -894,7 +900,7 @@ export function usePayOrder(no: string) {
 export function useWatchMutations(watchId: number) {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['watch'] })
+    qc.invalidateQueries({ queryKey: ['watch', watchId] })
     qc.invalidateQueries({ queryKey: ['watches'] })
   }
 

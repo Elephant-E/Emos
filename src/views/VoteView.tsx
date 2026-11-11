@@ -98,7 +98,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 <span>投票已创建</span>
                 <b className="tnum">{created.id}</b>
                 <span className="muted">{formatDateTime(created.timeEnd)} 结束</span>
-                <button
+                <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
                     void navigator.clipboard?.writeText(String(created.id))
@@ -107,7 +107,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 >
                   复制 ID
                 </button>
-                <button className="btn btn--quiet" onClick={() => setCreated(null)}>
+                <button type="button" className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再建一个
                 </button>
               </div>
@@ -137,7 +137,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 </label>
 
                 <CardHead title="选项">
-                  <button
+                  <button type="button"
                     className="btn btn--quiet"
                     disabled={options.length >= MAX_OPTIONS}
                     onClick={() => setOptions((prev) => [...prev, ''])}
@@ -157,7 +157,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                         placeholder={`选项 ${index + 1}`}
                       />
                       {options.length > 2 ? (
-                        <button className="btn btn--quiet" onClick={() => setOptions((prev) => prev.filter((_, i) => i !== index))}>
+                        <button type="button" className="btn btn--quiet" onClick={() => setOptions((prev) => prev.filter((_, i) => i !== index))}>
                           删除
                         </button>
                       ) : null}
@@ -169,10 +169,10 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   <label className="field">
                     <span>允许撤回改投</span>
                     <div className="seg" role="group" aria-label="允许撤回改投">
-                      <button aria-pressed={!revoting} onClick={() => setRevoting(false)}>
+                      <button type="button" aria-pressed={!revoting} onClick={() => setRevoting(false)}>
                         不允许
                       </button>
-                      <button aria-pressed={revoting} onClick={() => setRevoting(true)}>
+                      <button type="button" aria-pressed={revoting} onClick={() => setRevoting(true)}>
                         允许
                       </button>
                     </div>
@@ -180,10 +180,10 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   <label className="field">
                     <span>结果公布</span>
                     <div className="seg" role="group" aria-label="结果公布">
-                      <button aria-pressed={!hideResults} onClick={() => setHideResults(false)}>
+                      <button type="button" aria-pressed={!hideResults} onClick={() => setHideResults(false)}>
                         随时可看
                       </button>
-                      <button aria-pressed={hideResults} onClick={() => setHideResults(true)}>
+                      <button type="button" aria-pressed={hideResults} onClick={() => setHideResults(true)}>
                         结束后公布
                       </button>
                     </div>
@@ -191,7 +191,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 </div>
 
                 <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
-                  <button className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
+                  <button type="button" className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
                     {sending ? '创建中…' : '创建投票'}
                   </button>
                 </div>
@@ -214,7 +214,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               <span>投票 ID</span>
               <input className="input" value={idTerm} onChange={(e) => setIdTerm(e.target.value)} placeholder="例如 2" />
             </label>
-            <button
+            <button type="button"
               className="btn btn--ghost"
               onClick={() => {
                 setPage(1)

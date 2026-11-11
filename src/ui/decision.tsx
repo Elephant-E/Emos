@@ -91,6 +91,11 @@ export function DecisionShell({
   }, [])
 
   useFocusTrap(boxRef)
+  useDecisionKeys(idRef, onCancel, () => {
+    if (confirmDisabled) return
+    onConfirm()
+  })
+  const titleId = useRef(newLayerId('confirm-title')).current
 
   return (
     <div
@@ -101,10 +106,10 @@ export function DecisionShell({
         onCancel()
       }}
     >
-      <div className="confirm" ref={boxRef} role={role} aria-modal="true" aria-label={title}>
+      <div className="confirm" ref={boxRef} role={role} aria-modal="true" aria-labelledby={titleId}>
         <div className="confirm__head">
           <span className={`confirm__dot${danger ? ' confirm__dot--danger' : ''}`} />
-          <h2 className="confirm__title">{title}</h2>
+          <h2 className="confirm__title" id={titleId}>{title}</h2>
         </div>
 
         {message ? <p className="confirm__msg">{message}</p> : null}
@@ -112,7 +117,7 @@ export function DecisionShell({
         {children}
 
         <div className="confirm__foot">
-          <button
+          <button type="button"
             className="btn btn--ghost"
             data-confirm-action="cancel"
             autoFocus={cancelAutoFocus}
@@ -120,7 +125,7 @@ export function DecisionShell({
           >
             {cancelText}
           </button>
-          <button
+          <button type="button"
             className={dangerConfirm ? 'btn btn--danger' : 'btn btn--primary'}
             disabled={confirmDisabled}
             autoFocus={confirmAutoFocus}
@@ -134,26 +139,30 @@ export function DecisionShell({
   )
 }
 
-/**
- * 决策框的键盘处理。它叠在弹层之上，Esc 必须只关它自己
- * （stopImmediatePropagation 挡住底层的 Modal 监听）。
- */
-export function useDecisionKeys(active: boolean, onEscape: () => void, onEnter?: () => void) {
+/** 决策框的键盘处理：Esc 只关最上层，回车等于确认（焦点在取消上时不算） */
+function useDecisionKeys(
+  idRef: { current: string },
+  onEscape: () => void,
+  onConfirm: () => void,
+) {
+  const handlers = useRef({ onEscape, onConfirm })
+  handlers.current = { onEscape, onConfirm }
+
   useEffect(() => {
-    if (!active) return
     const onKey = (event: KeyboardEvent) => {
+      if (!isTopLayer(idRef.current)) return
       if (event.key === 'Escape') {
         event.stopImmediatePropagation()
-        onEscape()
+        handlers.current.onEscape()
         return
       }
-      if (event.key !== 'Enter' || !onEnter) return
+      if (event.key !== 'Enter') return
       const focused = document.activeElement as HTMLElement | null
       if (focused?.dataset.confirmAction === 'cancel') return
       event.preventDefault()
-      onEnter()
+      handlers.current.onConfirm()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  })
+  }, [idRef])
 }

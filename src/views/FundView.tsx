@@ -29,6 +29,28 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
   const [transferAmount, setTransferAmount] = useState(10)
   const rows = history.data?.items ?? []
 
+  /** 转赠唯一入口：按钮与回车都走这里，先确认再扣款 */
+  const submitTransfer = async () => {
+    if (!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending) return
+    const ok = await confirmDialog({
+      title: `转赠 ${transferAmount} 个胡萝卜？`,
+      message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
+      confirmText: '转赠',
+      danger: true,
+    })
+    if (!ok) return
+    actions.transfer.mutate(
+      { userId: transferTo.trim(), carrot: transferAmount },
+      {
+        onSuccess: (res: { carrot: number }) => {
+          toast(`已转赠，余额 ${res.carrot}`, 'success')
+          setTransferring(false)
+          setTransferTo('')
+        },
+      },
+    )
+  }
+
   return (
     <>
       <section className="cards cards--wide">
@@ -39,7 +61,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
             unit="个"
             note="签到、上传、字幕都会获得"
             action={
-              <button
+              <button type="button"
                 className="btn btn--quiet"
                 disabled={!carrot.data || carrot.data.carrot < 2}
                 onClick={() => setTransferring(true)}
@@ -85,34 +107,16 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
           title="转赠胡萝卜"
           hint="单次 2 – 6000 个，转账后不可撤回。"
           onClose={() => setTransferring(false)}
-          onSubmit={() => { if (transferTo.trim() && transferAmount >= 2 && transferAmount <= 6000 && !actions.transfer.isPending) actions.transfer.mutate({ userId: transferTo.trim(), carrot: transferAmount }) }}
+          onSubmit={() => void submitTransfer()}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setTransferring(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setTransferring(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending}
-                onClick={async () => {
-                  const ok = await confirmDialog({
-                    title: `转赠 ${transferAmount} 个胡萝卜？`,
-                    message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
-                    confirmText: '转赠',
-                    danger: true,
-                  })
-                  if (!ok) return
-                  actions.transfer.mutate(
-                    { userId: transferTo.trim(), carrot: transferAmount },
-                    {
-                      onSuccess: (res: { carrot: number }) => {
-                        toast(`已转赠，余额 ${res.carrot}`, 'success')
-                        setTransferring(false)
-                        setTransferTo('')
-                      },
-                    },
-                  )
-                }}
+                onClick={() => void submitTransfer()}
               >
                 转赠
               </button>
@@ -215,7 +219,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
         title="资金"
         tools={
           tab === 'orders' ? (
-            <button className="btn btn--ghost" onClick={() => setCreating(true)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setCreating(true)}>
               新建订单
             </button>
           ) : null
@@ -269,7 +273,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                     <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
                     <td className="muted tnum">{row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}</td>
                     <td>
-                      <button
+                      <button type="button"
                         className="btn btn--quiet"
                         onClick={() => {
                           setEvidenceFor(row)
@@ -299,7 +303,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           }}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
                 取消
               </button>
               <button
@@ -332,10 +336,10 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           onClose={() => setEvidenceFor(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setEvidenceFor(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setEvidenceFor(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={
                   submitEvidence.isPending ||

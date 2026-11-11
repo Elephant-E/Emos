@@ -69,19 +69,20 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         <input
           className="input"
           type="search"
+            aria-label="搜索名称"
           placeholder="搜索名称"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         {search.tab === 'songs' ? (
           <div className="seg" role="group" aria-label="过滤">
-            <button aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '', page: 1 })}>
               全部
             </button>
-            <button aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media', page: 1 })}>
               无资源
             </button>
-            <button aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite', page: 1 })}>
               我收藏的
             </button>
           </div>
@@ -90,12 +91,12 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
       {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-      {active.data && active.data.items.length === 0 ? (
+      {active.data && !active.error && active.data.items.length === 0 ? (
         <EmptyBlock
           title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'}
           action={
             filtered ? (
-              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
+              <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
                 清空筛选
               </button>
             ) : undefined
@@ -174,7 +175,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                       )}
                     </td>
                     <td>
-                      <button
+                      <button type="button"
                         className="btn btn--quiet"
                         onClick={(e) => {
                           e.stopPropagation()

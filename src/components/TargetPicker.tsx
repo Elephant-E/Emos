@@ -42,7 +42,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
     return (
       <>
         <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-          <button className="btn btn--quiet" onClick={() => setSeries(null)}>
+          <button type="button" className="btn btn--quiet" onClick={() => setSeries(null)}>
             换一部
           </button>
           <span className="pick-row__title">{series.title}</span>
@@ -70,7 +70,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
               <div key={ep.episode_id} className="pick-row">
                 <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
                 <span className="pick-row__title">{label}</span>
-                <button
+                <button type="button"
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
                   onClick={() =>
@@ -113,7 +113,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
             <span className="muted text-xs">
               {video.video_type === 'movie' ? '电影' : '剧集'}
             </span>
-            <button
+            <button type="button"
               className="btn btn--ghost"
               style={{ marginLeft: 'auto' }}
               onClick={() => {

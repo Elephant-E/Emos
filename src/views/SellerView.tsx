@@ -64,7 +64,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {query.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
 
-      {!query.isLoading && products.length === 0 ? (
+      {!query.isLoading && !query.error && products.length === 0 ? (
         <EmptyBlock
           title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
           action={

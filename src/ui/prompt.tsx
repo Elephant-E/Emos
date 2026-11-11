@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { DecisionShell, useDecisionKeys } from './decision'
+import { DecisionShell } from './decision'
 
 export interface PromptOptions {
   title: string
@@ -64,13 +64,6 @@ export function PromptHost() {
     }
   }, [pending])
 
-  useDecisionKeys(
-    Boolean(pending),
-    () => settle(null),
-    () => {
-      if (canSubmit) settle(value.trim())
-    },
-  )
 
   if (!pending) return null
 
@@ -85,7 +78,10 @@ export function PromptHost() {
       dangerConfirm
       confirmDisabled={!canSubmit}
       onCancel={() => settle(null)}
-      onConfirm={() => settle(value.trim())}
+      onConfirm={() => {
+        if (!canSubmit) return
+        settle(value.trim())
+      }}
     >
       <label className="field" style={{ marginTop: 12 }}>
         <span>{pending.label}</span>

@@ -62,7 +62,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
   /** 「详情」在任何状态下都能点开 */
   const detailButton = (item: SeekItem) => (
-    <button
+    <button type="button"
       className="btn btn--quiet"
       onClick={(e) => {
         e.stopPropagation()
@@ -75,7 +75,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
   /** 催片按钮在所有状态下都出现，初始悬赏额定在此处 */
   const urgeButton = (item: SeekItem) => (
-    <button
+    <button type="button"
       className="btn btn--quiet"
       onClick={(e) => {
         e.stopPropagation()
@@ -103,7 +103,9 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     upload_self: search.mine || undefined,
   })
 
-  const lastId = data?.items?.[0]?.id ?? 0
+  // 列表按 updated_at 排序，首行不一定是最大 id；用当前页最大 id 做增量基准，
+  // 否则有人认领老求片就会把它顶上来，lastId 变小导致每轮都全量重查
+  const lastId = (data?.items ?? []).reduce((max, item) => Math.max(max, Number(item.id) || 0), 0)
   const poll = useSeekPoll(lastId)
   useEffect(() => {
     // 有新求片才让列表重查：否则每 30 秒重查一次 2.4 万条的列表
@@ -141,18 +143,19 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         <input
           className="input"
           type="search"
+            aria-label="搜索片名"
           placeholder="搜索片名"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         <div className="seg" role="group" aria-label="类型">
-          <button aria-pressed={search.type === ''} onClick={() => onSearch({ type: '', page: 1 })}>
+          <button type="button" aria-pressed={search.type === ''} onClick={() => onSearch({ type: '', page: 1 })}>
             不限
           </button>
-          <button aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie', page: 1 })}>
             电影
           </button>
-          <button aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv', page: 1 })}>
             剧集
           </button>
         </div>
@@ -175,7 +178,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               title="这一页没有内容"
               hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
               action={
-                <button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>
+                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>
                   回第一页
                 </button>
               }
@@ -266,7 +269,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                               去上传
                             </Link>
                             {isMine ? (
-                              <button
+                              <button type="button"
                                 className="btn btn--quiet"
                                 disabled={cancelClaim.isPending}
                                 onClick={async (e) => {
@@ -290,7 +293,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                         ) : item.status === 'default' ? (
                           <>
                             {item.is_can_claim ? (
-                              <button
+                              <button type="button"
                                 className="btn btn--ghost"
                                 aria-busy={claim.isPending && claim.variables === item.id}
                                 onClick={(e) => {
@@ -323,7 +326,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           width={520}
           onClose={() => setDetailFor(null)}
           footer={
-            <button className="btn btn--ghost" onClick={() => setDetailFor(null)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setDetailFor(null)}>
               关闭
             </button>
           }
@@ -399,10 +402,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           width={400}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setUrgeTarget(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setUrgeTarget(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={urge.isPending || !carrotValid}
                 onClick={() => {

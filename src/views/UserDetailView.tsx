@@ -34,7 +34,7 @@ export function UserDetailView({ userId }: { userId: string }) {
               封禁列表
             </Link>
             {banned ? (
-              <button
+              <button type="button"
                 className="btn btn--ghost"
                 onClick={async () => {
                   const ok = await confirmDialog({
@@ -50,7 +50,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                 解除封禁
               </button>
             ) : (
-              <button
+              <button type="button"
                 className="btn btn--ghost"
                 onClick={async () => {
                   const ok = await confirmDialog({
@@ -94,7 +94,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             bans.error ? (
               <>
                 封禁状态取不到
-                <button className="btn btn--quiet" onClick={() => void bans.refetch()}>
+                <button type="button" className="btn btn--quiet" onClick={() => void bans.refetch()}>
                   重试
                 </button>
               </>

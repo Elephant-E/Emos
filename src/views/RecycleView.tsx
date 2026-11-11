@@ -116,6 +116,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           <input
             className="input"
             type="search"
+            aria-label="搜索"
             value={term}
             onChange={(event) => setTerm(event.target.value)}
             placeholder={tab === 'media' ? (by === 'media_id' ? '搜资源 ID' : '搜上传者 ID') : '搜片名'}
@@ -173,7 +174,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       {restorable ? (
                         <td>
                           {canRestore ? (
-                            <button
+                            <button type="button"
                               className="btn btn--quiet"
                               disabled={busy === mediaId}
                               onClick={() => restoreMedia(mediaId, name)}
@@ -229,7 +230,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                       <td className="num muted">{String(row.todb_id ?? '—')}</td>
                       <td className="num muted">{String(row.video_date_air ?? '—')}</td>
                       <td>
-                        <button
+                        <button type="button"
                           className="btn btn--quiet"
                           disabled={busy === String(videoId)}
                           onClick={() => restoreVideo(videoId, title)}

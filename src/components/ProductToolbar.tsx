@@ -54,13 +54,14 @@ export function ProductToolbar({
       <input
         className="input"
         type="search"
+            aria-label="搜索"
         placeholder={placeholder}
         value={term}
         onChange={(e) => onTerm(e.target.value)}
       />
       <div className="seg" role="group" aria-label="排序">
         {SORTS.map((item) => (
-          <button key={item.key} aria-pressed={sort === item.key} onClick={() => onSort(item.key)}>
+          <button type="button" key={item.key} aria-pressed={sort === item.key} onClick={() => onSort(item.key)}>
             {item.label}
           </button>
         ))}

@@ -84,6 +84,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         <input
           className="input"
           type="search"
+            aria-label="片名或 TMDB ID"
           value={query}
           placeholder="片名或 TMDB ID"
           onChange={(e) => setQuery(e.target.value)}
@@ -92,7 +93,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             onSearch({ q: query.trim(), page: 1 })
           }}
         />
-        <button className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
+        <button type="button" className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
           <IconPlus />
           新增入库
         </button>
@@ -110,14 +111,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               bare
               title="这一页没有内容"
               hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
-              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+              action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
             />
             <Pager {...pagerProps} />
           </div>
         ) : (
           <EmptyBlock
             title={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
-            action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
+            action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
           />
         )
       ) : null}

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from '@/ui/layers'
 
@@ -60,8 +61,11 @@ export function Modal({
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
       const { onClose: close, onSubmit: submit } = handlers.current
-      // 输入类控件里的回车属于输入本身，不触发整表单提交
+      // 输入类控件里的回车属于输入本身，不触发整表单提交；
+      // 焦点在按钮/链接上时回车是那个控件自己的激活动作，也不能被表单提交顶掉
       if (event.key === 'Enter' && submit && !target?.closest('textarea, .tag-field')) {
+        if (!isTopLayer(idRef.current)) return
+        if (target?.closest('button, a, [role="button"], [role="link"]')) return
         event.preventDefault()
         submit()
         return
@@ -74,6 +78,8 @@ export function Modal({
         return
       }
       if (event.key !== 'Tab') return
+      // 叠着的时候焦点只在最上层内循环，否则会跳到被遮罩挡住的下层控件
+      if (!isTopLayer(idRef.current)) return
       const list = focusablesOf(boxRef.current)
       if (list.length === 0) return
       const first = list[0]
@@ -90,7 +96,7 @@ export function Modal({
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  return (
+  return createPortal(
     <div
       className="modal-overlay"
       onClick={(e) => {
@@ -102,7 +108,7 @@ export function Modal({
       <div className="modal" ref={boxRef} style={{ width }} role="dialog" aria-modal="true" aria-label={title}>
         <div className="modal__head">
           <h2 className="modal__title">{title}</h2>
-          <button className="btn btn--icon" onClick={onClose} aria-label="关闭">
+          <button type="button" className="btn btn--icon" onClick={onClose} aria-label="关闭">
             ✕
           </button>
         </div>
@@ -119,6 +125,7 @@ export function Modal({
           {footer ? <div className="modal__foot">{footer}</div> : null}
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

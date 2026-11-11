@@ -129,7 +129,7 @@ export function VideoDetailView({
               返回列表
             </Link>
             {video ? (
-              <button
+              <button type="button"
                 className="btn btn--ghost"
                 onClick={() => {
                   // 接口要的是 TODB 的 id，不是站内的 video_id
@@ -144,7 +144,7 @@ export function VideoDetailView({
               </button>
             ) : null}
             {video ? (
-              <button
+              <button type="button"
                 className="btn btn--ghost"
                 disabled={seekApply.isPending}
                 onClick={async () => {
@@ -172,7 +172,7 @@ export function VideoDetailView({
               </button>
             ) : null}
             {video ? (
-            <button
+            <button type="button"
               className="btn btn--danger-text"
               onClick={async () => {
                 const ok = await confirmDialog({
@@ -294,7 +294,7 @@ export function VideoDetailView({
                 {seasonEpisodes.map((ep) => {
                   const active = currentEpisode?.episode_id === ep.episode_id
                   return (
-                    <button
+                    <button type="button"
                       key={ep.episode_id}
                       role="option"
                       aria-selected={active}
@@ -345,7 +345,7 @@ export function VideoDetailView({
             {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
             {!episodeReady ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
+            {!media.error && media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
 
             {media.data && media.data.length > 0 ? (
               <table className="table table--inset">
@@ -369,9 +369,9 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button
+                            <button type="button"
                               className="row-menu"
-                              aria-label="操作"
+                              aria-label="重命名"
                               onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
                             >
                               <IconDots />
@@ -388,7 +388,7 @@ export function VideoDetailView({
 
           <article className="card card--tight">
             <CardHead title="字幕">
-              <button className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
+              <button type="button" className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
                 {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '上传字幕'}
               </button>
               <input
@@ -452,7 +452,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
+                            <button type="button" className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
                               <IconDots />
                             </button>
                           ) : null}
@@ -507,10 +507,10 @@ export function VideoDetailView({
           onClose={() => setRenaming(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setRenaming(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setRenaming(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={() =>
                   actions.renameMedia.mutate(renaming, {
@@ -531,7 +531,7 @@ export function VideoDetailView({
             <input className="input" value={renaming.name} onChange={(e) => setRenaming({ ...renaming, name: e.target.value })} autoFocus />
           </label>
           <div className="pick-tabs">
-            <button
+            <button type="button"
               className="btn btn--ghost"
               onClick={() =>
                 actions.syncMetadata.mutate(renaming.mediaId, { onSuccess: () => toast('已同步元数据', 'success') })
@@ -539,7 +539,7 @@ export function VideoDetailView({
             >
               同步元数据
             </button>
-            <button
+            <button type="button"
               className="btn btn--ghost"
               onClick={() => {
                 setMoveSeason(season)
@@ -549,7 +549,7 @@ export function VideoDetailView({
             >
               移到其他位置
             </button>
-            <button
+            <button type="button"
               className="btn btn--danger"
               style={{ marginLeft: 'auto' }}
               onClick={async () => {
@@ -593,6 +593,7 @@ export function VideoDetailView({
             <input
               className="input"
               type="search"
+            aria-label="搜片名，留空则在当前影片里移动"
               placeholder="搜片名，留空则在当前影片里移动"
               value={moveTerm}
               onChange={(e) => {
@@ -613,7 +614,7 @@ export function VideoDetailView({
           {moveVideo ? (
             <p className="card-note" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span>目标：{moveVideo.title}</span>
-              <button
+              <button type="button"
                 className="btn btn--quiet"
                 onClick={() => {
                   setMoveVideo(null)
@@ -630,7 +631,7 @@ export function VideoDetailView({
                 <div key={v.video_id} className="pick-row">
                   <span className="pick-row__title">{v.video_title}</span>
                   <span className="muted text-xs">{v.video_type === 'movie' ? '电影' : '剧集'}</span>
-                  <button
+                  <button type="button"
                     className="btn btn--quiet"
                     onClick={() => {
                       setMoveVideo({ id: v.video_id, title: v.video_title, type: v.video_type === 'movie' ? 'movie' : 'tv' })
@@ -649,7 +650,7 @@ export function VideoDetailView({
 
           {/* 电影没有季集，资源直接挂在影片上；剧集要选到集 */}
           {!moveKeyword && moveVideo?.type === 'movie' ? (
-            <button
+            <button type="button"
               className="btn btn--primary"
               style={{ marginTop: 'var(--stack)' }}
               onClick={() =>
@@ -672,7 +673,7 @@ export function VideoDetailView({
             <>
               <div className="tabs pick-tabs__scroll" role="tablist" aria-label="选择季">
                 {(moveSeasons.data ?? []).map((s) => (
-                  <button
+                  <button type="button"
                     key={s.season_id}
                     className="tab pick-tabs__item"
                     role="tab"
@@ -691,7 +692,7 @@ export function VideoDetailView({
                     <div key={ep.episode_id} className="pick-row">
                       <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
                       <span className="pick-row__title">{ep.episode_title}</span>
-                      <button
+                      <button type="button"
                         className="btn btn--quiet"
                         disabled={samePlace}
                         onClick={() =>
@@ -723,10 +724,10 @@ export function VideoDetailView({
           onClose={() => setRenamingSub(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setRenamingSub(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setRenamingSub(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={() =>
                   actions.renameSubtitle.mutate(renamingSub, {
@@ -746,7 +747,7 @@ export function VideoDetailView({
             <span>字幕标题</span>
             <input className="input" value={renamingSub.title} onChange={(e) => setRenamingSub({ ...renamingSub, title: e.target.value })} autoFocus />
           </label>
-          <button
+          <button type="button"
             className="btn btn--ghost"
             onClick={async () => {
               const reason = await confirmDelete({

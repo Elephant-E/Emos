@@ -50,7 +50,7 @@ export function UserSearchView() {
         />
         <span className="spacer" />
         <span className="head-note">仅列出正在封禁中的账号</span>
-        <button className="btn btn--primary" disabled={!value.trim()} onClick={submit}>
+        <button type="button" className="btn btn--primary" disabled={!value.trim()} onClick={submit}>
           查详情
         </button>
       </div>
@@ -87,7 +87,7 @@ export function UserSearchView() {
                   <td className="muted ellipsis">{row.disable_reason ?? '—'}</td>
                   <td className="num muted">{formatRelative(row.created_at)}</td>
                   <td>
-                    <button
+                    <button type="button"
                       className="btn btn--quiet"
                       disabled={actions.banChange.isPending}
                       onClick={() => unban(row.user_id, row.username ?? row.user_id)}

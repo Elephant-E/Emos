@@ -78,7 +78,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           title="还不是支付服务商"
           hint="查单与收款需要服务商身份。"
           action={
-            <button
+            <button type="button"
               className="btn btn--primary"
               onClick={async () => {
                 const ok = await confirmDialog({
@@ -120,7 +120,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         />
         <article className="card">
           <CardHead title="回调地址">
-            <button
+            <button type="button"
               className="btn btn--quiet"
               onClick={() =>
                 setEditing({
@@ -147,7 +147,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           <p className="stat__label">查询订单</p>
           <div className="row-input stack--top">
             <input className="input" placeholder="订单号" value={no} onChange={(e) => setNo(e.target.value)} />
-            <button className="btn btn--ghost" disabled={!no.trim()} onClick={() => setLookup(no.trim())}>
+            <button type="button" className="btn btn--ghost" disabled={!no.trim()} onClick={() => setLookup(no.trim())}>
               查询
             </button>
           </div>
@@ -179,7 +179,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               </div>
             </div>
             <div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-              <button className="btn btn--danger-text" disabled={closing} onClick={() => void closeOrder()}>
+              <button type="button" className="btn btn--danger-text" disabled={closing} onClick={() => void closeOrder()}>
                 {closing ? '关闭中…' : '关闭订单'}
               </button>
             </div>
@@ -200,7 +200,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
             />
-            <button
+            <button type="button"
               className="btn btn--primary"
               disabled={!transferTo.trim() || amount < 2 || amount > 6000 || sending}
               onClick={async () => {
@@ -241,10 +241,10 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           onClose={() => setEditing(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setEditing(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={async () => {
                   try {

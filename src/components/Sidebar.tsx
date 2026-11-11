@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
+import { setToken } from '@/api/client'
 import type { UserInfo } from '@/api/types'
 import { USE_MOCK } from '@/api/client'
 import {
@@ -187,12 +188,17 @@ export function Sidebar({ user }: { user?: UserInfo }) {
       {GROUPS.map((group) => (
         <div key={group.label}>
           <p className="rail__label">{group.label}</p>
-          <nav className="rail__nav">
+          <nav className="rail__nav" aria-label={group.label}>
             {group.items.map((item) => {
               const Icon = item.icon
               const active = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
               return (
-                <Link key={item.to} to={item.to} className={`rail__item${active ? ' is-active' : ''}`}>
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`rail__item${active ? ' is-active' : ''}`}
+                  aria-current={active ? 'page' : undefined}
+                >
                   <span className="rail__ico">
                     <Icon size={16} />
                   </span>
@@ -211,7 +217,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
       </div>
 
       <div className="rail__foot" ref={footRef}>
-        <button
+        <button type="button"
           className="rail__account"
           aria-expanded={menuOpen}
           aria-haspopup="menu"
@@ -228,7 +234,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
               const current = account.user_id === user?.user_id
               return (
                 <div key={account.user_id} className="rail__menu-row">
-                  <button
+                  <button type="button"
                     role="menuitem"
                     className="rail__menu-item"
                     onClick={() => {
@@ -241,7 +247,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
                     {current ? <span className="rail__menu-flag">当前</span> : null}
                   </button>
                   {!current ? (
-                    <button
+                    <button type="button"
                       className="rail__menu-remove"
                       aria-label={`移除 ${account.pseudonym || account.username}`}
                       onClick={() => setAccounts(forgetAccount(account.user_id))}
@@ -252,8 +258,25 @@ export function Sidebar({ user }: { user?: UserInfo }) {
                 </div>
               )
             })}
-            <button className="rail__menu-add" role="menuitem" onClick={() => (location.href = '/login')}>
+            <button type="button" className="rail__menu-add" role="menuitem" onClick={() => (location.href = '/login')}>
               添加账号
+            </button>
+            <button
+              type="button"
+              className="rail__menu-add"
+              role="menuitem"
+              onClick={() => {
+                // 共享设备上要能主动结束会话：清令牌与本地头像缓存，回登录页
+                setToken(null)
+                try {
+                  localStorage.removeItem('emos_admin_profile')
+                } catch {
+                  /* 隐私模式下不可写，忽略 */
+                }
+                location.href = '/login'
+              }}
+            >
+              退出登录
             </button>
           </div>
         ) : null}

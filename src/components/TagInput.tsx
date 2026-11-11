@@ -20,7 +20,7 @@ export function TagInput({
   const [draft, setDraft] = useState('')
   const fieldRef = useRef<HTMLInputElement>(null)
 
-  const commit = () => {
+  const commit = (refocus = true) => {
     const text = draft.trim()
     if (!text) return
     const parts = text.split(/[,，\s]+/).filter(Boolean)
@@ -28,8 +28,8 @@ export function TagInput({
     for (const part of parts) if (!next.includes(part)) next.push(part)
     onChange(next)
     setDraft('')
-    // 下一帧再收焦点：同步调用会被这次重渲染覆盖掉
-    requestAnimationFrame(() => fieldRef.current?.focus())
+    // 输入框会因重渲染重建，同步聚焦会被覆盖；失焦提交时不能回焦，否则用户点不到下一个字段
+    if (refocus) requestAnimationFrame(() => fieldRef.current?.focus())
   }
 
   const remove = (tag: string) => {
@@ -57,7 +57,7 @@ export function TagInput({
             onChange(value.slice(0, -1))
           }
         }}
-        onBlur={commit}
+        onBlur={() => commit(false)}
       />
       {value.length > 0 ? (
         <div className="tag-field__list">

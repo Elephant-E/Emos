@@ -36,10 +36,10 @@ export function ProductDetailModal({
       footer={
         p ? (
           <>
-            <button className="btn btn--ghost" onClick={onClose}>
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
               关闭
             </button>
-            <button
+            <button type="button"
               className="btn btn--primary"
               disabled={soldOut || offShelf || actions.createOrder.isPending}
               onClick={() =>
@@ -131,10 +131,10 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
       onClose={onClose}
       footer={
         <>
-          <button className="btn btn--ghost" onClick={onClose}>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
             取消
           </button>
-          <button
+          <button type="button"
             className="btn btn--primary"
             disabled={actions.createOrder.isPending}
             onClick={() =>

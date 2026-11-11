@@ -53,12 +53,13 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         <input
           className="input"
           type="search"
+            aria-label="搜索名称、地址或简介"
           placeholder="搜索名称、地址或简介"
           value={search.q}
           onChange={(e) => onSearch({ q: e.target.value, page: 1 })}
         />
         <span className="spacer" />
-        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+        <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />
           新增线路
         </button>
@@ -78,7 +79,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         <EmptyBlock
           title="这一页没有内容"
           hint={`共 ${rows.length} 条，当前在第 ${search.page} 页`}
-          action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
+          action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
         />
       ) : null}
 
@@ -115,7 +116,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                   <td className="muted">{formatDateTime(line.created_at)}</td>
                   <td>
                     {line.is_self ? (
-                      <button
+                      <button type="button"
                         className="btn btn--danger-text"
                         disabled={actions.remove.isPending}
                         onClick={async () => {
@@ -156,10 +157,10 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           onSubmit={submitLine}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
                 onClick={submitLine}

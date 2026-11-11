@@ -25,19 +25,22 @@ export function ProductGrid({
   onBuy: (product: ShopProduct) => void
 }) {
   const sentinel = useRef<HTMLDivElement>(null)
+  // 调用点传的是内联箭头函数，作为依赖会让观察器每次渲染重建
+  const loadMoreRef = useRef(onLoadMore)
+  loadMoreRef.current = onLoadMore
 
   useEffect(() => {
     const node = sentinel.current
     if (!node || !hasMore) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting && !loadingMore) onLoadMore()
+        if (entries[0]?.isIntersecting && !loadingMore) loadMoreRef.current()
       },
       { rootMargin: '240px' },
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [hasMore, loadingMore, onLoadMore])
+  }, [hasMore, loadingMore])
 
   return (
     <>
@@ -57,7 +60,7 @@ export function ProductGrid({
       ) : null}
       {!loadingMore && loadError ? (
         <p style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>
-          <button className="btn btn--quiet" onClick={onLoadMore}>
+          <button type="button" className="btn btn--quiet" onClick={onLoadMore}>
             没加载出来，重试
           </button>
         </p>

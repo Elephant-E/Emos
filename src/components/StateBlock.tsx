@@ -34,7 +34,7 @@ export function EmptyBlock({ title, hint, action, bare = false }: EmptyBlockProp
         <span className="state__icon">
           <IconEmpty />
         </span>
-        <p className="state__title">{title}</p>
+        <p className="state__title" role="alert">{title}</p>
         {hint ? <p className="state__hint">{hint}</p> : null}
         {action ? <div className="state__actions">{action}</div> : null}
       </div>
@@ -56,11 +56,11 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
         <span className="state__icon" style={{ color: 'var(--c-red)' }}>
           <IconAlert />
         </span>
-        <p className="state__title">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
+        <p className="state__title" role="alert">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
         {!timedOut && message ? <p className="state__hint">{message}</p> : null}
         <div className="state__actions">
           {onRetry ? (
-            <button className="btn btn--ghost" onClick={onRetry}>
+            <button type="button" className="btn btn--ghost" onClick={onRetry}>
               重试
             </button>
           ) : null}
@@ -73,7 +73,7 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
 /** 搜索没命中时的「清空搜索」，四个列表页共用 */
 export function ClearSearchButton({ onClick }: { onClick: () => void }) {
   return (
-    <button className="btn btn--ghost" onClick={onClick}>
+    <button type="button" className="btn btn--ghost" onClick={onClick}>
       清空搜索
     </button>
   )

@@ -40,7 +40,7 @@ export function ProductTile({
         <div className="product-tile__meta">
           <span>销量 {formatThousand(product.sales)}</span>
           {soldOut ? <span>已售罄</span> : <span>库存 {formatThousand(product.stock)}</span>}
-          <button
+          <button type="button"
             className="product-tile__buy"
             aria-label={`购买 ${product.name}`}
             title={soldOut ? '已售罄' : '购买'}

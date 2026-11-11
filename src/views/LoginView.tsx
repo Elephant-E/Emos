@@ -149,7 +149,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
                   {message}
                 </p>
               ) : null}
-              <button className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
+              <button type="button" className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
                 {phase === 'checking' ? '正在验证…' : '用令牌进入'}
               </button>
           </form>

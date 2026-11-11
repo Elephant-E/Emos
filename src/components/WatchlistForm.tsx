@@ -60,15 +60,10 @@ export function WatchlistForm({
       }}
       footer={
         <>
-          <button className="btn btn--ghost" onClick={onClose}>
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
             取消
           </button>
-          <button
-            className="btn btn--primary"
-            type="submit"
-            disabled={!valid || pending}
-            onClick={() => valid && !pending && onSubmit({ ...form, name: form.name.trim() })}
-          >
+          <button className="btn btn--primary" type="submit" disabled={!valid || pending}>
             {submitLabel}
           </button>
         </>

@@ -118,10 +118,10 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       onClose={onClose}
       footer={
         <>
-          <button className="btn btn--ghost" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
+          <button type="button" className="btn btn--ghost" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
             {upload.isPending ? `上传中 ${Math.round(uploading * 100)}%` : '上传图片'}
           </button>
-          <button className="btn btn--primary" onClick={() => selected && onPick(selected)} disabled={!selected}>
+          <button type="button" className="btn btn--primary" onClick={() => selected && onPick(selected)} disabled={!selected}>
             使用这张
           </button>
         </>
@@ -142,6 +142,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       <input
         className="input"
         type="search"
+            aria-label="搜索文件名"
         placeholder="搜索文件名"
         value={term}
         onChange={(e) => setTerm(e.target.value)}

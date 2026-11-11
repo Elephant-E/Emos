@@ -70,10 +70,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           <>
             {orders.isFetching ? <span className="head-note">拉取中</span> : null}
             <div className="seg" role="group" aria-label="视角">
-              <button aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop', page: 1 })}>
+              <button type="button" aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop', page: 1 })}>
                 店铺订单
               </button>
-              <button aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine', page: 1 })}>
+              <button type="button" aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine', page: 1 })}>
                 我的订单
               </button>
             </div>
@@ -87,13 +87,14 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         <input
           className="input"
           type="search"
+            aria-label="订单号或商品名"
           placeholder="订单号或商品名"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         <div className="seg" role="group" aria-label="发货状态">
           {DELIVERY_TABS.map((tab) => (
-            <button key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key, page: 1 })}>
+            <button type="button" key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key, page: 1 })}>
               {tab.label}
             </button>
           ))}
@@ -107,7 +108,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
           action={
             filtered ? (
-              <button className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
+              <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
                 清空筛选
               </button>
             ) : undefined
@@ -178,7 +179,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     <td>
                       <span className="action-group">
                         {mineScope && !paid ? (
-                          <button
+                          <button type="button"
                             className="btn btn--primary"
                             disabled={actions.payOrder.isPending}
                             onClick={async () => {
@@ -198,7 +199,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           </button>
                         ) : null}
                         {!mineScope && !sent && paid ? (
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             onClick={() =>
                               actions.deliver.mutate(
@@ -211,7 +212,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           </button>
                         ) : null}
                         {!mineScope && sent ? (
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             onClick={() =>
                               actions.deliver.mutate(
@@ -224,7 +225,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           </button>
                         ) : null}
                         {mineScope && paid && !sent ? (
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             onClick={() =>
                               actions.urgeOrder.mutate(order.order_no, {
@@ -236,7 +237,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           </button>
                         ) : null}
                         {mineScope && !paid ? (
-                          <button
+                          <button type="button"
                             className="btn btn--quiet"
                             onClick={async () => {
                               const ok = await confirmDialog({
@@ -253,11 +254,11 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                           </button>
                         ) : null}
                         {!mineScope ? (
-                          <button className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
+                          <button type="button" className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
                             备注
                           </button>
                         ) : null}
-                        <button
+                        <button type="button"
                           className="btn btn--danger-text"
                           onClick={async () => {
                             const ok = await confirmDialog({
@@ -290,10 +291,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           onClose={() => setRemarking(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setRemarking(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setRemarking(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={() =>
                   actions.remark.mutate(

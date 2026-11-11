@@ -76,7 +76,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
         title="悄悄话"
         hint={list.data ? `${rows.length} 条` : undefined}
         tools={
-          <button className="btn btn--primary" onClick={() => setComposing(true)}>
+          <button type="button" className="btn btn--primary" onClick={() => setComposing(true)}>
             发起
           </button>
         }
@@ -137,7 +137,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                     <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
                     {tab === 'receiver' ? (
                       <td>
-                        <button
+                        <button type="button"
                           className="btn btn--quiet"
                           onClick={() => {
                             setReplyTarget(row)
@@ -166,7 +166,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           }}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setReplyTarget(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setReplyTarget(null)}>
                 取消
               </button>
               <button
@@ -198,10 +198,10 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           onClose={() => setComposing(false)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setComposing(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setComposing(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!composeTo.trim() || !composeBody.trim() || create.isPending}
                 onClick={() => create.mutate({ receiver_user_id: composeTo.trim(), content: composeBody.trim() })}

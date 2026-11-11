@@ -86,7 +86,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               }
             >
               {channel.is_can_edit ? (
-                <button className="btn btn--quiet" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
+                <button type="button" className="btn btn--quiet" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
                   新增源
                 </button>
               ) : null}
@@ -113,7 +113,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                       {row.status === 'normal' ? '正常' : row.status === 'error' ? '异常' : String(row.status ?? '—')}
                     </span>
                     {row.is_can_edit ? (
-                      <button
+                      <button type="button"
                         className="btn btn--danger-text"
                         disabled={actions.removeMedia.isPending}
                         onClick={async () => {
@@ -172,7 +172,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           label="媒体库"
         />
         <span className="spacer" />
-        <button className="btn btn--primary" onClick={() => setCreating(true)}>
+        <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />
           新增频道
         </button>
@@ -180,7 +180,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
       {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-      {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
+      {!list.error && list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
 
       {list.data && list.data.items.length > 0 ? (
         <>
@@ -225,7 +225,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
                       {item.is_can_edit ? (
-                        <button
+                        <button type="button"
                           className="btn btn--danger-text"
                         disabled={actions.removeChannel.isPending}
                           onClick={async (e) => {
@@ -268,10 +268,10 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           onSubmit={submitChannel}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setCreating(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!form.title.trim()}
                 onClick={submitChannel}
@@ -309,10 +309,10 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           onSubmit={submitSource}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setAddingSource(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setAddingSource(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={!source.name.trim() || !source.path_url.trim()}
                 onClick={submitSource}

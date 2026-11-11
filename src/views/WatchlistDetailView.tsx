@@ -64,7 +64,7 @@ function WatchlistHead({
             </div>
             <div className="detail-stat">
               {onSubscribers ? (
-                <button
+                <button type="button"
                   className="detail-stat__link tnum"
                   onClick={onSubscribers}
                   title="看订阅用户"
@@ -204,15 +204,15 @@ export function WatchlistDetailView({
         tools={
           item ? (
             <>
-              <button className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success') })} disabled={subscribe.isPending}>
+              <button type="button" className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success') })} disabled={subscribe.isPending}>
                 {item.is_subscribe ? '取消订阅' : '订阅'}
               </button>
               {item.is_self ? (
                 <>
-                  <button className="btn btn--ghost" onClick={() => setEditing(true)}>
+                  <button type="button" className="btn btn--ghost" onClick={() => setEditing(true)}>
                     编辑
                   </button>
-                  <button
+                  <button type="button"
                     className="btn btn--ghost"
                     onClick={() => {
                       setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean) as string[])
@@ -221,13 +221,13 @@ export function WatchlistDetailView({
                   >
                     维护者
                   </button>
-                  <button className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
+                  <button type="button" className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
                     {item.user_is_show ? '隐藏' : '显示'}
                   </button>
-                  <button className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
+                  <button type="button" className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
                     动态抓取
                   </button>
-                  <button
+                  <button type="button"
                     className="btn btn--danger-text"
                     disabled={clearVideos.isPending || clearMusic.isPending}
                     onClick={() => void clearAll()}
@@ -263,13 +263,14 @@ export function WatchlistDetailView({
         <input
           className="input"
           type="search"
+            aria-label="搜索"
           placeholder={isMusic ? '搜歌名' : '在该片单里搜片名'}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
         <span className="spacer" />
         {item?.is_edit_video ? (
-          <button
+          <button type="button"
             className="btn btn--primary"
             onClick={() => {
               if (isMusic) {
@@ -296,7 +297,7 @@ export function WatchlistDetailView({
           音乐分支（WatchMusicRows）同样包卡，三态保持一致 */}
       {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
-      {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
+      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 ? (
         <EmptyBlock title="片单里还没有影片" />
       ) : null}
 
@@ -355,7 +356,7 @@ export function WatchlistDetailView({
                   </td>
                   <td className="muted">
                     {item?.is_edit_video ? (
-                      <button
+                      <button type="button"
                         className="btn btn--quiet"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -374,7 +375,7 @@ export function WatchlistDetailView({
                   </td>
                   {item?.is_edit_video ? (
                   <td onClick={(e) => e.stopPropagation()}>
-                    <button
+                    <button type="button"
                         className="btn btn--danger-text"
                         onClick={async () => {
                           const ok = await confirmDialog({
@@ -428,7 +429,7 @@ export function WatchlistDetailView({
                     {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
                   </span>
                 </span>
-                <button
+                <button type="button"
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
                   onClick={() => {
@@ -454,10 +455,10 @@ export function WatchlistDetailView({
           onClose={() => setDynamicOpen(false)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setDynamicOpen(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setDynamicOpen(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 onClick={() => {
                   setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
@@ -489,7 +490,7 @@ export function WatchlistDetailView({
           width={520}
           onClose={() => setSubsOpen(false)}
           footer={
-            <button className="btn btn--ghost" onClick={() => setSubsOpen(false)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setSubsOpen(false)}>
               关闭
             </button>
           }
@@ -529,10 +530,10 @@ export function WatchlistDetailView({
           onClose={() => setMaintainerOpen(false)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setMaintainerOpen(false)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setMaintainerOpen(false)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={setMaintainers.isPending}
                 onClick={() =>
@@ -570,10 +571,10 @@ export function WatchlistDetailView({
           onClose={() => setRemarkFor(null)}
           footer={
             <>
-              <button className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
+              <button type="button" className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
                 取消
               </button>
-              <button
+              <button type="button"
                 className="btn btn--primary"
                 disabled={updateVideoEntry.isPending}
                 onClick={() =>
@@ -673,7 +674,7 @@ function WatchMusicRows({
       {songs.error ? <ErrorBlock error={songs.error} onRetry={() => songs.refetch()} /> : null}
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
 
-      {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (
+      {!songs.error && !songs.isLoading && songs.data && songs.data.items.length === 0 ? (
         <EmptyBlock title="这个片单还没有歌" />
       ) : null}
 
@@ -706,7 +707,7 @@ function WatchMusicRows({
                   <td className="muted" style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(song.person_artists ?? []).map((x) => x.name).join("/")}</td>
                   {canEdit ? (
                   <td onClick={(e) => e.stopPropagation()}>
-                    <button
+                    <button type="button"
                       className="btn btn--danger-text"
                       disabled={removeSong.isPending && removeSong.variables === song.song_id}
                       onClick={async () => {
@@ -751,7 +752,7 @@ function WatchMusicRows({
                   <span className="ellipsis" style={{ fontSize: 13.5 }}>{sg.name}</span>
                   <span className="meta-sm">{(sg.person_artists ?? []).map((x) => x.name).join("/")}</span>
                 </span>
-                <button
+                <button type="button"
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
                   onClick={() => addSong.mutate(sg.song_id, { onSuccess: () => toast(`已加入「${sg.name}」`, 'success') })}

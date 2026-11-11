@@ -122,8 +122,11 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
       payload && typeof payload === 'object' && 'message' in payload
         ? String((payload as Record<string, unknown>).message ?? '')
         : ''
+    // 网关把「上游 200 + 空 body」误报成 502：写操作确实已生效，按成功返回空对象；
+    // 但读操作拿到 {} 会让 calling 方读 items/length 直接崩，所以读操作当失败抛出
     if (res.status === 502 && upstreamFailed === 'API 请求失败: 200') {
-      return {} as T
+      if (method !== 'GET') return {} as T
+      throw fail(502, '响应为空，请重试', payload)
     }
     const msg =
       (payload && typeof payload === 'object' && ('message' in payload || 'msg' in payload)

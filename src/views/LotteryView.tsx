@@ -140,7 +140,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               <div className="card-body row" style={{ gap: 12 }}>
                 <span>抽奖已创建</span>
                 <b className="tnum">{created}</b>
-                <button
+                <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
                     void navigator.clipboard?.writeText(created)
@@ -149,7 +149,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 >
                   复制 ID
                 </button>
-                <button
+                <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
                     setIdTerm(created)
@@ -158,7 +158,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 >
                   看中奖名单
                 </button>
-                <button className="btn btn--quiet" onClick={() => setCreated(null)}>
+                <button type="button" className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再建一个
                 </button>
               </div>
@@ -209,7 +209,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 </div>
 
                 <CardHead title="奖品">
-                  <button className="btn btn--quiet" onClick={() => setPrizes((prev) => [...prev, emptyPrize()])}>
+                  <button type="button" className="btn btn--quiet" onClick={() => setPrizes((prev) => [...prev, emptyPrize()])}>
                     加一个
                   </button>
                 </CardHead>
@@ -248,7 +248,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                         />
                       </label>
                       {prizes.length > 1 ? (
-                        <button
+                        <button type="button"
                           className="btn btn--danger-text"
                           style={{ marginTop: 24 }}
                           onClick={() => setPrizes((prev) => prev.filter((_, i) => i !== index))}
@@ -261,7 +261,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 </div>
 
                 <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
-                  <button className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
+                  <button type="button" className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
                     {sending ? '创建中…' : '创建抽奖'}
                   </button>
                 </div>
@@ -283,7 +283,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               <span>抽奖 ID</span>
               <input className="input" value={idTerm} onChange={(e) => setIdTerm(e.target.value)} placeholder="例如 4zwLEpq8P2r1" />
             </label>
-            <button
+            <button type="button"
               className="btn btn--ghost"
               onClick={() => {
                 setPage(1)
@@ -306,10 +306,10 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 <article className="card card--tight">
                   <CardHead title={winners.data?.lottery_name ?? '抽奖'}>
                     <span className="row" style={{ gap: 8 }}>
-                      <button className="btn btn--quiet" onClick={() => void act('stop')}>
+                      <button type="button" className="btn btn--quiet" onClick={() => void act('stop')}>
                         手动开奖
                       </button>
-                      <button className="btn btn--danger-text" onClick={() => void act('cancel')}>
+                      <button type="button" className="btn btn--danger-text" onClick={() => void act('cancel')}>
                         取消抽奖
                       </button>
                     </span>

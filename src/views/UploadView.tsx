@@ -277,7 +277,7 @@ export function UploadView() {
               <i />
               {USE_MOCK ? '假数据模式' : '直传后端'}
             </span>
-            <button className="btn btn--ghost" onClick={() => userApi.agreeUpload().then(() => toast('已同意上传协议', 'success'))}>
+            <button type="button" className="btn btn--ghost" onClick={() => userApi.agreeUpload().then(() => toast('已同意上传协议', 'success'))}>
               同意上传协议
             </button>
           </>
@@ -305,11 +305,11 @@ export function UploadView() {
         </span>
         <span className="spacer" />
         {readyCount > 0 ? (
-          <button className="btn btn--ghost" disabled={uploading} onClick={() => void uploadAll()}>
+          <button type="button" className="btn btn--ghost" disabled={uploading} onClick={() => void uploadAll()}>
             {uploading ? '上传中…' : `全部上传（${readyCount}）`}
           </button>
         ) : null}
-        <button className="btn btn--primary" onClick={() => inputRef.current?.click()}>
+        <button type="button" className="btn btn--primary" onClick={() => inputRef.current?.click()}>
           <IconPlus />
           选择文件
         </button>
@@ -388,7 +388,7 @@ export function UploadView() {
                           {item.song?.has_media ? <span className="meta-sm"> · 已有音频</span> : null}
                         </span>
                       ) : (
-                        <button className="btn btn--ghost" onClick={() => setPlacing({ item, mode: item.kind === 'music' ? 'song' : 'target' })}>
+                        <button type="button" className="btn btn--ghost" onClick={() => setPlacing({ item, mode: item.kind === 'music' ? 'song' : 'target' })}>
                           {item.kind === 'music' ? '选歌曲' : '选目标'}
                         </button>
                       )}
@@ -423,7 +423,7 @@ export function UploadView() {
                       ) : item.status === 'uploading' ? (
                         <span className="muted">{Math.round(item.progress * 100)}%</span>
                       ) : (
-                        <button className="btn btn--quiet" onClick={() => startUpload(item)}>
+                        <button type="button" className="btn btn--quiet" onClick={() => startUpload(item)}>
                           {item.status === 'need-target' || item.status === 'need-song'
                             ? item.kind === 'music'
                               ? '选歌曲'
@@ -443,7 +443,7 @@ export function UploadView() {
             <span>
               {queue.filter((q) => q.status === 'done').length} 个已入库 · {active.length} 个待处理
             </span>
-            <button className="btn btn--quiet" onClick={() => setQueue((prev) => prev.filter((q) => q.status !== 'done'))}>
+            <button type="button" className="btn btn--quiet" onClick={() => setQueue((prev) => prev.filter((q) => q.status !== 'done'))}>
               清理已完成
             </button>
           </div>
@@ -456,7 +456,7 @@ export function UploadView() {
           onClose={() => setPlacing(null)}
           width={460}
           footer={
-            <button className="btn btn--ghost" onClick={() => setPlacing(null)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setPlacing(null)}>
               取消
             </button>
           }
@@ -488,7 +488,7 @@ export function UploadView() {
           onClose={() => setPlacing(null)}
           width={460}
           footer={
-            <button className="btn btn--ghost" onClick={() => setPlacing(null)}>
+            <button type="button" className="btn btn--ghost" onClick={() => setPlacing(null)}>
               取消
             </button>
           }
@@ -505,7 +505,7 @@ export function UploadView() {
                   {(song.person_artists ?? []).map((a) => a.name).join(' / ')}
                   {song.has_media ? ' · 已有音频' : ''}
                 </span>
-                <button
+                <button type="button"
                   className="btn btn--ghost"
                   style={{ marginLeft: 'auto' }}
                   onClick={() => {

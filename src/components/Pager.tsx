@@ -46,11 +46,11 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
         ) : null}
 
         <div className="pager">
-          <button disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="上一页">
+          <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} aria-label="上一页">
             <IconLeft size={16} strokeWidth={1.9} />
           </button>
-          <button aria-current="page">{page}</button>
-          <button disabled={page >= totalPages} onClick={() => onPage(page + 1)} aria-label="下一页">
+          <span className="pager__current" aria-current="page">{page}</span>
+          <button type="button" disabled={page >= totalPages} onClick={() => onPage(page + 1)} aria-label="下一页">
             <IconRight size={16} strokeWidth={1.9} />
           </button>
         </div>
