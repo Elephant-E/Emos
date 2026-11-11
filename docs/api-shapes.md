@@ -77,6 +77,7 @@
 {file_id:str:qwPOM8APpy8k}
 
 ### GET /api/upload/store/disk
+> 暂存区三个接口未接（需单独申请权限，管理员 token 也返回 422）。形状留档。
 [str:local_emos_1]
 
 ### GET /api/upload/store/file

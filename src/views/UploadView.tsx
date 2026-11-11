@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { CardHead } from '@/components/CardHead'
+import { useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
@@ -29,27 +27,10 @@ export function UploadView() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [queue, setQueue] = useState<QueueItem[]>([])
   const [over, setOver] = useState(false)
-  // 暂存区浏览用的盘（/api/upload/store/disk 返回，如 local_emos_1）
-  const [storage, setStorage] = useState('')
   // 上传文件落点（getUploadToken 的 file_storage），取值见 wiki
   const [fileStorage, setFileStorage] = useState<string>(DEFAULT_UPLOAD_STORAGE)
-  const [archiving, setArchiving] = useState<{ file_name: string } | null>(null)
   const [picking, setPicking] = useState<QueueItem | null>(null)
 
-  const disks = useQuery({ queryKey: ['upload', 'disks'], queryFn: () => uploadApi.disks(), retry: false })
-  const storeFiles = useQuery({
-    queryKey: ['upload', 'store', storage],
-    queryFn: () => uploadApi.storeFiles(storage),
-    enabled: Boolean(storage),
-    retry: false,
-  })
-  // 暂存区要单独申请权限（422「请先申请权限后使用」），没有时整块不出现
-  const storeDenied = (storeFiles.error as { status?: number } | null)?.status === 422
-  const showStore = Boolean(storage) && !storeDenied && !storeFiles.isLoading
-
-  useEffect(() => {
-    if (!storage && disks.data?.length) setStorage(disks.data[0])
-  }, [disks.data, storage])
 
   const patch = (id: string, changes: Partial<QueueItem>) =>
     setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
@@ -255,107 +236,6 @@ export function UploadView() {
         </div>
       ) : null}
 
-      {showStore ? (
-      <section className="cards cards--wide" style={{ marginTop: 22 }}>
-        <article className="card">
-          <CardHead title="暂存区">
-            <span className="row">
-              <span className="muted tnum-sm">{storeFiles.data?.length ?? 0} 个文件</span>
-              {(disks.data ?? []).length > 1 ? (
-                <select
-                  className="input"
-                  style={{ width: 160 }}
-                  value={storage}
-                  onChange={(e) => setStorage(e.target.value)}
-                  aria-label="暂存盘"
-                >
-                  {(disks.data ?? []).map((disk) => (
-                    <option key={disk} value={disk}>
-                      {disk}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span className="muted tnum-sm">{storage}</span>
-              )}
-            </span>
-          </CardHead>
-          {/* 暂存区不是常用概念，一句话说清它和「上传」的关系 */}
-          <p className="card-note">已传到存储、还没绑定到任何影片的文件</p>
-
-          {storeFiles.error ? <ErrorBlock bare error={storeFiles.error} onRetry={() => storeFiles.refetch()} /> : null}
-          {!storeFiles.error && storeFiles.data && storeFiles.data.length === 0 ? (
-            <EmptyBlock bare title="暂存区是空的" />
-          ) : null}
-          {storeFiles.data && storeFiles.data.length > 0 ? (
-            <table className="table table--inset" style={{ marginTop: 10 }}>
-              <thead>
-                <tr>
-                  <th>文件</th>
-                  <th className="num" style={{ width: 100 }}>大小</th>
-                  <th style={{ width: 120 }}>类型</th>
-                  <th style={{ width: 100 }} />
-                </tr>
-              </thead>
-              <tbody>
-                {storeFiles.data.map((file) => (
-                  <tr key={file.file_name}>
-                    <td style={{ color: 'var(--fg-2)' }}>{file.file_name}</td>
-                    <td className="num muted">{formatSize(file.file_size)}</td>
-                    <td className="muted">{fileKind(file.file_name, file.mime_type)}</td>
-                    <td>
-                      <button
-                        className="btn btn--quiet"
-                        onClick={() => setArchiving({ file_name: file.file_name })}
-                      >
-                        归档
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </article>
-      </section>
-      ) : null}
-
-      {archiving ? (
-        <Modal
-          title={`归档到影片 · ${archiving.file_name}`}
-          onClose={() => setArchiving(null)}
-          width={460}
-          footer={
-            <button className="btn btn--ghost" onClick={() => setArchiving(null)}>
-              取消
-            </button>
-          }
-        >
-          <TargetPicker
-            onPick={async (target) => {
-              try {
-                const res = await uploadApi.archive({
-                  item_type: target.item_type,
-                  item_id: target.item_id,
-                  path_type: storage,
-                  file_name: archiving.file_name,
-                })
-                toast(`已归档到《${target.title}》，+${res.carrot} 胡萝卜`, 'success')
-                setArchiving(null)
-                storeFiles.refetch()
-                // 归档等于给这个落点加了一份资源，各处列表和余额都要刷新
-                void qc.invalidateQueries({ queryKey: ['video'] })
-                void qc.invalidateQueries({ queryKey: ['videos'] })
-                void qc.invalidateQueries({ queryKey: ['media'] })
-                void qc.invalidateQueries({ queryKey: ['session'] })
-              } catch (err) {
-                toast(err instanceof Error ? err.message : '归档失败', 'error')
-              }
-            }}
-          />
-        </Modal>
-      ) : null}
-
       {picking ? (
         <Modal
           title={`选择目标 · ${picking.file.name}`}
@@ -377,16 +257,6 @@ export function UploadView() {
       ) : null}
     </>
   )
-}
-
-/** 暂存区里混着视频和字幕，用户要的是「这是什么」而不是 MIME */
-function fileKind(name: string, mime: string): string {
-  const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase()
-  if (mime.startsWith('video/') || ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts'].includes(ext)) return '视频'
-  if (mime.startsWith('audio/') || ['mp3', 'flac', 'm4a', 'wav', 'aac'].includes(ext)) return '音频'
-  if (mime.startsWith('image/') || ['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return '图片'
-  if (['srt', 'ass', 'ssa', 'vtt', 'sub'].includes(ext) || mime.includes('subrip') || mime.includes('ssa')) return '字幕'
-  return '其他'
 }
 
 const STATUS: Record<Status, { label: string; cls: string }> = {

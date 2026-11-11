@@ -64,6 +64,7 @@
 | `.tab` 与 `.seg` 选中态视觉接近 | 两者用途不同（页面级切换 / 页内筛选）。不要再造第三套视觉 |
 | 登录页 `.login__card` 的圆角 14 | 单页氛围，更小的卡片更「硬」，与 `--r-card` 的差别在那一屏里是有意的 |
 | `content-in` 的 160ms 淡入 | 克制，只在不换页时淡入一次，符合项目取向。不要加更多动画 |
+| 暂存区（`/api/upload/store/*`） | 已从代码里删除（界面 / API 封装 / mock / 文档）。要单独申请权限，管理员 token 也返回 `422 请先申请权限后使用`，等于对谁都不可用。形状留档在 `docs/api-shapes.md`，说明在 `docs/UPLOAD-PROTOCOL.md` |
 | `uploadTemporary()` | 零引用，但 `docs/UPLOAD-PROTOCOL.md` 与 `docs/WIKI-NOTES.md` 都写了「能力先备着」。JSDoc 已标明「刻意保留，**不要**因为零引用删掉」 |
 | `videoApi.list` 的 `todb_id` / `video_id` / `only_delete` | 接口层的可选参数，镜像 API。UI 层的 `useVideoPage` 已删掉用不到的三个 |
 | 表格列宽的内联 `style={{ width: '12%' }}` | 每张表的列宽是那一张表的事实，抽成类反而要造出一堆单点类 |

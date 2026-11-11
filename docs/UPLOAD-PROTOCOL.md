@@ -117,17 +117,22 @@ Header:   Authorization: Bearer <token>
 
 ---
 
-## 暂存区是第四件事
+## 不做：暂存区
 
-`GET /api/upload/store/disk` 返回暂存区在哪些盘上（`local_emos_1` 这类），
-`GET /api/upload/store/file?path_type=` 列暂存文件，
-`POST /api/upload/store/archive` 把暂存文件归档到某部影片。
+`GET /api/upload/store/disk`、`GET /api/upload/store/file?path_type=`、
+`POST /api/upload/store/archive` 这三个接口提供「浏览/归档已经传到存储、
+但还没绑定到影片的文件」。
 
-它和上面三个都不一样：**文件已经传上去了，只是还没入库**。
+**没有接，并且已经从代码里删掉**（界面、`uploadApi` 封装、mock 一起删）：
 
-**需要单独申请权限**：`store/file` 对没有权限的账号返回
-`422 {"message":"请先申请权限后使用"}`。所以上传页对这种情况整块不显示
-（连「暂存盘」下拉一起），而不是挂一块错误提示。
+```
+GET /api/upload/store/file?path_type=local_emos_1
+→ 422 {"message":"请先申请权限后使用"}
+```
 
-「暂存盘」下拉只决定浏览哪个盘，不是上传参数，放在暂存区那张卡里，
-不要和「上传落点」（`getUploadToken` 的 `file_storage`）混成一个概念。
+这个能力要单独申请权限，连管理员 token 都拿不到，等于对谁都不可用 ——
+留一个永远是错误态或永远空着的卡片没有意义。
+
+如果以后真的拿到权限，按上面的三个接口重新接即可：归档的 `item_type`
+和上传一致（电影 `vl` / 剧集 `ve`），归档成功要给影片资源、媒体列表和
+胡萝卜余额做失效。

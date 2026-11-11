@@ -1922,7 +1922,7 @@ input.input[type='number'] { min-width: 0; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .field-row--wide { grid-template-columns: 120px 1fr; }
 
-/* 工具栏里「一行说明 + 一个控件」的组合（上传落点、暂存盘） */
+/* 工具栏里「一行说明 + 一个控件」的组合（如上传落点） */
 .toolbar-field { display: flex; align-items: center; gap: 8px; }
 .toolbar-field > span { font-size: 12.5px; color: var(--fg-3); }
 .toolbar-field .input { min-width: 150px; }

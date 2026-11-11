@@ -11,10 +11,10 @@ export interface PickTarget {
 }
 
 /**
- * 选一个上传/归档的落点：搜片名 → 电影直接选中，剧集再选季、选集。
+ * 选一个上传的落点：搜片名 → 电影直接选中，剧集再选季、选集。
  *
- * 上传页的「选目标」和暂存区的「归档到影片」是同一件事——原来两处都只
- * 能选到影片级，剧集挂不上。
+ * 不能只给到影片级：剧集的资源与字幕都挂在集上（`ve` + episode_id），
+ * 只选到影片会让文件挂不上去。
  */
 export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void }) {
   const [term, setTerm] = useState('')

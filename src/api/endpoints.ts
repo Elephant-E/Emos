@@ -66,10 +66,6 @@ export const uploadApi = {
     request<{ count: number; media_id: string; carrot: number }>('/api/upload/video/save', { method: 'POST', body: { item_type: itemType, item_id: itemId, file_id: fileId } }),
   saveSubtitle: (itemType: string, itemId: number, fileId: string) =>
     request<{ carrot: number; subtitle_id: string }>('/api/upload/subtitle/save', { method: 'POST', body: { item_type: itemType, item_id: itemId, file_id: fileId } }),
-  disks: () => request<string[]>('/api/upload/store/disk'),
-  storeFiles: (pathType: string) =>
-    request<Array<{ file_name: string; file_size: number; mime_type: string }>>('/api/upload/store/file', { query: { path_type: pathType } }),
-  archive: (payload: Record<string, unknown>) => request<{ media_id: string; carrot: number }>('/api/upload/store/archive', { method: 'POST', body: payload }),
   // multipart：服务端分片上传（R2 S3 预签名）。token 返回 type=multipart 时走这条路
   multipartPresign: (fileId: string, number: number) =>
     request<Array<{ number: number; upload_url: string }>>(`/api/upload/multipart/${fileId}/presign`, {

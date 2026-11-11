@@ -56,15 +56,6 @@ const TITLES: Array<[string, string, VideoItem['video_type']]> = [
   ['昼颜', 'Hirugao', 'tv'],
 ]
 
-const storeFiles: Record<string, Array<{ file_name: string; file_size: number; mime_type: string }>> = {
-  local_emos_1: [
-    { file_name: '夜航西飞.2026.2160p.WEB-DL.H265.mp4', file_size: 8_589_934_592, mime_type: 'video/mp4' },
-    { file_name: '雾港.S02E04.1080p.mp4', file_size: 1_287_278_592, mime_type: 'video/mp4' },
-    { file_name: '山海之间.S01E02.chs.ass', file_size: 48_213, mime_type: 'text/x-ssa' },
-  ],
-  local_emos_2: [],
-}
-
 const videos: VideoItem[] = TITLES.map(([title, origin, type], i) => ({
   item_id: `vl-${i + 1}`,
   todb_id: 1000 + i,
@@ -796,16 +787,6 @@ export async function mockRequest<T>(
     return paginate(name ? rows.filter((r) => r.file_name.includes(name)) : rows, 1, 40) as T
   }
   if (clean === '/api/upload/image/delete') return { is_delete: true } as T
-  if (clean === '/api/upload/store/disk') return ['local_emos_1', 'local_emos_2'] as T
-  if (clean === '/api/upload/store/file') return (storeFiles[String(query.path_type ?? 'local_emos_1')] ?? []) as T
-  if (clean === '/api/upload/store/archive') {
-    // 归档等于把文件从暂存区搬走，列表里要真的少一条
-    const disk = String((body as { path_type?: string }).path_type ?? 'local_emos_1')
-    const name = String((body as { file_name?: string }).file_name ?? '')
-    const list = storeFiles[disk]
-    if (list) storeFiles[disk] = list.filter((f) => f.file_name !== name)
-    return { media_id: 'mock-media-archive', carrot: 2 } as T
-  }
   if (clean === '/api/upload/video/recognize') {
     const name = String(query.file_name ?? '')
     if (name.includes('雾港')) return { item_type: 've', item_id: 1002, title: '雾港 S2E04' } as T
