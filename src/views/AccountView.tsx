@@ -54,6 +54,14 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   }, [session.data?.pseudonym])
 
   const user = session.data
+  /**
+   * 动态密码和固定密码是**二选一**，由服务端的 `must_otp` 决定，前端没有切换接口
+   * （`/api/user/*` 里只有取动态密码和改固定密码两个，没有改 must_otp 的）。
+   *   must_otp = true  → 只能取动态密码；固定密码设为空，account.password 为 null
+   *   must_otp = false → 只能用固定密码（6 位）；passwordTemporary 返回 password: null
+   * 所以界面上同一时刻只出现一个入口。
+   */
+  const otpMode = Boolean(user?.must_otp)
 
   // /api/invite/tree 是全站扁平树（3000+ 节点），不是「我的邀请关系」；
   // 按 invite_user_id 从当前用户往下走，才是自己的下级
@@ -188,8 +196,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                 <div>
                   <dt>登录密码</dt>
                   <dd>
-                    {!user.password ? (
-                      <span className="muted">未设置密码</span>
+                    {otpMode ? (
+                      <span className="muted">动态密码，每次登录前获取</span>
+                    ) : !user.password ? (
+                      <span className="muted">未设置</span>
                     ) : showPassword ? (
                       <button
                         className="btn btn--quiet tnum"
@@ -208,7 +218,11 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   </dd>
                 </div>
               </dl>
-              {user.must_otp ? <p className="card-note" style={{ marginTop: 'var(--stack)' }}>该密码是一次性密码，登录后请改永久密码。</p> : null}
+              {otpMode ? (
+                <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
+                  这个账号开的是动态密码登录，没有固定密码可设。
+                </p>
+              ) : null}
             </article>
           </section>
 
@@ -426,29 +440,34 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   >
                     {actions.exchangeSlot.isPending ? '兑换中…' : '用胡萝卜兑换片单槽位'}
                   </button>
-                  <button
-                    className="btn btn--ghost"
-                    onClick={() =>
-                      actions.temporaryPassword.mutate(undefined, {
-                        onSuccess: (res) => setPassword(res),
-                      })
-                    }
-                  >
-                    获取临时登录密码
-                  </button>
-                  <button className="btn btn--ghost" onClick={() => setResetting(true)}>
-                    重置永久密码
-                  </button>
+                  {/* 动态密码与固定密码是二选一：由 must_otp 决定，接口层没有切换入口 */}
+                  {otpMode ? (
+                    <button
+                      className="btn btn--ghost"
+                      disabled={actions.temporaryPassword.isPending}
+                      onClick={() =>
+                        actions.temporaryPassword.mutate(undefined, {
+                          onSuccess: (res) => setPassword(res),
+                        })
+                      }
+                    >
+                      {actions.temporaryPassword.isPending ? '获取中…' : '获取动态密码'}
+                    </button>
+                  ) : (
+                    <button className="btn btn--ghost" onClick={() => setResetting(true)}>
+                      重置登录密码
+                    </button>
+                  )}
                 </div>
 
                 {password ? (
                   <p className="state__hint note-left">
                     {password.password ? (
                       <>
-                        临时密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
+                        动态密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
                       </>
                     ) : (
-                      <>未启用一次性密码，请用上面的登录密码。</>
+                      <>这个账号用的是固定密码，不需要动态密码。</>
                     )}
                   </p>
                 ) : null}
@@ -618,10 +637,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
       {resetting ? (
         <Modal
-          title="重置永久密码"
-          hint="重置后所有已登录设备需要重新登录。"
+          title="重置登录密码"
+          hint="6 位数字。重置后所有已登录设备需要重新登录。"
           onClose={() => setResetting(false)}
-          onSubmit={() => { if (newPassword.trim() && !actions.resetPassword.isPending) actions.resetPassword.mutate(newPassword.trim()) }}
+          onSubmit={() => {
+            if (/^\d{6}$/.test(newPassword) && !actions.resetPassword.isPending) actions.resetPassword.mutate(newPassword)
+          }}
           footer={
             <>
               <button className="btn btn--ghost" onClick={() => setResetting(false)}>
@@ -629,7 +650,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </button>
               <button
                 className="btn btn--primary"
-                disabled={!newPassword.trim()}
+                disabled={!/^\d{6}$/.test(newPassword) || actions.resetPassword.isPending}
                 onClick={() =>
                   actions.resetPassword.mutate(newPassword, {
                     onSuccess: () => {
@@ -640,14 +661,24 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   })
                 }
               >
-                重置
+                {actions.resetPassword.isPending ? '重置中…' : '重置'}
               </button>
             </>
           }
         >
           <label className="field">
             <span>新密码</span>
-            <input className="input" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} autoFocus />
+            <input
+              className="input tnum"
+              type="password"
+              inputMode="numeric"
+              maxLength={6}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value.replace(/\D/g, ''))}
+              placeholder="6 位数字"
+              autoFocus
+            />
+            <span className="card-note">{newPassword.length}/6</span>
           </label>
         </Modal>
       ) : null}

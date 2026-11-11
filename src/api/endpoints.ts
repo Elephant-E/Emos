@@ -1,6 +1,6 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, MessageResult, MusicSong, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
+  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, MessageResult, MusicSong, RedPacketCreateBody, RedPacketReceiver, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
 } from './types'
 
 const q = (o: Record<string, unknown>) => o
@@ -322,6 +322,12 @@ export const musicApi = {
     request<{ carrot: number }>(`/api/music/song/${songId}/lyric/delete`, { method: 'DELETE', query: { lyric_id: lyricId } }),
   media: (songId: number) => request<Array<Record<string, unknown>>>(`/api/music/song/${songId}/media/list`),
   deleteSong: (songId: number) => request<CarrotDelta>(`/api/music/song/${songId}/delete`, { method: 'DELETE' }),
+}
+
+export const redPacketApi = {
+  create: (body: RedPacketCreateBody) => request<{ red_packet_id: string }>('/api/redPacket/create', { method: 'POST', body }),
+  receive: (params: { red_packet_id: string; page?: number; page_size?: number }) =>
+    request<ListResult<RedPacketReceiver>>('/api/redPacket/receive', { query: params }),
 }
 
 export const fundApi = {

@@ -22,6 +22,7 @@ import { RecycleView } from '@/views/RecycleView'
 import { UserSearchView } from '@/views/UserSearchView'
 import { WhisperView } from '@/views/WhisperView'
 import { FundView } from '@/views/FundView'
+import { RedPacketView } from '@/views/RedPacketView'
 import { USE_MOCK, getToken } from '@/api/client'
 import type { VideoType } from '@/api/types'
 
@@ -328,6 +329,24 @@ function FundRoute() {
   )
 }
 
+const redPacketRoute = createRoute({
+  getParentRoute: () => appLayout,
+  path: '/redpacket',
+  validateSearch: (s: Record<string, unknown>): { tab: 'send' | 'records'; id: string; page: number; page_size: number } => ({
+    tab: s.tab === 'records' ? 'records' : 'send',
+    id: asString(s.id),
+    page: asPage(s.page),
+    page_size: asPageSize(s.page_size),
+  }),
+  component: RedPacketRoute,
+})
+
+function RedPacketRoute() {
+  const search = redPacketRoute.useSearch()
+  const navigate = redPacketRoute.useNavigate()
+  return <RedPacketView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
+}
+
 const whisperRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/whisper',
@@ -453,6 +472,7 @@ const routeTree = rootRoute.addChildren([
     payRoute,
     fundRoute,
     whisperRoute,
+    redPacketRoute,
     userSearchRoute,
     userDetailRoute,
     watchlistsRoute,

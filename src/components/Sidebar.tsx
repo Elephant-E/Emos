@@ -7,6 +7,7 @@ import {
   IconBag,
   IconChevron,
   IconFilm,
+  IconGift,
   IconGrid,
   IconInbox,
   IconLive,
@@ -42,6 +43,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { to: '/live', label: '直播', icon: IconLive },
       { to: '/shop', label: '商城', icon: IconBag },
       { to: '/orders', label: '订单', icon: IconReceipt },
+      { to: '/redpacket', label: '红包', icon: IconGift },
     ],
   },
   {

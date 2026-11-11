@@ -398,3 +398,34 @@ export interface ApiError extends Error {
   status: number
   payload?: unknown
 }
+
+export interface RedPacketReceiver {
+  user_id: string
+  username: string | null
+  avatar: string | null
+  carrot: number
+  receive_at: string
+}
+
+export interface RedPacketCreateBody {
+  /** default 普通 / password 口令 */
+  type: 'default' | 'password'
+  /** average 均分 / random 随机 */
+  receive: 'average' | 'random'
+  /** 总金额 1-60000 胡萝卜 */
+  carrot: number
+  /** 可领人数 1-10000 */
+  number: number
+  /** 寄语 50 字内 */
+  blessing: string
+  /** 口令内容，type=password 时必填，1-50 字符 */
+  text?: string
+  /** 到期时间 60-172800 秒，默认 24 小时 */
+  seconds?: number
+  /** 封面直链（temporary.emos.best 上传或外链） */
+  file_url?: string
+  /** image / audio，给了 file_url 就必填 */
+  file_type?: 'image' | 'audio'
+  /** 独占：bot 只显示封面文件、不显示寄语 */
+  is_exclusive?: boolean
+}

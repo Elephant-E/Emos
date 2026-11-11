@@ -24,6 +24,8 @@ const user: UserInfo = {
   is_can_down: true,
   is_original_image: false,
   roles: ['admin'],
+  // 动态密码 / 固定密码是二选一，由这个字段决定（真机当前账号是 false）。
+  // 想看另一条分支：改成 true，账号页只会出现「获取动态密码」。
   must_otp: false,
   is_viewing: false,
   invite_remaining: 3,
@@ -256,6 +258,17 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/update') return {} as T
   if (clean === '/api/pay/close') return { is_close: true } as T
   if (clean === '/api/whisper/create') return { whisper_id: 9001 } as T
+  if (clean === '/api/redPacket/create') return { red_packet_id: 'BLJg3EDpYAno' } as T
+  if (clean === '/api/redPacket/receive') {
+    const rows = [
+      { user_id: 'eD3NRJWEXs', username: 'tonychan36', avatar: null, carrot: 14, receive_at: '2026-02-17T05:37:47.000000Z' },
+      { user_id: 'eD3NRN1EXs', username: 'zpxol', avatar: null, carrot: 5, receive_at: '2026-02-17T05:37:47.000000Z' },
+      { user_id: 'eV9747M9Zs', username: 'bkjbgg', avatar: null, carrot: 10, receive_at: '2026-02-17T05:37:47.000000Z' },
+      { user_id: 'e5EDP1WEVs', username: 'amepiku', avatar: null, carrot: 3, receive_at: '2026-02-17T05:38:02.000000Z' },
+      { user_id: 'eQP312ER4s', username: null, avatar: null, carrot: 12, receive_at: '2026-02-16T21:01:31.000000Z' },
+    ]
+    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 15)) as T
+  }
   if (clean === '/api/video/record/request') {
     return {
       page: 1, page_size: 10, total: 24,

@@ -157,3 +157,12 @@ export const IconWallet = (p: IconProps) => (
     <path d="M2 7.4h12M10.6 10.6h1.2" />
   </Svg>
 )
+
+/** 红包：方形信封 + 中间一道扎带 */
+export const IconGift = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="2.2" y="3" width="11.6" height="10" rx="1.6" />
+    <path d="M2.2 6.2h11.6M8 6.2V13" />
+    <path d="M8 6.2C5.6 6.2 4.4 4.6 4.8 3.4c.5-1.3 2.4-.7 3.2 2.8ZM8 6.2c2.4 0 3.6-1.6 3.2-2.8-.5-1.3-2.4-.7-3.2 2.8Z" />
+  </Svg>
+)

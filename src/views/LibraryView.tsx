@@ -101,10 +101,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
               action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
             />
-            <div className="table-foot">
-              <span>共 {formatThousand(data.total)} 条</span>
-              <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
-            </div>
+            <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
           </>
         ) : (
           <EmptyBlock

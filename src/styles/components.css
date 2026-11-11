@@ -356,6 +356,8 @@
 .cards + section { margin-top: 24px; }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
+/* 表单页：左边表单、右边附属信息，比三等分实用 */
+.cards--form { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: start; }
 
 .card {
   position: relative;
