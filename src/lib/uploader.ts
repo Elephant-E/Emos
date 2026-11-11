@@ -246,7 +246,10 @@ export async function uploadImage(
 /**
  * 临时上传：不属于「入库」体系，只换一个可以直接用的直链。
  * 服务是独立的 temporary.emos.best，单文件 80MB，FormData 带 file + emos_id。
- * 旧项目里这个只给红包封面用。
+ *
+ * 当前后台没有任何调用者，这是刻意保留的：能力的说明在
+ * docs/UPLOAD-PROTOCOL.md 与 docs/WIKI-NOTES.md，将来做红包封面一类
+ * 「要一张能直接用的图」的功能时需要它。不要因为「零引用」删掉。
  */
 export async function uploadTemporary(file: File): Promise<{ url: string }> {
   const userId = currentUserId()
