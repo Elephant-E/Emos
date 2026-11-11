@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconDots, IconLeft } from '@/components/icons'
+import { IconDots } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations, useVideoPage } from '@/api/queries'
@@ -517,19 +517,6 @@ export function VideoDetailView({
             <input className="input" value={renaming.name} onChange={(e) => setRenaming({ ...renaming, name: e.target.value })} autoFocus />
           </label>
           <div className="pick-tabs">
-            <button
-              className="btn btn--ghost"
-              onClick={() =>
-                actions.playUrl.mutate(renaming.mediaId, {
-                  onSuccess: (res) => {
-                    navigator.clipboard?.writeText(res.url)
-                    toast('播放地址已复制', 'success')
-                  },
-                })
-              }
-            >
-              <IconLeft size={11} /> 复制播放地址
-            </button>
             <button
               className="btn btn--ghost"
               onClick={() =>

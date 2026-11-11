@@ -365,7 +365,6 @@ export function useVideoMutations(videoId: number) {
       onSuccess: invalidate,
     }),
     removeVideo: useMutation({ mutationFn: () => videoApi.remove(videoId), onSuccess: invalidate }),
-    playUrl: useMutation({ mutationFn: (mediaId: string) => mediaApi.playUrl(mediaId) }),
     renameMedia: useMutation({ mutationFn: (p: { mediaId: string; name: string }) => mediaApi.rename(p.mediaId, p.name), onSuccess: invalidate }),
     removeMedia: useMutation({
       mutationFn: (p: { mediaId: string; reason: string }) => mediaApi.remove(p.mediaId, p.reason),

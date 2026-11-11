@@ -124,7 +124,6 @@ export const mediaApi = {
   move: (mediaId: string, itemType: string, itemId: number) =>
     request<CarrotDelta>('/api/video/media/move', { method: 'PUT', query: { media_id: mediaId, item_type: itemType, item_id: itemId } }),
   rename: (mediaId: string, name: string) => request<CarrotDelta>('/api/video/media/rename', { method: 'PUT', query: { media_id: mediaId, name } }),
-  playUrl: (mediaId: string) => request<{ url: string }>('/api/video/media/playUrl', { query: { media_id: mediaId } }),
   // 「此视频已存在 metadata 信息」是个 422，但语义是「已经是目标状态」，
   // 不是失败。翻译成成功，界面不该弹红字。
   syncMetadata: async (mediaId: string) => {
@@ -303,8 +302,6 @@ export const banApi = {
 export const musicApi = {
   deleteMedia: (songId: number, mediaId: string, reason?: string) =>
     request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
-  playUrl: (songId: number, mediaId: string) =>
-    request<{ url: string }>(`/api/music/song/${songId}/media/playUrl`, { query: { media_id: mediaId } }),
   moveMedia: (songId: number, mediaId: string) =>
     request<CarrotDelta>(`/api/music/song/${songId}/media/move`, { method: 'PUT', query: { media_id: mediaId } }),
   persons: (params: { person_id?: number; name?: string; page?: number; page_size?: number }) =>
