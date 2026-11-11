@@ -2,14 +2,8 @@ import type { ReactNode } from 'react'
 import { CardHead } from './CardHead'
 
 /**
- * 大数字卡片：标签 → 数值（可带单位）→ 一行说明。
- *
- * 这个形状在六个页面里出现十几次，每处都是三段样板，而且分成两套写法：
- * 裸 `.card` 的数字是 44px，`.card--stat` 的是 42px —— 同一件事两个值。
- * 收成组件后只保留 44px，间距也统一走 `.card--stat` 那套。
- *
- * action 是卡片头右侧的操作（例如「胡萝卜余额」上的「转赠」），
- * 有它时标签那一行改用 CardHead。
+ * 大数字卡片：标签 → 数值（可带单位）→ 一行说明，数值 44px。
+ * action 是卡片头右侧的操作（如「胡萝卜余额」上的「转赠」），有它时标签行改用 CardHead。
  */
 export function StatCard({
   label,

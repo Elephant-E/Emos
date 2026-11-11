@@ -104,19 +104,19 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       {!error && !isLoading && data && data.items.length === 0 ? (
         // 区分「真没有数据」和「页码越界」：后者总条数是有值的
         data.total > 0 ? (
-          // 空态和分页器同属一张卡，不要一个在卡里、一个裸在页面上
+          // 空态与分页器同属一张卡，两者都在卡内渲染
           <div className="table-card">
             <EmptyBlock
               bare
               title="这一页没有内容"
               hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
-              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回第一页</button>}
+              action={<button className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
             />
             <Pager {...pagerProps} />
           </div>
         ) : (
           <EmptyBlock
-            title={search.q ? `没有找到「${search.q}」` : '片库为空'}
+            title={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
             action={<button className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
           />
         )

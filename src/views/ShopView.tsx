@@ -67,7 +67,7 @@ export function ShopView({
   const seller = useShopSeller()
   const categories = useShopCategories(seller.data?.seller_id)
   const mine = scope === 'mine'
-  // 逛全站时只显示上架的——下架商品对买家不存在
+  // 逛全站时只显示上架商品：下架商品对买家不存在
   // 表格只在「我的店铺」用；全站是卡片网格，走 browse
   const products = useShopProducts({
     page,
@@ -187,8 +187,8 @@ export function ShopView({
             label="待发货"
             value={counts.ordersPending ?? '—'}
             unit="单"
-            /* 取不到（比如非管理员，订单接口 403）时不能写「都发完了」 */
-            note={counts.ordersPending === undefined ? '暂无数据' : counts.ordersPending > 0 ? '需要处理' : '已发完'}
+            /* 取不到（比如非管理员，订单接口 403）与 0 单是两回事 */
+            note={counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
           />
           <StatCard label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
           <StatCard label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
@@ -219,7 +219,7 @@ export function ShopView({
               <button
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
-                // 分类取不到和确实没有分类是两回事：前者重试就好，别引导用户去建重复分类
+                // 分类取不到和确实没有分类是两回事：前者提示重试，后者提示先建分类
                 title={categories.data?.length ? undefined : categories.error ? '分类没取到，请先重试' : '先创建至少一个分类'}
                 onClick={() => setEditing({ stock: 100, price_origin: 100, price: 1, sort: 80, category_id: categories.data?.[0]?.category_id })}
               >
@@ -236,19 +236,19 @@ export function ShopView({
           {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
           {mine && products.data && products.data.items.length === 0 ? (
             <EmptyBlock
-              title={q ? `没有找到「${q}」` : categoryId ? '分类下没有商品' : '没有商品'}
+              title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
             />
           ) : null}
 
-          {/* 全站视图走 browse（滚动加载），它的加载与空态之前完全没接 */}
+          {/* 全站视图走 browse（滚动加载），加载与空态独立处理 */}
           {!mine && browse.error ? (
             <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
           ) : null}
           {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
           {!mine && !browse.isLoading && browseItems.length === 0 ? (
             <EmptyBlock
-              title={q ? `没有找到「${q}」` : '没有在售商品'}
+              title={q ? `没有找到「${q}」` : '还没有在售商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
             />
           ) : null}
@@ -387,11 +387,11 @@ export function ShopView({
 
             {categories.error ? <ErrorBlock bare error={categories.error} onRetry={() => categories.refetch()} /> : null}
             {!categories.error && categories.isLoading ? <LoadingBlock bare rows={3} columns={2} /> : null}
-            {!categories.error && categories.data && categories.data.length === 0 ? <EmptyBlock bare title="没有分类" /> : null}
+            {!categories.error && categories.data && categories.data.length === 0 ? <EmptyBlock bare title="还没有分类" /> : null}
             {categories.data && categories.data.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
                 {categories.data.map((category) => (
-                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
                     <span className="spacer" />
                     {isSeller ? (
@@ -401,7 +401,7 @@ export function ShopView({
                         onCommit={(sort) =>
                           actions.sortCategory.mutate(
                             { categoryId: category.category_id, sort },
-                            { onSuccess: () => toast('排序已保存', 'success') },
+                            { onSuccess: () => toast('已调整排序', 'success') },
                           )
                         }
                       />
@@ -570,7 +570,7 @@ export function ShopView({
       {sellerForm ? (
         <Modal
           title={isSeller ? '编辑店铺' : '申请开店'}
-          hint={isSeller ? '修改后会重新进入审核。' : '提交后扣除 3000 胡萝卜，不退还；审核通过后才能上架商品。'}
+          hint={isSeller ? '修改后会重新进入审核。' : '提交后由管理员审核，通过后才能上架商品。'}
           onClose={() => setSellerForm(null)}
           footer={
             <>

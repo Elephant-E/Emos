@@ -2,12 +2,8 @@ import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
 
 /**
- * 决策框的焦点管理，做法与 components/Modal.tsx 一致：
- * 打开时把焦点交给框内第一个可交互元素，Tab 在框内循环，
- * 关闭时把焦点还给打开之前那个元素（不然焦点会掉回 body）。
- *
- * 框内自己做 autoFocus 时（取消/确定按钮、prompt 的输入框），
- * 这里只补 Tab 循环，不抢它的焦点。
+ * 决策框的焦点管理，做法与 components/Modal.tsx 一致：打开时聚焦框内第一个可交互元素，
+ * Tab 在框内循环，关闭时把焦点还给打开前的元素（否则焦点掉回 body）；框内已有 autoFocus 时不抢焦点。
  */
 function useFocusTrap(boxRef: RefObject<HTMLElement>) {
   useEffect(() => {
@@ -52,10 +48,8 @@ function useFocusTrap(boxRef: RefObject<HTMLElement>) {
 }
 
 /**
- * 决策框外壳：遮罩 + 圆角卡片 + 头部 + 说明 + 底部两个按钮。
- *
- * 确认框（confirmDialog）和输入框（promptDialog）两个宿主长得一样，
- * 只有中间那块不同 —— 一个没有内容，一个是输入框。
+ * 决策框外壳：遮罩 + 卡片 + 头部 + 说明 + 底部两个按钮。
+ * confirmDialog 与 promptDialog 共用，区别只在中间内容。
  */
 export function DecisionShell({
   title,

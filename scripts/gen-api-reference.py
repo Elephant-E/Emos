@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """把 api.postman_collection.json 转成 docs/api-reference.md。
 
-只做转换，不改内容：分组、名称、方法、路径、说明、请求体、示例响应都原样搬过去，
-路径里的 {{url}} 收敛成空（本站 API 都是 /api/... 相对路径）。
+分组、名称、方法、路径、说明、请求体、示例响应原样搬运，不做改写；
+路径中的 {{url}} 收敛为空（本站 API 均为 /api/... 相对路径）。
 """
 import json
 import re

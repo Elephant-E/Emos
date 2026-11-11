@@ -94,12 +94,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="频道没有源" hint="支持 m3u8" /> : null}
+            {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
                 {media.data.items.map((row) => (
-                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
                     <span className="meta-sm">{row.path_type.toUpperCase()}</span>
                     <span className="meta-sm ellipsis" style={{ flex: 1, minWidth: 0 }}>
@@ -118,9 +118,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         disabled={actions.removeMedia.isPending}
                         onClick={async () => {
                           const ok = await confirmDialog({
-                            title: '删除源？',
+                            title: '删除这个源？',
                             message: `「${row.name}」会从频道移除。`,
-                            hint: '若为最后一个源，频道将无内容可播。',
+                            hint: '若这是最后一个源，频道将无内容可播。',
                             confirmText: '删除',
                             danger: true,
                           })
@@ -180,7 +180,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
       {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-      {list.data && list.data.items.length === 0 ? <EmptyBlock title="媒体库没有频道" /> : null}
+      {list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
 
       {list.data && list.data.items.length > 0 ? (
         <>

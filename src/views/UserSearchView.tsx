@@ -23,7 +23,7 @@ export function UserSearchView() {
   const unban = async (userId: string, name: string) => {
     const ok = await confirmDialog({
       title: `解除「${name}」的封禁？`,
-      message: '解除后可正常访问。',
+      message: '解除后该账号可以正常访问。',
       confirmText: '解除',
     })
     if (!ok) return
@@ -49,7 +49,7 @@ export function UserSearchView() {
           }}
         />
         <span className="spacer" />
-        <span className="head-note">仅显示封禁中账号</span>
+        <span className="head-note">仅列出正在封禁中的账号</span>
         <button className="btn btn--primary" disabled={!value.trim()} onClick={submit}>
           查详情
         </button>

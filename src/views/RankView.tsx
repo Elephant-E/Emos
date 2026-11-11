@@ -30,7 +30,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
     queryKey: ['rank', 'playing'],
     queryFn: rankApi.playingVideo,
     enabled: tab === 'playing',
-    // 「最近 3 分钟」的数据，页面上停着不动没意义，但也不必每秒刷
+    // 「最近 3 分钟」的实时数据，60s 拉一次足够，不必每秒刷
     refetchInterval: tab === 'playing' ? 60_000 : false,
   })
   const live = useQuery({
@@ -45,7 +45,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
 
   return (
     <>
-      <PageHeader crumb={['运营', '榜单']} title="榜单" hint="前 30 名" />
+      <PageHeader crumb={['运营', '榜单']} title="榜单" hint="前 30 名，10 分钟缓存" />
 
       <div className="toolbar">
         <Tabs items={TABS} value={tab} onChange={(next) => onSearch({ tab: next })} label="榜单" />
@@ -54,7 +54,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
       {current.error ? <ErrorBlock error={current.error} onRetry={() => current.refetch()} /> : null}
       {current.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
 
-      {!current.error && !current.isLoading && (rows?.length ?? 0) === 0 ? <EmptyBlock title="没有数据" /> : null}
+      {!current.error && !current.isLoading && (rows?.length ?? 0) === 0 ? <EmptyBlock title="还没有数据" /> : null}
 
       {!current.error && (rows?.length ?? 0) > 0 ? (
         <div className="table-card">

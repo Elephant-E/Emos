@@ -1,8 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 
 /**
- * 海报/封面图。图片取不到时退化为首字方块，
- * 而不是把浏览器的裂图图标画在列表里（后端图片域可能整段不可达）。
+ * 海报/封面图。取不到时退化为首字方块：后端图片域可能整段不可达。
  */
 export function Poster({
   src,

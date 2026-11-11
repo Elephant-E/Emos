@@ -37,7 +37,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
             label="胡萝卜余额"
             value={carrot.data ? formatThousand(carrot.data.carrot) : '—'}
             unit="个"
-            note="来源：签到、上传、字幕"
+            note="签到、上传、字幕都会获得"
             action={
               <button
                 className="btn btn--quiet"
@@ -53,7 +53,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
 
       {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
-      {!history.isLoading && !history.error && rows.length === 0 ? <EmptyBlock title="没有胡萝卜记录" /> : null}
+      {!history.isLoading && !history.error && rows.length === 0 ? <EmptyBlock title="还没有胡萝卜记录" /> : null}
       {rows.length > 0 ? (
         <ListCard items={rows} total={rows.length} idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`} scope={page}>
           <table className="table">
@@ -147,7 +147,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const orders = useQuery({
     queryKey: ['fund', 'orders', page, pageSize] as const,
     queryFn: () => fundApi.orders({ page, page_size: pageSize }),
-    // 只在基金订单 tab 里取数，切到支付服务或胡萝卜时不该白拉
+    // 只在基金订单 tab 取数，切到支付服务或胡萝卜时不请求
     enabled: tab === 'orders',
   })
 
@@ -158,8 +158,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
   const [remark, setRemark] = useState('')
   const [images, setImages] = useState('')
 
-  // 下单前先问一次「能不能参加」：后端会用 message 说明原因（如活动只能参加 1 次）。
-  // 检查本身失败（码不对会 404）不拦，交给 create 报错
+  // 下单前先问「能不能参加」：后端用 message 说明原因（如活动只能参加 1 次）。
+  // 检查失败（码不对会 404）不拦，交给 create 报错
   const [checking, setChecking] = useState(false)
   const checkThenCreate = async () => {
     const activityCode = code.trim()
@@ -235,7 +235,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
 
       {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (
-        <EmptyBlock title="没有基金订单" />
+        <EmptyBlock title="还没有基金订单" />
       ) : null}
 
       {tab === 'orders' && rows.length > 0 ? (

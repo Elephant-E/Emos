@@ -47,7 +47,7 @@ interface QueueItem {
   song?: QueueSong
   progress: number
   message?: string
-  /** 目标上已经有多少资源（上传前先让你看见） */
+  /** 目标上已有的资源数，上传前先展示 */
   existing?: number
 }
 
@@ -82,7 +82,7 @@ export function UploadView() {
   const patch = (id: string, changes: Partial<QueueItem>) =>
     setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
 
-  /** 音乐没有「识别」可用（旧项目的 /api/identify 已 404）：按文件名搜一次，
+  /** 音乐没有「识别」可用（/api/identify 已 404）：按文件名搜一次，
    *  唯一命中直接绑上，其余交给用户选 */
   const bindSong = async (item: QueueItem) => {
     const term = musicTermFromName(item.file.name)
@@ -199,8 +199,8 @@ export function UploadView() {
           /* 拿不到就沿用识别结果，不影响上传 */
         }
       } catch {
-        // 识别只是个便利，失败不该挡路：直接转成「手动选目标」
-        patch(item.id, { status: 'need-target', message: '未能识别，手动选择目标' })
+        // 识别只是便利，失败时转成「手动选目标」
+        patch(item.id, { status: 'need-target', message: '没能识别出是哪一部，手动选一下' })
       }
     }
   }
@@ -246,7 +246,7 @@ export function UploadView() {
     }
   }
 
-  /** 一批文件不可能一个个点：按 3 个并发把它们跑完 */
+  /** 批量上传：按 3 个并发把队列跑完 */
   const uploadAll = async () => {
     const pending = queue.filter((item) => item.status === 'ready' && (item.target || item.song))
     const limit = 3
@@ -341,7 +341,7 @@ export function UploadView() {
         onClick={() => inputRef.current?.click()}
       >
         <IconUpload size={20} />
-        <span>拖入视频、字幕或音乐，或选择文件</span>
+        <span>把视频、字幕或音乐拖到这里，或点击选择文件</span>
         <span className="muted text-xs">
           视频 MP4/MKV · 字幕 SRT/ASS · 音乐 MP3/FLAC · 可多选
         </span>

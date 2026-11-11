@@ -1,15 +1,13 @@
 import { useRef, useState } from 'react'
 
 /**
- * 标签输入。
- *
- * 已确认的标签单独一行放在输入框下面，不塞进框里——塞进去时第一个标签紧贴
- * 左边框，看着像被选中了；而且框内的空间被标签占掉，看不出「还能继续输入」。
+ * 标签输入。已确认的标签单独一行放在输入框下面，不塞进输入框：
+ * 塞进去时第一个标签紧贴左边框，且框内空间被占掉后看不出还能继续输入。
  */
 export function TagInput({
   value,
   onChange,
-  placeholder = '回车添加',
+  placeholder = '输入后回车添加',
   allowEmpty = true,
   autoFocus = false,
 }: {

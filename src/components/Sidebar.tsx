@@ -29,16 +29,8 @@ import {
 type NavItem = { to: string; label: string; icon: React.ComponentType<{ size?: number }>; chev?: boolean }
 
 /**
- * 按**业务对象**分组，不按「常用/不常用」。
- *
- * 原来三组，运营里塞了 8 项（上传、直播、商城、订单、红包、榜单、抽奖、投票），
- * 把「发布内容」「卖东西」「搞活动」三类混在一起；系统里又混进了用户、资金、悄悄话。
- * 现在按对象分四组：
- *   内容 = 片库本身（看什么、传什么）
- *   交易 = 钱和货
- *   社区 = 人和活动
- *   系统 = 基础设施与账号
- * 概览不属于任何业务域，单独置顶、不带组标题。
+ * 按业务对象分组：内容 = 片库本身，交易 = 钱和货，社区 = 人和活动，
+ * 系统 = 基础设施与账号。概览不属于任何业务域，单独置顶、不带组标题。
  */
 const PINNED: NavItem[] = [{ to: '/', label: '概览', icon: IconGrid }]
 
@@ -102,7 +94,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
   const footRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
-  // ⌘K / Ctrl+K 聚焦搜索框——键帽画在那儿就得能用
+  // ⌘K / Ctrl+K 聚焦搜索框，与输入框右侧的键帽提示一致
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -132,7 +124,7 @@ export function Sidebar({ user }: { user?: UserInfo }) {
     }
   }, [menuOpen])
 
-  // 菜单 18 项，矮屏下会滚动；切页时把当前项滚进视野，别让人找不到自己在哪
+  // 菜单 18 项，矮屏下会滚动；切页时把当前项滚进视野
   useEffect(() => {
     const active = scrollRef.current?.querySelector('.rail__item.is-active')
     active?.scrollIntoView({ block: 'nearest' })

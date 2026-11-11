@@ -28,9 +28,7 @@ const EMPTY: WatchlistFormValues = {
 }
 
 /**
- * 新建与编辑共用同一个表单。
- * 后端的 POST /api/watch 本来就是「有 id 即更新，无 id 即新建」，
- * 前端不该拆成两套。
+ * 新建与编辑共用同一个表单：POST /api/watch 有 id 即更新、无 id 即新建。
  */
 export function WatchlistForm({
   initial,
@@ -120,7 +118,7 @@ export function WatchlistForm({
         <TagInput value={form.tags} onChange={(tags) => setForm({ ...form, tags })} />
       </label>
       <label className="field">
-        <span>订阅胡萝卜（0 免费，上限 50000）</span>
+        <span>订阅所需胡萝卜（0 为免费，最高 50000）</span>
         <input
           className="input tnum"
           type="number"
@@ -145,7 +143,7 @@ export function WatchlistForm({
             checked={form.is_show_empty}
             onChange={(e) => setForm({ ...form, is_show_empty: e.target.checked })}
           />
-          空片单仍展示
+          内容为空时仍展示
         </label>
       </div>
     </Modal>

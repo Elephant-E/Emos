@@ -43,7 +43,7 @@ export function buildUrl(path: string, query?: Record<string, unknown>): string 
     if (Array.isArray(value)) {
       for (const v of value) qs.append(`${key}[]`, String(v))
     } else if (typeof value === 'boolean') {
-      // 后端把布尔参数按 1/0 解析，传 true/false 会返回 422
+      // 布尔参数必须是 1/0：后端按 1/0 解析，传 true/false 会返回 422
       qs.append(key, value ? '1' : '0')
     } else if (value === 'true' || value === 'false') {
       // 调用点写成字符串的布尔同样要转，否则筛选被静默忽略
@@ -117,8 +117,7 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
     }
   }
   if (!res.ok) {
-    // 网关误报：上游已经返回 200（动作已完成），只是 body 为空，网关把它判成失败
-    // 并包成 502。这种情况按成功处理 —— 写操作确实生效了，让业务层当成功走。
+    // 网关误报：上游已返回 200（动作完成）但 body 为空，网关判成失败并包成 502；此时写操作已生效。
     const upstreamFailed =
       payload && typeof payload === 'object' && 'message' in payload
         ? String((payload as Record<string, unknown>).message ?? '')

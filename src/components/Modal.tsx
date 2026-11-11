@@ -39,12 +39,8 @@ export function Modal({
   }, [])
 
   /**
-   * 焦点只在挂载/卸载时处理。
-   *
-   * 这里不能用 [onClose, onSubmit] 做依赖：调用点几乎都传内联箭头函数，
-   * 每次渲染都是新引用，effect 会在弹窗内每敲一个字就重跑一遍 ——
-   * 清理函数把焦点还给「上一次 effect 开始时」的元素（通常是 autoFocus 的
-   * 第一个输入框），于是第二个字段只能输进一个字符，后续按键全落到名称上。
+   * 焦点只在挂载/卸载时处理。依赖不能写 [onClose, onSubmit]：调用点传的是内联箭头函数，
+   * 每次渲染都是新引用，effect 会在每次按键后重跑，清理函数把焦点还给上一个元素。
    */
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
@@ -56,7 +52,7 @@ export function Modal({
     return () => previous?.focus?.()
   }, [])
 
-  // 键盘处理单独一个 effect；回调放进 ref，依赖为空，避免上面那类重跑
+  // 键盘处理单独一个 effect；回调放进 ref、依赖为空，避免随渲染重挂监听
   const handlers = useRef({ onClose, onSubmit })
   handlers.current = { onClose, onSubmit }
 
@@ -64,7 +60,7 @@ export function Modal({
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
       const { onClose: close, onSubmit: submit } = handlers.current
-      // 输入类控件里的回车属于输入本身，不该触发整表单提交
+      // 输入类控件里的回车属于输入本身，不触发整表单提交
       if (event.key === 'Enter' && submit && !target?.closest('textarea, .tag-field')) {
         event.preventDefault()
         submit()

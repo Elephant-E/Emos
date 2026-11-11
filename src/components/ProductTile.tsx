@@ -5,8 +5,8 @@ import { Poster } from '@/components/Poster'
 import { formatThousand } from '@/lib/format'
 
 /**
- * 商品卡片。商城的「全部商品」与店铺页共用。
- * 卖点是图，所以是卡片不是表格行；右下角只有一个购买动作。
+ * 商品卡片，商城的「全部商品」与店铺页共用。
+ * 以图为主，所以用卡片而不是表格行；右下角只有一个购买动作。
  */
 export function ProductTile({
   product,

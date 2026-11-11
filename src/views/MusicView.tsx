@@ -36,8 +36,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
 
-  // 只查当前 tab，切过去时才请求 —— 三份一起请求的话切 tab 会直接命中缓存，
-  // 既看不到加载态，也白拉了两份数据
+  // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
   const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', 20, search.filter)
   const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums')
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons')
@@ -45,7 +44,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
-  // 「无资源 / 已收藏」只作用于歌曲 tab，筛出 0 条时不能说成「音乐库为空」
+  // 「无资源 / 已收藏」只作用于歌曲 tab：筛出 0 条不等于「音乐库为空」
   const filter = search.tab === 'songs' ? search.filter : ''
   const filtered = Boolean(search.q) || Boolean(filter)
 
@@ -83,7 +82,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
               无资源
             </button>
             <button aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite', page: 1 })}>
-              已收藏
+              我收藏的
             </button>
           </div>
         ) : null}
@@ -93,15 +92,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
       {active.data && active.data.items.length === 0 ? (
         <EmptyBlock
-          title={
-            search.q
-              ? `没有找到「${search.q}」`
-              : filter === 'no_media'
-                ? '没有无资源歌曲'
-                : filter === 'favorite'
-                  ? '没有收藏歌曲'
-                  : '音乐库为空'
-          }
+          title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'}
           action={
             filtered ? (
               <button className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
@@ -190,7 +181,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                           actions.sync.mutate(
                             // mp 歌手 / ms 歌曲 / ma 专辑，按当前 tab 决定
                             { type: search.tab === 'albums' ? 'ma' : search.tab === 'persons' ? 'mp' : 'ms', value: String(id) },
-                            { onSuccess: () => toast('同步已提交', 'success') },
+                            { onSuccess: () => toast('已触发同步', 'success') },
                           )
                         }}
                       >

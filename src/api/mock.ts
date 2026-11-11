@@ -24,8 +24,7 @@ const user: UserInfo = {
   is_can_down: true,
   is_original_image: false,
   roles: ['admin'],
-  // 动态密码 / 固定密码是二选一，由这个字段决定（真机当前账号是 false）。
-  // 想看另一条分支：改成 true，账号页只会出现「获取动态密码」。
+  // must_otp 决定用动态密码还是固定密码（二选一）
   must_otp: false,
   is_viewing: false,
   invite_remaining: 3,
@@ -360,7 +359,7 @@ export async function mockRequest<T>(
   }
 
   if (clean === '/api/watch') {
-    // 真机后端不会把别人的私密片单返回给当前账号
+    // 上游不会把别人的私密片单返回给当前账号
     let rows = watches.filter((w) => w.is_public || w.is_self)
     if (query.watch_id) rows = rows.filter((w) => w.id === Number(query.watch_id))
     if (query.type) rows = rows.filter((w) => w.type === query.type)
@@ -373,7 +372,7 @@ export async function mockRequest<T>(
   if (clean === '/api/video/search') {
     const title = String(query.title ?? '').trim()
     const rows = videos.filter((v) => !v.is_delete && (!title || v.video_title.includes(title)))
-    // 真机只回 5 个键
+    // 上游只回 5 个键
     return {
       page: 1,
       page_size: Number(query.page_size ?? 8),
@@ -391,7 +390,7 @@ export async function mockRequest<T>(
   const seasonMatch = clean.match(/^\/api\/video\/(\d+)\/season$/)
   if (seasonMatch) {
     const video = videos.find((v) => v.video_id === Number(seasonMatch[1]))
-    // 电影没有季集（真机：/season 与 /episode 都返回空数组）
+    // 电影没有季集（上游：/season 与 /episode 都返回空数组）
     if (video?.video_type === 'movie') return [] as T
     return Array.from({ length: 2 }, (_, i) => ({
       item_id: `vs-${i + 1}`,
@@ -409,7 +408,6 @@ export async function mockRequest<T>(
   const episodeMatch = clean.match(/^\/api\/video\/(\d+)\/episode$/)
   if (episodeMatch) {
     const video = videos.find((v) => v.video_id === Number(episodeMatch[1]))
-    // 电影没有集
     if (video?.video_type === 'movie') return [] as T
     const seasonNumber = Number(query.season_number ?? 1)
     const count = 18
@@ -482,13 +480,12 @@ export async function mockRequest<T>(
   if (clean === '/api/pay/getUserCarrot') return { carrot: 120 } as T
   if (clean === '/api/pay/apply') return { status: 'review' } as T
   if (clean === '/api/fund/order/check') {
-    // 用 LIMITED 这个码可以在界面上走到「不能参加」的分支
+    // 活动码 LIMITED 返回「不能参加」的 message，其他码返回空对象
     const activityCode = String(body.fund_activity_code ?? '')
     return (activityCode === 'LIMITED' ? { message: '活动仅可以参与 1 次' } : {}) as T
   }
   if (clean === '/api/fund/order/create') return { no: '20261110180000fundMOCK' } as T
   if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
-  // ── 补上此前缺失的接口，让 mock 下这些页面能真正验证 ──
   if (clean === '/api/video/record/list') {
     return paginate([
       { video_id: 1, video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_username: 'sorakand' },
@@ -539,11 +536,10 @@ export async function mockRequest<T>(
 
   if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
-    // ve 传的是 episode_id，查不到就返回空 title，让调用方沿用识别结果，
-    // 而不是把它覆盖成一句「未知影片」
+    // ve 传的是 episode_id；查不到时返回空 title，调用方沿用识别结果
     const id = Number(query.item_id ?? 0)
     if (String(query.item_type ?? '') === 've') {
-      // 集上也可能已经有资源，查重要能测到
+      // 集上也可能已有资源：返回一条 media，用于查重分支
       return {
         title: '',
         video_medias: [
@@ -552,7 +548,7 @@ export async function mockRequest<T>(
       } as T
     }
     const video = videos.find((v) => v.video_id === id)
-    // 带上已有资源：查重（同大小）和「已有 N 个资源」都靠它
+    // 带上已有资源：查重（同大小）与「已有 N 个资源」都靠它
     return {
       title: video ? video.video_title : '',
       video_medias: video
@@ -717,7 +713,7 @@ export async function mockRequest<T>(
       { product_id: 1001, category_id: 1001, cover_url: poster('shop2'), name: '一年会员兑换码', price: 198, price_origin: 268, stock: 500, sales: 61, is_up: true, up_time: '2026-10-18 09:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-10-28T09:00:00Z' },
       { product_id: 1002, category_id: 1000, cover_url: poster('shop3'), name: '亚克力立牌', price: 39, price_origin: 59, stock: 0, sales: 240, is_up: false, up_time: null, time_start: null, time_end: null, user_buy_max: 3, sort: 60, updated_at: '2026-09-30T09:00:00Z' },
     ]
-    // 不传 seller_id 就是全站商品；mock 里再补两条别家的，好看出区别
+    // 不传 seller_id 就是全站商品，另补两条别家的商品
     const otherRows = query.seller_id
       ? []
       : [
@@ -836,7 +832,7 @@ export async function mockRequest<T>(
     return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
   }
   if (clean === '/api/ban/list') {
-    // ?nonadmin 用于在 mock 下预览普通用户视角（这两个接口对普通用户 403）
+    // ?nonadmin 同样返回 403，用于预览普通用户视角
     if (new URLSearchParams(location.search).has('nonadmin')) throw Object.assign(new Error('无权限'), { status: 403 })
     return [
       { user_id: 'e0E4MKO96s', username: 'dajun7095', avatar: null, invite_user_id: 'eK98JXQ9Ms', invite_pseudonym: '咸鱼翻身计划', invite_at: '2026-01-22 17:39:27', telegram_user_id: '6181680957', disable_reason: '请求数异常', created_at: '2026-01-21T15:27:08.000000Z' },
@@ -899,8 +895,7 @@ export async function mockRequest<T>(
   if (clean === '/api/upload/video/recognize') {
     const name = String(query.file_name ?? '')
     if (name.includes('雾港')) {
-      // 和真机一样带上 video_id 与季集：剧集的 item_id 是 episode_id，
-      // 入库后的「查看」要靠 video_id 才能跳对
+      // 与上游一致：剧集的 item_id 是 episode_id，带上 video_id 才能跳到正确页面
       return {
         file_type: 'video',
         video_id: 2,

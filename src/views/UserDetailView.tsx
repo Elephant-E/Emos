@@ -40,7 +40,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                   const ok = await confirmDialog({
                     title: `解除 ${name || userId} 的封禁？`,
                     message: banned.disable_reason ? `原因：${banned.disable_reason}` : undefined,
-                    hint: '解除后立即恢复访问。',
+                    hint: '解除后对方可以立即恢复访问。',
                     confirmText: '解除',
                   })
                   if (!ok) return
@@ -55,8 +55,8 @@ export function UserDetailView({ userId }: { userId: string }) {
                 onClick={async () => {
                   const ok = await confirmDialog({
                     title: `封禁 ${name || userId}？`,
-                    message: '该用户将无法访问服务。',
-                    hint: '可在封禁列表解除。',
+                    message: '该用户将无法继续访问服务。',
+                    hint: '可在封禁列表里随时解除。',
                     confirmText: '封禁',
                     danger: true,
                   })
@@ -78,18 +78,18 @@ export function UserDetailView({ userId }: { userId: string }) {
 
       {limited ? (
         <p className="card-note" style={{ marginTop: 4 }}>
-          无服务商权限，余额、观影权限与注册时间不可见。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请服务商</Link>后可看全。
+          当前账号没有服务商权限，看不到余额、观影权限与注册时间。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请成为服务商</Link>后可看全。
         </p>
       ) : null}
 
-      {/* 无服务商权限时 pay 取不到，多数指标显示「—」；但封禁状态、邀请关系来自其它接口，
-          照常渲染，把权限缺口留在上面的提示里，不整段隐藏 */}
+      {/* 无服务商权限时 pay 取不到，多数指标显示「—」；封禁状态、邀请关系来自其它接口，
+          照常渲染，权限缺口只留在上面的提示里 */}
       <section className="cards cards--4">
         <StatCard
           label="账号状态"
           word
           tone={banned ? 'danger' : undefined}
-          value={bans.isLoading ? '检查中' : bans.error ? '—' : banned ? '已封禁' : '未封禁'}
+          value={bans.isLoading ? '检查中' : bans.error ? '—' : banned ? '已封禁' : '未在封禁记录'}
           note={
             bans.error ? (
               <>
@@ -101,9 +101,9 @@ export function UserDetailView({ userId }: { userId: string }) {
             ) : banned ? (
               `该账号注册于 ${formatRelative(banned.created_at)}`
             ) : bans.isLoading ? (
-              '核对中'
+              '正在核对封禁列表'
             ) : (
-              '未在封禁列表'
+              '未出现在封禁列表中'
             )
           }
         />
@@ -204,7 +204,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             loading={records.isLoading}
             error={records.error}
             onRetry={() => records.refetch()}
-            empty="近一周无播放记录"
+            empty="近一周没有播放记录"
             count={(records.data?.items ?? []).length}
             loadingRows={3}
             loadingCols={4}

@@ -15,14 +15,14 @@ import { formatSize, formatThousand, realmOf } from '@/lib/format'
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
 
 const LINES_IDLE = [
-  '今天还没有观看记录',
-  '片单里有待看内容',
-  '今天还没有开始观看',
-  '观看记录为空',
-  '今日无观看',
-  '尚未开始观看',
-  '今天还没有看片',
-  '暂无观看记录',
+  '今天还没看片，要不要挑一部～',
+  '今天还没动，片单里有一部等你～',
+  '还没开演，挑一部慢慢看～',
+  '今天还没看片，来点轻松的还是烧脑的～',
+  '屏幕还黑着，随手挑一部吧～',
+  '不如现在开一部，正好赶上～',
+  '今天还没看片，先把想看的那部补上～',
+  '还没开始看，随便点一部都是新的～',
 ]
 
 function pickByDay<T>(pool: readonly T[], date: Date, salt = 0): T {
@@ -43,15 +43,14 @@ export function OverviewView() {
     { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
     { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
   ]
-  // 加载中先照常占位，否则首屏看起来像「今天没有待办」
+  // 加载中也占位：空态要区分「还没有数据」与「取不到」
   const todoItems = todos.isLoading ? todoAll : todoAll.filter((item) => (item.value ?? 0) > 0)
-  // useTodos 把每个接口的失败吞成 null，管理员这边三个都是 null 就是「一个待办都没读出来」。
-  // 失败和 0 是两回事，这种情况要给错误态；非管理员本来就没这三个权限（403 → null），不算故障
+  // useTodos 把每个接口的失败吞成 null：管理员三个都是 null 说明全没读出来，要给错误态；
+  // 失败与 0 是两回事。非管理员本就没有这三个权限（403 → null），不算故障
   const todosFailed =
     Boolean(todos.error) ||
     Boolean(caps.isAdmin && todos.data && [todos.data.seeks, todos.data.orders, todos.data.bans].every((value) => value == null))
-  // 没有待办时（非管理员或已清空），用「我的片单」填补首屏，否则整页只剩指标卡；
-  // 取不到时也不换，免得把失败掩成「没有待办」
+  // 没有待办时（非管理员或已清空）用「我的片单」补位；取不到时不换，失败与空态分开
   const showWatchlists = !todos.isLoading && !todosFailed && todoItems.length === 0
   const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
@@ -106,7 +105,7 @@ export function OverviewView() {
   const unfinished = watching.data?.length ?? 0
   const todayText =
     unfinished > 0
-      ? `还有 ${unfinished} 部未看完${pickByDay(['', '，接着看', '，待继续'], now)}`
+      ? `还有 ${unfinished} 部没看完${pickByDay(['～', '，接着看吧～', '，从上次停下的地方继续～'], now)}`
       : pickByDay(LINES_IDLE, now)
 
   return (
@@ -148,7 +147,7 @@ export function OverviewView() {
         </section>
       ) : null}
 
-      {/* 待办取不到时占住待办位，别让失败看起来像「今天没有待办」 */}
+      {/* 待办取不到时走错误态，不进空态 */}
       {todosFailed ? (
         <ErrorBlock bare error={todos.error ?? new Error('待办没取到')} onRetry={() => todos.refetch()} />
       ) : null}
@@ -166,7 +165,7 @@ export function OverviewView() {
               disabled={signedToday || sign.isPending}
               onClick={() => setSigning(true)}
             >
-              {signedToday ? '今天已签' : '签到'}
+              {signedToday ? '今天已签' : '立即签到'}
             </button>
           </p>
           <p className="stat__value">
@@ -176,7 +175,7 @@ export function OverviewView() {
                 <small>天连续</small>
               </>
             ) : (
-              // 未签到是有数据的状态，不该用表示「没取到」的破折号
+              // 未签到是有数据的状态，与表示「没取到」的破折号区分
               <span className="stat__word">今天未签</span>
             )}
           </p>
@@ -218,7 +217,7 @@ export function OverviewView() {
             <small>累计</small>
           </p>
           <p className="stat__delta stat__delta--quiet">
-            {!ready ? '—' : caps.canUpload ? '上传权限已开通' : '上传权限未开通'}
+            {!ready ? '读取中' : caps.canUpload ? '进入上传' : '上传权限未开通'}
           </p>
         </Link>
       </section>
@@ -239,7 +238,7 @@ export function OverviewView() {
           ) : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
-            <p className="card-note">没有未看完的内容</p>
+            <p className="card-note">还没有未看完的内容</p>
           ) : null}
 
           <ul className="stack">
@@ -301,7 +300,7 @@ export function OverviewView() {
           {stats.data && stats.data.activeDays === 0 ? (
             <p className="card-note">
               {(watching.data?.length ?? 0) > 0
-                ? '统计只覆盖到昨天，今日观看未计入'
+                ? '统计只覆盖到昨天，今天的观看还没计入。'
                 : '本周还没有观看记录'}
             </p>
           ) : null}
@@ -417,7 +416,7 @@ export function OverviewView() {
               value={signNote}
               maxLength={10}
               autoFocus
-              placeholder="最多 10 字"
+              placeholder="对自己说点什么…（最多 10 字）"
               onChange={(event) => setSignNote(event.target.value)}
             />
           </div>

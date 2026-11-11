@@ -35,9 +35,9 @@ const TABS: Array<{ key: WatchSearch['scope']; label: string }> = [
 /** 空态标题：搜索没命中优先，其次按范围 */
 function emptyTitle(q: string, scope: WatchSearch['scope']): string {
   if (q) return `没有找到「${q}」`
-  if (scope === 'self') return '没有我创建的片单'
-  if (scope === 'subscribed') return '没有订阅的片单'
-  return '没有片单'
+  if (scope === 'self') return '还没有自己建的片单'
+  if (scope === 'subscribed') return '还没有订阅任何片单'
+  return '还没有片单'
 }
 
 export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSearch: (patch: Partial<WatchSearch>) => void }) {
@@ -211,7 +211,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                           const ok = await confirmDialog({
                             title: `删除片单「${watch.name}」？`,
                             message: `${watch.video_count} 部影片会一起从片单移除，影片本身不受影响。`,
-                            hint: '删除后无法恢复，槽位会释放。',
+                            hint: '片单删除后无法恢复，槽位会释放。',
                             confirmText: '删除',
                             danger: true,
                           })

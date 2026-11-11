@@ -7,9 +7,6 @@ export function formatPrice(value: number | null | undefined): string {
 
 /**
  * 商品价格：现价 +（有折扣时）划掉的原价。
- *
- * 这个判断原来在商品卡片、详情弹窗里各写一遍：
- * `(price ?? 0) > 0 && (price_origin ?? 0) > (price ?? 0)`。
  */
 export function Price({
   price,

@@ -4,7 +4,7 @@ import type { ShopProduct } from '@/api/types'
 
 /**
  * 商品网格 + 触底加载。
- * 卡片视图没有「第几页」的概念，翻页会让人回到顶端重新找位置。
+ * 卡片视图没有「第几页」的概念，所以用触底加载代替翻页。
  */
 export function ProductGrid({
   products,
@@ -18,7 +18,7 @@ export function ProductGrid({
   products: ShopProduct[]
   hasMore: boolean
   loadingMore: boolean
-  /** 触底加载失败：真机后端偶发 504，不能让用户以为「没有更多了」 */
+  /** 触底加载失败：真机后端偶发 504，失败态要与「没有更多」区分开 */
   loadError?: boolean
   onLoadMore: () => void
   onOpen: (product: ShopProduct) => void
@@ -58,12 +58,12 @@ export function ProductGrid({
       {!loadingMore && loadError ? (
         <p style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>
           <button className="btn btn--quiet" onClick={onLoadMore}>
-            重试
+            没加载出来，重试
           </button>
         </p>
       ) : null}
       {!hasMore && products.length > 0 ? (
-        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>没有更多了</p>
+        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>到底了</p>
       ) : null}
     </>
   )

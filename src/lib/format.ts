@@ -4,7 +4,7 @@ export function formatThousand(n: number | null | undefined): string {
 }
 
 export function formatSize(bytes: number | null | undefined): string {
-  // 0 是合法的「没有体积」，只有缺失才显示 —；否则用户无法区分「空」与「取不到」
+  // 0 是合法的「没有体积」，只有缺失才显示 —，两者要能区分开
   if (bytes === null || bytes === undefined || Number.isNaN(bytes)) return '—'
   if (bytes <= 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -18,7 +18,7 @@ export function formatSize(bytes: number | null | undefined): string {
 }
 
 export function formatDateTime(iso: string | null | undefined): string {
-  // 调用点常写成 String(x)，null 会变成字面量 "null"，必须挡掉
+  // 调用点会写成 String(x)，null 变成字面量 "null"，需一并挡掉
   if (!iso || iso === 'null' || iso === 'undefined') return '—'
   const d = new Date(iso.replace(' ', 'T'))
   if (Number.isNaN(d.getTime())) return iso
@@ -35,7 +35,7 @@ export function formatRelative(iso: string | null | undefined): string {
   const then = new Date(iso.replace(' ', 'T')).getTime()
   if (Number.isNaN(then)) return iso
   const raw = Date.now() - then
-  // 未来时间不能显示成「刚刚」，那会掩盖过期/预告类字段
+  // 未来时间显示成「刚刚」会掩盖过期/预告类字段，改走绝对时间
   if (raw < 0) return formatDateTime(iso)
   const diff = raw
   const min = Math.floor(diff / 60000)
@@ -59,7 +59,7 @@ export const SEEK_STATUS: Record<string, { label: string; cls: string }> = {
   forget: { label: '已遗忘', cls: 'badge--off' },
 }
 
-// 依据 wiki「萝卜 → 境界」对照表
+// 萝卜 → 境界对照表，见 docs/WIKI-NOTES.md
 const REALMS: Array<[number, string]> = [
   [100000000, '真仙'],
   [10000000, '大乘'],
@@ -101,7 +101,7 @@ const VIDEO_EXT = ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts', 'wmv', 'flv', 'webm
 const AUDIO_EXT = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'ape', 'alac', 'dsd', 'dff', 'dsf']
 const SUBTITLE_EXT = ['srt', 'ass', 'ssa', 'vtt', 'sub']
 
-/** 上传页能收的三类文件，其余一律不收 */
+/** 上传支持的三类文件，其余一律拒绝 */
 export type UploadKind = 'video' | 'subtitle' | 'music'
 
 export function detectUploadKind(file: { name: string; type: string }): UploadKind | null {

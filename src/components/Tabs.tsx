@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react'
 
 /**
- * 页内 tabs。
- *
- * 这个结构原来在十三个页面里各写一遍：七种用数组 map、六种手写按钮，
- * 其中一处（商城的分类）漏了 role="tablist"，一处（悄悄话）漏了 aria-label。
+ * 页内切换。容器 role=tablist 并带 aria-label，按钮 role=tab 且带 aria-selected。
  * 动态来源的 tab（媒体库、店铺分类）由调用方先 map 成 items 再传进来。
  */
 export function Tabs<K extends string | number>({

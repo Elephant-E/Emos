@@ -2,11 +2,11 @@
 """对照 api.postman_collection.json 与 src/api/endpoints.ts，得出覆盖情况。
 
 三类结论：
-  已接+有调用   wrapper 存在，且 src/ 里有非 endpoints.ts 的地方调它
-  已接+无调用   wrapper 存在，但没有任何界面/查询调它（要么是遗留，要么是刻意备着）
+  已接+有调用   wrapper 存在，且 src/ 中有 endpoints.ts 之外的调用方
+  已接+无调用   wrapper 存在，但没有界面或查询调用它
   未接          文档里有、代码里没有封装
 
-反向也查一遍：代码里调了、文档里没有的接口（可能是新接口还没进 postman）。
+反向检查：代码里调用、文档里没有的接口（可能是新接口还没进 postman）。
 """
 import json
 import re
@@ -19,10 +19,9 @@ SRC = ROOT / "src"
 
 
 
-# 对「未接」和「已接无调用」的判断。key 用归一化后的「方法 路径」。
-# skip = 刻意不接；gap = 该补的缺口；tool = 后台工具类，界面上没有场景
+# 对「未接」与「已接无调用」的判定。key 为归一化后的「方法 路径」。
+# skip = 不接；gap = 待补缺口；tool = 后台工具类，界面无场景
 VERDICTS = {
-    # —— 刻意不接 ——
     ("GET", "/link"): ("skip", "浏览器跳转用的授权链接，不是 API 调用；LoginView 里拼字符串"),
     ("PUT", "https://emos.local/xxxx"): ("skip", "客户端分片上传的 PUT 目标（multipart/onedrive 直传），走 uploader 的 uploadObject，不是普通接口"),
     ("GET", "/api/upload/store/disk"): ("skip", "暂存区需单独申请权限，管理员 token 也 422，已整体删除"),
@@ -31,15 +30,6 @@ VERDICTS = {
     ("POST", "/api/upload/music/saveHeadless"): ("skip", "「保存为群星版本」，契约里写明不建议；正常路径是先去 todb 补歌"),
     ("POST", "/api/redPacket/createTelegramHtml"): ("skip", "发到 Telegram 频道，bot 侧入口，后台没有场景"),
     ("GET", "/api/user/base"): ("skip", "字段是 /api/user 的子集，已有 /api/user"), 
-    ("GET", "/api/reel/rand"): ("skip", "影院 = 客户端播放器的随机放映：rand 随机挑一部片开一次放映"),
-    ("GET", "/api/reel/info/{var}"): ("skip", "查这次放映看到了哪一集、哪个源、第几秒（客户端状态）"),
-    ("POST", "/api/reel/create"): ("skip", "为某部影片开一次放映，用户侧动作"),
-    ("GET", "/api/reel/media"): ("skip", "放映时挑版本用（带每个 source 的编码流信息）"),
-    ("POST", "/api/reel/manifest"): ("skip", "按播放器支持的 codecs 取播放清单"),
-    ("POST", "/api/reel/progress"): ("skip", "上报播放进度，客户端每分钟发一次"),
-
-    ("POST", "/api/watch/{var}/video/update"): ("skip", "批量重置片单内容的对外接口；契约自己写着「请先联系官方确认」，且每次提交会清空整个片单，不适合放进日常界面"),
-    ("GET", "/api/pay/getUserSign"): ("skip", "真机 403「请先成为服务商」；用户详情里已有「最近签到」（来自邀请数据）"),
     ("GET", "/api/video/media/playUrl"): ("skip", "播放地址按需求不展示"),
     ("GET", "/api/music/song/{var}/media/playUrl"): ("skip", "播放地址按需求不展示"),
     ("GET", "/api/pay/getUserCarrot"): ("skip", "支付服务里查对方余额；本站转赠走 /api/carrot/transfer"),
@@ -55,18 +45,14 @@ VERDICTS = {
     ("PUT", "/api/music/song/{var}/updateVideoId"): ("tool", "手工关联歌曲与影片，数据修补"),
     ("PUT", "/api/music/album/{var}/updateVideoId"): ("tool", "同上（专辑）"),
     ("POST", "/api/upload/video/saveInternal"): ("tool", "内部入库，服务端任务用"),
-
-    # —— 缺口：旧项目有、这里没有 ——
-    ("POST", "/api/watch/{var}/video/update"): ("gap", "批量设置片单内视频；现在只能一条条加/删"),
-    ("GET", "/api/pay/getUserSign"): ("gap", "查用户签到信息（支付服务）"),
-
-    # —— 新接口，后台还没评估过 ——
-    ("GET", "/api/reel/rand"): ("todo", "影院域 6 个接口，旧项目也没有，用途未确认"),
-    ("GET", "/api/reel/info/{var}"): ("todo", "同上"),
-    ("POST", "/api/reel/create"): ("todo", "同上"),
-    ("GET", "/api/reel/media"): ("todo", "同上"),
-    ("POST", "/api/reel/manifest"): ("todo", "同上"),
-    ("POST", "/api/reel/progress"): ("todo", "同上"),
+    ("POST", "/api/watch/{var}/video/update"): ("skip", "批量重置片单内容的对外接口：契约写明「请先联系官方确认」，且每次提交会清空整个片单"),
+    ("GET", "/api/pay/getUserSign"): ("skip", "真机 403「请先成为服务商」；用户详情里已有最近签到"),
+    ("GET", "/api/reel/rand"): ("skip", "随机会话：为一部影片开一次放映，返回 forge_reel_uuid"),
+    ("GET", "/api/reel/info/{var}"): ("skip", "查这次放映的进度：哪一季哪一集、哪个源、第几秒、是否播完"),
+    ("POST", "/api/reel/create"): ("skip", "为指定影片开一次放映，用户侧动作"),
+    ("GET", "/api/reel/media"): ("skip", "放映时挑版本，versions 带每个源的编码流信息"),
+    ("POST", "/api/reel/manifest"): ("skip", "按播放器支持的 codecs 取播放清单"),
+    ("POST", "/api/reel/progress"): ("skip", "上报播放进度，客户端定期发送"),
 }
 
 UNUSED_VERDICTS = {

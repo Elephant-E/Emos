@@ -45,11 +45,11 @@ export default defineConfig({
           'EMOS-PROXY-NAME': '@Elephant',
           'EMOS-PROXY-ID': 'e7E6K6OE4s',
         },
-        // Vue/Node 代理默认复用 keep-alive 连接，上游（Cloudflare）会静默回收空闲连接，
-        // 复用时就抛 ECONNRESET。curl 每次新建连接所以正常，这解释了「curl 通、页面报错」。
+        // Node 代理默认复用 keep-alive 连接，上游（Cloudflare）会静默回收空闲连接，
+        // 复用时抛 ECONNRESET。
         agent: new https.Agent({ keepAlive: false }),
-        // 上游偶发 ECONNRESET 时默认会返回 500，客户端不会重试。
-        // 改成 504，让 buildUrl 的重试逻辑（502/503/504）接手。
+        // 上游 ECONNRESET 时默认返回 500，客户端不会重试。
+        // 改为 504，让 buildUrl 的重试逻辑（502/503/504）接手。
         configure: (proxy: { on: (event: string, handler: (...args: unknown[]) => void) => void }) => {
           proxy.on('error', (...args: unknown[]) => {
             const res = args[2] as { headersSent?: boolean; writeHead?: (code: number, headers: Record<string, string>) => void; end?: (body: string) => void }

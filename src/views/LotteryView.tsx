@@ -60,10 +60,10 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
     setPrizes((prev) => prev.map((p, i) => (i === index ? { ...p, ...changes } : p)))
 
   const submit = async () => {
-    if (!name.trim()) return toast('缺少名称', 'error')
-    if (!timeStart || !timeEnd) return toast('需要开始和结束时间', 'error')
+    if (!name.trim()) return toast('抽奖要有个名字', 'error')
+    if (!timeStart || !timeEnd) return toast('设置开始和结束时间', 'error')
     if (toApiTime(timeEnd) <= toApiTime(timeStart)) return toast('结束时间要晚于开始时间', 'error')
-    if (prizes.some((p) => !p.name.trim())) return toast('奖品名称必填', 'error')
+    if (prizes.some((p) => !p.name.trim())) return toast('每个奖品都要有名字', 'error')
     if (prizes.some((p) => !Number(p.number) || Number(p.number) < 1)) return toast('奖品数量至少 1', 'error')
 
     const cost = Number(amount) || 1
@@ -82,13 +82,13 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           name: p.name.trim(),
           description: p.description?.trim() || null,
           number: Number(p.number),
-          // 契约：「存在时需和奖品数量对应」。空数组也算存在，别赌后端容错
+          // 契约：「存在时需和奖品数量对应」，空数组也算存在
           ...(bodys.length ? { bodys } : {}),
         }
       }),
     }
     const ok = await confirmDialog({
-      title: '创建抽奖？',
+      title: '确认创建抽奖？',
       message: `${body.name}，${body.prizes.length} 个奖品，每人 ${cost} 胡萝卜参与。`,
       hint: body.number ? `满 ${body.number} 人开奖，或到结束时间开奖。` : '到结束时间开奖。',
       confirmText: '创建',
@@ -156,7 +156,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                     onSearch({ tab: 'winners', id: created })
                   }}
                 >
-                  中奖名单
+                  看中奖名单
                 </button>
                 <button className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再建一个
@@ -295,7 +295,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           </div>
 
           {!search.id ? (
-            <EmptyBlock title="输入抽奖 ID 查名单" />
+            <EmptyBlock title="输入抽奖 ID 查中奖名单" />
           ) : winners.error ? (
             <ErrorBlock error={winners.error} onRetry={() => winners.refetch()} />
           ) : winners.isLoading ? (
@@ -343,7 +343,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               </section>
 
               {(winners.data?.users.length ?? 0) === 0 ? (
-                <EmptyBlock title="没有中奖记录" />
+                <EmptyBlock title="还没开奖或没人中奖" />
               ) : (
                 <div className="table-card" style={{ marginTop: 18 }}>
                   <table className="table">

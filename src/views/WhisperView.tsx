@@ -12,8 +12,8 @@ import { formatDateTime } from '@/lib/format'
 type Row = Record<string, unknown>
 
 /**
- * 正文最多两行。`.table tbody td` 是 nowrap，一条长悄悄话会把整行撑到几千 px，
- * 页面出现横向滚动。CSS 文件这轮不动，先用内联样式收住。
+ * 正文最多两行：`.table tbody td` 是 nowrap，一条长悄悄话会把整行撑到几千 px 并出现横向滚动，
+ * 因此用内联样式收住。
  */
 const CLAMP_TWO_LINES: CSSProperties = {
   display: '-webkit-box',
@@ -90,7 +90,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       {list.isLoading ? <LoadingBlock rows={6} columns={3} /> : null}
 
       {!list.isLoading && !list.error && rows.length === 0 ? (
-        <EmptyBlock title={tab === 'receiver' ? '没有收到悄悄话' : '没有发出悄悄话'} />
+        <EmptyBlock title={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'} />
       ) : null}
 
       {rows.length > 0 ? (
@@ -108,15 +108,13 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
             <tbody>
               {rows.map((row, index) => {
                 const id = Number(row.whisper_id ?? index)
-                // 收到的看「谁发的」，发出的看「发给谁」——原来无条件先取 sender_user，
-                // 于是发件箱里每个人都是自己
+                // 收到的看「谁发的」，发出的看「发给谁」
                 const peerUser = (
                   tab === 'receiver' ? row.sender_user : row.receiver_user
                 ) as { username?: string; id?: string } | undefined
                 const peer = peerUser?.username ?? '—'
                 // 字段按角色命名，不随视角变：sender_content 永远是发起方写的，
-                // receiver_content 永远是接收方写的。sender tab 之前取反了，
-                // 结果「发出的」页把对方的回复当正文、把自己的话标成「回复：」。
+                // receiver_content 永远是接收方写的
                 const body = row.sender_content
                 const reply = row.receiver_content
                 return (
@@ -188,7 +186,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
               rows={4}
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="回复内容"
+              placeholder="写点什么"
             />
           </div>
         </Modal>

@@ -29,7 +29,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
 }) {
-  // 只查当前 tab：两个都查的话切 tab 直接命中缓存，看不到加载态，也白拉一份
+  // 只查当前 tab：两个都查的话切 tab 直接命中缓存，看不到加载态
   const media = useDeletedMedia(page, pageSize, tab === 'media' ? q : undefined, by, tab === 'media')
   const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined, tab === 'video')
   const actions = useRecycleMutations()
@@ -48,15 +48,15 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
   const restoreMedia = async (mediaId: string, label: string) => {
     const ok = await confirmDialog({
-      title: '恢复资源？',
-      message: `「${label}」会回到原影片下，播放端立即可见。`,
-      hint: '恢复会扣除胡萝卜。',
+      title: '恢复这个资源？',
+      message: `「${label}」会回到原来的影片下，播放端立即可见。`,
+      hint: '恢复会扣除胡萝卜，金额见恢复后的提示。',
       confirmText: '恢复',
     })
     if (!ok) return
     setBusy(mediaId)
     try {
-      // 接口返回本次额度变化（恢复为负值）；不显示用户就不知道扣了多少
+      // 接口返回本次额度变化（恢复为负值）
       const res = await actions.restoreMedia.mutateAsync(mediaId)
       const spent = -(Number((res as { carrot?: number } | null)?.carrot) || 0)
       toast(spent > 0 ? `已恢复，扣除 ${formatThousand(spent)} 胡萝卜` : '已恢复', 'success')
@@ -69,7 +69,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
   const restoreVideo = async (videoId: number, label: string) => {
     const ok = await confirmDialog({
-      title: '恢复影片？',
+      title: '恢复这部影片？',
       message: `《${label}》会重新出现在媒体库里。`,
       confirmText: '恢复',
     })
@@ -78,7 +78,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
     try {
       // 该接口是 toggle：只有返回 is_delete 为 false 才算真的恢复
       const res = await actions.restoreVideo.mutateAsync(videoId)
-      if (res?.is_delete) toast('影片仍为删除状态，请重试', 'error')
+      if (res?.is_delete) toast('这部影片仍是删除状态，请重试', 'error')
       else toast('已恢复', 'success')
     } catch (error) {
       toast(error instanceof Error ? error.message : '恢复失败', 'error')
@@ -133,7 +133,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
           action={
             q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined
           }
-          title={q ? `没有找到「${q}」` : '回收站为空'}
+          title={q ? `没有找到「${q}」` : '回收站是空的'}
           
         />
       ) : null}

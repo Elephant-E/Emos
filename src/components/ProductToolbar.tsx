@@ -11,10 +11,7 @@ const SORTS: ReadonlyArray<{ key: ProductSort; label: string }> = [
 
 /**
  * 商品列表的工具栏：分类 → 搜索 → 排序（→ 可选的操作按钮）。
- *
- * 商城的「我的店铺」和别人的店铺页是同一套排列，只有分类文案、搜索框提示
- * 和右侧是否多一个「新增商品」不同。原来两处各写一遍，连输入框的
- * `minWidth: 170` 都一样。
+ * 商城的「我的店铺」与别人的店铺页共用，差异由 props 决定。
  */
 export function ProductToolbar({
   categories,

@@ -138,8 +138,7 @@ export function WatchlistDetailView({
   const item = watch.data?.items[0]
   const isMusic = item?.type === 'music'
 
-  // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮，
-  // 原来音乐走 early return 的独立组件，因此少了下头那五个按钮。
+  // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮
   const songs = useWatchMusic(
     id,
     { page: search.page, page_size: search.page_size, song_title: search.q || undefined },
@@ -159,7 +158,7 @@ export function WatchlistDetailView({
         {watch.error ? (
           <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} />
         ) : (
-          <EmptyBlock title="片单不存在或无权限" />
+          <EmptyBlock title="片单不存在，或没有查看权限" />
         )}
       </>
     )
@@ -174,14 +173,13 @@ export function WatchlistDetailView({
     }
     const ok = await confirmDialog({
       title: '清空这份片单？',
-      message: `移除全部 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'}。`,
-      hint: '片单保留，内容清空；界面不能撤销。',
+      message: `会把里面的 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'} 全部移除。`,
+      hint: '片单本身保留，只清内容；这个操作不能在界面上撤销。',
       confirmText: '清空',
       danger: true,
     })
     if (!ok) return
-    // 走 mutation：成功后 ['watch'] 前缀失效，影片/歌曲列表、头部计数一起重取。
-    // 原来手动 refetch 只刷 watch 与 songs，影片列表仍显示已删除的行
+    // 成功后 ['watch'] 前缀失效，影片/歌曲列表与头部计数一起重取
     const empty = isMusic ? clearMusic : clearVideos
     empty.mutate(undefined, {
       onSuccess: () => {
@@ -189,7 +187,7 @@ export function WatchlistDetailView({
         // 清空后总数为 0，停在越界页会只剩空表，退回第 1 页
         if (search.page !== 1) go({ page: 1 })
       },
-      // 失败提示交给全局 MutationCache，不要在这里再弹一条
+      // 失败提示由全局 MutationCache 统一弹出
     })
   }
 
@@ -265,7 +263,7 @@ export function WatchlistDetailView({
         <input
           className="input"
           type="search"
-          placeholder={isMusic ? '搜歌名' : '搜片名'}
+          placeholder={isMusic ? '搜歌名' : '在该片单里搜片名'}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
@@ -295,7 +293,7 @@ export function WatchlistDetailView({
 
       {videos.error ? <ErrorBlock error={videos.error} onRetry={() => videos.refetch()} /> : null}
       {/* 加载 / 空态 / 表格三者同一个外壳：表格在 .table-card 里，骨架和空态也包卡，
-          否则先看到裸骨架、再跳出一张卡；音乐分支（WatchMusicRows）同样是包卡的 */}
+          音乐分支（WatchMusicRows）同样包卡，三态保持一致 */}
       {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
       {!videos.isLoading && videos.data && videos.data.items.length === 0 ? (
@@ -474,11 +472,11 @@ export function WatchlistDetailView({
           }
         >
           <label className="field">
-            <span>抓取地址，留空关闭</span>
+            <span>抓取地址（留空关闭）</span>
             <input className="input" value={dynamicUrl} onChange={(e) => setDynamicUrl(e.target.value)} placeholder="https://…" />
           </label>
           <p className="state__hint" style={{ textAlign: 'left' }}>
-            填入地址后按该地址定期同步，清空即关闭。
+            填了地址后，片单会按该地址定期同步内容；清空即关闭。
           </p>
         </Modal>
       ) : null}
@@ -559,7 +557,7 @@ export function WatchlistDetailView({
             <TagInput
               value={maintainerIds}
               onChange={setMaintainerIds}
-              placeholder="输入用户 ID 后回车；清空即取消维护者"
+              placeholder="输入用户 ID 后回车，全部清空即取消维护者"
               autoFocus
             />
           </div>
@@ -582,7 +580,7 @@ export function WatchlistDetailView({
                   updateVideoEntry.mutate(
                     {
                       videoId: remarkFor.videoId,
-                      // sort 从当前列表取，不用弹窗打开那一刻的值
+                      // sort 取当前列表的值，而不是弹窗打开那一刻的值
                       sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
                       remark: remarkFor.remark.trim() || null,
                     },
@@ -601,7 +599,7 @@ export function WatchlistDetailView({
           }
         >
           <label className="field">
-            <span>备注，仅自己可见</span>
+            <span>备注（只有自己看得到）</span>
             <textarea
               className="input"
               style={{ minHeight: 90 }}
@@ -676,7 +674,7 @@ function WatchMusicRows({
       {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
 
       {!songs.isLoading && songs.data && songs.data.items.length === 0 ? (
-        <EmptyBlock title="片单里还没有歌" />
+        <EmptyBlock title="这个片单还没有歌" />
       ) : null}
 
       {songs.data && songs.data.items.length > 0 ? (

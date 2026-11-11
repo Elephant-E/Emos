@@ -26,8 +26,7 @@ export const userApi = {
   // must_otp 未启用时 password 为 null
   passwordTemporary: () => request<{ password: number | null; second: number }>('/api/user/passwordTemporary'),
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),
-  // 下面三个接口 Postman 未收录，旧项目在用；originalImage 是 toggle，
-  // 请求体参数被忽略，返回翻转后的值。
+  // originalImage 是 toggle：请求体参数被忽略，返回翻转后的值。
   originalImage: () => request<{ is_original_image: boolean }>('/api/user/originalImage', { method: 'PUT', body: {} }),
   unbindTelegram: () => request<unknown>('/api/user/telegram', { method: 'DELETE' }),
   statsVideoHistory: (dates: string[]) => request<Array<Record<string, unknown>>>('/api/user/stats/video/history', { query: { dates } }),
@@ -46,7 +45,7 @@ export const inviteApi = {
   exit: () => request<unknown>('/api/invite/exit', { method: 'POST' }),
   /** 邀请某人进入 EMPS，返回花掉的胡萝卜（负数） */
   emps: (inviteUserId: string) => request<{ carrot: number }>('/api/invite/emps', { method: 'POST', body: { invite_user_id: inviteUserId } }),
-  // 返回的是全站扁平树（3000+ 节点），用 invite_user_id 是可以自己按需建子树的
+  // 返回全站扁平树（3000+ 节点），前端按 invite_user_id 自行拼子树
   tree: () =>
     request<Array<{ user_id: string; username: string; invite_user_id: string | null; join_at: string; is_disabled?: boolean }>>(
       '/api/invite/tree',
@@ -87,9 +86,8 @@ export const uploadApi = {
     ),
   removeImage: (fileId: string) => request<unknown>('/api/upload/image/delete', { method: 'DELETE', query: { file_id: fileId } }),
 
-  // file_size 为必填（字节），缺省会 422
-  // file_storage 决定文件落到哪：global 国际 / internal 国内 / default 默认 /
-  // zn_r2_upload Zn 存档服 / google_drive 谷歌盘。不传就是 default
+  // file_size 必填（字节），缺省会 422；file_storage 决定文件落到哪：global 国际 /
+  // internal 国内 / default 默认 / zn_r2_upload Zn 存档服 / google_drive 谷歌盘，不传为 default
   uploadToken: (type: string, fileType: string, fileName: string, fileSize: number, fileStorage?: string) =>
     request<Record<string, unknown>>('/api/upload/getUploadToken', {
       method: 'POST',
@@ -117,7 +115,7 @@ export const videoApi = {
 }
 
 export const mediaApi = {
-  // 真机返回的是数组，不是 { medias }
+  // 上游返回数组本身，不是 { medias }
   list: (params: { video_list_id?: number; video_season_id?: number; video_episode_id?: number; video_part_id?: number; include_metadata?: boolean }) =>
     request<VideoMedia[]>('/api/video/media/list', { query: params }),
   listAll: (params: { media_id?: string; user_id?: string; status?: string; only_delete?: boolean; include_metadata?: boolean; page?: number; page_size?: number }) =>
@@ -127,8 +125,8 @@ export const mediaApi = {
   move: (mediaId: string, itemType: string, itemId: number) =>
     request<CarrotDelta>('/api/video/media/move', { method: 'PUT', query: { media_id: mediaId, item_type: itemType, item_id: itemId } }),
   rename: (mediaId: string, name: string) => request<CarrotDelta>('/api/video/media/rename', { method: 'PUT', query: { media_id: mediaId, name } }),
-  // 「此视频已存在 metadata 信息」是个 422，但语义是「已经是目标状态」，
-  // 不是失败。翻译成成功，界面不该弹红字。
+  // 已有 metadata 的视频返回 422：「此视频已存在 metadata 信息」是「已经是目标状态」
+  // 而非失败，因此按成功处理。
   syncMetadata: async (mediaId: string) => {
     try {
       return await request<CarrotDelta>('/api/video/media/syncMetadata', { method: 'PUT', query: { media_id: mediaId } })
@@ -211,7 +209,7 @@ export interface SeekQuery {
 }
 
 export const seekApi = {
-  /** 增量拉取：比每 30 秒全量重查省得多 */
+  /** 增量拉取：只回比 last_id 更新的求片 */
   poll: (lastId?: number, pageSize = 10) =>
     request<SeekItem[]>('/api/seek/poll', { query: { last_id: lastId, page_size: pageSize } }),
   apply: (itemType: string, itemId: number) =>

@@ -19,9 +19,8 @@ function authHeader(): Record<string, string> {
 }
 
 /**
- * 上传落点。旧项目 uploadStorage.js 的原话：
- *   global / internal / default 三个「后端不再分配可用存储设备」，
- *   只对用户暴露 zn_r2_upload 和 google_drive。
+ * 上传落点。global / internal / default 已不再分配可用存储设备，
+ * 只对用户开放 zn_r2_upload 与 google_drive。
  */
 export const UPLOAD_STORAGES = [
   { value: 'zn_r2_upload', label: 'Zn 存档服', hint: '直连 R2，国内可用' },
@@ -80,8 +79,8 @@ async function uploadObject(
     fileStorage,
   )) as Token
 
-  // 业务失败是 HTTP 200 + { message }（例如「此资源您一周内上传过」），
-  // 不先判 message 会把它盖成误导性的「没有返回 file_id」
+  // 业务失败是 HTTP 200 + { message }（如「此资源您一周内上传过」），先判 message
+  // 才不会盖成「没有返回 file_id」
   if (raw.message) throw new Error(raw.message)
   const fileId = raw.file_id ?? ''
   const uploadUrl = raw.data?.upload_url ?? ''
@@ -232,8 +231,8 @@ export async function uploadSubtitle(
 }
 
 /**
- * 歌曲：音频传上去之后绑到某首歌上（POST /api/upload/music/save）。
- * 和视频/字幕一样是「入库」，只是不需要预先选季集，只要知道 song_id。
+ * 歌曲：音频传上去之后绑到某首歌上（POST /api/upload/music/save），
+ * 只需知道 song_id，不需要预先选季集。
  */
 export async function uploadSong(
   file: File,
@@ -275,9 +274,7 @@ export async function uploadImage(
  * 临时上传：不属于「入库」体系，只换一个可以直接用的直链。
  * 服务是独立的 temporary.emos.best，单文件 80MB，FormData 带 file + emos_id。
  *
- * 当前用于红包封面（RedPacketView），刻意保留：能力的说明在
- * docs/UPLOAD-PROTOCOL.md 与 docs/WIKI-NOTES.md，将来做红包封面一类
- * 「要一张能直接用的图」的功能时需要它。不要因为「零引用」删掉。
+ * 当前用于红包封面；协议见 docs/UPLOAD-PROTOCOL.md，能力边界见 docs/WIKI-NOTES.md。
  */
 export async function uploadTemporary(file: File): Promise<{ url: string }> {
   if (USE_MOCK) {

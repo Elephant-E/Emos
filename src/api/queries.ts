@@ -62,7 +62,7 @@ export function useCapabilities(): Capabilities {
     canUpload: Boolean(data?.is_can_upload),
     canDown: Boolean(data?.is_can_down),
     slotRemaining: data?.slot_remaining ?? 0,
-    // 后端对管理员同样返回具体数字（当前 1），不要自己编一个「不限」
+    // 后端对管理员也返回具体数字（当前 1），不是「不限」的哨兵值
     inviteRemaining: data?.invite_remaining ?? 0,
     sizeUpload: data?.size_upload ?? 0,
     signedToday: Boolean(data?.sign),
@@ -206,10 +206,7 @@ export function useSeekApply() {
   })
 }
 
-/**
- * 求片增量探测：每 30 秒只拉比 lastId 新的条目，有变化才让列表重查。
- * 原来是对 2.4 万条的列表做全量重查，等于每 30 秒让后端重新排序分页一次。
- */
+/** 轮询只看比 lastId 更新的求片，有新的才让列表重查，避免每 30 秒白刷 2.4 万条。 */
 export function useSeekPoll(lastId: number) {
   return useQuery({
     queryKey: ['seek', 'poll', lastId] as const,
@@ -328,7 +325,7 @@ export function useMediaList(
 ) {
   return useQuery({
     queryKey: ['media', params] as const,
-    // 接口返回的就是数组（真机实测），不需要再嗅探信封
+    // 接口返回的是数组本身，不是 { items } 信封
     queryFn: () => mediaApi.list(params) as unknown as Promise<Array<Record<string, unknown>>>,
     enabled: params.video_list_id > 0 && enabled,
   })
@@ -466,7 +463,7 @@ export function useShopCategories(sellerId?: number) {
   })
 }
 
-/** 商品列表的查询参数（分页与滚动加载两条路径共用，字段名容易写错，只写一处） */
+/** 商品列表查询参数：分页与滚动加载两条路径共用，字段名只写一处 */
 function shopProductsQuery(p: {
   sellerId: number
   page: number
@@ -483,7 +480,7 @@ function shopProductsQuery(p: {
     category_id: p.categoryId || undefined,
     name: p.name || undefined,
     is_up: p.onlyUp ? true : undefined,
-    // 后端只认这几个；updated_at / created_at 会 422
+    // sort_by 只认 sales / price / sort，传 updated_at / created_at 会 422
     sort_by: p.sortBy || 'sort',
     sort_order: p.sortBy ? 'desc' : 'asc',
   })
@@ -496,7 +493,7 @@ export function useShopProducts({
   pageSize = 12,
   name = '',
   sortBy = '',
-  /** 只查上架的。逛全站商品时用，管理自己店铺时不传（要能看到下架的） */
+  /** 只查上架商品；管理自己店铺时不传，才能看到下架商品 */
   onlyUp = false,
   enabled = true,
 }: {
@@ -516,11 +513,7 @@ export function useShopProducts({
   })
 }
 
-/** 只取 total 的轻量查询：page_size 传 1，不拉列表 */
-/**
- * 商品用滚动加载：卡片网格没有「第几页」的概念，翻页会让人重新找位置。
- * sellerId 传 0 表示全站。
- */
+/** 商品列表用滚动加载：卡片网格没有页码概念；sellerId 传 0 表示全站。 */
 export function useShopProductsInfinite(params: {
   sellerId: number
   categoryId?: number
@@ -537,8 +530,8 @@ export function useShopProductsInfinite(params: {
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       shopProductsQuery({ sellerId, page: pageParam, pageSize, categoryId, name, sortBy, onlyUp }),
-    // 后端可能收敛 page_size（片单影片固定 15 的先例），拿响应里的实际条数判断，
-    // 否则首页返回少于请求条数时会直接判定「没有下一页」
+    // 后端可能收敛 page_size（片单影片固定 15 条），末页按响应里的实际条数判断，
+    // 否则请求 24 条只回 15 条时会被误判成「没有下一页」
     getNextPageParam: (last, pages) => {
       const actual = Number(last.page_size) || pageSize
       if (last.items.length < actual) return undefined
@@ -589,7 +582,7 @@ export function useShopCounts(sellerId: number) {
   }
 }
 
-/** 商品详情：列表里的字段不全，点开看详情和下单前都要取一次 */
+/** 商品详情：列表里的字段不全，详情页与下单前各取一次 */
 export function useShopProduct(productId: number) {
   return useQuery({
     queryKey: ['shop', 'product', productId] as const,
@@ -660,9 +653,8 @@ export function useShopMutations() {
       onSuccess: () => invalidate(),
     }),
     closeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.closeOrder(orderNo), onSuccess: invalidate }),
-    // 买家侧
-    // 下单会改库存与销量，付款会改订单状态 —— 两者都影响商品网格、商品详情、
-    // 两个视角的订单列表、以及「我的店铺」的四张统计卡，统一用 ['shop'] 前缀失效
+    // 下单改库存与销量，付款改订单状态：商品网格、商品详情、两个视角的订单列表
+    // 与「我的店铺」的四张统计卡都会变，统一按 ['shop'] 前缀失效
     createOrder: useMutation({
       mutationFn: (p: { productId: number; buyNumber: number; remark?: string | null }) =>
         shopApi.createOrder(p.productId, p.buyNumber, p.remark),
@@ -928,8 +920,7 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
     onSuccess: invalidate,
   })
-  // 清空内容：影视、音乐各一个接口。invalidate 是 ['watch'] 前缀，
-  // 覆盖 ['watch', id, 'videos', …] 与 ['watch', id, 'music', …]，清空后列表不会再留旧行
+  // 清空内容：影视、音乐各一个接口；invalidate 的 ['watch'] 前缀同时覆盖 videos 与 music 两个列表
   const clearVideos = useMutation({ mutationFn: () => watchApi.emptyVideos(watchId), onSuccess: invalidate })
   const clearMusic = useMutation({ mutationFn: () => watchApi.emptyMusic(watchId), onSuccess: invalidate })
   const subscribe = useMutation({ mutationFn: () => watchApi.subscribe(watchId), onSuccess: invalidate })

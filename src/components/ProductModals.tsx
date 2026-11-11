@@ -48,7 +48,7 @@ export function ProductDetailModal({
                   {
                     onSuccess: (res) => {
                       onBought()
-                      toast(`订单 ${res.no} 已创建，待付款`, 'success')
+                      toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
                     },
                   },
                 )
@@ -106,7 +106,7 @@ export function ProductDetailModal({
               />
             </label>
             <label className="field">
-              <span>备注（商户可见）</span>
+              <span>备注（给商户看）</span>
               <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
             </label>
           </div>
@@ -143,7 +143,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
                 {
                   onSuccess: (res) => {
                     onClose()
-                    toast(`订单 ${res.no} 已创建，待付款`, 'success')
+                    toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
                   },
                 },
               )
@@ -177,7 +177,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
         />
       </label>
       <label className="field">
-        <span>备注（商户可见）</span>
+        <span>备注（给商户看）</span>
         <input className="input" value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="选填" />
       </label>
     </Modal>

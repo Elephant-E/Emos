@@ -41,8 +41,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
   const mineScope = search.scope === 'mine'
-  // 两个视角共用同一份筛选；原来这段抄了两遍，改一处忘一处就会出现
-  // 「店铺订单能搜到、我的订单搜不到」
+  // 两个视角共用同一份筛选：分开写会出现「店铺订单能搜到、我的订单搜不到」
   const filter = {
     ...pay.filter,
     ...delivery.filter,
@@ -58,7 +57,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   const remove = mineScope ? actions.removeOrder : actions.deleteOrder
   const [remarking, setRemarking] = useState<{ orderNo: string; remark: string } | null>(null)
   // 支付 / 发货 / 关键词三个筛选维度任一偏离默认值就算「筛过」，
-  // 空态要能分清「筛掉了」和「本来没有」，否则用户不知道该改哪里
+  // 空态要能分清「筛掉了」和「本来没有」
   const filtered = Boolean(search.q) || search.pay !== 'all' || search.delivery !== 'all'
 
 
@@ -229,7 +228,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                             className="btn btn--quiet"
                             onClick={() =>
                               actions.urgeOrder.mutate(order.order_no, {
-                                onSuccess: () => toast('已提醒发货', 'success'),
+                                onSuccess: () => toast('已催发货', 'success'),
                               })
                             }
                           >

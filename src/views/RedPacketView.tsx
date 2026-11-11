@@ -90,7 +90,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
       return
     }
     if (count > amount) {
-      toast('个数不能多于总金额', 'error')
+      toast('个数不能多于总金额，否则有人领不到胡萝卜', 'error')
       return
     }
     if (!blessing.trim()) {
@@ -117,9 +117,9 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
     }
     const ok = await confirmDialog({
       title: '确认发红包？',
-      message: `从余额划走 ${amount} 胡萝卜，${count} 个人来分。`,
+      message: `从你的余额里划走 ${amount} 胡萝卜，${count} 个人来分。`,
       hint: `当前余额 ${formatThousand(balance)}，发出后剩 ${formatThousand(balance - amount)}。`,
-      confirmText: '发出',
+      confirmText: '发出去',
     })
     if (!ok) return
     setSending(true)
@@ -173,7 +173,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                     setIdTerm(created)
                   }}
                 >
-                  领取记录
+                  看领取记录
                 </button>
                 <button className="btn btn--quiet" onClick={() => setCreated(null)}>
                   再发一个
@@ -276,7 +276,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               <div className="card-body" style={{ display: 'grid', gap: 12 }}>
                 <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
                   <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
-                    {coverBusy ? '上传中…' : coverUrl ? '换一张' : '上传封面'}
+                    {coverBusy ? '上传中…' : coverUrl ? '换一张' : '上传图片 / 音频'}
                     <input
                       type="file"
                       accept="image/*,audio/*"
@@ -330,13 +330,13 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
           </div>
 
           {!search.id ? (
-            <EmptyBlock title="输入红包 ID 查记录" />
+            <EmptyBlock title="输入红包 ID 查领取记录" />
           ) : records.error ? (
             <ErrorBlock error={records.error} onRetry={() => records.refetch()} />
           ) : records.isLoading ? (
             <LoadingBlock rows={6} columns={4} />
           ) : (records.data?.items.length ?? 0) === 0 ? (
-            <EmptyBlock title="没有领取记录" />
+            <EmptyBlock title="还没有人领" />
           ) : (
             <div className="table-card">
               <table className="table">

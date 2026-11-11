@@ -1,11 +1,9 @@
 import type { KeyboardEvent } from 'react'
 
 /**
- * 让整行可点：鼠标点、键盘 Enter / Space 都能进，并带上 role 与 tabIndex。
+ * 让整行可点：鼠标点击与键盘 Enter / Space 都能触发，并带上 role、tabIndex。
  *
- * 表格行的可点写法在八个地方各写了一遍，其中片单列表那处只有 onClick，
- * 没有 tabIndex / role / 键盘处理 —— 键盘用户进不去。
- * 光标样式由 CSS 的 `.table tbody tr[role='link']` 负责，不用再写内联。
+ * 光标样式由 CSS 的 `.table tbody tr[role='link']` 负责，不写内联样式。
  *
  * 用法：`<tr key={id} {...rowLink(() => open(id))}>`
  */

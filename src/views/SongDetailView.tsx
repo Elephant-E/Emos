@@ -33,7 +33,7 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [lyricForm, setLyricForm] = useState({ type: 'text', language: 'zh-CN', content: '' })
-  // 移动音频：music_song_id 是**目标**歌曲的 id（契约原话「将资源移动到当前歌曲下」）
+  // music_song_id 是目标歌曲的 id（契约原话「将资源移动到当前歌曲下」）
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
   const [moveTerm, setMoveTerm] = useState('')
   const moveTargets = useQuery({
@@ -64,7 +64,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               onClick={() =>
                 actions.favorite.mutate(
                   { type: 'ms', value: songId },
-                  { onSuccess: () => toast('收藏已更新', 'success') },
+                  { onSuccess: () => toast('已切换收藏', 'success') },
                 )
               }
             >
@@ -122,7 +122,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                     已收藏
                   </span>
                 ) : null}
-                {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">未填写艺人</span> : null}
+                {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">还没有填写艺人</span> : null}
               </div>
               {song.data.description ? <p className="detail-desc">{song.data.description}</p> : null}
               {song.data.tagline ? <p className="meta-sm">{song.data.tagline}</p> : null}
@@ -164,7 +164,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
                 bare
-                title="没有歌词"
+                title="还没有歌词"
                 action={
                   <button className="btn btn--primary" onClick={() => setAdding(true)}>
                     添加歌词
@@ -233,7 +233,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                 }}
               />
             </CardHead>
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title="没有音频资源" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <table className="table table--inset">
                 <thead>
@@ -311,7 +311,7 @@ export function SongDetailView({ songId }: { songId: number }) {
       {moving ? (
         <Modal
           title={`移动 · ${moving.name}`}
-          hint="音频会移到选中的歌曲下，本页资源列表少一条。"
+          hint="音频会挪到选中的那首歌下面，本页的资源列表会少一条。"
           width={460}
           onClose={() => setMoving(null)}
           footer={
@@ -333,10 +333,10 @@ export function SongDetailView({ songId }: { songId: number }) {
           <PickList
             loading={moveTargets.isFetching}
             query={moveTerm}
-            // 计数要按过滤后的算：只剩当前这首歌时应当显示「没有」
+            // 计数按过滤后的算：只剩当前这首歌时显示「没有」
             count={moveTargetsCandidates.length}
             emptyText={
-              (moveTargets.data?.items ?? []).length > 0 ? '已在该歌曲下' : undefined
+              (moveTargets.data?.items ?? []).length > 0 ? '已经在这首歌下面了' : undefined
             }
           >
             {moveTargetsCandidates.map((row) => (

@@ -135,7 +135,7 @@ const sellerRoute = createRoute({
 
 function SellerRoute() {
   const { sellerId } = sellerRoute.useParams()
-  // 非法 id 不能退化成 0 —— 0 在接口里等于「我的店铺」，会静默打开自己的店
+  // 非法 id 回落到 0；接口里 0 表示「我的店铺」
   return <SellerView sellerId={Number.isFinite(Number(sellerId)) && Number(sellerId) > 0 ? Number(sellerId) : 0} />
 }
 
@@ -492,7 +492,7 @@ const watchlistDetailRoute = createRoute({
   path: '/watchlists/$watchId',
   validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
     page: asPage(s.page),
-    // 之前写死 20，Pager 的「每页条数」选完立刻被覆盖回去
+    // 取 URL 的 page_size；写死 20 会覆盖 Pager 选的条数
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),
@@ -544,10 +544,9 @@ const routeTree = rootRoute.addChildren([
 ])
 
 /**
- * 搜索词一律按字符串处理。
- * TanStack 默认的 parseSearch 会把 `q=63247` JSON.parse 成数字，validateSearch
- * 里 asString(数字) 返回空串 —— 于是「按 TODB/TMDB ID 搜」刚进 URL 就被清空。
- * stringify 也走同一条路，避免数字型字符串被加上引号。
+ * 搜索词一律按字符串处理：TanStack 默认的 parseSearch 会把 `q=63247` JSON.parse 成数字，
+ * validateSearch 里 asString(数字) 返回空串，按 TODB/TMDB ID 搜刚进 URL 就被清空。
+ * stringify 同样按原始字符串拼接，避免数字型字符串被加上引号。
  */
 export const router = createRouter({
   routeTree,

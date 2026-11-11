@@ -1,8 +1,6 @@
 /**
  * 表格里的行内排序输入框：平时是一行数字，聚焦时才露出输入框，
  * 失焦时把新值提交上去（值没变就不提交）。
- *
- * 商城分类和片单里的影片两处用法一致，只有提交的动作不同。
  */
 export function InlineSortInput({
   value,
@@ -13,7 +11,7 @@ export function InlineSortInput({
   value: number
   label: string
   onCommit: (next: number) => void
-  /** 放在可点击的行里时，别让点输入框触发整行跳转 */
+  /** 放在可点击的行里时，阻止点击与按键冒泡到整行 */
   stopRowClick?: boolean
 }) {
   return (

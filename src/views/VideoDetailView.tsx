@@ -72,8 +72,7 @@ export function VideoDetailView({
   const caps = useCapabilities()
   const seekApply = useSeekApply()
   // 电影没有季集（真机实测 /season 与 /episode 都返回空数组），资源与字幕挂影片级（vl）；
-  // 剧集则挂在单集上：选中集之前不发请求，否则只带 video_list_id 的请求会返回整部剧
-  // 所有集的资源，却显示在「第 N 集」标题下
+  // 剧集挂在单集上：未选集时不发请求，否则只带 video_list_id 的请求会返回整部剧的资源
   const isMovie = detail.data?.video_type === 'movie'
   const episodeReady = isMovie || Boolean(currentEpisode)
   const media = useMediaList(
@@ -135,7 +134,7 @@ export function VideoDetailView({
                 onClick={() => {
                   // 接口要的是 TODB 的 id，不是站内的 video_id
                   if (!video?.todb_id) {
-                    toast('无 TODB 记录，无法同步', 'error')
+                    toast('这部影片没有 TODB 记录，无法同步', 'error')
                     return
                   }
                   actions.syncVideo.mutate(video.todb_id, { onSuccess: () => toast('已开始同步', 'success') })
@@ -199,7 +198,7 @@ export function VideoDetailView({
       {!detail.isLoading && !detail.error && !video ? (
         <EmptyBlock
           title="找不到这部影片"
-          hint="可能已删除，或该 ID 不存在。"
+          hint="它可能已被删除（去回收站看看），或这个 ID 不存在。"
           action={
             <Link className="btn btn--ghost" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
               回到媒体库
@@ -346,7 +345,7 @@ export function VideoDetailView({
             {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
             {!episodeReady ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '本片还没有资源' : '本集还没有资源'} hint="可在上传页入库。" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
 
             {media.data && media.data.length > 0 ? (
               <table className="table table--inset">

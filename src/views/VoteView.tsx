@@ -56,7 +56,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
 
   const submit = async () => {
     const filled = options.map((o) => o.trim()).filter(Boolean)
-    if (!question.trim()) return toast('缺少问题', 'error')
+    if (!question.trim()) return toast('写个问题', 'error')
     if (filled.length < 2) return toast('至少两个选项', 'error')
     if (filled.length > MAX_OPTIONS) return toast(`最多 ${MAX_OPTIONS} 个选项`, 'error')
     setSending(true)
@@ -124,7 +124,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 </label>
                 <label className="field">
                   <span>简介</span>
-                  <input className="input" maxLength={200} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="200 字内" />
+                  <input className="input" maxLength={200} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="可选，200 字内" />
                 </label>
                 <label className="field">
                   <span>持续时间</span>
@@ -202,7 +202,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               <CardHead title="说明" />
               <div className="card-body">
                 <p className="card-note">至少 2 个、最多 12 个选项。</p>
-                <p className="card-note">「结束后公布」时，投票进行中不显示票数。</p>
+                <p className="card-note">「结束后公布」在投票进行中不显示票数。</p>
               </div>
             </article>
           </section>
@@ -264,7 +264,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               </section>
 
               {totalVotes === 0 ? (
-                <EmptyBlock title="没有人投票" />
+                <EmptyBlock title="还没有人投票" />
               ) : (
                 <div className="table-card" style={{ marginTop: 18 }}>
                   <table className="table">

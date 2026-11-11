@@ -16,9 +16,7 @@ export interface PickTarget {
 
 /**
  * 选一个上传的落点：搜片名 → 电影直接选中，剧集再选季、选集。
- *
- * 不能只给到影片级：剧集的资源与字幕都挂在集上（`ve` + episode_id），
- * 只选到影片会让文件挂不上去。
+ * 剧集的资源与字幕都挂在集上（`ve` + episode_id），只选到影片挂不上去。
  */
 export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void }) {
   const [term, setTerm] = useState('')
@@ -123,7 +121,6 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
                   onPick({ item_type: 'vl', item_id: video.video_id, title: video.video_title, videoId: video.video_id })
                   return
                 }
-                // 剧集要选到某一集：资源与字幕都挂在集上
                 setSeries({ videoId: video.video_id, title: video.video_title, season: 1 })
               }}
             >

@@ -55,16 +55,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
   const user = session.data
   /**
-   * 动态密码和固定密码是**二选一**，由服务端的 `must_otp` 决定，前端没有切换接口
-   * （`/api/user/*` 里只有取动态密码和改固定密码两个，没有改 must_otp 的）。
-   *   must_otp = true  → 只能取动态密码；固定密码设为空，account.password 为 null
-   *   must_otp = false → 只能用固定密码（6 位）；passwordTemporary 返回 password: null
-   * 所以界面上同一时刻只出现一个入口。
+   * must_otp 决定动态/固定密码二选一：true 只能取动态密码（account.password 为 null），false 只能用 6 位固定密码。
+   * /api/user/* 只有取动态密码与改固定密码两个接口，没有改 must_otp 的。
    */
   const otpMode = Boolean(user?.must_otp)
 
-  // /api/invite/tree 是全站扁平树（3000+ 节点），不是「我的邀请关系」；
-  // 按 invite_user_id 从当前用户往下走，才是自己的下级
+  // /api/invite/tree 返回全站扁平树（3000+ 节点），本页只要当前用户的下级：按 invite_user_id 从自己往下走
   const myTree = (() => {
     const all = tree.data ?? []
     const me = user?.user_id
@@ -88,8 +84,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     return out
   })()
 
-  // 合并「我邀请的」与「下级邀请的」：同一个表里用缩进区分层级，
-  // 最近播放来自 inviteHistory（只有直接邀请的人才有）
+  // 合并「我邀请的」与「下级邀请的」：同一张表用缩进区分层级；最近播放来自 inviteHistory，只有直接邀请的人有
   const inviteRows = (() => {
     const nameById = new Map<string, string>()
     for (const node of tree.data ?? []) nameById.set(node.user_id, node.username)
@@ -117,7 +112,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     const ok = await confirmDialog({
       title: '邀请 TA 进入 EMPS？',
       message: `对象：${inviteId.trim()}`,
-      hint: '会消耗胡萝卜，数额由后端结算。',
+      hint: '会消耗你自己的胡萝卜，具体数额由后端结算。',
       confirmText: '邀请',
     })
     if (!ok) return
@@ -133,7 +128,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const exitInvite = async () => {
     const ok = await confirmDialog({
       title: '退出邀请关系？',
-      message: '退出后不再挂在邀请人下面，需重新找人邀请。',
+      message: '退出后你不再挂在邀请人下面，需要重新找人邀请。',
       hint: '邀请名额与已有的记录不受影响。',
       confirmText: '退出',
       danger: true,
@@ -254,7 +249,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </dl>
               {otpMode ? (
                 <p className="card-note stack--top">
-                  该账号使用动态密码，无固定密码。
+                  这个账号开的是动态密码登录，没有固定密码可设。
                 </p>
               ) : null}
             </article>
@@ -270,7 +265,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     onClick={async () => {
                       const ok = await confirmDialog({
                         title: '让所有设备下线？',
-                        message: '包括当前设备，之后需在播放器重新登录。',
+                        message: '包括你正在用的这一台，之后需要在播放器里重新登录。',
                         confirmText: '全部下线',
                         danger: true,
                       })
@@ -347,7 +342,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     <input className="input" value={pseudonym} onChange={(e) => setPseudonym(e.target.value)} placeholder="对外显示的名字" />
                     <button
                       className="btn btn--ghost"
-                      // 空笔名会被 buildUrl 丢掉 name 参数，后端只能回一个没信息的 422，这里直接拦住
+                      // 空笔名会被 buildUrl 丢掉 name 参数，后端只回一个没信息的 422
                       disabled={
                         actions.setPseudonym.isPending ||
                         !pseudonym.trim() ||
@@ -480,9 +475,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       })
                     }}
                   >
-                    {actions.exchangeSlot.isPending ? '兑换中…' : '兑换片单槽位'}
+                    {actions.exchangeSlot.isPending ? '兑换中…' : '用胡萝卜兑换片单槽位'}
                   </button>
-                  {/* 动态密码与固定密码是二选一：由 must_otp 决定，接口层没有切换入口 */}
                   {otpMode ? (
                     <button
                       className="btn btn--ghost"
@@ -497,7 +491,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                     </button>
                   ) : (
                     <button className="btn btn--ghost" onClick={() => setResetting(true)}>
-                      重置密码
+                      重置登录密码
                     </button>
                   )}
                 </div>
@@ -509,7 +503,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         动态密码 <b style={{ color: 'var(--fg)', letterSpacing: '0.14em' }}>{password.password}</b>，{password.second} 秒内有效。
                       </>
                     ) : (
-                      <>该账号使用固定密码。</>
+                      <>这个账号用的是固定密码，不需要动态密码。</>
                     )}
                   </p>
                 ) : null}
@@ -550,7 +544,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </div>
               <div className="row" style={{ marginTop: 12, gap: 12 }}>
                 <button className="btn btn--danger-text" onClick={() => void exitInvite()}>
-                  退出邀请
+                  退出邀请关系
                 </button>
                 <span className="card-note">退出后要重新找人邀请</span>
               </div>
@@ -693,7 +687,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
       {resetting ? (
         <Modal
           title="重置登录密码"
-          hint="6 位数字；重置后所有设备需重新登录。"
+          hint="6 位数字。重置后所有已登录设备需要重新登录。"
           onClose={() => setResetting(false)}
           onSubmit={() => {
             if (/^\d{6}$/.test(newPassword) && !actions.resetPassword.isPending) actions.resetPassword.mutate(newPassword)
@@ -775,7 +769,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <input className="input" value={inviteId} onChange={(e) => setInviteId(e.target.value)} autoFocus />
           </label>
           <label className="field">
-            <span>备注，仅自己可见</span>
+            <span>备注（仅自己可见）</span>
             <input className="input" value={inviteRemark} onChange={(e) => setInviteRemark(e.target.value)} />
           </label>
         </Modal>

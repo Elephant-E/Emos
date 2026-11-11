@@ -40,7 +40,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
     const ok = await confirmDialog({
       title: '关闭这个支付订单？',
       message: `订单号 ${no}`,
-      hint: '关闭后无法支付。',
+      hint: '关闭后无法再支付，需要重新下单。',
       confirmText: '关闭',
       danger: true,
     })
@@ -76,22 +76,22 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       {(base.error as { status?: number } | null)?.status === 404 ? (
         <EmptyBlock
           title="还不是支付服务商"
-          hint="需要服务商身份。"
+          hint="查单与收款需要服务商身份。"
           action={
             <button
               className="btn btn--primary"
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '申请成为支付服务商？',
-                  message: '扣除 5000 胡萝卜，不退还。',
-                  hint: '提交后由管理员审核，不通过也不退还。',
+                  message: '申请将扣除 5000 胡萝卜，且不退还。',
+                  hint: '提交后需要联系管理员审核，审核不通过也不退还。',
                   confirmText: '确认申请',
                   danger: true,
                 })
                 if (!ok) return
                 try {
-                  await payApi.apply('我的支付服务', '后台发起')
-                  toast('已提交，等待审核', 'success')
+                  await payApi.apply('我的支付服务', '由后台发起申请')
+                  toast('已提交申请，等待审核', 'success')
                   void base.refetch()
                 } catch (error) {
                   toast(error instanceof Error ? error.message : '提交失败', 'error')

@@ -9,8 +9,7 @@ import { useDebounced } from '@/lib/useDebounced'
 import { useShopCategories, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 
 /**
- * 别人的店铺。从商品详情点店名进来，看这一家在卖什么。
- * 只看上架商品，也不提供任何管理入口——不是自己的店。
+ * 别人的店铺：从商品详情点店名进入，只看上架商品，不提供管理入口。
  */
 export function SellerView({ sellerId }: { sellerId: number }) {
   const seller = useShopSeller(sellerId)
@@ -67,7 +66,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {!query.isLoading && products.length === 0 ? (
         <EmptyBlock
-          title={keyword ? `这家店没有「${keyword}」` : '店铺没有在售商品'}
+          title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
           action={
             keyword ? <ClearSearchButton onClick={() => { setTerm(''); setKeyword('') }} /> : undefined
           }

@@ -44,8 +44,7 @@
   --t-enter: 160ms;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
     "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
-  /* 正文向下三档。原来的 12 / 12.5 / 13 与 13 / 13.5 相差 0.5px，
-     是历次改动累积出来的漂移，不是设计决定，所以各合成一档 */
+  /* 正文向下三档：副行 / 表头与说明 / 正文 */
   --text-2xs: 11.5px;
   --text-xs: 12.5px;
   --text-sm: 13.5px;

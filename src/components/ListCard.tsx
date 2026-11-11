@@ -1,15 +1,8 @@
 import type { ReactNode } from 'react'
 
 /**
- * 列表卡片：表格外面那层 `.table-card`。
- *
- * 十一处都是同一个写法 —— `key={`${items.length}-${items[0]?.id}-${total}`}`
- * 套在 `content-in` 上，作用是翻页/换筛选时让淡入动画重放一次。
- * 每处都要自己手算一遍 key，字段名各写一次，还有一处（用户搜索）
- * 只用了条数，翻页后条数相同时动画就不重放。
- *
- * 这里把「什么时候算换了一份列表」收进来：条数、首条 ID、总数，
- * 加上一个可选的 scope（同一页里切 tab 也要重放时传）。
+ * 列表卡片：表格外面那层 `.table-card`，用条数、首条 ID、总数判定「换了一份列表」，
+ * 让翻页/换筛选时淡入动画重放一次。
  */
 export function ListCard<T>({
   items,

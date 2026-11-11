@@ -8,11 +8,8 @@ import { confirmDialog } from '@/ui/confirm'
 import { IconPlus } from '@/components/icons'
 
 /**
- * 图床选择器。
- *
- * 图片是「传一次、到处引用」的东西，所以做成一个可复用的选择器而不是
- * 独立页面：传上去进图库，需要的地方选一张，拿到的是直链。
- * 和资源上传（视频/字幕要绑到某部影片某一集）是两件事。
+ * 图床选择器：上传进图库，需要的地方选一张，返回直链。
+ * 与资源上传（视频/字幕要绑到某部影片某一集）是两件事。
  */
 export function ImagePicker({
   value,
@@ -150,9 +147,9 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
         onChange={(e) => setTerm(e.target.value)}
       />
 
-      {images.isLoading ? <p className="muted">读取中…</p> : null}
+      {images.isLoading ? <p className="muted">读取图库…</p> : null}
       {images.data && images.data.items.length === 0 ? (
-        <p className="muted">{term ? `没有找到「${term}」` : '图库为空'}</p>
+        <p className="muted">{term ? `没有找到「${term}」` : '图库还是空的'}</p>
       ) : null}
 
       <div className="image-picker__grid">

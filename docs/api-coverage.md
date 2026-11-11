@@ -59,13 +59,6 @@
 | 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
 | 支付相关 | `payApi.userCarrot` | `GET /api/pay/getUserCarrot` | 见 pay/transfer：本站转赠走 carrot 域 |
 
-## 该补的缺口
-
-| 分组 | 接口 | 方法 路径 | 说明 |
-|---|---|---|---|
-| 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量设置片单内视频；现在只能一条条加/删 |
-| 支付相关 | 查询用户签到信息 | `GET /api/pay/getUserSign` | 查用户签到信息（支付服务） |
-
 ## 刻意不接 / 后台工具
 
 | 接口 | 方法 路径 | 原因 |
@@ -80,16 +73,24 @@
 | 暂存区文件入库 | `POST /api/upload/store/archive` | 同上 |
 | 获取播放地址 | `GET /api/video/media/playUrl` | 播放地址按需求不展示 |
 | 搜索获取目录树 | `GET /api/video/tree` | 取目录树，后台用不上（列表页走 /api/video/list） |
+| 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量重置片单内容的对外接口：契约写明「请先联系官方确认」，且每次提交会清空整个片单 |
 | 转账给用户 | `POST /api/pay/transfer` | 支付服务内的转账；胡萝卜转赠已用 /api/carrot/transfer |
 | 创建订单 | `POST /api/pay/create` | 支付单由用户侧发起，后台只处理已有订单 |
 | 测试回调 | `POST /api/pay/testNotify` | 回调自测，联调用 |
 | 给用户发送邮件通知 | `POST /api/pay/sendNotifyEmail` | 手工发通知邮件，运营一次性动作 |
+| 查询用户签到信息 | `GET /api/pay/getUserSign` | 真机 403「请先成为服务商」；用户详情里已有最近签到 |
 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` | 发到 Telegram 频道，bot 侧入口，后台没有场景 |
 | 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` | 从 Spotify 同步歌手，一次性数据修补 |
 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` | 播放地址按需求不展示 |
 | 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` | 手工关联歌曲与影片，数据修补 |
 | 通过hash批量判断资源是否存在 | `POST /api/music/song/batchHashExist` | 按 hash 批量判重，上传前的客户端逻辑 |
 | 更新关联的视频ID | `PUT /api/music/album/{var}/updateVideoId` | 同上（专辑） |
+| 随机影片 | `GET /api/reel/rand` | 随机会话：为一部影片开一次放映，返回 forge_reel_uuid |
+| 影片信息 | `GET /api/reel/info/{var}` | 查这次放映的进度：哪一季哪一集、哪个源、第几秒、是否播完 |
+| 添加影片 | `POST /api/reel/create` | 为指定影片开一次放映，用户侧动作 |
+| 媒体列表 | `GET /api/reel/media` | 放映时挑版本，versions 带每个源的编码流信息 |
+| 获取播放清单 | `POST /api/reel/manifest` | 按播放器支持的 codecs 取播放清单 |
+| 更新播放进度 | `POST /api/reel/progress` | 上报播放进度，客户端定期发送 |
 
 ## 代码有、文档没有
 

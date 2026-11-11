@@ -56,7 +56,7 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
         <span className="state__icon" style={{ color: 'var(--c-red)' }}>
           <IconAlert />
         </span>
-        <p className="state__title">{timedOut ? '连不上服务器' : '没有取到数据'}</p>
+        <p className="state__title">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
         {!timedOut && message ? <p className="state__hint">{message}</p> : null}
         <div className="state__actions">
           {onRetry ? (

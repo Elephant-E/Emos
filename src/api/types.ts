@@ -131,7 +131,7 @@ export interface VideoEpisode {
 export interface VideoPerson {
   /** 文件 id（不是 URL），拼 https://image.theotherdb.org/original/{id} 使用 */
   image_profile: string | null
-  /** 本地人物 id —— 来自 TMDb 的人没有，实测 39/39 为 null */
+  /** 本地人物 id：来自 TMDb 的人没有，实测 39/39 为 null */
   id: number | null
   person_id: number | null
   /** TMDb 人物 id，实际能用来做唯一标识的是它 */
@@ -309,7 +309,7 @@ export interface ShopProduct {
   user_buy_max: number | null
   sort: number
   updated_at: string
-  /** 只有 product/info 会返回（Postman 契约里没写，实测有） */
+  /** 只有 product/info 会返回（Postman 契约未收录） */
   seller?: { seller_id: number; name: string; description: string | null; cover_url: string | null } | null
   category_name?: string
   description: string | null
