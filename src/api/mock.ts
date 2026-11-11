@@ -414,7 +414,13 @@ export async function mockRequest<T>(
   if (clean === '/api/whisper/reply') return { whisper_id: Number(body.whisper_id ?? 1) } as T
   if (clean === '/api/user/originalImage') return { is_original_image: true } as T
   if (clean === '/api/user/telegram') return {} as T
-  if (/^\/api\/watch\/\d+$/.test(clean) && method === 'DELETE') return {} as T
+  const watchDelete = clean.match(/^\/api\/watch\/(\d+)$/)
+  if (watchDelete && method === 'DELETE') {
+    const id = Number(watchDelete[1])
+    const index = watches.findIndex((w) => w.id === id)
+    if (index >= 0) watches.splice(index, 1)
+    return {} as T
+  }
   if (/^\/api\/watch\/\d+\/music\/\d+$/.test(clean) && method === 'DELETE') return { count: 1 } as T
 
   if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T

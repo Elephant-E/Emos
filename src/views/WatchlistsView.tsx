@@ -39,7 +39,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   useEffect(() => setTerm(search.q), [search.q])
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
-  const [removing, setRemoving] = useState(false)
   const session = useSession()
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
@@ -48,6 +47,17 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
+  })
+
+  const remove = useMutation({
+    mutationFn: (watchId: number) => watchApi.remove(watchId),
+    onSuccess: () => {
+      toast('片单已删除', 'success')
+      // 删除会返还槽位
+      qc.invalidateQueries({ queryKey: ['watches'] })
+      qc.invalidateQueries({ queryKey: ['session'] })
+    },
+    onError: (error) => toast(error instanceof Error ? error.message : '删除失败', 'error'),
   })
 
   const create = useMutation({
@@ -195,7 +205,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                     {watch.is_self ? (
                       <button
                         className="btn btn--danger-text"
-                        disabled={removing}
+                        disabled={remove.isPending}
                         onClick={async () => {
                           const ok = await confirmDialog({
                             title: `删除片单「${watch.name}」？`,
@@ -205,19 +215,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                             danger: true,
                           })
                           if (!ok) return
-                          setRemoving(true)
-                          try {
-                            await watchApi.remove(watch.id)
-                            // 删除会返还槽位
-                            void qc.invalidateQueries({ queryKey: ['watches'] })
-                            void qc.invalidateQueries({ queryKey: ['session'] })
-                            toast('片单已删除', 'success')
-                            void refetch()
-                          } catch (error) {
-                            toast(error instanceof Error ? error.message : '删除失败', 'error')
-                          } finally {
-                            setRemoving(false)
-                          }
+                          remove.mutate(watch.id)
                         }}
                       >
                         删除
