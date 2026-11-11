@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { ListCard } from '@/components/ListCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList } from '@/api/queries'
@@ -59,7 +60,7 @@ export function UserSearchView() {
       {!bans.isLoading && !bans.error && rows.length === 0 ? <EmptyBlock title="没有封禁中的用户" /> : null}
 
       {rows.length > 0 ? (
-        <div className="table-card content-in" key={rows.length}>
+        <ListCard items={rows} total={rows.length} idKey={(r) => r.user_id}>
           <table className="table table--fixed">
             <thead>
               <tr>
@@ -98,7 +99,7 @@ export function UserSearchView() {
               ))}
             </tbody>
           </table>
-        </div>
+        </ListCard>
       ) : null}
     </>
   )

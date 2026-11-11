@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -113,7 +114,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.video_id}-${data.total}`}>
+        <ListCard items={data.items} total={data.total} idKey={(v) => v.video_id}>
           <table className="table table--fixed">
             <thead>
               <tr>
@@ -189,7 +190,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             onPage={(page) => onSearch({ page })}
             onPageSize={(page_size) => onSearch({ page: 1, page_size })}
           />
-        </div>
+        </ListCard>
       ) : null}
     </>
   )

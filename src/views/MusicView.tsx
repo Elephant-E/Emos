@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -95,7 +96,15 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       ) : null}
 
       {active.data && active.data.items.length > 0 ? (
-        <div className="table-card content-in" key={`${search.tab}-${active.data.items.length}-${(active.data.items[0] as Record<string, unknown>)?.song_id ?? (active.data.items[0] as Record<string, unknown>)?.album_id ?? (active.data.items[0] as Record<string, unknown>)?.person_id}`}>
+        <ListCard
+          items={active.data.items as readonly unknown[]}
+          total={active.data.total}
+          idKey={(v) => {
+            const row = v as Record<string, number | undefined>
+            return row.song_id ?? row.album_id ?? row.person_id ?? ''
+          }}
+          scope={search.tab}
+        >
           <table className="table">
             <thead>
               <tr>
@@ -177,7 +186,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
             </tbody>
           </table>
           <Pager total={active.data.total} page={search.page} pageSize={active.data.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
+        </ListCard>
       ) : null}
     </>
   )

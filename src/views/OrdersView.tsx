@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -102,7 +103,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       {orders.data && orders.data.items.length === 0 ? <EmptyBlock title="没有符合条件的订单" /> : null}
 
       {orders.data && orders.data.items.length > 0 ? (
-        <div className="table-card content-in" key={`${orders.data.items.length}-${orders.data.items[0]?.order_no}-${orders.data.total}`}>
+        <ListCard items={orders.data.items} total={orders.data.total} idKey={(o) => o.order_no}>
           <table className="table">
             <thead>
               <tr>
@@ -259,7 +260,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
             </tbody>
           </table>
           <Pager total={orders.data.total} page={search.page} pageSize={orders.data.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
+        </ListCard>
       ) : null}
 
       {remarking ? (

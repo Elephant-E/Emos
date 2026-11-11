@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ListCard } from '@/components/ListCard'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -53,7 +54,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
       {!history.isLoading && rows.length === 0 ? <EmptyBlock title="还没有胡萝卜记录" /> : null}
       {rows.length > 0 ? (
-        <div className="table-card content-in" key={`${rows.length}-${page}`}>
+        <ListCard items={rows} total={rows.length} idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`} scope={page}>
           <table className="table">
             <thead>
               <tr>
@@ -75,7 +76,7 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
             </tbody>
           </table>
           <Pager total={history.data?.total ?? 0} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} />
-        </div>
+        </ListCard>
       ) : null}
 
       {transferring ? (

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useState } from 'react'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
@@ -181,7 +182,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
       {list.data && list.data.items.length > 0 ? (
         <>
-        <div className="table-card content-in" key={`${list.data.items.length}-${list.data.items[0]?.id}-${list.data.total}`}>
+        <ListCard items={list.data.items} total={list.data.total} idKey={(v) => v.id}>
           <table className="table">
             <thead>
               <tr>
@@ -262,7 +263,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             </tbody>
           </table>
           <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
+        </ListCard>
         </>
       ) : null}
 

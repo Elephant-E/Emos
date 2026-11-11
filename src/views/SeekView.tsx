@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -128,7 +129,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.id}-${data.total ?? data.items.length}`}>
+        <ListCard items={data.items} total={data.total ?? data.items.length} idKey={(v) => v.id}>
           <table className="table">
             <thead>
               <tr>
@@ -281,7 +282,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </tbody>
           </table>
           <Pager total={data.total} page={search.page} pageSize={data.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
+        </ListCard>
       ) : null}
 
       {urgeTarget ? (

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
@@ -132,7 +133,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       ) : null}
 
       {!error && !isLoading && data && data.items.length > 0 ? (
-        <div className="table-card content-in" key={`${data.items.length}-${data.items[0]?.id}-${data.total}`}>
+        <ListCard items={data.items} total={data.total} idKey={(v) => v.id}>
           <table className="table table--fixed">
             <thead>
               <tr>
@@ -228,7 +229,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             </tbody>
           </table>
           <Pager total={data.total} page={search.page} pageSize={search.page_size} onPage={(page) => onSearch({ page })} />
-        </div>
+        </ListCard>
       ) : null}
 
       {creating ? (

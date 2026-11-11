@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -133,7 +134,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       ) : null}
 
       {rows.length > 0 ? (
-        <div className="table-card content-in" key={`${tab}-${rows.length}-${String(rows[0]?.media_id ?? rows[0]?.video_id ?? "")}`}>
+        <ListCard items={rows} total={rows.length} idKey={(r) => String(r.media_id ?? r.video_id ?? '')} scope={tab}>
           {tab === 'media' ? (
             <table className="table table--fixed">
               <thead>
@@ -244,7 +245,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
             onPage={onPage}
             onPageSize={onPageSize}
           />
-        </div>
+        </ListCard>
       ) : null}
     </>
   )

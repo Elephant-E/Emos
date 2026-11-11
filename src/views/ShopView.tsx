@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
@@ -259,7 +260,7 @@ export function ShopView({
           ) : null}
 
           {products.data && products.data.items.length > 0 && mine ? (
-            <div className="table-card content-in" key={`${products.data.items.length}-${products.data.items[0]?.product_id}-${products.data.total}`}>
+            <ListCard items={products.data.items} total={products.data.total} idKey={(p) => p.product_id}>
               <table className="table">
                 <thead>
                   <tr>
@@ -348,7 +349,7 @@ export function ShopView({
                 </tbody>
               </table>
               <Pager total={products.data.total} page={page} pageSize={products.data.page_size} onPage={(next) => onSearch({ page: next })} />
-            </div>
+            </ListCard>
           ) : null}
       </>
 
