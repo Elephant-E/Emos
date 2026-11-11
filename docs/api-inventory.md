@@ -252,11 +252,39 @@
 - `POST /api/shop/order/shop/remark`
 - `DELETE /api/shop/order/shop/order` ?order_no
 
-## 红包相关
+## 红包相关（已接：发红包 + 领取记录）
 
-- `POST /api/redPacket/create`
-- `GET /api/redPacket/receive` ?red_packet_id
-- `POST /api/redPacket/createTelegramHtml`
+- `POST /api/redPacket/create` —— 已接（`/redpacket` 页）
+- `GET /api/redPacket/receive` ?red_packet_id&page&page_size —— 已接
+- `POST /api/redPacket/createTelegramHtml` —— **不接**，见下
+
+**真机实测（2026-11-11）**：
+
+```
+POST /api/redPacket/create
+{"type":"default","receive":"average","carrot":1,"number":1,"blessing":"集成测试","seconds":60}
+→ 200 {"red_packet_id":"Q7EYWbVLx62e"}      余额 38512 → 38511
+```
+
+几秒内就有人领走，`GET /api/redPacket/receive?red_packet_id=Q7EYWbVLx62e` 返回：
+
+```json
+{"page":1,"page_size":15,"total":1,
+ "items":[{"user_id":"eG902PYERs","username":"ikiania","avatar":null,
+           "carrot":1,"receive_at":"2026-11-11T11:40:34.000000Z"}]}
+```
+
+字段约束（来自 postman）：`carrot` 1-60000、`number` 1-10000、
+`blessing` 50 字内必填、`type=password` 时 `text` 必填（1-50 字符）、
+`seconds` 60-172800（默认 86400）、给了 `file_url` 时 `file_type` 必填（image/audio）、
+`is_exclusive` 只在有 `file_url` 时有效。
+
+**没有「撤销红包」和「列出我发过的红包」两个接口** —— 只能拿红包 ID 查领取记录，
+所以发出去之后要把 ID 记下来（页面在发成功后会显示并可复制）。
+
+**`createTelegramHtml` 不接**：它把红包发到 Telegram 频道，`html` 字段 6000 字符内、
+要拼 Telegram 支持的 HTML 子集，且说明里写明「发送失败会吞红包，等有效期结束才退款」。
+这是给 bot 侧用的入口，后台上没有对应场景（旧项目也没接）。
 
 ## Telegram相关 / 投票
 

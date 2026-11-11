@@ -7,6 +7,8 @@ import { Pager } from '@/components/Pager'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { redPacketApi } from '@/api/endpoints'
+import { useSession } from '@/api/queries'
+import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { uploadTemporary } from '@/lib/uploader'
 import type { RedPacketCreateBody } from '@/api/types'
@@ -29,6 +31,8 @@ const MAX_COVER = 80 * 1024 * 1024
 
 export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; onSearch: (patch: Partial<RedPacketSearch>) => void }) {
   const qc = useQueryClient()
+  const session = useSession()
+  const balance = session.data?.carrot ?? 0
   const [type, setType] = useState<'default' | 'password'>('default')
   const [receive, setReceive] = useState<'average' | 'random'>('average')
   const [carrot, setCarrot] = useState('')
@@ -111,11 +115,25 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
       body.file_type = coverKind ?? (/\.(mp3|wav|ogg|flac|aac|m4a)(\?|$)/i.test(coverUrl) ? 'audio' : 'image')
       if (exclusive) body.is_exclusive = true
     }
+    const ok = await confirmDialog({
+      title: '确认发红包？',
+      message: `从你的余额里划走 ${amount} 胡萝卜，${count} 个人来分。`,
+      hint: `当前余额 ${formatThousand(balance)}，发出后剩 ${formatThousand(balance - amount)}。`,
+      confirmText: '发出去',
+    })
+    if (!ok) return
     setSending(true)
     try {
       const res = await redPacketApi.create(body)
       setCreated(res.red_packet_id)
       toast('红包已发出', 'success')
+      setCarrot('')
+      setNumber('')
+      setBlessing('')
+      setText('')
+      setCoverUrl('')
+      setCoverKind(null)
+      setExclusive(false)
       void qc.invalidateQueries({ queryKey: ['session'] })
     } catch (error) {
       toast(error instanceof Error ? error.message : '发送失败', 'error')
@@ -195,7 +213,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
 
                 <div className="field-row">
                   <label className="field">
-                    <span>总金额（胡萝卜）</span>
+                    <span>总金额（胡萝卜，现有 {formatThousand(balance)}）</span>
                     <input className="input" type="number" min={1} max={60000} value={carrot} onChange={(e) => setCarrot(e.target.value)} placeholder="1 - 60000" />
                   </label>
                   <label className="field">
@@ -226,7 +244,14 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   </select>
                 </label>
                 <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
-                  <button className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
+                  {Number(carrot) > balance ? (
+                    <span className="muted" style={{ fontSize: 12 }}>余额不够，最多 {formatThousand(balance)}</span>
+                  ) : null}
+                  <button
+                    className="btn btn--primary"
+                    disabled={sending || (Number(carrot) > 0 && Number(carrot) > balance)}
+                    onClick={() => void submit()}
+                  >
                     {sending ? '发送中…' : '发红包'}
                   </button>
                 </div>
@@ -249,11 +274,6 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 ) : null}
               </CardHead>
               <div className="card-body" style={{ display: 'grid', gap: 12 }}>
-                {coverUrl ? (
-                  <span className="card-note" style={{ wordBreak: 'break-all' }}>
-                    {coverUrl}
-                  </span>
-                ) : null}
                 <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
                   <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
                     {coverBusy ? '上传中…' : coverUrl ? '换一张' : '上传图片 / 音频'}

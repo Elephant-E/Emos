@@ -275,6 +275,10 @@ export async function uploadImage(
  * 「要一张能直接用的图」的功能时需要它。不要因为「零引用」删掉。
  */
 export async function uploadTemporary(file: File): Promise<{ url: string }> {
+  if (USE_MOCK) {
+    await new Promise((r) => setTimeout(r, 400))
+    return { url: `https://temporary.emos.local/${Date.now()}-${encodeURIComponent(file.name)}` }
+  }
   const userId = currentUserId()
   if (!userId) throw new Error('没有读到当前账号 ID，请重新登录')
   if (file.size > 80 * 1024 * 1024) throw new Error('临时上传单个文件不能超过 80MB')
