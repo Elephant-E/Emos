@@ -335,7 +335,8 @@
   background: transparent;
   border: 0;
 }
-.field .seg button { padding: 0 12px; }
+/* 表单里的分段控件要和同列的 .input 等高，否则在一串 32px 的输入框里矮一截 */
+.field .seg button { height: 32px; padding: 0 14px; }
 .seg button[aria-pressed='true'] {
   background: rgba(255, 255, 255, 0.09);
   color: var(--fg);
