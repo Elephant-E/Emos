@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { formatPrice } from '@/components/Price'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { ListCard } from '@/components/ListCard'
-import { Tabs } from '@/components/Tabs'
+import { ProductToolbar } from '@/components/ProductToolbar'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
@@ -187,50 +187,32 @@ export function ShopView({
       ) : null}
 
       <>
-        <div className="toolbar" style={{ marginTop: 0 }}>
-            {mine ? (
-              <Tabs
-                items={[
-                  { key: 0, label: '全部分类' },
-                  ...(categories.data ?? []).map((category) => ({ key: category.category_id, label: category.name })),
-                ]}
-                value={categoryId}
-                onChange={(category) => onSearch({ category, page: 1 })}
-                label="商品分类"
-              />
-            ) : null}
-            <span className="spacer" />
-            <input
-              className="input"
-              type="search"
+          <ProductToolbar
+              style={{ marginTop: 0 }}
+              categories={(categories.data ?? []).map((c) => ({ id: c.category_id, name: c.name }))}
+              categoryId={categoryId}
+              onCategory={(category) => onSearch({ category, page: 1 })}
+              allLabel="全部分类"
+              showCategories={mine}
+              term={term}
+              onTerm={setTerm}
+              sort={sort}
+              onSort={(next) => onSearch({ sort: next, page: 1 })}
               placeholder="搜索商品名"
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              style={{ minWidth: 170 }}
-            />
-            <div className="seg" role="group" aria-label="排序">
-              <button aria-pressed={sort === ''} onClick={() => onSearch({ sort: '', page: 1 })}>
-                默认
-              </button>
-              <button aria-pressed={sort === 'sales'} onClick={() => onSearch({ sort: 'sales', page: 1 })}>
-                销量
-              </button>
-              <button aria-pressed={sort === 'price'} onClick={() => onSearch({ sort: 'price', page: 1 })}>
-                价格
-              </button>
-            </div>
-            {isSeller && mine ? (
+              extra={
+                isSeller && mine ? (
               <button
                 className="btn btn--primary"
                 disabled={!categories.data?.length}
                 title={categories.data?.length ? undefined : '先创建至少一个分类'}
                 onClick={() => setEditing({ stock: 100, price_origin: 100, price: 1, sort: 80, category_id: categories.data?.[0]?.category_id })}
               >
-                <IconPlus />
-                新增商品
-              </button>
-            ) : null}
-          </div>
+                  <IconPlus />
+                  新增商品
+                </button>
+                ) : null
+              }
+            />
 
           {mine && products.error ? (
             <ErrorBlock error={products.error} onRetry={() => products.refetch()} />

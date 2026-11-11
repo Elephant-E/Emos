@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Tabs } from '@/components/Tabs'
+import { ProductToolbar } from '@/components/ProductToolbar'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
@@ -50,34 +50,16 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       {seller.error ? <ErrorBlock error={seller.error} onRetry={() => seller.refetch()} /> : null}
 
       {categories.data && categories.data.length > 0 ? (
-        <div className="toolbar">
-          <Tabs
-            items={[{ key: 0, label: '全部' }, ...categories.data.map((category) => ({ key: category.category_id, label: category.name }))]}
-            value={categoryId}
-            onChange={setCategoryId}
-            label="分类"
-          />
-          <span className="spacer" />
-          <input
-            className="input"
-            type="search"
-            placeholder="搜这家店的商品"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            style={{ minWidth: 170 }}
-          />
-          <div className="seg" role="group" aria-label="排序">
-            <button aria-pressed={sort === ''} onClick={() => setSort('')}>
-              默认
-            </button>
-            <button aria-pressed={sort === 'sales'} onClick={() => setSort('sales')}>
-              销量
-            </button>
-            <button aria-pressed={sort === 'price'} onClick={() => setSort('price')}>
-              价格
-            </button>
-          </div>
-        </div>
+        <ProductToolbar
+          categories={categories.data.map((c) => ({ id: c.category_id, name: c.name }))}
+          categoryId={categoryId}
+          onCategory={setCategoryId}
+          term={term}
+          onTerm={setTerm}
+          sort={sort}
+          onSort={setSort}
+          placeholder="搜这家店的商品"
+        />
       ) : null}
       {query.error ? <ErrorBlock error={query.error} onRetry={() => query.refetch()} /> : null}
 
