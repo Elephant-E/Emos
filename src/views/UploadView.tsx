@@ -138,11 +138,10 @@ export function UploadView() {
       />
 
       <div className="toolbar">
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12.5, color: 'var(--fg-3)' }}>上传落点</span>
+        <label className="toolbar-field">
+          <span>上传落点</span>
           <select
             className="input"
-            style={{ minWidth: 150 }}
             value={fileStorage}
             onChange={(e) => setFileStorage(e.target.value)}
             aria-label="上传落点"
@@ -154,9 +153,9 @@ export function UploadView() {
             ))}
           </select>
         </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 12.5, color: 'var(--fg-3)' }}>暂存盘</span>
-          <select className="input" style={{ minWidth: 150 }} value={storage} onChange={(e) => setStorage(e.target.value)} aria-label="暂存盘">
+        <label className="toolbar-field">
+          <span>暂存盘</span>
+          <select className="input" value={storage} onChange={(e) => setStorage(e.target.value)} aria-label="暂存盘">
             {(disks.data ?? []).map((disk) => (
               <option key={disk} value={disk}>
                 {disk}

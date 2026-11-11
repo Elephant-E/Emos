@@ -59,7 +59,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             </button>
             <select
               className="input"
-              style={{ width: 108, minWidth: 0, height: 30 }}
+
               value={song.data?.rating ?? ''}
               aria-label="评分"
               onChange={(e) =>
