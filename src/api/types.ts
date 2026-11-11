@@ -270,8 +270,9 @@ export interface LineItem {
 
 export interface LiveListItem {
   id: number
-  live_library_id: number
-  code: string
+  live_library_id: number | null
+  /** 非空表示官方频道（如 CCTV1），不可删除 */
+  code: string | null
   title: string
   description: string | null
   tagline: string | null
@@ -343,6 +344,8 @@ export interface ShopOrder {
   order_cover_url: string | null
   status_pay: string
   urge_number: number | null
+  /** 店铺侧接口返回的结算价（胡萝卜），买家侧没有 */
+  price_settle?: number | null
   buy_number: number
   time_pay: string | null
   time_delivery: string | null

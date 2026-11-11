@@ -449,6 +449,11 @@
 .table { --thumb-w: 28px; }
 .table--thumb-wide { --thumb-w: 44px; }
 .table thead th.th-thumb { padding-left: calc(var(--pad-card) + var(--thumb-w) + var(--sp-3)); }
+/* 列多的表格：左右内边距收窄，否则固定布局下每格可用的宽度不够放徽标与时间 */
+.table--dense thead th,
+.table--dense tbody td { padding-left: var(--sp-3); padding-right: var(--sp-3); }
+.table--dense thead th.th-thumb,
+.table--dense tbody td.th-thumb { padding-left: calc(var(--sp-3) + var(--thumb-w) + var(--sp-3)); }
 .thumb {
   width: 28px;
   height: 42px;
@@ -473,6 +478,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.cell-title__row { display: flex; align-items: center; gap: var(--sp-1); }
+/* 标题行里的状态标记（如官方频道），比 chip 轻，不参与布局高度 */
+.cell-title__tag {
+  flex: none;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: var(--text-2xs);
+  line-height: 15px;
+  color: var(--fg-3);
 }
 .cell-title__code {
   display: block;
@@ -1726,6 +1742,7 @@ input.input[type='number'] { min-width: 0; }
   overflow-y: auto;
 }
 .image-picker__cell { position: relative; }
+.image-picker__sentinel { grid-column: 1 / -1; height: 1px; }
 .image-picker__thumb {
   display: block;
   width: 100%;

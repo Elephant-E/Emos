@@ -134,15 +134,21 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.data && visibleOrders.length > 0 ? (
         <ListCard items={visibleOrders} total={orders.data.total} idKey={(o) => o.order_no}>
-          <table className="table">
+          <table className="table table--fixed table--dense">
             <thead>
               <tr>
-                <th style={{ width: '32%' }} className="th-thumb">订单</th>
-                <th className="num" style={{ width: '14%' }}>单价 × 数量</th>
-                <th style={{ width: '12%' }}>支付</th>
+                <th style={{ width: mineScope ? '26%' : '20%' }} className="th-thumb">订单</th>
+                <th className="num" style={{ width: '11%' }}>单价 × 数量</th>
+                {/* price_settle 只有店铺侧接口返回，买家视角没有这一列 */}
+                {mineScope ? null : (
+                  <th className="num" style={{ width: '8%' }} title="平台结算给店铺的胡萝卜">
+                    结算
+                  </th>
+                )}
+                <th style={{ width: '11%' }}>支付</th>
                 <th style={{ width: '12%' }}>发货</th>
                 <th className="num" style={{ width: '12%' }}>下单时间</th>
-                <th style={{ width: '21%' }}>操作</th>
+                <th style={{ width: mineScope ? '28%' : '26%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -179,6 +185,9 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                       </div>
                     </td>
                     <td className="num tnum">{order.price_order} × {order.buy_number ?? 1}</td>
+                    {mineScope ? null : (
+                      <td className="num tnum muted">{order.price_settle == null ? '—' : order.price_settle}</td>
+                    )}
                     <td>
                       <span className={`badge ${paid ? 'badge--ok' : 'badge--wait'}`}>
                         <i />

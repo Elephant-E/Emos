@@ -20,6 +20,12 @@ export interface LiveSearch {
   channel: number
 }
 
+/** path_type 实测有 m3u8 与 guanfang 两种（文档写「目前固定 m3u8」已过期） */
+const PATH_TYPE_LABEL: Record<string, string> = {
+  m3u8: 'm3u8',
+  guanfang: '官方源',
+}
+
 export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
   const library = useLiveLibrary()
   const list = useLiveList(search.page, search.library)
@@ -101,7 +107,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 {media.data.items.map((row) => (
                   <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
-                    <span className="meta-sm">{row.path_type.toUpperCase()}</span>
+                    <span className="meta-sm">{PATH_TYPE_LABEL[row.path_type] ?? row.path_type}</span>
                     <span className="meta-sm ellipsis" style={{ flex: 1, minWidth: 0 }}>
                       {row.path_url}
                     </span>
@@ -211,9 +217,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                       <div className="cell-title">
                         <Poster src={item.image_poster_url} name={item.title} shape="square" />
                         <span>
-                          <span className="cell-title__name">
-                            {item.title}
-                            {selected ? <span className="meta-sm"> · 展开中</span> : null}
+                          {/* 官方标记要跟标题同一行，独立成块会把行撑高 */}
+                          <span className="cell-title__row">
+                            <span className="cell-title__name">{item.title}</span>
+                            {selected ? <span className="meta-sm">展开中</span> : null}
+                            {/* code 非空表示官方频道（CCTV1 这类），不可删除 */}
+                            {item.code ? <span className="cell-title__tag">官方</span> : null}
                           </span>
                           {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
                         </span>
@@ -224,7 +233,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <td className="num">{item.sort}</td>
                     <td className="num muted">{formatRelative(item.updated_at)}</td>
                     <td>
-                      {item.is_can_edit ? (
+                      {item.code ? (
+                        // 官方频道不可删除；保留禁用态，行高才和其它行一致
+                        <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
+                          删除
+                        </button>
+                      ) : item.is_can_edit ? (
                         <button type="button"
                           className="btn btn--danger-text"
                         disabled={actions.removeChannel.isPending}
@@ -331,6 +345,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               <span>类型</span>
               <select className="input" value={source.path_type} onChange={(e) => setSource({ ...source, path_type: e.target.value })}>
                 <option value="m3u8">m3u8</option>
+                <option value="guanfang">官方源</option>
               </select>
             </label>
             <label className="field">

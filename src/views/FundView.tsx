@@ -249,15 +249,16 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       {tab === 'orders' && rows.length > 0 ? (
         <div className="table-card">
-          <table className="table">
+          <table className="table table--fixed table--dense">
             <thead>
               <tr>
-                <th style={{ width: '38%' }}>订单</th>
-                <th className="num" style={{ width: '12%' }}>胡萝卜</th>
-                <th className="num" style={{ width: '12%' }}>补贴</th>
-                <th style={{ width: '16%' }}>状态</th>
-                <th style={{ width: '16%' }}>时间</th>
-                <th style={{ width: '120px' }}>操作</th>
+                <th style={{ width: '30%' }}>订单</th>
+                <th className="num" style={{ width: '9%' }}>胡萝卜</th>
+                <th className="num" style={{ width: '9%' }}>承诺补贴</th>
+                <th className="num" style={{ width: '9%' }} title="实际打款的金额">实际打款</th>
+                <th style={{ width: '12%' }}>状态</th>
+                <th style={{ width: '13%' }}>时间</th>
+                <th style={{ width: '18%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -275,8 +276,12 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                     </td>
                     <td className="num">{row.tier_carrot == null ? '—' : formatThousand(Number(row.tier_carrot))}</td>
                     <td className="num">{row.tier_price == null ? '—' : `¥${String(row.tier_price)}`}</td>
+                    {/* 承诺的补贴与实际打款可能不同（payout_price 打款后才有值） */}
+                    <td className="num">{row.payout_price == null ? '—' : `¥${String(row.payout_price)}`}</td>
                     <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
-                    <td className="muted tnum">{row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}</td>
+                    <td className="muted tnum">
+                      {row.payout_at ? formatDateTime(String(row.payout_at)) : row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}
+                    </td>
                     <td>
                       <button type="button"
                         className="btn btn--quiet"

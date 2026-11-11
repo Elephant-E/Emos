@@ -79,8 +79,9 @@ export const uploadApi = {
   multipartAbort: (fileId: string) => request<unknown>(`/api/upload/multipart/${fileId}/abort`, { method: 'DELETE' }),
 
   // 图片：上传后进图库，image/list 能查到
-  images: (params: { name?: string; date?: string }) =>
-    request<ListResult<{ file_id: string; url: string; file_name: string; file_size: number; created_at: string }>>(
+  // 服务端每页固定 15 条（传别的值会被压回 15），只能靠 page 翻页
+  images: (params: { name?: string; date?: string; page?: number; page_size?: number }) =>
+    request<ListResult<{ file_id: string; url: string; file_name: string; file_size: number; file_type: string; created_at: string }>>(
       '/api/upload/image/list',
       { query: params },
     ),

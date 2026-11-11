@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
 import { uploadApi } from '@/api/endpoints'
 import { uploadImage } from '@/lib/uploader'
@@ -77,10 +77,37 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
   const [removing, setRemoving] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const images = useQuery({
+  // 图库接口每页固定 15 条（传别的值会被压回 15），必须翻页才能拿到旧图
+  const images = useInfiniteQuery({
     queryKey: ['upload', 'images', term] as const,
-    queryFn: () => uploadApi.images({ name: term || undefined }),
+    queryFn: ({ pageParam }) => uploadApi.images({ name: term || undefined, page: pageParam, page_size: 15 }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => {
+      const loaded = last.page * last.page_size
+      return loaded < last.total ? last.page + 1 : undefined
+    },
   })
+  const imageRows = images.data?.pages.flatMap((page) => page.items) ?? []
+
+  // 滚到底自动取下一页。观察器随「还能不能取」与条数重建：
+  // 只建一次的话，首次渲染时哨兵已在视口内会立刻触发一次，之后不再变化就不再回调
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const loadedCount = images.data?.pages.reduce((sum, page) => sum + page.items.length, 0) ?? 0
+  const canFetchMore = Boolean(images.hasNextPage) && !images.isFetchingNextPage
+  const fetchNext = images.fetchNextPage
+  useEffect(() => {
+    if (!canFetchMore) return
+    const node = sentinelRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) void fetchNext()
+      },
+      { rootMargin: '120px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [canFetchMore, loadedCount, fetchNext])
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
@@ -149,12 +176,12 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       />
 
       {images.isLoading ? <p className="muted">读取图库…</p> : null}
-      {images.data && images.data.items.length === 0 ? (
+      {images.data && imageRows.length === 0 ? (
         <p className="muted">{term ? `没有找到「${term}」` : '图库还是空的'}</p>
       ) : null}
 
       <div className="image-picker__grid">
-        {(images.data?.items ?? []).map((img) => (
+        {imageRows.map((img) => (
           <div key={img.file_id} className={`image-picker__cell${selected === img.url ? ' is-picked' : ''}`}>
             <button type="button" className="image-picker__thumb" onClick={() => setSelected(img.url)}>
               <img src={img.url} alt={img.file_name} loading="lazy" />
@@ -184,7 +211,13 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
             </button>
           </div>
         ))}
+        <div ref={sentinelRef} className="image-picker__sentinel" />
       </div>
+
+      {images.isFetchingNextPage ? <p className="muted">读取更多…</p> : null}
+      {!images.hasNextPage && imageRows.length > 0 ? (
+        <p className="muted tnum-sm">共 {images.data?.pages[0]?.total ?? imageRows.length} 张</p>
+      ) : null}
     </Modal>
   )
 }

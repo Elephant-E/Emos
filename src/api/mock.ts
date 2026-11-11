@@ -654,6 +654,7 @@ export async function mockRequest<T>(
     const rows = [
       { id: 1, live_library_id: 100, code: 'cctv1', title: 'CCTV-1 综合', description: '央视综合频道', tagline: '三网直达', image_poster_url: poster('live1'), sort: 80, is_can_edit: true, media_count: 2, updated_at: '2026-11-03T10:00:00Z' },
       { id: 2, live_library_id: 100, code: 'cctv5', title: 'CCTV-5 体育', description: null, tagline: null, image_poster_url: poster('live2'), sort: 70, is_can_edit: true, media_count: 2, updated_at: '2026-11-02T18:00:00Z' },
+      { id: 4, live_library_id: 101, code: null, title: '自建频道', description: '非官方，可删除', tagline: null, image_poster_url: null, sort: 40, is_can_edit: true, media_count: 0, updated_at: '2026-10-20T09:00:00Z' },
       { id: 3, live_library_id: 101, code: 'hunan', title: '湖南卫视', description: null, tagline: null, image_poster_url: poster('live3'), sort: 60, is_can_edit: false, media_count: 1, updated_at: '2026-10-28T09:00:00Z' },
     ]
     const filtered = query.library_id ? rows.filter((r) => r.live_library_id === Number(query.library_id)) : rows
@@ -663,7 +664,7 @@ export async function mockRequest<T>(
     return paginate(
       [
         { media_id: 'lgqjrvnnwzxd', name: '三网直达 1080p', path_type: 'm3u8', path_url: 'http://live.local/cctv1.m3u8', status: 'normal', pseudonym: 'sorakand', is_can_edit: true, created_at: '2026-11-01T10:00:00Z' },
-        { media_id: 'mgqjrvnnwzxe', name: '电信线路', path_type: 'flv', path_url: 'http://live.local/cctv1.flv', status: 'normal', pseudonym: 'lin', is_can_edit: false, created_at: '2026-10-30T10:00:00Z' },
+        { media_id: 'mgqjrvnnwzxe', name: '米谷官方源', path_type: 'guanfang', path_url: 'http://live.local/cctv1.m3u8', status: 'normal', pseudonym: 'lin', is_can_edit: false, created_at: '2026-10-30T10:00:00Z' },
       ],
       1,
       50,
@@ -816,9 +817,9 @@ export async function mockRequest<T>(
   }
   if (clean === '/api/fund/order/list') {
     const rows = [
-      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814221653fundLKoR0', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-14 22:16:53', payout_status: 'reviewing', payout_status_string: '审核中', reward_code: null },
-      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814220110fundXa9b', order_title: '使用 600🥕 兑换最高 6¥ 补贴', tier_name: '🎬 观影礼', tier_carrot: 600, tier_price: 6, payed_at: '2026-08-14 22:01:10', payout_status: 'pass', payout_status_string: '已打款', reward_code: null },
-      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260813093012fundQ1c', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-13 09:30:12', payout_status: 'default', payout_status_string: '待提交', reward_code: null },
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814221653fundLKoR0', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-14 22:16:53', payout_status: 'reviewing', payout_status_string: '审核中', payout_price: null, payout_at: null, reward_code: null },
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260814220110fundXa9b', order_title: '使用 600🥕 兑换最高 6¥ 补贴', tier_name: '🎬 观影礼', tier_carrot: 600, tier_price: 6, payed_at: '2026-08-14 22:01:10', payout_status: 'pass', payout_status_string: '已打款', payout_price: 6, payout_at: '2026-08-20 10:12:00', reward_code: null },
+      { activity_code: 'anniv-1', activity_name: 'EMOS 一周年', order_no: '20260813093012fundQ1c', order_title: '使用 100🥕 兑换最高 1¥ 补贴', tier_name: '🍿 入场礼', tier_carrot: 100, tier_price: 1, payed_at: '2026-08-13 09:30:12', payout_status: 'default', payout_status_string: '待提交', payout_price: null, payout_at: null, reward_code: null },
     ]
     return paginate(rows, 1, 20) as T
   }
@@ -888,14 +889,18 @@ export async function mockRequest<T>(
 
   if (clean === '/api/upload/image/list') {
     const name = String(query.name ?? '').trim()
-    const rows = Array.from({ length: 8 }, (_, i) => ({
+    // 真机服务端固定每页 15 条，这里造 38 张验证滚动加载
+    const names = ['封面', '海报', '横幅', '图标', '活动图', '周边']
+    const rows = Array.from({ length: 38 }, (_, i) => ({
       file_id: `img_${1000 + i}`,
       url: poster(`gallery${i + 1}`),
-      file_name: ['封面-01.jpg', '封面-02.jpg', '海报-a.png', '海报-b.png', '横幅.png', '图标.png', '活动图.jpg', '周边.jpg'][i],
+      file_name: `${names[i % names.length]}-${String(i + 1).padStart(2, '0')}.${i % 3 === 0 ? 'png' : 'jpg'}`,
       file_size: 120_000 + i * 9000,
-      created_at: '2026-11-0' + ((i % 5) + 1) + 'T10:00:00Z',
+      file_type: i % 3 === 0 ? 'image/png' : 'image/jpeg',
+      created_at: `2026-11-0${(i % 5) + 1}T10:00:00Z`,
     }))
-    return paginate(name ? rows.filter((r) => r.file_name.includes(name)) : rows, 1, 40) as T
+    const filtered = name ? rows.filter((r) => r.file_name.includes(name)) : rows
+    return paginate(filtered, Number(query.page ?? 1), 15) as T
   }
   if (clean === '/api/upload/image/delete') return { is_delete: true } as T
   if (clean === '/api/upload/video/recognize') {
