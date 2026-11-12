@@ -262,6 +262,7 @@ export async function mockRequest<T>(
     }))
     return paginate(rows, page, 15) as T
   }
+  if (/\/api\/watch\/\d+\/(sort|dynamic|maintainer|show)$/.test(clean)) return {} as T
   if (/\/api\/watch\/\d+\/(video|music)\/empty$/.test(clean)) return { count: 3 } as T
   if (clean === '/api/invite/exit') return {} as T
   if (clean === '/api/invite/emps') return { carrot: -120 } as T

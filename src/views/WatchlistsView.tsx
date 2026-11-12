@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListCard } from '@/components/ListCard'
+import { InlineSortInput } from '@/components/InlineSortInput'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
@@ -66,6 +67,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       qc.invalidateQueries({ queryKey: ['watches'] })
       qc.invalidateQueries({ queryKey: ['session'] })
     },
+  })
+
+  // 排序值只影响「我的片单」在列表里的位置，改完刷新列表即可
+  const sortWatch = useMutation({
+    mutationFn: ({ watchId, sort }: { watchId: number; sort: number }) => watchApi.sort(watchId, sort),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['watches'] }),
   })
 
   const create = useMutation({
@@ -153,6 +160,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 <th className="num" style={{ width: '11%' }}>影片</th>
                 <th className="num" style={{ width: '11%' }}>订阅</th>
                 <th className="num" style={{ width: '12%' }}>更新</th>
+                {search.scope === 'self' ? <th className="num" style={{ width: '88px' }}>排序</th> : null}
                 <th style={{ width: '88px' }}>操作</th>
               </tr>
             </thead>
@@ -199,6 +207,16 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num">{formatThousand(watch.video_count)}</td>
                   <td className="num">{formatThousand(watch.subscribe_count)}</td>
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
+                  {search.scope === 'self' ? (
+                    <td className="num" onClick={(e) => e.stopPropagation()}>
+                      <InlineSortInput
+                        value={watch.user_sort}
+                        label={`${watch.name} 的排序`}
+                        stopRowClick
+                        onCommit={(sort) => sortWatch.mutate({ watchId: watch.id, sort })}
+                      />
+                    </td>
+                  ) : null}
                   <td onClick={(e) => e.stopPropagation()}>
                     {watch.is_self ? (
                       <button type="button"

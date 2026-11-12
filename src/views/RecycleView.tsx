@@ -151,8 +151,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                   <th style={{ width: '34%' }}>资源</th>
                   <th style={{ width: '22%' }}>所属</th>
                   <th className="num" style={{ width: '12%' }}>大小</th>
-                  <th style={{ width: '14%' }}>存储</th>
-                  <th className="num" style={{ width: '12%' }}>入库时间</th>
+                  <th style={{ width: '12%' }}>存储</th>
+                  <th className="num" style={{ width: '15%' }}>入库时间</th>
                   {restorable ? <th style={{ width: '96px' }}>操作</th> : null}
                 </tr>
               </thead>

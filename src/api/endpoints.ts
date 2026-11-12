@@ -149,9 +149,6 @@ export const subtitleApi = {
 export const recordApi = {
   requests: (params: { page?: number; page_size?: number; user_id?: string }) =>
     request<ListResult<Record<string, unknown>>>('/api/video/record/request', { query: params }),
-  /** mode: delete / complete；type: vl 影片 / vs 季 / ve 集 */
-  change: (mode: string, type: string, id: number) =>
-    request<{ count: number }>('/api/video/record/change', { method: 'PUT', query: { mode, type, id } }),
   list: (params: { page?: number; page_size?: number }) => request<ListResult<Record<string, unknown>>>('/api/video/record/list', { query: params }),
 }
 
@@ -291,7 +288,6 @@ export const shopApi = {
     request<ListResult<ShopProduct>>('/api/shop/product/list', { query: params }),
   saveProduct: (payload: Record<string, unknown>) => request<{ product_id: number }>('/api/shop/product/createOrUpdate', { method: 'POST', body: payload }),
   deleteProduct: (productId: number) => request<unknown>('/api/shop/product/delete', { method: 'DELETE', query: { product_id: productId } }),
-  productCategory: (productId: number, categoryId: number) => request<{ category_id: number }>('/api/shop/product/category', { method: 'PUT', query: { product_id: productId, category_id: categoryId } }),
   productSort: (productId: number, sort: number) => request<{ sort: number }>('/api/shop/product/sort', { method: 'PUT', query: { product_id: productId, sort } }),
   productUp: (productId: number) => request<{ is_up: boolean }>('/api/shop/product/up', { method: 'PUT', query: { product_id: productId } }),
 

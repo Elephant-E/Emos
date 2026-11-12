@@ -292,6 +292,7 @@ export function ShopView({
                     <th className="num" style={{ width: '12%' }}>价格</th>
                     <th className="num" style={{ width: '12%' }}>库存</th>
                     <th className="num" style={{ width: '12%' }}>销量</th>
+                    {mine ? <th className="num" style={{ width: '9%' }}>排序</th> : null}
                     <th style={{ width: '14%' }}>状态</th>
                     {mine ? <th style={{ width: '1%' }}>操作</th> : null}
                   </tr>
@@ -313,6 +314,16 @@ export function ShopView({
                       <td className="num">{formatPrice(product.price)}</td>
                       <td className="num">{formatThousand(product.stock)}</td>
                       <td className="num">{formatThousand(product.sales)}</td>
+                      {mine ? (
+                        <td className="num" onClick={(e) => e.stopPropagation()}>
+                          <InlineSortInput
+                            value={product.sort}
+                            label={`${product.name} 的排序`}
+                            stopRowClick
+                            onCommit={(sort) => actions.setSort.mutate({ productId: product.product_id, sort })}
+                          />
+                        </td>
+                      ) : null}
                       <td>
                         <span className={`badge ${product.is_up ? 'badge--ok' : 'badge--off'}`}>
                           <i />

@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**171** 个封装。
+代码（`src/api/endpoints.ts`）：**169** 个封装。
 
-- 已接且有界面调用：**166**
-- 已接但无调用：**2**
-- 未接：**20**
+- 已接且有界面调用：**165**
+- 已接但无调用：**1**
+- 未接：**22**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -24,9 +24,11 @@
 | 上传相关 / 储存 | 暂存区文件 | `GET /api/upload/store/file` |
 | 上传相关 / 储存 | 暂存区文件入库 | `POST /api/upload/store/archive` |
 | 视频相关 / 资源相关 | 获取播放地址 | `GET /api/video/media/playUrl` |
+| 视频相关 / 观影记录 | 更新记录 | `PUT /api/video/record/change` |
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
+| 商城相关 / 商品 | 修改分类 | `PUT /api/shop/product/category` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |
 | 音乐相关 / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
 | 影院相关 | 随机影片 | `GET /api/reel/rand` |
@@ -47,7 +49,6 @@
 
 | 分组 | 封装 | 方法 路径 | 判断 |
 |---|---|---|---|
-| 视频相关 / 观影记录 | `recordApi.change` | `PUT /api/video/record/change` | 改观影记录，用户侧行为 |
 | 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
 
 ## 刻意不接 / 后台工具
@@ -63,6 +64,7 @@
 | 暂存区文件 | `GET /api/upload/store/file` | 同上 |
 | 暂存区文件入库 | `POST /api/upload/store/archive` | 同上 |
 | 获取播放地址 | `GET /api/video/media/playUrl` | 播放地址按需求不展示 |
+| 更新记录 | `PUT /api/video/record/change` | 改观影记录，属于用户侧行为，后台不改 |
 | 搜索获取目录树 | `GET /api/video/tree` | 取目录树，后台用不上（列表页走 /api/video/list） |
 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量重置片单内容的对外接口：契约写明「请先联系官方确认」，且每次提交会清空整个片单 |
 | 测试回调 | `POST /api/pay/testNotify` | 回调自测，联调用 |
