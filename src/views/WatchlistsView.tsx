@@ -152,16 +152,16 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <ListCard items={data.items} total={data.total} idKey={(v) => v.id}>
-          <table className="table table--fixed table--thumb-wide">
+          <table className="table table--auto table--thumb-wide">
             <thead>
               <tr>
-                <th style={{ width: '36%' }} className="th-thumb">片单</th>
-                <th style={{ width: '12%' }}>可见性</th>
-                <th className="num" style={{ width: '10%' }}>影片</th>
-                <th className="num" style={{ width: '10%' }}>订阅</th>
-                <th className="num" style={{ width: '15%' }}>更新</th>
-                {search.scope === 'self' ? <th className="num" style={{ width: '88px' }}>排序</th> : null}
-                <th style={{ width: '88px' }}>操作</th>
+                <th className="th-thumb">片单</th>
+                <th>可见性</th>
+                <th className="num">影片</th>
+                <th className="num">订阅</th>
+                <th className="num">更新</th>
+                {search.scope === 'self' ? <th className="num">排序</th> : null}
+                <th style={{ width: '1%' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -208,7 +208,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num">{formatThousand(watch.subscribe_count)}</td>
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
                   {search.scope === 'self' ? (
-                    <td className="num" onClick={(e) => e.stopPropagation()}>
+                    <td className="num cell--input" onClick={(e) => e.stopPropagation()}>
                       <InlineSortInput
                         value={watch.user_sort}
                         label={`${watch.name} 的排序`}

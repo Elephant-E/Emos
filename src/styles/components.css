@@ -414,6 +414,10 @@
 .table .num { text-align: left; font-variant-numeric: tabular-nums; }
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
 .table--fixed { table-layout: fixed; }
+/* 列宽自适应：交给内容决定（数字列贴住自己的宽度，长文本列吃掉剩余）；
+   与 --fixed 一样保持单行省略，避免长文本把行撑高 */
+.table--auto { table-layout: auto; }
+.table--auto td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .table--fixed .cell-title { min-width: 0; }
 .table--fixed td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -2042,3 +2046,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
 }
 
+
+/* 单元格里放输入框（行内排序）时收紧左右内边距：
+   表格默认左右各 24px，加上 72px 的输入框，固定列宽下会溢出被裁 */
+.table td.cell--input { padding-inline: var(--sp-3); }

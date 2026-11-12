@@ -204,16 +204,16 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <ListCard items={data.items} total={data.total ?? data.items.length} idKey={(v) => v.id}>
-          <table className="table table--fixed table--dense">
+          <table className="table table--auto table--dense">
             <thead>
               <tr>
-                <th style={{ width: '32%' }} className="th-thumb">求片</th>
-                <th style={{ width: '10%' }}>类型</th>
-                <th style={{ width: '12%' }}>状态</th>
-                <th className="num" style={{ width: '10%' }}>求片数</th>
-                <th className="num" style={{ width: '10%' }}>悬赏</th>
-                <th className="num" style={{ width: '14%' }}>更新</th>
-                <th style={{ width: '1%' }}>操作</th>
+                <th className="th-thumb">求片</th>
+                <th>类型</th>
+                <th>状态</th>
+                <th className="num">求片数</th>
+                <th className="num">悬赏</th>
+                <th className="num">更新</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>

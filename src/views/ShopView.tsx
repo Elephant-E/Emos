@@ -315,7 +315,7 @@ export function ShopView({
                       <td className="num">{formatThousand(product.stock)}</td>
                       <td className="num">{formatThousand(product.sales)}</td>
                       {mine ? (
-                        <td className="num" onClick={(e) => e.stopPropagation()}>
+                        <td className="num cell--input" onClick={(e) => e.stopPropagation()}>
                           <InlineSortInput
                             value={product.sort}
                             label={`${product.name} 的排序`}
