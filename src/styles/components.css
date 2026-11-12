@@ -2042,16 +2042,3 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
 }
 
-/* 五颗星的评分：直接点，不再开弹窗 */
-.rating-stars { display: inline-flex; align-items: center; gap: 2px; }
-.rating-star {
-  display: inline-flex;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--fg-4);
-  cursor: pointer;
-}
-.rating-star:hover { color: var(--fg-2); }
-.rating-star.is-on { color: var(--fg); }
-.rating-star:disabled { cursor: default; }
