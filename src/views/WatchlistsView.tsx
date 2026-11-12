@@ -160,7 +160,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 <th className="num">影片</th>
                 <th className="num">订阅</th>
                 <th className="num">更新</th>
-                {search.scope === 'self' ? <th className="num">排序</th> : null}
+                {search.scope === 'subscribed' ? <th className="num">排序</th> : null}
                 <th style={{ width: '1%' }}>操作</th>
               </tr>
             </thead>
@@ -207,7 +207,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                   <td className="num">{formatThousand(watch.video_count)}</td>
                   <td className="num">{formatThousand(watch.subscribe_count)}</td>
                   <td className="num muted">{formatRelative(watch.updated_at)}</td>
-                  {search.scope === 'self' ? (
+                  {search.scope === 'subscribed' ? (
                     <td className="num cell--input" onClick={(e) => e.stopPropagation()}>
                       <InlineSortInput
                         value={watch.user_sort}
