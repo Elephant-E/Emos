@@ -30,44 +30,12 @@ function fixturesPlugin() {
   }
 }
 
-/**
- * dev 与线上同一份实现：`/api/spotify/search`、`/api/spotify/lookup` 都调用
- * `worker/spotify.ts`（MusicBrainz，无密钥）；其余 `/api/*` 仍由下面的 proxy 转给上游。
- * 必须在 proxy 之前注册，否则会被转发到上游变成 404。
- */
-function spotifyDevPlugin() {
-  return {
-    name: 'emos-spotify-dev',
-    apply: 'serve' as const,
-    configureServer(server: { middlewares: { use: (fn: (req: any, res: any, next: () => void) => void) => void } }) {
-      server.middlewares.use(async (req, res, next) => {
-        const path = (req.url || '').split('?')[0]
-        if (path !== '/api/spotify/search' && path !== '/api/spotify/lookup') return next()
-        const q = new URL(req.url || '', 'http://localhost').searchParams
-        res.setHeader('Content-Type', 'application/json; charset=utf-8')
-
-        if (path === '/api/spotify/lookup') {
-          const { resolveSpotifyId } = await import('./worker/spotify')
-          const { status, body } = await resolveSpotifyId(q.get('mbid') ?? '')
-          res.statusCode = status
-          return res.end(JSON.stringify(body))
-        }
-
-        const { searchArtists } = await import('./worker/spotify')
-        const { status, body } = await searchArtists(q.get('q') ?? '')
-        res.statusCode = status
-        res.end(JSON.stringify(body))
-      })
-    },
-  }
-}
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiOrigin = env.VITE_API_ORIGIN || DEFAULT_API_ORIGIN
 
   return {
-  plugins: [react(), fixturesPlugin(), spotifyDevPlugin()],
+  plugins: [react(), fixturesPlugin()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

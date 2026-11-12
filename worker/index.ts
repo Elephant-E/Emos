@@ -1,4 +1,3 @@
-import { searchArtists, resolveSpotifyId } from './spotify'
 
 interface Env {
   ASSETS: { fetch: (req: Request) => Promise<Response> }
@@ -15,16 +14,6 @@ export default {
 
     if (url.pathname === '/favicon.ico' || url.pathname.startsWith('/cdn-cgi/')) {
       return new Response(null, { status: 204 })
-    }
-
-    if (url.pathname === '/api/spotify/search') {
-      const { status, body } = await searchArtists(url.searchParams.get('q') ?? '')
-      return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS })
-    }
-
-    if (url.pathname === '/api/spotify/lookup') {
-      const { status, body } = await resolveSpotifyId(url.searchParams.get('mbid') ?? '')
-      return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS })
     }
 
     if (url.pathname.startsWith('/api/')) {
