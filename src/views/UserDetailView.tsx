@@ -5,7 +5,6 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
-import { MoreMenu } from '@/components/MoreMenu'
 import { ErrorBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -46,45 +45,43 @@ export function UserDetailView({ userId }: { userId: string }) {
             <Link className="btn btn--ghost" to="/users">
               封禁列表
             </Link>
-            <MoreMenu
-              items={[
-                banned
-                  ? {
-                      label: '解除封禁',
-                      onSelect: async () => {
-                        const ok = await confirmDialog({
-                          title: `解除 ${name || userId} 的封禁？`,
-                          message: banned.disable_reason ? `原因：${banned.disable_reason}` : undefined,
-                          hint: '解除后对方可以立即恢复访问。',
-                          confirmText: '解除',
-                        })
-                        if (!ok) return
-                        actions.banChange.mutate(
-                          { type: 'unblock', userId },
-                          { onSuccess: () => toast('已解除封禁', 'success') },
-                        )
-                      },
-                    }
-                  : {
-                      label: '封禁该用户',
-                      danger: true,
-                      onSelect: async () => {
-                        const ok = await confirmDialog({
-                          title: `封禁 ${name || userId}？`,
-                          message: '该用户将无法继续访问服务。',
-                          hint: '可在封禁列表里随时解除。',
-                          confirmText: '封禁',
-                          danger: true,
-                        })
-                        if (!ok) return
-                        actions.banChange.mutate(
-                          { type: 'disable', userId, reason: '后台手动封禁' },
-                          { onSuccess: () => toast('已封禁', 'success') },
-                        )
-                      },
-                    },
-              ]}
-            />
+            {banned ? (
+              <button type="button"
+                className="btn btn--ghost"
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: `解除 ${name || userId} 的封禁？`,
+                    message: banned.disable_reason ? `原因：${banned.disable_reason}` : undefined,
+                    hint: '解除后对方可以立即恢复访问。',
+                    confirmText: '解除',
+                  })
+                  if (!ok) return
+                  actions.banChange.mutate({ type: 'unblock', userId }, { onSuccess: () => toast('已解除封禁', 'success') })
+                }}
+              >
+                解除封禁
+              </button>
+            ) : (
+              <button type="button"
+                className="btn btn--ghost"
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: `封禁 ${name || userId}？`,
+                    message: '该用户将无法继续访问服务。',
+                    hint: '可在封禁列表里随时解除。',
+                    confirmText: '封禁',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  actions.banChange.mutate(
+                    { type: 'disable', userId, reason: '后台手动封禁' },
+                    { onSuccess: () => toast('已封禁', 'success') },
+                  )
+                }}
+              >
+                封禁
+              </button>
+            )}
           </>
         }
       />

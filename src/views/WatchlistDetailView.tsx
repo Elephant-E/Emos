@@ -5,7 +5,6 @@ import { watchApi } from '@/api/endpoints'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
-import { MoreMenu } from '@/components/MoreMenu'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -224,34 +223,36 @@ export function WatchlistDetailView({
                 {item.is_subscribe ? '取消订阅' : '订阅'}
               </button>
               {item.is_self ? (
-                <MoreMenu
-                  items={[
-                    { label: '编辑片单', onSelect: () => setEditing(true) },
-                    {
-                      label: '维护者',
-                      onSelect: () => {
-                        setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean) as string[])
-                        setMaintainerOpen(true)
-                      },
-                    },
-                    {
-                      label: item.user_is_show ? '在列表隐藏' : '在列表显示',
-                      disabled: toggleShow.isPending,
-                      onSelect: () =>
-                        toggleShow.mutate(undefined, {
-                          onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success'),
-                        }),
-                    },
-                    { label: '动态抓取', onSelect: () => { setDynamicUrl(''); setDynamicOpen(true) } },
-                    { label: '批量替换影片', onSelect: () => setBatchText('') },
-                    {
-                      label: '清空片单',
-                      danger: true,
-                      disabled: clearVideos.isPending || clearMusic.isPending,
-                      onSelect: () => void clearAll(),
-                    },
-                  ]}
-                />
+                <>
+                  <button type="button" className="btn btn--ghost" onClick={() => setEditing(true)}>
+                    编辑
+                  </button>
+                  <button type="button"
+                    className="btn btn--ghost"
+                    onClick={() => {
+                      setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean) as string[])
+                      setMaintainerOpen(true)
+                    }}
+                  >
+                    维护者
+                  </button>
+                  <button type="button" className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
+                    {item.user_is_show ? '隐藏' : '显示'}
+                  </button>
+                  <button type="button" className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
+                    动态抓取
+                  </button>
+                  <button type="button" className="btn btn--ghost" onClick={() => setBatchText('')}>
+                    批量替换
+                  </button>
+                  <button type="button"
+                    className="btn btn--danger-text"
+                    disabled={clearVideos.isPending || clearMusic.isPending}
+                    onClick={() => void clearAll()}
+                  >
+                    清空
+                  </button>
+                </>
               ) : null}
             </>
           ) : null
