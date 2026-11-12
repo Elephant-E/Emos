@@ -18,6 +18,10 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* 18 项在 1280×900 下会超出可视区，滚动条要常驻，否则下面 4 个入口没有提示 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-gutter: stable;
   margin: 0 -6px;
   padding: 0 6px;
   scrollbar-width: thin;

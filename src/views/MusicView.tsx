@@ -127,12 +127,16 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                 <th style={{ width: '40%' }} className={search.tab === 'songs' ? undefined : 'th-thumb'}>
                   {search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}
                 </th>
-                <th style={{ width: '26%' }}>艺人</th>
+                <th style={{ width: '26%' }}>
+                  {search.tab === 'persons' ? '出生地' : '艺人'}
+                </th>
                 <th className="num" style={{ width: '12%' }}>
                   {search.tab === 'songs' ? '时长' : search.tab === 'persons' ? '生日' : '发行'}
                 </th>
-                <th style={{ width: '12%' }}>状态</th>
-                <th style={{ width: 44 }} />
+                <th style={{ width: '12%' }}>
+                  {search.tab === 'songs' ? '资源' : search.tab === 'albums' ? '曲目' : '类型'}
+                </th>
+                <th style={{ width: 96 }} />
               </tr>
             </thead>
             <tbody>
@@ -172,7 +176,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                     <td className="muted">
                       {artists ||
                         (search.tab === 'persons'
-                          ? String(row.birthplace ?? row.birthday ?? '—')
+                          ? String(row.birthplace ?? '—')
                           : String(row.original_name ?? '—'))}
                     </td>
                     <td className="num muted">

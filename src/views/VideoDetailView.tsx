@@ -372,7 +372,7 @@ export function VideoDetailView({
                           {row.is_self_upload || caps.isAdmin ? (
                             <button type="button"
                               className="row-menu"
-                              aria-label="重命名"
+                              aria-label="编辑资源"
                               onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
                             >
                               <IconDots />
@@ -453,7 +453,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button type="button" className="row-menu" aria-label="重命名" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
+                            <button type="button" className="row-menu" aria-label="编辑资源" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
                               <IconDots />
                             </button>
                           ) : null}

@@ -117,8 +117,18 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           </div>
         ) : (
           <EmptyBlock
-            title={search.q ? `没有找到「${search.q}」` : '片库还是空的'}
-            action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>清空筛选</button>}
+            title={search.q || search.type ? `没有找到匹配的影片` : '片库还是空的'}
+            action={
+              search.q || search.type ? (
+                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>
+                  清空筛选
+                </button>
+              ) : (
+                <Link to="/upload" className="btn btn--primary">
+                  新增入库
+                </Link>
+              )
+            }
           />
         )
       ) : null}
