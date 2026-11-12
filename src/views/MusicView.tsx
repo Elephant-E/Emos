@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
 import { Poster } from '@/components/Poster'
+import { SpotifyArtists } from '@/components/SpotifyArtists'
 import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
@@ -45,6 +46,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums', search.page_size)
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
   const [syncArtist, setSyncArtist] = useState<string | null>(null)
+  const [artistQ, setArtistQ] = useState('')
   const [mvAlbum, setMvAlbum] = useState<{ albumId: number; name: string } | null>(null)
   const albumActions = useAlbumMutations()
   const actions = useMusicMutations()
@@ -273,6 +275,28 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
             </>
           }
         >
+          <label className="field">
+            <span>按名字搜索</span>
+            <input
+              className="input"
+              value={artistQ}
+              onChange={(e) => setArtistQ(e.target.value)}
+              placeholder="输入歌手名，例如 邓紫棋"
+              autoFocus
+            />
+          </label>
+          {artistQ.trim().length >= 2 ? (
+            <SpotifyArtists
+              query={artistQ.trim()}
+              onPick={(id) => {
+                setSyncArtist(id)
+                setArtistQ('')
+              }}
+            />
+          ) : (
+            <p className="card-note">搜索不可用时，直接填下面的链接或 ID 也行。</p>
+          )}
+
           <label className="field">
             <span>歌手链接或 ID</span>
             <input

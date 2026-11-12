@@ -1,8 +1,12 @@
+import { searchArtists } from './spotify'
+
 interface Env {
   ASSETS: { fetch: (req: Request) => Promise<Response> }
   API_ORIGIN: string
   EMOS_PROXY_NAME?: string
   EMOS_PROXY_ID?: string
+  SPOTIFY_CLIENT_ID?: string
+  SPOTIFY_CLIENT_SECRET?: string
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' }
@@ -13,6 +17,15 @@ export default {
 
     if (url.pathname === '/favicon.ico' || url.pathname.startsWith('/cdn-cgi/')) {
       return new Response(null, { status: 204 })
+    }
+
+    if (url.pathname === '/api/spotify/search') {
+      const { status, body } = await searchArtists(
+        url.searchParams.get('q') ?? '',
+        env.SPOTIFY_CLIENT_ID ?? '',
+        env.SPOTIFY_CLIENT_SECRET ?? '',
+      )
+      return new Response(JSON.stringify(body), { status, headers: JSON_HEADERS })
     }
 
     if (url.pathname.startsWith('/api/')) {

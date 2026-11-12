@@ -78,3 +78,22 @@ curl -s -H "Authorization: Bearer <token>" 'localhost:8787/api/video/list?page=1
 新的 Worker 名是 `emos-club`，与线上现有的 `emos` 不同名，`wrangler deploy` 只会新建，不会覆盖旧的。
 
 替换旧 Worker 时改 `wrangler.jsonc` 的 `name`，或给 `emos-club` 绑定路由。
+
+## 7. Spotify 搜索（可选）
+
+「音乐 · 从 Spotify 同步」里的按名字搜索走同源 `/api/spotify/search`：
+Worker 与 `vite dev` 共用 `worker/spotify.ts`，用 client_credentials 换 token（内存缓存到过期）。
+
+```bash
+# 本地：写在 .dev.vars（已在 .gitignore）
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
+
+# 线上：Worker secret
+npx wrangler secret put SPOTIFY_CLIENT_ID
+npx wrangler secret put SPOTIFY_CLIENT_SECRET
+```
+
+**已知限制**：Spotify 要求「App 所有者有 Premium 订阅」，否则搜索返回
+`Active premium subscription required for the owner of the app`——界面会把这句话翻成
+「请直接填链接或 ID」，手动填写的路径不受影响。订阅生效后通常要等几小时才放行。

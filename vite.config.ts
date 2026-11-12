@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import https from 'node:https'
 import { readFile } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
 
 const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.best'
 
@@ -25,8 +26,46 @@ function fixturesPlugin() {
   }
 }
 
+/** 读取 .dev.vars（KEY=VALUE），与 wrangler 共用同一份配置源 */
+function loadDevVars(): Record<string, string> {
+  const file = fileURLToPath(new URL('./.dev.vars', import.meta.url))
+  if (!existsSync(file)) return {}
+  const vars: Record<string, string> = {}
+  for (const line of readFileSync(file, 'utf-8').split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eq = trimmed.indexOf('=')
+    if (eq > 0) vars[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim()
+  }
+  return vars
+}
+
+/**
+ * dev 与线上同一份实现：`/api/spotify/search` 走 `worker/spotify.ts`，
+ * 密钥从 `.dev.vars` 读；其余 `/api/*` 仍由下面的 proxy 转给上游。
+ * 必须在 proxy 之前注册，否则会被转发到上游变成 404。
+ */
+function spotifyDevPlugin() {
+  return {
+    name: 'emos-spotify-dev',
+    apply: 'serve' as const,
+    configureServer(server: { middlewares: { use: (fn: (req: any, res: any, next: () => void) => void) => void } }) {
+      const env = { ...loadDevVars(), ...process.env }
+      server.middlewares.use(async (req, res, next) => {
+        if ((req.url || '').split('?')[0] !== '/api/spotify/search') return next()
+        const { searchArtists } = await import('./worker/spotify')
+        const q = new URL(req.url || '', 'http://localhost').searchParams.get('q') ?? ''
+        const { status, body } = await searchArtists(q, env.SPOTIFY_CLIENT_ID || '', env.SPOTIFY_CLIENT_SECRET || '')
+        res.setHeader('Content-Type', 'application/json; charset=utf-8')
+        res.statusCode = status
+        res.end(JSON.stringify(body))
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), fixturesPlugin()],
+  plugins: [react(), fixturesPlugin(), spotifyDevPlugin()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
