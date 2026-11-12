@@ -735,17 +735,24 @@ input.input[type='number'] { min-width: 0; }
 .detail-stats { display: flex; flex-wrap: wrap; gap: var(--sp-5); }
 .detail-stat { display: grid; gap: var(--sp-1); }
 .detail-stat__link {
+  /* 与 .detail-stat b 完全同字号同字重：这个数字可以点（看订阅用户），
+     但视觉上不能和旁边的统计值不一致——原来它是 inherit 字号 + 600 字重 + 一条虚线下划线 */
   font: inherit;
-  font-size: inherit;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   color: inherit;
   background: none;
   border: 0;
   padding: 0;
   cursor: pointer;
-  border-bottom: 1px dashed var(--fg-4);
 }
-.detail-stat__link:hover { color: var(--fg); border-bottom-color: var(--fg-2); }
+.detail-stat__link:hover {
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--fg-3);
+}
 .detail-stat b { font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .detail-stat span { font-size: var(--text-xs); color: var(--fg-3); }
 
