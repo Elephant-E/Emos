@@ -941,5 +941,37 @@ export async function mockRequest<T>(
   if (/^\/api\/watch\/\d+\/dynamic$/.test(clean)) return { url: (body.url as string | null) ?? null } as T
   if (/^\/api\/watch\/\d+\/sort$/.test(clean)) return {} as T
 
+  // ---- 运营动作（关联 MV / 转账 / 建单 / 查重 / 批量替换 / 签到 / 通知 / 歌手同步）----
+  if (clean === '/api/pay/getUserSign') {
+    return { sign_index: 1804, sign_at: '2026-11-11 16:00:00', earn_point: 2, continuous_days: 155, content: null } as T
+  }
+  if (clean === '/api/pay/sendNotifyEmail') return { carrot: -10 } as T
+  if (clean === '/api/pay/transfer') {
+    const amount = Number((body as { carrot?: number }).carrot ?? 0)
+    return { deduct: amount, carrot: 5000 - amount } as T
+  }
+  if (clean === '/api/pay/create') {
+    const no = `20261112${String(Date.now()).slice(-6)}-pay-MOCK`
+    return {
+      no,
+      pay_way: String((body as { pay_way?: string }).pay_way ?? 'web'),
+      pay_url: `https://emos.best/pay/${no}`,
+      expired: new Date(Date.now() + 5 * 60_000).toISOString(),
+    } as T
+  }
+  if (clean === '/api/music/syncSpotifyArtist') return { message: 'ok' } as T
+  if (/^\/api\/music\/song\/\d+\/updateVideoId$/.test(clean)) return { carrot: 1000 } as T
+  if (/^\/api\/music\/album\/\d+\/updateVideoId$/.test(clean)) return { carrot: 1000 } as T
+  if (clean === '/api/music/song/batchHashExist') {
+    const hashs = (body as { hashs?: string[] }).hashs ?? []
+    // 造一条命中，方便验证上传页的查重分支
+    return (hashs.length && hashs[0].endsWith('dead')
+      ? [{ media_id: 'mock-media', music_song_id: 1908, file_hash: hashs[0], name: 'mock 上传', created_at: '2026-06-08T17:19:26.000000Z' }]
+      : []) as T
+  }
+  if (/^\/api\/watch\/\d+\/video\/update$/.test(clean)) {
+    return { count: Array.isArray(body) ? body.length : 0 } as T
+  }
+
   throw Object.assign(new Error(`未模拟的接口：${clean}`), { status: 404 })
 }

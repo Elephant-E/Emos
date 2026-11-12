@@ -98,6 +98,19 @@ function WatchlistHead({
   )
 }
 
+/** 把「类型:ID」逐行解析成接口要的数组；空行与缺冒号的行跳过 */
+function parseBatch(text: string): Array<{ type: string; value: string }> {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [type, value] = line.split(/[:：]/).map((part) => part.trim())
+      return { type, value }
+    })
+    .filter((row) => Boolean(row.type) && Boolean(row.value))
+}
+
 export function WatchlistDetailView({
   watchId,
   search,
@@ -125,6 +138,7 @@ export function WatchlistDetailView({
     queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 20 }),
     enabled: subsOpen,
   })
+  const [batchText, setBatchText] = useState<string | null>(null)
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
@@ -132,7 +146,7 @@ export function WatchlistDetailView({
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const [addTerm, setAddTerm] = useState('')
   const candidates = useWatchSearch(id, addTerm)
-  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers, clearVideos, clearMusic } = useWatchMutations(id)
+  const { addVideo, removeVideo, updateVideoEntry, updateVideos, subscribe, toggleShow, setDynamic, update, setMaintainers, clearVideos, clearMusic } = useWatchMutations(id)
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
@@ -227,6 +241,9 @@ export function WatchlistDetailView({
                   </button>
                   <button type="button" className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
                     动态抓取
+                  </button>
+                  <button type="button" className="btn btn--ghost" onClick={() => setBatchText('')}>
+                    批量替换
                   </button>
                   <button type="button"
                     className="btn btn--danger-text"
@@ -643,7 +660,66 @@ export function WatchlistDetailView({
           }
         />
       ) : null}
-    </>
+    
+      {batchText !== null ? (
+        <Modal
+          title="批量替换影片"
+          width={560}
+          onClose={() => setBatchText(null)}
+          footer={
+            <>
+              <button type="button" className="btn btn--ghost" onClick={() => setBatchText(null)}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn--danger-text"
+                disabled={updateVideos.isPending || parseBatch(batchText).length === 0}
+                onClick={async () => {
+                  const items = parseBatch(batchText)
+                  if (items.length === 0) return
+                  if (items.length > 1000) {
+                    toast('最多 1000 条', 'error')
+                    return
+                  }
+                  const ok = await confirmDialog({
+                    title: `用这 ${items.length} 条替换整个片单？`,
+                    message: '提交会先清空当前片单里的所有影片，再按下面的顺序写入。',
+                    hint: '不可撤销。契约要求这类操作先与官方确认过再执行。',
+                    confirmText: '整体替换',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  updateVideos.mutate(items, {
+                    onSuccess: () => {
+                      toast(`已写入 ${items.length} 条`, 'success')
+                      setBatchText(null)
+                    },
+                  })
+                }}
+              >
+                {updateVideos.isPending ? '写入中…' : '整体替换'}
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>每行一条：类型:ID（顺序即片单顺序）</span>
+            <textarea
+              className="input"
+              rows={10}
+              value={batchText}
+              onChange={(e) => setBatchText(e.target.value)}
+              placeholder={'todb:1009\ntmdb_movie:238\ntmdb_tv:223911'}
+            />
+          </label>
+          <p className="card-note">
+            类型支持 todb / tmdb_movie / tmdb_tv；识别出 {parseBatch(batchText).length} 条。
+            这是整体覆盖接口，会清空当前片单再写入。
+          </p>
+        </Modal>
+      ) : null}
+</>
   )
 }
 

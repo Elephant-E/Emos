@@ -3,13 +3,15 @@ import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
 import { Poster } from '@/components/Poster'
 import { SpotifyArtists } from '@/components/SpotifyArtists'
+import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
-import { useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
+import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
+import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { } from '@/lib/format'
 
@@ -45,6 +47,8 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
   const [syncArtist, setSyncArtist] = useState<string | null>(null)
   const [artistQ, setArtistQ] = useState('')
+  const [mvAlbum, setMvAlbum] = useState<{ albumId: number; name: string } | null>(null)
+  const albumActions = useAlbumMutations()
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
@@ -200,6 +204,19 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                       )}
                     </td>
                     <td>
+                      <span className="action-group">
+                      {isAlbum ? (
+                        <button
+                          type="button"
+                          className="btn btn--quiet"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setMvAlbum({ albumId: id, name })
+                          }}
+                        >
+                          关联 MV
+                        </button>
+                      ) : null}
                       <button type="button"
                         className="btn btn--quiet"
                         onClick={(e) => {
@@ -213,6 +230,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                       >
                         同步
                       </button>
+                      </span>
                     </td>
                   </tr>
                 )
@@ -290,6 +308,31 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           </label>
           <p className="card-note">填整条链接或只填 ID 都行，同步会按 todb 的字段覆盖。</p>
         </Modal>
+      ) : null}
+
+      {mvAlbum ? (
+        <VideoPicker
+          title={`关联 MV · ${mvAlbum.name}`}
+          onClose={() => setMvAlbum(null)}
+          onPick={async (video) => {
+            const ok = await confirmDialog({
+              title: `把专辑「${mvAlbum.name}」的 MV 关联到「${video.title}」？`,
+              message: '关联后播放页会带上这支 MV。',
+              hint: '服务端会按规则结算胡萝卜。',
+              confirmText: '关联',
+            })
+            if (!ok) return
+            albumActions.updateAlbumVideoId.mutate(
+              { albumId: mvAlbum.albumId, videoId: video.videoId },
+              {
+                onSuccess: () => {
+                  toast('已关联', 'success')
+                  setMvAlbum(null)
+                },
+              },
+            )
+          }}
+        />
       ) : null}
 </>
   )

@@ -405,6 +405,22 @@ export function useInviteTree() {
   return useQuery({ queryKey: ['invite', 'tree'] as const, queryFn: () => inviteApi.tree() })
 }
 
+export function usePayMutations() {
+  const qc = useQueryClient()
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['carrot'] })
+    qc.invalidateQueries({ queryKey: ['session'] })
+    qc.invalidateQueries({ queryKey: ['pay'] })
+  }
+  return {
+    transfer: useMutation({ mutationFn: (p: { user_id: string; carrot: number }) => payApi.transfer(p), onSuccess: invalidate }),
+    createOrder: useMutation({
+      mutationFn: (p: { pay_way: 'telegram_bot' | 'web'; price: number; name: string; param?: string | null }) => payApi.createOrder(p),
+      onSuccess: invalidate,
+    }),
+  }
+}
+
 export function useCarrotHistory(page: number, pageSize = 10) {
   return useQuery({
     queryKey: ['carrot', 'history', page, pageSize] as const,
@@ -710,6 +726,20 @@ export function useLiveMedia(liveListId: number, page = 1) {
   })
 }
 
+/** 专辑级的动作：目前只有「关联 MV」 */
+export function useAlbumMutations() {
+  const qc = useQueryClient()
+  return {
+    updateAlbumVideoId: useMutation({
+      mutationFn: (p: { albumId: number; videoId: number }) => musicApi.updateAlbumVideoId(p.albumId, p.videoId),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['music'] })
+        qc.invalidateQueries({ queryKey: ['carrot'] })
+      },
+    }),
+  }
+}
+
 export function useLineList() {
   return useQuery({ queryKey: ['line', 'list'] as const, queryFn: () => lineApi.list() })
 }
@@ -811,6 +841,10 @@ export function useMusicMutations(songId = 0) {
     rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
     sync: useMutation({ mutationFn: (p: { type: string; value: string }) => musicApi.sync(p.type, p.value), onSuccess: invalidate }),
     // 允许直接粘整条 spotify 链接，只取 artist/ 后面那段
+    updateSongVideoId: useMutation({
+      mutationFn: (videoId: number) => musicApi.updateSongVideoId(songId, videoId),
+      onSuccess: invalidate,
+    }),
     syncArtist: useMutation({
       mutationFn: (input: string) => musicApi.syncSpotifyArtist(input.split('/artist/').pop()!.split(/[?#]/)[0]),
       onSuccess: invalidate,
@@ -969,6 +1003,11 @@ export function useWatchMutations(watchId: number) {
     onSuccess: invalidate,
   })
   // POST 同一个 video_id 就是更新这一行的 sort / remark
+  /** 整体替换片单里的影片：契约写明「每次提交会重置当前片单」，最多 1000 条 */
+  const updateVideos = useMutation({
+    mutationFn: (items: Array<{ type: string; value: string }>) => watchApi.updateVideos(watchId, items),
+    onSuccess: invalidate,
+  })
   const updateVideoEntry = useMutation({
     mutationFn: (p: { videoId: number; sort: number; remark: string | null }) =>
       watchApi.addVideo(watchId, p.videoId, p.sort, p.remark),
@@ -1020,7 +1059,7 @@ export function useWatchMutations(watchId: number) {
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
   return {
-    addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic, clearVideos, clearMusic,
+    addVideo, removeVideo, updateVideoEntry, updateVideos, addMusic, removeMusic, clearVideos, clearMusic,
     subscribe, toggleShow, setDynamic, sort, update, setMaintainers,
   }
 }

@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useQueryClient } from '@tanstack/react-query'
-import { usePayBase, usePayOrder } from '@/api/queries'
+import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
 import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -32,6 +32,12 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const [sending, setSending] = useState(false)
   const [closing, setClosing] = useState(false)
   const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
+  // 服务商转账（与上面的胡萝卜转赠是两套：这个走支付服务，费率千六）
+  const [payout, setPayout] = useState({ userId: '', carrot: 100 })
+  // 建支付单
+  const [draft, setDraft] = useState<{ payWay: 'telegram_bot' | 'web'; price: number; name: string; param: string } | null>(null)
+  const [created, setCreated] = useState<{ no: string; pay_url?: string } | null>(null)
+  const payActions = usePayMutations()
 
   /** 关闭一个支付订单；关掉之后不可再支付 */
   const closeOrder = async () => {
@@ -233,7 +239,152 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             单次 2 – 6000 个，转出后不可撤回。
           </p>
         </article>
+
+        <article className="card">
+          <p className="stat__label">服务商转账</p>
+          <div className="row-input stack--top">
+            <input
+              className="input"
+              placeholder="对方用户 ID"
+              value={payout.userId}
+              onChange={(e) => setPayout({ ...payout, userId: e.target.value })}
+            />
+            <input
+              className="input"
+              style={{ maxWidth: 110 }}
+              type="number"
+              min={1}
+              max={50000}
+              value={payout.carrot}
+              onChange={(e) => setPayout({ ...payout, carrot: Number(e.target.value) })}
+            />
+            <button
+              type="button"
+              className="btn btn--primary"
+              disabled={!payout.userId.trim() || payout.carrot < 1 || payout.carrot > 50000 || payActions.transfer.isPending}
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  title: '确认转账？',
+                  message: `转给 ${payout.userId.trim()}，${payout.carrot} 胡萝卜。`,
+                  hint: '走支付服务，费率千六；转出后不可撤回。',
+                  confirmText: '转账',
+                })
+                if (!ok) return
+                payActions.transfer.mutate(
+                  { user_id: payout.userId.trim(), carrot: payout.carrot },
+                  {
+                    onSuccess: (res: { deduct: number; carrot: number }) => {
+                      toast(`已转出 ${res.deduct}，余额 ${res.carrot}`, 'success')
+                      setPayout({ userId: '', carrot: 100 })
+                    },
+                  },
+                )
+              }}
+            >
+              {payActions.transfer.isPending ? '转账中…' : '转账'}
+            </button>
+          </div>
+          <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+            单次 1 – 50000，费率千六；与上面的胡萝卜转赠不是同一套账。
+          </p>
+        </article>
+
+        <article className="card">
+          <p className="stat__label">建支付单</p>
+          <div className="row" style={{ marginTop: 12 }}>
+            <button type="button" className="btn btn--ghost" onClick={() => setDraft({ payWay: 'web', price: 1, name: '', param: '' })}>
+              新建支付单
+            </button>
+          </div>
+          {created ? (
+            <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+              单号 {created.no}
+              {created.pay_url ? (
+                <>
+                  {' · '}
+                  <button type="button" className="btn btn--quiet" onClick={() => void navigator.clipboard?.writeText(created.pay_url ?? '')}>
+                    复制支付链接
+                  </button>
+                </>
+              ) : null}
+            </p>
+          ) : (
+            <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+              网页支付生成可分享的支付链接；TG 机器人支付走会话内跳转。
+            </p>
+          )}
+        </article>
       </section>
+
+      {draft ? (
+        <Modal
+          title="新建支付单"
+          width={480}
+          onClose={() => setDraft(null)}
+          footer={
+            <>
+              <button type="button" className="btn btn--ghost" onClick={() => setDraft(null)}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!draft.name.trim() || draft.price < 1 || draft.price > 50000 || payActions.createOrder.isPending}
+                onClick={() =>
+                  payActions.createOrder.mutate(
+                    {
+                      pay_way: draft.payWay,
+                      price: draft.price,
+                      name: draft.name.trim(),
+                      param: draft.param.trim() || null,
+                    },
+                    {
+                      onSuccess: (res: { no: string; pay_url?: string }) => {
+                        toast(`已创建 ${res.no}`, 'success')
+                        setCreated({ no: res.no, pay_url: res.pay_url })
+                        setDraft(null)
+                      },
+                    },
+                  )
+                }
+              >
+                {payActions.createOrder.isPending ? '创建中…' : '创建'}
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>支付方式</span>
+            <select
+              className="input"
+              value={draft.payWay}
+              onChange={(e) => setDraft({ ...draft, payWay: e.target.value as 'telegram_bot' | 'web' })}
+            >
+              <option value="web">网页支付</option>
+              <option value="telegram_bot">TG 机器人支付</option>
+            </select>
+          </label>
+          <label className="field">
+            <span>金额</span>
+            <input
+              className="input"
+              type="number"
+              min={1}
+              max={50000}
+              value={draft.price}
+              onChange={(e) => setDraft({ ...draft, price: Number(e.target.value) })}
+            />
+          </label>
+          <label className="field">
+            <span>商品名称</span>
+            <input className="input" maxLength={100} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} autoFocus />
+          </label>
+          <label className="field">
+            <span>备注（回调原样带回，可留空）</span>
+            <input className="input" maxLength={40} value={draft.param} onChange={(e) => setDraft({ ...draft, param: e.target.value })} />
+          </label>
+        </Modal>
+      ) : null}
 
       {editing ? (
         <Modal

@@ -14,6 +14,7 @@ import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize } from '@/lib/format'
 import { Modal } from '@/components/Modal'
+import { VideoPicker } from '@/components/VideoPicker'
 
 const SONG_TABS = [
   { key: 'lyrics', label: '歌词' },
@@ -28,6 +29,7 @@ export function SongDetailView({ songId }: { songId: number }) {
   const actions = useMusicMutations(songId)
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
   const [adding, setAdding] = useState(false)
+  const [mvOpen, setMvOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -69,6 +71,9 @@ export function SongDetailView({ songId }: { songId: number }) {
             <Link className="btn btn--ghost" to="/music" search={{ page: 1, page_size: 20, tab: 'songs', q: '', filter: '' }}>
               返回列表
             </Link>
+            <button type="button" className="btn btn--ghost" onClick={() => setMvOpen(true)}>
+              关联 MV
+            </button>
             <button type="button"
               className="btn btn--ghost"
               onClick={() =>
@@ -443,6 +448,28 @@ export function SongDetailView({ songId }: { songId: number }) {
           </label>
         </Modal>
       ) : null}
-    </>
+    
+      {mvOpen ? (
+        <VideoPicker
+          title="关联 MV · 选择影片"
+          onClose={() => setMvOpen(false)}
+          onPick={async (video) => {
+            const ok = await confirmDialog({
+              title: `把这首歌唱的 MV 关联到「${video.title}」？`,
+              message: '关联后播放页会带上这支 MV。',
+              hint: '服务端会按规则结算胡萝卜。',
+              confirmText: '关联',
+            })
+            if (!ok) return
+            actions.updateSongVideoId.mutate(video.videoId, {
+              onSuccess: () => {
+                toast('已关联', 'success')
+                setMvOpen(false)
+              },
+            })
+          }}
+        />
+      ) : null}
+</>
   )
 }

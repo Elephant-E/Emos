@@ -179,6 +179,9 @@ export const watchApi = {
     request<ListResult<WatchVideo>>(`/api/watch/${watchId}/video`, { query: params }),
   searchVideos: (watchId: number, params: { title?: string; type?: VideoType }) =>
     request<WatchVideoCandidate[]>(`/api/watch/${watchId}/video/search`, { query: params }),
+  /** 批量设置片单内视频：整体覆盖，最多 1000 条，排序即数组顺序 */
+  updateVideos: (watchId: number, items: Array<{ type: string; value: string }>) =>
+    request<unknown>(`/api/watch/${watchId}/video/update`, { method: 'POST', body: items }),
   addVideo: (watchId: number, videoId: number, sort = 80, remark: string | null = null) =>
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'POST', body: { sort, remark } }),
   removeVideo: (watchId: number, videoId: number) =>
@@ -264,6 +267,12 @@ export const payApi = {
       '/api/pay/getUserSign',
       { query: { user_id: userId } },
     ),
+  /** 服务商把钱转给用户，费率千六；返回本次消耗与剩余 */
+  transfer: (payload: { user_id: string; carrot: number }) =>
+    request<{ deduct: number; carrot: number }>('/api/pay/transfer', { method: 'POST', body: payload }),
+  /** 建支付单：web 方式返回 pay_url，tg 机器人方式返回跳转信息 */
+  createOrder: (payload: { pay_way: 'telegram_bot' | 'web'; price: number; name: string; param?: string | null; callback_telegram_bot_name?: string | null }) =>
+    request<{ no: string; pay_way: string; pay_url?: string; expired?: string }>('/api/pay/create', { method: 'POST', body: payload }),
   /** 给用户发邮件通知，扣 10 胡萝卜 */
   sendNotifyEmail: (payload: { user_id: string; subject: string; body: string }) =>
     request<CarrotDelta>('/api/pay/sendNotifyEmail', { method: 'POST', body: payload }),
@@ -318,6 +327,18 @@ export const banApi = {
 }
 
 export const musicApi = {
+  /** 给歌曲关联 MV（即 video_id）；服务端会按规则结算胡萝卜 */
+  updateSongVideoId: (songId: number, videoId: number) =>
+    request<CarrotDelta>(`/api/music/song/${songId}/updateVideoId`, { method: 'PUT', query: { video_id: videoId } }),
+  /** 给专辑关联 MV */
+  updateAlbumVideoId: (albumId: number, videoId: number) =>
+    request<CarrotDelta>(`/api/music/album/${albumId}/updateVideoId`, { method: 'PUT', query: { video_id: videoId } }),
+  /** 按 sha256（小写）批量判断资源是否已存在 */
+  batchHashExist: (hashs: string[]) =>
+    request<Array<{ media_id: string; music_song_id: number; file_hash: string; name: string; created_at: string }>>(
+      '/api/music/song/batchHashExist',
+      { method: 'POST', body: { hashs } },
+    ),
   /** 用 spotify 歌手的 id 去 todb 同步一次数据 */
   syncSpotifyArtist: (artistId: string) =>
     request<unknown>('/api/music/syncSpotifyArtist', { method: 'PATCH', body: { artist_id: artistId } }),

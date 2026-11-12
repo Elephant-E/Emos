@@ -205,12 +205,30 @@ export function UploadView() {
     }
   }
 
+  /** 音乐文件上传前按 sha256 查重：同一份音频已经在库里就没必要再传一遍 */
+  const checkMusicHash = async (item: QueueItem) => {
+    try {
+      const digest = await crypto.subtle.digest('SHA-256', await item.file.arrayBuffer())
+      const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
+      const hits = await musicApi.batchHashExist([hash])
+      const hit = hits.find((row) => row.file_hash.toLowerCase() === hash)
+      if (hit) {
+        patch(item.id, { status: 'duplicate', message: `库里已有同一份音频 · 歌曲 #${hit.music_song_id}` })
+        return true
+      }
+    } catch {
+      /* 查重失败不拦上传 */
+    }
+    return false
+  }
+
   const startUpload = async (item: QueueItem) => {
     if (item.kind === 'music' ? !item.song : !item.target) {
       setPlacing({ item, mode: item.kind === 'music' ? 'song' : 'target' })
       return
     }
     if (running.current.has(item.id)) return
+    if (item.kind === 'music' && (await checkMusicHash(item))) return
     running.current.add(item.id)
     patch(item.id, { status: 'uploading', progress: 0, message: undefined })
     const onProgress = (ratio: number) => patch(item.id, { progress: ratio })
