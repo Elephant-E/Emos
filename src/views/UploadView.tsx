@@ -6,7 +6,7 @@ import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
-import { musicApi, uploadApi, userApi } from '@/api/endpoints'
+import { musicApi, uploadApi, userApi, videoApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import {
   DEFAULT_UPLOAD_STORAGE,
@@ -17,6 +17,7 @@ import {
   type UploadTarget,
 } from '@/lib/uploader'
 import { detectUploadKind, formatSize, type UploadKind } from '@/lib/format'
+import { parseFilename } from '@/lib/filename'
 import { USE_MOCK } from '@/api/client'
 
 type Status =
@@ -154,6 +155,17 @@ export function UploadView() {
         await bindSong(item)
         continue
       }
+      // 先用本地解析器拆片名/季/集：上游 recognize 会把「剧名.S02.mkv」判成 S00E02
+      const byName = await resolveByFilename(item.file.name)
+      if (byName === 'need-target') {
+        patch(item.id, { status: 'need-target', message: '只从文件名认出季，手选一下具体哪一集' })
+        continue
+      }
+      if (byName) {
+        patch(item.id, { status: 'ready', target: byName })
+        continue
+      }
+
       // 视频与字幕都要绑到某一部影片 / 某一集，识别方式相同
       try {
         const res = (await uploadApi.recognize(item.file.name)) as unknown as Record<string, unknown>
@@ -220,6 +232,48 @@ export function UploadView() {
       /* 查重失败不拦上传 */
     }
     return false
+  }
+
+  /**
+   * 文件名 → 上传落点：
+   * 1. 本地解析片名与季集
+   * 2. 按片名查影片（video/list），取同名那条
+   * 3. 有集号就查这一季的集列表，按集号换 episode_id（剧集必须挂在集上）
+   * 任何一步拿不到就返回 null，交给上游 recognize 兜底
+   */
+  const resolveByFilename = async (fileName: string): Promise<UploadTarget | 'need-target' | null> => {
+    const parsed = parseFilename(fileName)
+    if (!parsed.title) return null
+    try {
+      const found = await videoApi.list({ title: parsed.title, page: 1, page_size: 10 })
+      const exact = found.items.find((v) => v.video_title === parsed.title)
+      const video = exact ?? found.items[0]
+      if (!video) return null
+
+      if (parsed.episode != null) {
+        const seasonNo = parsed.season ?? 1
+        const episodes = await videoApi.episodes(video.video_id, seasonNo)
+        const episode = episodes.find((ep) => ep.episode_number === parsed.episode)
+        if (!episode) return null
+        return {
+          item_type: 've',
+          item_id: episode.episode_id,
+          title: `${video.video_title} · S${String(seasonNo).padStart(2, '0')}E${String(parsed.episode).padStart(2, '0')}`,
+          video_id: video.video_id,
+          season: seasonNo,
+          episode: parsed.episode,
+        }
+      }
+
+      // 没有集号：电影挂影片级；剧集**不要**回落到上游识别（它会把 S02 判成 S00E02），
+      // 直接让人手选是哪一集
+      if (video.video_type === 'movie') {
+        return { item_type: 'vl', item_id: video.video_id, title: video.video_title, video_id: video.video_id }
+      }
+      return 'need-target'
+    } catch {
+      return null
+    }
   }
 
   const startUpload = async (item: QueueItem) => {
