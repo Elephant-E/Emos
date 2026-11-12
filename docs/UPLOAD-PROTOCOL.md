@@ -17,6 +17,8 @@
 
 旧项目（`uploadStore.js` + `identify.js`）在上传前有一轮检查，新后台按同样顺序执行：
 
+| 检查项 | 依据 | 结果 |
+|---|---|---|
 | 是哪一类 | `detectUploadKind()`：视频 / 字幕 / 音乐，其余（图片等）不收<br>mime 之外按扩展名兜（`.mkv` 常是 `octet-stream`） | 不支持的跳过并提示 |
 | 队列里有没有同一份 | 文件名 + 大小都和队列里某条相同 | 跳过并提示 |
 | 文件名能不能认出是哪一部 | `GET /api/upload/video/recognize?file_name=` | 认不出 → 待关联，手动选目标 |
@@ -158,7 +160,7 @@ Header:   Authorization: Bearer <token>
 
 ---
 
-## 不做：暂存区
+## 不做：暂存区（旧项目的 store/* 三个接口）
 
 `GET /api/upload/store/disk`、`GET /api/upload/store/file?path_type=`、
 `POST /api/upload/store/archive` 这三个接口提供「浏览/归档已经传到存储、

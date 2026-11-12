@@ -245,20 +245,20 @@ const bb = svg.getBBox(), vb = svg.viewBox.baseVal
 
 数字列只保留 `font-variant-numeric: tabular-nums`（等宽数字，读数不跳动）。
 
-## 4. 交互状态
+## 4.3 交互状态
 
 - **hover 只改前景颜色**。不铺底色、不位移、不加阴影。
 - 加载态只留骨架，不同时显示"正在读取"文案。
 - 取不到数据时显示 `—` 或一句说明，不显示成 0。
 - 写操作失败必须说清原因（全局 `MutationCache.onError` 已兜底，带状态码）。
 
-## 4.1 请求编排
+## 4.3.1 请求编排
 
 - **慢接口不阻塞整页**：不同来源的数据拆成独立 query，各自加载、各自渲染。
 - 同一屏超过 3 个并行请求时，先区分必需项与可后到项。
 - 实测该实例的接口耗时差异极大：`/api/user` 2–5s、`/api/ban/list` 5–11s、`/api/carrot/current` 20s 超时、`/api/user/stats/video/history` 11s 且单次最多 7 天。
 
-## 4.2 布尔参数
+## 4.3.2 布尔参数
 
 后端把查询参数里的布尔值按 **1 / 0** 解析，传 `true/false` 会直接 422。
 `client.ts` 的 `buildUrl` 已统一处理：`typeof value === 'boolean'` → `1`/`0`。
@@ -267,7 +267,7 @@ const bb = svg.getBBox(), vb = svg.viewBox.baseVal
 ## 5. 数字与排版
 
 - 所有数字 `font-variant-numeric: tabular-nums`。
-- 统计值 42px、行高 1、单位 17px `--fg-3`。
+- 统计值 44px、行高 1、单位 17px `--fg-3`。
 - 文字重要度阶梯：`--fg` / `--fg-2` / `--fg-3` / `--fg-4`，全部 ≥4.5:1；`--fg-5` 只用于图标与分隔线。
 - 中文标题字距 `-0.01em`（`-0.03em` 会使笔画粘连）。
 

@@ -22,13 +22,16 @@
 5. **401 单次跳转防重入**
    旧 `api/index.js` 有 `_redirecting` 标志，新版 `client.ts` 保留。
 
-## 值得补回来的（当前缺失）
+## 已补回来的（原本缺，现已落地）
 
-1. **全局 toast**：最多 5 条、超出顶掉最旧的、内容转义。所有写操作都需要它。
-2. **命令式 confirm**：`const ok = await confirm('删除这个片单？')`，不用每个页面写 modal state。
-3. **多账号切换**：`accounts` 数组 + `isCurrent`，本地同时存多个 token。
-4. **上传队列**：队列 + 失败重试 + 每个任务独立的存储位置（`useUploadQueue`）。
-5. **维护模式检查**：启动即判 `isMaintenance`，避免在维护期间继续操作。
+1. **全局 toast**：`ui/toast.tsx`，最多 5 条、超出顶掉最旧的。
+2. **命令式 confirm / prompt**：`ui/confirm.tsx`、`ui/prompt.tsx`，`await confirmDialog({...})`。
+3. **多账号切换**：`lib/accounts.ts` + 侧栏切换，本地同时存多个 token。
+4. **上传队列**：`UploadView` 的队列（3 并发 + 每条独立状态 + 失败可重试）。
+
+## 仍然缺的
+
+1. **维护模式检查**：启动即判 `isMaintenance`，避免在维护期间继续操作。
 
 ## 已被新架构替代、不需要照搬
 

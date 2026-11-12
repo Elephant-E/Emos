@@ -184,5 +184,5 @@ SPEC §7 要求「空态给下一步」。这两页在筛选中没有结果时�
 
 ## 附：本次截图清单（可复现）
 
-`~/DSH/r5-*.png`：login、overview2、library、live、music、lines、users、account、upload、fund-merchant、fund-carrot2、recycle、video-detail、watchlists2，外加仓库内 `docs/screen-overview.png`、`screen-orders.png`、`screen-user.png`、`screen-shop.png`、`screen-fund-carrot.png`（真数据）。
+`~/DSH/r5-*.png`：login、overview2、library、live、music、lines、users、account、upload、fund-merchant、fund-carrot2、recycle、video-detail、watchlists2，外加仓库内 `（旧界面截图已删）docs/screen-overview.png`、`screen-orders.png`、`screen-user.png`、`screen-shop.png`、`screen-fund-carrot.png`（真数据）。
 复现方式：`page.route` 拦截 `127.0.0.1:5273/api/**`（只匹配该 origin，避免拦截 `/src/api/*.ts` 模块请求），按端点返回与 `docs/api-shapes.md` 同形状的数据。
