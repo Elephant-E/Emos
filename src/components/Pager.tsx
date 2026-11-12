@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { IconLeft, IconRight } from './icons'
 
 interface PagerProps {
+  /** 计数单位，默认「条」；订阅用户这类用「人」 */
+  unit?: string
   total: number
   page: number
   pageSize: number
@@ -12,7 +14,7 @@ interface PagerProps {
   sizes?: readonly number[]
 }
 
-export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_SIZES }: PagerProps) {
+export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_SIZES, unit = '条' }: PagerProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const [jump, setJump] = useState(String(page))
 
@@ -27,7 +29,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
   return (
     <div className="table-foot">
       <span>
-        共 {formatThousand(total)} 条 · 第 {page} / {totalPages} 页
+        共 {formatThousand(total)} {unit} · 第 {page} / {totalPages} 页
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {onPageSize ? (

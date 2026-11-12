@@ -135,7 +135,8 @@ export function WatchlistDetailView({
   const [subsPage, setSubsPage] = useState(1)
   const subs = useQuery({
     queryKey: ['watch', 'subscribers', watchId, subsPage] as const,
-    queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 20 }),
+    // 上游这个接口固定 15 条/页（传 20 也回 15），页码必须按响应算，否则翻页会跳人
+    queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 15 }),
     enabled: subsOpen,
   })
   const [batchText, setBatchText] = useState<string | null>(null)
@@ -540,7 +541,15 @@ export function WatchlistDetailView({
               </tbody>
             </table>
           ) : null}
-          {subs.data ? <Pager total={subs.data.total} page={subsPage} pageSize={20} onPage={setSubsPage} /> : null}
+          {subs.data ? (
+            <Pager
+              total={subs.data.total}
+              page={subsPage}
+              pageSize={subs.data.page_size}
+              onPage={setSubsPage}
+              unit="人"
+            />
+          ) : null}
         </Modal>
       ) : null}
 
