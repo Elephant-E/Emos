@@ -1,71 +1,114 @@
 /**
- * Spotify 歌手搜索：client_credentials 换 token（服务端缓存到过期），再查 /v1/search。
+ * 歌手名 → Spotify artist id。
  *
- * 密钥只在服务端（`wrangler secret put SPOTIFY_CLIENT_ID/SECRET` 或本地 `.dev.vars`）。
- * 已知限制：Spotify 要求「App 所有者有 Premium 订阅」，否则搜索返回
- * `Active premium subscription required for the owner of the app.`，
- * 这里把原因原样带出来，界面据此提示，而不是静默失败。
+ * 走 MusicBrainz：免费、无需密钥。歌手的 url 关系里通常带 open.spotify.com 链接，
+ * 先按名字查 mbid，再取详情里的 Spotify 链接。
+ *
+ * 为什么不直连 Spotify：Spotify 现在要求「App 所有者有 Premium 订阅」，
+ * 否则 `/v1/search` 一律 403（Active premium subscription required for the owner of the app），
+ * 与其保留一条永远失败的路径，不如只留能用的这条。
+ *
+ * 约束：MusicBrainz 限 1 请求/秒，必须带可联系的 User-Agent；连发会 503。
  */
 
-const TOKEN_URL = 'https://accounts.spotify.com/api/token'
+const MB = 'https://musicbrainz.org/ws/2'
+const MB_UA = 'emos-admin/2.0 (https://github.com/Elephant-E)'
+const TIMEOUT_MS = 12_000
 
-let cache: { token: string; expires: number } | null = null
-
-async function getToken(clientId: string, clientSecret: string): Promise<string> {
-  if (cache && Date.now() < cache.expires) return cache.token
-  const res = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    }).toString(),
-  })
-  if (!res.ok) throw new Error(`换取 Spotify token 失败（${res.status}）`)
-  const data = (await res.json()) as { access_token: string; expires_in: number }
-  // 提前 60 秒过期，避免边界上用到失效 token
-  cache = { token: data.access_token, expires: Date.now() + (data.expires_in - 60) * 1000 }
-  return data.access_token
+/** 模块级限速：同一 isolate 内两次请求至少隔 1.1 秒 */
+let lastAt = 0
+async function throttle(): Promise<void> {
+  const wait = 1100 - (Date.now() - lastAt)
+  if (wait > 0) await new Promise((r) => setTimeout(r, wait))
+  lastAt = Date.now()
 }
 
-export interface SpotifyArtist {
-  id: string
-  name: string
-  image?: string | null
-}
+/** 结果缓存：同一关键词/条目在 TTL 内不再打 MusicBrainz（它限 1 请求/秒） */
+const searchCache = new Map<string, { at: number; hits: ArtistHit[] }>()
+const lookupCache = new Map<string, { at: number; id: string | null; name?: string }>()
+const SEARCH_TTL = 5 * 60_000
+const LOOKUP_TTL = 30 * 60_000
 
-export async function searchArtists(
-  q: string,
-  clientId: string,
-  clientSecret: string,
-): Promise<{ status: number; body: { artists?: SpotifyArtist[]; message?: string } }> {
-  if (!q.trim()) return { status: 400, body: { message: '缺少搜索词' } }
-  if (!clientId || !clientSecret) {
-    return { status: 501, body: { message: '服务端未配置 SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET' } }
-  }
-
-  let token: string
+/** 带超时的 fetch；失败返回 null，由调用方给出人话原因 */
+async function safeFetch(url: string): Promise<Response | null> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
-    token = await getToken(clientId, clientSecret)
-  } catch (error) {
-    return { status: 502, body: { message: (error as Error).message } }
+    return await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': MB_UA, Accept: 'application/json' },
+    })
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timer)
   }
+}
 
-  const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(q.trim())}&type=artist&limit=8`
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+export interface ArtistHit {
+  /** MusicBrainz id：点选后再换 Spotify id */
+  mbid: string
+  name: string
+  hint?: string
+}
 
-  if (!res.ok) {
-    // 403/429 的 message 是英文长句，原样带回，由前端翻成人话
-    const text = await res.text()
-    return { status: res.status, body: { message: text.slice(0, 200) } }
+export async function searchArtists(q: string): Promise<{ status: number; body: { artists?: ArtistHit[]; message?: string } }> {
+  const term = q.trim()
+  if (!term) return { status: 400, body: { message: '缺少搜索词' } }
+
+  const cached = searchCache.get(term)
+  if (cached && Date.now() - cached.at < SEARCH_TTL) return { status: 200, body: { artists: cached.hits } }
+
+  // MusicBrainz 偶发慢或 503：给一次重试机会
+  let res: Response | null = null
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    await throttle()
+    res = await safeFetch(`${MB}/artist?query=${encodeURIComponent(term)}&fmt=json&limit=8`)
+    if (res && res.ok) break
+    if (res && res.status !== 503 && res.status !== 429) break
   }
+  if (!res) return { status: 502, body: { message: 'MusicBrainz 请求超时，稍后重试' } }
+  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流（1 请求/秒），稍等一下再搜' } }
+  if (!res.ok) return { status: 502, body: { message: `MusicBrainz 搜索失败（${res.status}）` } }
 
-  const data = (await res.json()) as { artists?: { items?: Array<{ id: string; name: string; images?: Array<{ url: string }> }> } }
-  const artists = (data.artists?.items ?? []).map((item) => ({
-    id: item.id,
-    name: item.name,
-    image: item.images?.[0]?.url ?? null,
+  const data = (await res.json().catch(() => null)) as {
+    artists?: Array<{ id: string; name: string; country?: string; disambiguation?: string; type?: string }>
+  } | null
+  const artists = (data?.artists ?? []).map((a) => ({
+    mbid: a.id,
+    name: a.name,
+    hint: [a.type, a.country, a.disambiguation].filter(Boolean).join(' · '),
   }))
+  if (artists.length === 0) return { status: 200, body: { artists: [], message: '没有找到歌手，检查拼写或直接填链接' } }
+  searchCache.set(term, { at: Date.now(), hits: artists })
   return { status: 200, body: { artists } }
+}
+
+/** 从 MusicBrainz 的 url 关系里取 Spotify artist id */
+export async function resolveSpotifyId(mbid: string): Promise<{ status: number; body: { id?: string; name?: string; message?: string } }> {
+  const target = mbid.trim()
+  if (!target) return { status: 400, body: { message: '缺少 mbid' } }
+
+  const cached = lookupCache.get(target)
+  if (cached && Date.now() - cached.at < LOOKUP_TTL) {
+    return cached.id
+      ? { status: 200, body: { id: cached.id, name: cached.name } }
+      : { status: 404, body: { message: '这个歌手在 MusicBrainz 上没有 Spotify 链接，请直接填 ID' } }
+  }
+
+  await throttle()
+  const res = await safeFetch(`${MB}/artist/${encodeURIComponent(target)}?inc=url-rels&fmt=json`)
+  if (!res) return { status: 502, body: { message: 'MusicBrainz 请求超时，稍后重试' } }
+  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流，稍等一下再试' } }
+  if (!res.ok) return { status: 502, body: { message: `MusicBrainz 详情失败（${res.status}）` } }
+
+  const data = (await res.json().catch(() => null)) as { name?: string; relations?: Array<{ url?: { resource?: string } }> } | null
+  const spotifyUrl = (data?.relations ?? []).map((r) => r.url?.resource ?? '').find((u) => u.includes('open.spotify.com/artist/'))
+  const match = spotifyUrl?.match(/artist\/([A-Za-z0-9]+)/)
+  if (!match) {
+    lookupCache.set(target, { at: Date.now(), id: null })
+    return { status: 404, body: { message: '这个歌手在 MusicBrainz 上没有 Spotify 链接，请直接填 ID' } }
+  }
+  lookupCache.set(target, { at: Date.now(), id: match[1], name: data?.name })
+  return { status: 200, body: { id: match[1], name: data?.name } }
 }

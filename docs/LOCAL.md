@@ -81,19 +81,17 @@ curl -s -H "Authorization: Bearer <token>" 'localhost:8787/api/video/list?page=1
 
 ## 7. Spotify 搜索（可选）
 
-「音乐 · 从 Spotify 同步」里的按名字搜索走同源 `/api/spotify/search`：
-Worker 与 `vite dev` 共用 `worker/spotify.ts`，用 client_credentials 换 token（内存缓存到过期）。
+「音乐 · 从 Spotify 同步」里的按名字搜索走同源 `/api/spotify/search`，
+Worker 与 `vite dev` 共用 `worker/spotify.ts`：
 
-```bash
-# 本地：写在 .dev.vars（已在 .gitignore）
-SPOTIFY_CLIENT_ID=...
-SPOTIFY_CLIENT_SECRET=...
-
-# 线上：Worker secret
-npx wrangler secret put SPOTIFY_CLIENT_ID
-npx wrangler secret put SPOTIFY_CLIENT_SECRET
+```
+/api/spotify/search?q=邓紫棋    → MusicBrainz 搜歌手，返回 [{ mbid, name, hint }]
+/api/spotify/lookup?mbid=...     → 取该歌手的 Spotify 链接，返回 artist id
 ```
 
-**已知限制**：Spotify 要求「App 所有者有 Premium 订阅」，否则搜索返回
-`Active premium subscription required for the owner of the app`——界面会把这句话翻成
-「请直接填链接或 ID」，手动填写的路径不受影响。订阅生效后通常要等几小时才放行。
+**为什么不用 Spotify 官方搜索**：Spotify 现在要求「App 所有者有 Premium 订阅」，
+否则 `/v1/search` 一律 403（`Active premium subscription required for the owner of the app`），
+换 client_credentials token 也一样。所以只保留能用的 MusicBrainz 路径。
+
+**不需要任何密钥**。注意 MusicBrainz 限 1 请求/秒（连发会 503），`worker/spotify.ts`
+里做了模块级限速；搜索本身是低频手动操作，够用。

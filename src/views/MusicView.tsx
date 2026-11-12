@@ -294,7 +294,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
               }}
             />
           ) : (
-            <p className="card-note">搜索不可用时，直接填下面的链接或 ID 也行。</p>
+            <p className="card-note">搜索走 MusicBrainz（免费、无需密钥），点一个歌手会自动换出 Spotify ID。</p>
           )}
 
           <label className="field">
