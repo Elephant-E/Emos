@@ -95,7 +95,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         />
         <button type="button" className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
           <IconPlus />
-          新增入库
+          上传
         </button>
       </div>
 
@@ -125,7 +125,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 </button>
               ) : (
                 <Link to="/upload" className="btn btn--primary">
-                  新增入库
+                  上传
                 </Link>
               )
             }

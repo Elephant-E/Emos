@@ -1,0 +1,34 @@
+name: 文档与类型校验
+
+on:
+  push:
+    branches: [rewrite/v2, main]
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # 接口文档与覆盖率是脚本生成的：重跑后若与仓库里不一致，说明有人改了接口没更新文档
+      - name: 重新生成接口文档
+        run: npm run docs:api
+
+      - name: 检查文档是否有漂移
+        run: |
+          if [ -n "$(git status --porcelain docs)" ]; then
+            echo "接口文档与代码不一致，请在本地跑 npm run docs:api 后提交："
+            git --no-pager diff --stat docs
+            exit 1
+          fi
+
+      - name: 类型检查（含 worker）
+        run: npm run typecheck

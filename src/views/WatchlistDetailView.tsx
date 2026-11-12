@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { UserCell } from '@/components/UserCell'
@@ -109,6 +109,7 @@ export function WatchlistDetailView({
 }) {
   const id = watchId
   const navigate = useNavigate()
+  const qc = useQueryClient()
 
   const [term, setTerm] = useState(search.q)
   const [adding, setAdding] = useState(false)
@@ -128,6 +129,15 @@ export function WatchlistDetailView({
   })
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
+
+  const removeWatch = useMutation({
+    mutationFn: (watchId: number) => watchApi.remove(watchId),
+    onSuccess: () => {
+      toast('片单已删除', 'success')
+      void qc.invalidateQueries({ queryKey: ['watches'] })
+      void qc.invalidateQueries({ queryKey: ['session'] })
+    },
+  })
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
@@ -166,9 +176,13 @@ export function WatchlistDetailView({
     )
   }
 
+  /** 片单里的条目数：影视用视频数，音乐用歌曲数（清空与删除都要显示） */
+  const entryCount = isMusic ? (songs.data?.total ?? 0) : (item?.video_count ?? 0)
+  const entryUnit = isMusic ? '首' : '部影片'
+
   /** 清空片单内容：影视走 video/empty，音乐走 music/empty，都不可撤销 */
   const clearAll = async () => {
-    const count = isMusic ? (songs.data?.total ?? 0) : (item?.video_count ?? 0)
+    const count = entryCount
     if (!count) {
       toast('这份片单已经是空的', 'error')
       return
@@ -235,6 +249,23 @@ export function WatchlistDetailView({
                     onClick={() => void clearAll()}
                   >
                     清空
+                  </button>
+                  <button type="button"
+                    className="btn btn--danger-text"
+                    disabled={removeWatch.isPending}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: `删除片单「${item.name}」？`,
+                        message: `${formatThousand(entryCount)} ${entryUnit}会一起从片单移除，内容本身不受影响。`,
+                        hint: '片单删除后无法恢复，槽位会释放。',
+                        confirmText: '删除',
+                        danger: true,
+                      })
+                      if (!ok) return
+                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q: '', scope: 'self', type: 'video' } }) })
+                    }}
+                  >
+                    删除
                   </button>
                 </>
               ) : null}
