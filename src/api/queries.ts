@@ -1004,10 +1004,6 @@ export function useWatchMutations(watchId: number) {
   })
   // POST 同一个 video_id 就是更新这一行的 sort / remark
   /** 整体替换片单里的影片：契约写明「每次提交会重置当前片单」，最多 1000 条 */
-  const updateVideos = useMutation({
-    mutationFn: (items: Array<{ type: string; value: string }>) => watchApi.updateVideos(watchId, items),
-    onSuccess: invalidate,
-  })
   const updateVideoEntry = useMutation({
     mutationFn: (p: { videoId: number; sort: number; remark: string | null }) =>
       watchApi.addVideo(watchId, p.videoId, p.sort, p.remark),
@@ -1059,7 +1055,7 @@ export function useWatchMutations(watchId: number) {
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
   return {
-    addVideo, removeVideo, updateVideoEntry, updateVideos, addMusic, removeMusic, clearVideos, clearMusic,
+    addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic, clearVideos, clearMusic,
     subscribe, toggleShow, setDynamic, sort, update, setMaintainers,
   }
 }

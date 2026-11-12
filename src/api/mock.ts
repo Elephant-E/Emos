@@ -976,9 +976,6 @@ export async function mockRequest<T>(
       ? [{ media_id: 'mock-media', music_song_id: 1908, file_hash: hashs[0], name: 'mock 上传', created_at: '2026-06-08T17:19:26.000000Z' }]
       : []) as T
   }
-  if (/^\/api\/watch\/\d+\/video\/update$/.test(clean)) {
-    return { count: Array.isArray(body) ? body.length : 0 } as T
-  }
 
   throw Object.assign(new Error(`未模拟的接口：${clean}`), { status: 404 })
 }

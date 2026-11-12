@@ -179,9 +179,6 @@ export const watchApi = {
     request<ListResult<WatchVideo>>(`/api/watch/${watchId}/video`, { query: params }),
   searchVideos: (watchId: number, params: { title?: string; type?: VideoType }) =>
     request<WatchVideoCandidate[]>(`/api/watch/${watchId}/video/search`, { query: params }),
-  /** 批量设置片单内视频：整体覆盖，最多 1000 条，排序即数组顺序 */
-  updateVideos: (watchId: number, items: Array<{ type: string; value: string }>) =>
-    request<unknown>(`/api/watch/${watchId}/video/update`, { method: 'POST', body: items }),
   addVideo: (watchId: number, videoId: number, sort = 80, remark: string | null = null) =>
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'POST', body: { sort, remark } }),
   removeVideo: (watchId: number, videoId: number) =>
