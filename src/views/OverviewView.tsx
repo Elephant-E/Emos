@@ -36,6 +36,10 @@ export function OverviewView() {
   const carrot = useCarrot()
   const watching = useContinueWatching()
   const stats = useWatchStats(1)
+  // 柱图与下面那句文案必须同源：都只看本周这 7 天（stats.activeDays 统计的是整段区间）
+  const week = stats.data?.weeks[0] ?? []
+  const weekDays = week.filter((d) => d.seconds > 0).length
+  const weekSeconds = week.reduce((sum, d) => sum + d.seconds, 0)
   const carrotHistory = useCarrotHistory(1, 3)
   const todos = useTodos()
   const todoAll = [
@@ -133,7 +137,7 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards cards--todos">
+        <section className="cards cards--4">
           {todoItems.map((item) => (
             <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
@@ -158,16 +162,15 @@ export function OverviewView() {
 
       <section className="cards cards--4">
         <article className="card card--stat card--secondary">
-          <p className="stat__label">
-            签到
-            <button type="button"
-              className="btn btn--quiet"
-              disabled={signedToday || sign.isPending}
-              onClick={() => setSigning(true)}
-            >
-              {signedToday ? '今天已签' : '立即签到'}
-            </button>
-          </p>
+          <CardHead title="签到">
+            {signedToday ? (
+              <span className="card-note">今天已签</span>
+            ) : (
+              <button type="button" className="btn btn--quiet" disabled={sign.isPending} onClick={() => setSigning(true)}>
+                立即签到
+              </button>
+            )}
+          </CardHead>
           <p className="stat__value">
             {!ready ? '—' : signedToday ? (
               <>
@@ -222,7 +225,7 @@ export function OverviewView() {
         </Link>
       </section>
 
-      <section className="cards cards--2">
+      <section className="cards cards--2 cards--top">
         <article className="card">
           <CardHead title="继续观看">
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
@@ -297,7 +300,7 @@ export function OverviewView() {
             </div>
           ) : null}
 
-          {stats.data && stats.data.activeDays === 0 ? (
+          {stats.data && weekDays === 0 ? (
             <p className="card-note">
               {(watching.data?.length ?? 0) > 0
                 ? '统计只覆盖到昨天，今天的观看还没计入。'
@@ -305,7 +308,7 @@ export function OverviewView() {
             </p>
           ) : null}
 
-          <div style={{ display: !stats.data || stats.data.activeDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
+          <div style={{ display: !stats.data || weekDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
             {(stats.data?.weeks[0] ?? []).map((day, _i, arr) => {
               const minutes = Math.round(day.seconds / 60)
               const peak = Math.max(...arr.map((d) => d.seconds), 1)
@@ -328,9 +331,9 @@ export function OverviewView() {
             })}
           </div>
 
-          {stats.data && stats.data.activeDays > 0 ? (
+          {stats.data && weekDays > 0 ? (
             <p className="card-note stack--top">
-              本周 {stats.data.activeDays} 天有观看，共 {Math.round(stats.data.totalSeconds / 60)} 分钟
+              本周 {weekDays} 天有观看，共 {Math.round(weekSeconds / 60)} 分钟
             </p>
           ) : null}
 
