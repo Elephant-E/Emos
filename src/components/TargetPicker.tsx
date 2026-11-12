@@ -67,26 +67,24 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
           {(episodes.data ?? []).map((ep) => {
             const label = ep.episode_title || `第 ${ep.episode_number} 集`
             return (
-              <div key={ep.episode_id} className="pick-row">
+              <button
+                type="button"
+                key={ep.episode_id}
+                className="pick-row"
+                onClick={() =>
+                  onPick({
+                    item_type: 've',
+                    item_id: ep.episode_id,
+                    title: `${series.title} · ${label}`,
+                    videoId: series.videoId,
+                    season: series.season,
+                    episode: ep.episode_number,
+                  })
+                }
+              >
                 <span className="tnum muted pick-row__num">{String(ep.episode_number).padStart(2, '0')}</span>
                 <span className="pick-row__title">{label}</span>
-                <button type="button"
-                  className="btn btn--ghost"
-                  style={{ marginLeft: 'auto' }}
-                  onClick={() =>
-                    onPick({
-                      item_type: 've',
-                      item_id: ep.episode_id,
-                      title: `${series.title} · ${label}`,
-                      videoId: series.videoId,
-                      season: series.season,
-                      episode: ep.episode_number,
-                    })
-                  }
-                >
-                  选择
-                </button>
-              </div>
+              </button>
             )
           })}
         </PickList>

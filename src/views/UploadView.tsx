@@ -572,23 +572,23 @@ export function UploadView() {
           </label>
           <PickList loading={songs.isFetching} query={songTerm} count={(songs.data?.items ?? []).length}>
             {(songs.data?.items ?? []).map((song) => (
-              <div key={song.song_id} className="pick-row">
-                <span className="pick-row__title">{song.name}</span>
-                <span className="muted text-xs">
-                  {(song.person_artists ?? []).map((a) => a.name).join(' / ')}
-                  {song.has_media ? ' · 已有音频' : ''}
+              <button
+                type="button"
+                key={song.song_id}
+                className="pick-row"
+                onClick={() => {
+                  applySong(placing.item.id, song)
+                  setPlacing(null)
+                }}
+              >
+                <span className="pick-row__text">
+                  <span className="pick-row__title">{song.name}</span>
+                  <span className="pick-row__sub">
+                    {(song.person_artists ?? []).map((a) => a.name).join(' / ') || '未知艺人'}
+                    {song.has_media ? ' · 已有音频' : ''}
+                  </span>
                 </span>
-                <button type="button"
-                  className="btn btn--ghost"
-                  style={{ marginLeft: 'auto' }}
-                  onClick={() => {
-                    applySong(placing.item.id, song)
-                    setPlacing(null)
-                  }}
-                >
-                  选择
-                </button>
-              </div>
+              </button>
             ))}
           </PickList>
         </Modal>

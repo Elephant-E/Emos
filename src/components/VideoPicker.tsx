@@ -55,20 +55,19 @@ export function VideoPicker({
         count={(videos.data?.items ?? []).length}
       >
         {(videos.data?.items ?? []).map((video) => (
-          <div key={video.video_id} className="pick-row">
-            <span className="pick-row__title">{video.video_title}</span>
-            <span className="muted text-xs">
-              {video.video_type === 'movie' ? '电影' : '剧集'} · #{video.video_id}
+          <button
+            type="button"
+            key={video.video_id}
+            className="pick-row"
+            onClick={() => onPick({ videoId: video.video_id, title: video.video_title })}
+          >
+            <span className="pick-row__text">
+              <span className="pick-row__title">{video.video_title}</span>
+              <span className="pick-row__sub">
+                {video.video_type === 'movie' ? '电影' : '剧集'} · #{video.video_id}
+              </span>
             </span>
-            <button
-              type="button"
-              className="btn btn--ghost"
-              style={{ marginLeft: 'auto' }}
-              onClick={() => onPick({ videoId: video.video_id, title: video.video_title })}
-            >
-              选择
-            </button>
-          </div>
+          </button>
         ))}
       </PickList>
     </Modal>

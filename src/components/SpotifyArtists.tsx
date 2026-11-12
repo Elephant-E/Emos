@@ -64,9 +64,11 @@ export function SpotifyArtists({ query, onPick }: { query: string; onPick: (id: 
             disabled={resolving === hit.mbid}
             onClick={() => void resolve(hit)}
           >
-            <span className="pick-row__title">{hit.name}</span>
-            <span className="muted text-xs">
-              {resolving === hit.mbid ? '解析 Spotify ID…' : (hit.hint || (hit.id ? hit.id : ''))}
+            <span className="pick-row__text">
+              <span className="pick-row__title">{hit.name}</span>
+              <span className="pick-row__sub">
+                {resolving === hit.mbid ? '解析 Spotify ID…' : (hit.hint || (hit.id ? hit.id : ''))}
+              </span>
             </span>
           </button>
         ))}

@@ -1807,9 +1807,35 @@ input.input[type='number'] { min-width: 0; }
 
 /* 添加影片/字幕的候选行 */
 .pick-list { display: grid; gap: var(--sp-1); max-height: 320px; overflow-y: auto; min-width: 0; }
-.pick-row { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-hair); min-width: 0; }
+.pick-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  min-width: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+/* 整行可点时用 button 当容器：hover 只提前景，不铺底色 */
+button.pick-row { cursor: pointer; }
+button.pick-row:hover { color: var(--fg); }
+button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
+/* 主标题 + 副行：副行紧跟标题，不再被 flex:1 推到右边 */
+.pick-row > .pick-row__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.pick-row__sub {
+  font-size: var(--text-2xs);
+  color: var(--fg-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pick-row__num { width: 26px; }
-.pick-row__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-row__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* 两行式行标题（主标题 + 副标题），和单行的 .pick-row__title 区分 */
 .pick-row__text { display: grid; min-width: 0; }
 .pick-tabs { display: flex; gap: var(--sp-2); }
