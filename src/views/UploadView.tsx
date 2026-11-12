@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
@@ -68,6 +69,7 @@ export function UploadView() {
   const [over, setOver] = useState(false)
   // 上传文件落点（getUploadToken 的 file_storage），取值见 wiki
   const [fileStorage, setFileStorage] = useState<string>(DEFAULT_UPLOAD_STORAGE)
+  const caps = useCapabilities()
   /** 正在为哪一条选目标 / 选歌曲 */
   const [placing, setPlacing] = useState<{ item: QueueItem; mode: 'target' | 'song' } | null>(null)
   const [songTerm, setSongTerm] = useState('')
@@ -349,9 +351,20 @@ export function UploadView() {
               <i />
               {USE_MOCK ? '假数据模式' : '直传后端'}
             </span>
-            <button type="button" className="btn btn--ghost" onClick={() => userApi.agreeUpload().then(() => toast('已同意上传协议', 'success'))}>
-              同意上传协议
-            </button>
+            {!caps.canUpload ? (
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() =>
+                  userApi.agreeUpload().then(() => {
+                    toast('已同意上传协议', 'success')
+                    void qc.invalidateQueries({ queryKey: ['session'] })
+                  })
+                }
+              >
+                同意上传协议
+              </button>
+            ) : null}
           </>
         }
       />

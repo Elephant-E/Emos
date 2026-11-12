@@ -165,17 +165,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
         tools={
           <>
             {user && !user.is_can_upload ? <span className="head-note">无上传权限</span> : null}
-            <button type="button"
-              className="btn btn--ghost"
-              disabled={caps.signedToday || actions.sign.isPending}
-              onClick={() =>
-                actions.sign.mutate(undefined, {
-                  onSuccess: (res) => toast(`签到成功，+${res.earn_point} 胡萝卜`, 'success'),
-                })
-              }
-            >
-              {caps.signedToday ? '今天已签' : '签到'}
-            </button>
           </>
         }
       />
@@ -795,6 +784,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               </button>
               <button type="button"
                 className="btn btn--primary"
+                disabled={!inviteId.trim() || actions.invite.isPending}
                 onClick={() =>
                   actions.invite.mutate(
                     { id: inviteId.trim(), remark: inviteRemark },

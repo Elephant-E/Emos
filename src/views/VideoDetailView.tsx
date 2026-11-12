@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
+import { MoreMenu } from '@/components/MoreMenu'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -144,10 +145,12 @@ export function VideoDetailView({
               </button>
             ) : null}
             {video ? (
-              <button type="button"
-                className="btn btn--ghost"
-                disabled={seekApply.isPending}
-                onClick={async () => {
+              <MoreMenu
+                items={[
+                  {
+                    label: '代为发起求片',
+                    disabled: seekApply.isPending,
+                    onSelect: async () => {
                   // 电影按整部（vl）求，剧集按当前这一集（ve）求
                   const itemType = isMovie ? 'vl' : 've'
                   const itemId = isMovie ? video.video_id : currentEpisode?.episode_id
@@ -162,31 +165,28 @@ export function VideoDetailView({
                     confirmText: '发起',
                   })
                   if (!ok) return
-                  seekApply.mutate(
-                    { item_type: itemType, item_id: Number(itemId) },
-                    { onSuccess: () => toast('已发起求片', 'success') },
-                  )
-                }}
-              >
-                求片
-              </button>
-            ) : null}
-            {video ? (
-            <button type="button"
-              className="btn btn--danger-text"
-              onClick={async () => {
-                const ok = await confirmDialog({
-                  title: '删除这部影片？',
-                  message: `《${video?.video_title}》会被标记为已删除，从列表里移除。`,
-                  hint: '可在回收站恢复；已上传的资源与字幕不会立即清除。',
-                  confirmText: '删除',
-                  danger: true,
-                })
-                if (ok) actions.removeVideo.mutate(undefined, { onSuccess: () => toast('已删除', 'success') })
-              }}
-            >
-              删除
-            </button>
+                      seekApply.mutate(
+                        { item_type: itemType, item_id: Number(itemId) },
+                        { onSuccess: () => toast('已发起求片', 'success') },
+                      )
+                    },
+                  },
+                  {
+                    label: '删除这部影片',
+                    danger: true,
+                    onSelect: async () => {
+                      const ok = await confirmDialog({
+                        title: '删除这部影片？',
+                        message: `《${video?.video_title}》会被标记为已删除，从列表里移除。`,
+                        hint: '可在回收站恢复；已上传的资源与字幕不会立即清除。',
+                        confirmText: '删除',
+                        danger: true,
+                      })
+                      if (ok) actions.removeVideo.mutate(undefined, { onSuccess: () => toast('已删除', 'success') })
+                    },
+                  },
+                ]}
+              />
             ) : null}
           </>
         }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 interface ArtistHit {
@@ -16,13 +16,20 @@ interface ArtistHit {
 export function SpotifyArtists({ query, onPick }: { query: string; onPick: (id: string) => void }) {
   const [resolving, setResolving] = useState<string | null>(null)
   const [resolveError, setResolveError] = useState<string | null>(null)
+  // MusicBrainz 限 1 请求/秒：输入停 400ms 且至少 2 个字才发请求
+  const [term, setTerm] = useState(query)
+  useEffect(() => {
+    const timer = setTimeout(() => setTerm(query.trim()), 400)
+    return () => clearTimeout(timer)
+  }, [query])
 
   const { data, isFetching, error } = useQuery({
-    queryKey: ['spotify', 'artist', query] as const,
+    queryKey: ['spotify', 'artist', term] as const,
+    enabled: term.length >= 2,
     staleTime: 5 * 60_000,
     retry: false,
     queryFn: async () => {
-      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`/api/spotify/search?q=${encodeURIComponent(term)}`)
       const body = (await res.json().catch(() => ({}))) as { artists?: ArtistHit[]; message?: string }
       if (!res.ok) throw new Error(body.message ?? `搜索失败（${res.status}）`)
       return body.artists ?? []
@@ -49,6 +56,7 @@ export function SpotifyArtists({ query, onPick }: { query: string; onPick: (id: 
     }
   }
 
+  if (term.length < 2) return null
   if (isFetching) return <p className="card-note">搜索中…</p>
   if (error) return <p className="card-note">{error instanceof Error ? error.message : '搜索不可用'}</p>
   if (!data || data.length === 0) return <p className="card-note">没有找到歌手</p>

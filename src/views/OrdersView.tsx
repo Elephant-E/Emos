@@ -306,9 +306,11 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               })}
             </tbody>
           </table>
+          {/* 接口会忽略 is_pay / order_title / order_no，本地再筛一遍；
+              这时总条数只能用当前页筛出来的数，否则会出现「本页 0 条但还有 N 页」 */}
           <Pager
-            total={orders.data.total}
-            page={search.page}
+            total={filtered ? visibleOrders.length : orders.data.total}
+            page={filtered ? 1 : search.page}
             pageSize={search.page_size}
             onPage={(page) => onSearch({ page })}
             onPageSize={(page_size) => onSearch({ page_size, page: 1 })}

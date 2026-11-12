@@ -531,7 +531,7 @@ export function ShopView({
               </button>
               <button type="button"
                 className="btn btn--primary"
-                disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id)}
+                disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id) || actions.saveProduct.isPending}
                 onClick={saveProduct}
               >
                 保存

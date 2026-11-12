@@ -4,10 +4,8 @@ import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
-import { useQueryClient } from '@tanstack/react-query'
 import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
-import { carrotApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatThousand } from '@/lib/format'
@@ -21,15 +19,11 @@ const PAY_STATUS: Record<string, string> = {
 }
 
 export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
-  const qc = useQueryClient()
   const base = usePayBase()
   const [no, setNo] = useState('')
   const [lookup, setLookup] = useState('')
   const order = usePayOrder(lookup)
 
-  const [transferTo, setTransferTo] = useState('')
-  const [amount, setAmount] = useState(10)
-  const [sending, setSending] = useState(false)
   const [closing, setClosing] = useState(false)
   const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
   // 服务商转账（与上面的胡萝卜转赠是两套：这个走支付服务，费率千六）
@@ -191,53 +185,6 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </div>
             </>
           ) : null}
-        </article>
-
-        <article className="card">
-          <p className="stat__label">转赠胡萝卜</p>
-          <div className="row-input stack--top">
-            <input className="input" placeholder="对方用户 ID" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} />
-            <input
-              className="input"
-              style={{ maxWidth: 100 }}
-              type="number"
-              min={2}
-              max={6000}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-            <button type="button"
-              className="btn btn--primary"
-              disabled={!transferTo.trim() || amount < 2 || amount > 6000 || sending}
-              onClick={async () => {
-                const ok = await confirmDialog({
-                  title: '确认转赠？',
-                  message: `转给 ${transferTo.trim()}，${amount} 胡萝卜。`,
-                  hint: '转出后不可撤回。',
-                  confirmText: '转赠',
-                })
-                if (!ok) return
-                setSending(true)
-                try {
-                  const res = await carrotApi.transfer(transferTo.trim(), amount)
-                  // 转赠改了余额，侧栏与概览的胡萝卜都得跟着变
-                  void qc.invalidateQueries({ queryKey: ['carrot'] })
-                  void qc.invalidateQueries({ queryKey: ['session'] })
-                  toast(`已转赠，余额 ${res.carrot}`, 'success')
-                  setTransferTo('')
-                } catch (error) {
-                  toast(error instanceof Error ? error.message : '转赠失败', 'error')
-                } finally {
-                  setSending(false)
-                }
-              }}
-            >
-              转赠
-            </button>
-          </div>
-          <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
-            单次 2 – 6000 个，转出后不可撤回。
-          </p>
         </article>
 
         <article className="card">

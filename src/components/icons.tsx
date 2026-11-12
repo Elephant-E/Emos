@@ -205,3 +205,10 @@ export const IconWhisper = (p: IconProps) => (
     <path d="M5.6 11 4.6 13.4l3.2-1.3" />
   </Svg>
 )
+
+/** 更多操作：三个点，墨迹居中 */
+export const IconMore = (p: IconProps) => (
+  <Svg size={13} strokeWidth={1.7} {...p}>
+    <path d="M8 3.2v.01M8 8v.01M8 12.8v.01" />
+  </Svg>
+)
