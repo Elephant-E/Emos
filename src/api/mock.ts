@@ -124,7 +124,7 @@ const watches: WatchItem[] = [
 
 const songs: MusicSong[] = [
   { song_id: 2001, name: '夜航', image_poster_url: poster('song1'), description: '专辑《潮汐》第一首', tagline: null,
-    duration: 254, video_list_id: null, rating: 4.6, is_adult: false, count_medias: 2, person_artists: [{ name: '陈曦' }] },
+    duration: 254, video_list_id: null, rating: 4.6, rating_user: 5, is_adult: false, count_medias: 2, person_artists: [{ name: '陈曦' }] },
   { song_id: 2002, name: '雾中列车', image_poster_url: poster('song2'), description: null, tagline: null,
     duration: 312, video_list_id: null, rating: 4.2, is_adult: false, count_medias: 1, person_artists: [{ name: '林一' }] },
   { song_id: 2003, name: '晨间信号', image_poster_url: poster('song3'), description: null, tagline: null,

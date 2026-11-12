@@ -30,6 +30,7 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
   const [adding, setAdding] = useState(false)
   const [mvOpen, setMvOpen] = useState(false)
+  const [ratingOpen, setRatingOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -83,27 +84,6 @@ export function SongDetailView({ songId }: { songId: number }) {
             >
               收藏
             </button>
-            <select
-              className="input"
-
-              value={song.data?.rating ?? ''}
-              aria-label="评分"
-              onChange={(e) =>
-                actions.rating.mutate(
-                  { type: 'ms', value: songId, rating: Number(e.target.value) },
-                  { onSuccess: () => toast('已评分', 'success') },
-                )
-              }
-            >
-              <option value="">
-                {song.data?.rating == null ? '未评分' : `当前 ${song.data.rating}`}
-              </option>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <option key={n} value={n}>
-                  {n} 星
-                </option>
-              ))}
-            </select>
             <button type="button"
               className="btn btn--danger-text"
               onClick={async () => {
@@ -148,7 +128,9 @@ export function SongDetailView({ songId }: { songId: number }) {
                   <span>资源</span>
                 </div>
                 <div className="detail-stat">
-                  <b>{song.data.rating ?? '—'}</b>
+                  <button type="button" className="detail-stat__link" onClick={() => setRatingOpen(true)} title="改评分">
+                    {song.data.rating ?? '—'}
+                  </button>
                   <span>评分</span>
                 </div>
               </div>
@@ -160,6 +142,45 @@ export function SongDetailView({ songId }: { songId: number }) {
       <div className="toolbar">
         <Tabs items={SONG_TABS} value={tab} onChange={setTab} label="详情分区" />
       </div>
+
+      {ratingOpen ? (
+        <Modal title="评分" width={360} onClose={() => setRatingOpen(false)}>
+          <div className="pick-list">
+            {[5, 4, 3, 2, 1].map((n) => (
+              <button
+                type="button"
+                key={n}
+                className="pick-row"
+                onClick={() => {
+                  actions.rating.mutate(
+                    { type: 'ms', value: songId, rating: n },
+                    { onSuccess: () => { toast('已评分', 'success'); setRatingOpen(false) } },
+                  )
+                }}
+              >
+                <span className="pick-row__text">
+                  <span className="pick-row__title">{n} 星</span>
+                  {song.data?.rating_user === n ? <span className="pick-row__sub">你打的分</span> : null}
+                </span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className="pick-row"
+              onClick={() =>
+                actions.rating.mutate(
+                  { type: 'ms', value: songId, rating: 0 },
+                  { onSuccess: () => { toast('已清除评分', 'success'); setRatingOpen(false) } },
+                )
+              }
+            >
+              <span className="pick-row__text">
+                <span className="pick-row__title">清除评分</span>
+              </span>
+            </button>
+          </div>
+        </Modal>
+      ) : null}
 
       {tab === 'lyrics' ? (
         <section className="cards cards--wide">

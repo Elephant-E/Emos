@@ -363,7 +363,10 @@ export interface MusicSong {
   tagline: string | null
   duration: number | null
   video_list_id: number | null
+  /** 平均分（可能是小数，如 4.6） */
   rating: number | null
+  /** 自己打的分（1–5 整数，没打过为 null） */
+  rating_user?: number | null
   has_media?: boolean
   is_adult: boolean
   is_favorite?: boolean
