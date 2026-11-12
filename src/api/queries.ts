@@ -859,6 +859,23 @@ export function useRecycleMutations() {
   }
 }
 
+/** 余额单独一个接口：getUserInfo 的字段里没有 carrot（契约与真机快照都没有） */
+export function useUserCarrot(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId, 'carrot'] as const,
+    enabled: Boolean(userId),
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        return (await payApi.userCarrot(userId)).carrot
+      } catch (error) {
+        if ((error as { status?: number }).status === 403) return null
+        throw error
+      }
+    },
+  })
+}
+
 export function useUserPayInfo(userId: string) {
   return useQuery({
     queryKey: ['user', userId, 'pay'] as const,

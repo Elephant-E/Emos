@@ -4,13 +4,14 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock } from '@/components/StateBlock'
-import { useAccountMutations, useBanList, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
+import { useAccountMutations, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
 
 export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
+  const carrot = useUserCarrot(userId)
   const invite = useUserInvite(userId)
   const bans = useBanList()
   const records = useUserRecords(userId)
@@ -110,9 +111,9 @@ export function UserDetailView({ userId }: { userId: string }) {
 
         <StatCard
           label="胡萝卜"
-          value={info?.carrot == null ? '—' : formatThousand(Number(info.carrot))}
+          value={carrot.data == null ? '—' : formatThousand(Number(carrot.data))}
           unit="个"
-          note={info?.carrot == null ? '需要服务商权限' : '当前余额'}
+          note={carrot.data == null ? '需要服务商权限' : '当前余额'}
         />
 
         <StatCard

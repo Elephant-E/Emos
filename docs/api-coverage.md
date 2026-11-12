@@ -3,8 +3,8 @@
 文档（`api.postman_collection.json`）：**190** 个接口；
 代码（`src/api/endpoints.ts`）：**163** 个封装。
 
-- 已接且有界面调用：**157**
-- 已接但无调用：**3**
+- 已接且有界面调用：**158**
+- 已接但无调用：**2**
 - 未接：**28**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
@@ -57,7 +57,6 @@
 |---|---|---|---|
 | 视频相关 / 观影记录 | `recordApi.change` | `PUT /api/video/record/change` | 改观影记录，用户侧行为 |
 | 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
-| 支付相关 | `payApi.userCarrot` | `GET /api/pay/getUserCarrot` | 见 pay/transfer：本站转赠走 carrot 域 |
 
 ## 刻意不接 / 后台工具
 
