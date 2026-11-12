@@ -1,42 +1,26 @@
-# 旧项目后端的复用
+# 旧项目后端：看过，没有可复用的
 
-旧项目（`main` 分支 `a01e9a0`）是前后端一体化部署：`worker.js` 既发静态资源，
-也做三件服务端的事。新后台之前只搬了前端（见 `LEARNINGS.md`），这一轮把后端补上。
+旧项目（`main` 分支 `a01e9a0`）是前后端一体化部署，`worker.js` 除了发静态资源，
+还做三件事。逐项验证后的结论是：**三件都不做**，代码已删除。
 
-## 旧 Worker 干了什么
-
-| 能力 | 旧实现 | 现在 |
+| 能力 | 结论 | 依据 |
 |---|---|---|
-| `/api/*` 反向代理到 `emos.best` | `handleEmosApiProxy` | **已复用**：`server/worker.js` 的 `handleProxy`，方法/查询串/请求体原样转发，只换目标源 |
-| `/api/identify` 文件名识别 | `share/identify-core.js`：guessit → TMDB → 上游 `getVideoId` | **已复用**：`server/identify-core.js` 原样搬入 |
-| `/api/spotify/search` 歌手搜索 | `share/spotify-core.js`：Supabase 边缘函数换 token → Spotify | **已复用**：`server/spotify-core.js` 原样搬入，并接进了「从 Spotify 同步」弹窗 |
-| dev/prod 同一套代码路径 | vite 中间件 + Worker 共用 `share/` | **已复用**：`vite.config.ts` 的 `devApiPlugin` |
-| 静态资源内嵌（`build-worker.cjs`） | 把 dist 打进 worker | **不复用**：改用 Workers Assets（`ASSETS` binding），少一层构建脚本 |
-| 独立 `login.html` | 单页登录 | **不复用**：新后台登录是 SPA 内的路由 |
-| 密钥硬编码风险 | 已经从 env 注入 | **沿用**：`TMDB_API_KEY` / `SPOTIFY_ANON_KEY` 只走 `wrangler secret` 与本地 `.dev.vars` |
+| `/api/*` 反向代理到上游 | **不需要** | 上游 `emos.best` 本身允许浏览器直连（本项目一直如此），代理只解决 CORS 与隐藏源站；token 在前端本地、不需要服务端注入。部署形态还没定，没有理由为此维护一层代理 |
+| `/api/identify` 文件名识别（guessit → TMDB） | **不可用** | 依赖的 guessit 服务 `elephant.pythonanywhere.com` 已下线：任何请求都返回 404 的 PythonAnywhere「Coming Soon」页 |
+| `/api/spotify/search` 歌手搜索 | **当前不可用** | 链路本身通（Supabase 的 token 函数返回 200），但 Spotify 侧对该 token 返回 `429 QUOTA_EXCEEDED`；且「从 Spotify 同步」本来就能直接粘链接，缺的只是便利 |
+| dev/prod 同一套代码路径 | **不需要** | 上面两个自定义端点都不用了，dev 只剩「上游 API 代理」，那一条 Vite 自带的 `proxy` 已经覆盖 |
 
-## 为什么值得搬这两块
+## 现在这条链路长什么样
 
-- **识别**：上传页现在用上游 `POST /api/upload/video/recognize`，实测对
-  「权力的游戏.S02.mkv」会解析成 S00E02（季 0 第 2 集）；旧后端的
-  guessit + TMDB 链路按文件名拆季集，明显更准。这是下一步要接的
-- **Spotify 搜索**：密钥不能进前端。搬了之后「从 Spotify 同步」可以按名字搜，
-  不用先在外面查到 ID 再粘进来
-
-## 配置
-
-```bash
-cp .dev.vars.example .dev.vars   # 填 TMDB_API_KEY / SPOTIFY_ANON_KEY
-wrangler secret put TMDB_API_KEY
-wrangler secret put SPOTIFY_ANON_KEY
+```
+浏览器 ──直连──> https://emos.best/api/*            （生产与 dev 都是这条路）
+「从 Spotify 同步」→ PATCH /api/music/syncSpotifyArtist（上游接口，手动填链接或 ID）
 ```
 
-缺任一密钥时对应路由返回 **501**，界面退回「手动填链接/ID」，不会静默失败。
-上游配额用尽（Spotify 429）时前端把错误翻成一句中文，同样退回手动填。
+## 如果以后要恢复
 
-## 还没接的
-
-1. **上传页改用 `/api/identify`**：需要把识别结果映射到现有的目标选择器
-   （`item_type` + `item_id` + 季集），并把上游 recognize 作为兜底
-2. **失败重试**：旧项目的识别失败会让用户手动选目标，新后台已有这条路径，
-   接上识别后要保证两条路不打架
+- **识别**：guessit 得先有替代服务（本地跑 `guessit` 或换在线解析），否则拿不到
+  「季 集」，识别就只剩正则；当前上游的 `recognize` 对 `S02` 会误判成 `S00E02`，
+  这一条仍然是个已知缺陷
+- **Spotify 搜索**：需要换一个未超配额的 token 源，再按 `server/` 那套搬回来
+  （`git show 4656d59` 里有完整实现，含 dev 中间件与 Worker）
