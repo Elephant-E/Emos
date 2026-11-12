@@ -411,7 +411,7 @@ export function ShopView({
             {categories.data && categories.data.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
                 {categories.data.map((category) => (
-                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                  <li key={category.category_id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', padding: 'var(--sp-2) var(--sp-hair)', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)' }}>{category.name}</span>
                     <span className="spacer" />
                     {isSeller ? (

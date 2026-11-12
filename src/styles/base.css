@@ -75,3 +75,6 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* 11.5px 的小字：图表坐标、极次要说明 */
+.text-2xs { font-size: var(--text-2xs); }

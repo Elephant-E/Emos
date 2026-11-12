@@ -323,7 +323,7 @@ export function OverviewView() {
                       background: minutes > 0 ? 'rgba(52,211,153,0.85)' : 'rgba(255,255,255,0.06)',
                     }}
                   />
-                  <span className="muted" style={{ fontSize: 10 }}>
+                  <span className="muted text-2xs">
                     {new Date(`${day.date}T00:00:00`).getDate()}
                   </span>
                 </span>

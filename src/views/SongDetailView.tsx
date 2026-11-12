@@ -212,7 +212,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                     overflow: 'auto',
                     whiteSpace: 'pre-wrap',
                     lineHeight: 1.9,
-                    fontSize: 13,
+                    fontSize: 'var(--text-sm)',
                     color: 'var(--fg-2)',
                     fontFamily: 'inherit',
                   }}

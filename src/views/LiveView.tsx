@@ -119,7 +119,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             {media.data && media.data.items.length > 0 ? (
               <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
                 {media.data.items.map((row) => (
-                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 2px', borderBottom: '1px solid var(--line-soft)' }}>
+                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', padding: 'var(--sp-2) var(--sp-hair)', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
                     <span className="meta-sm">{PATH_TYPE_LABEL[row.path_type] ?? row.path_type}</span>
                     <span className="meta-sm ellipsis" style={{ flex: 1, minWidth: 0 }}>

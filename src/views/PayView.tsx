@@ -133,7 +133,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               编辑
             </button>
           </CardHead>
-          <p style={{ margin: '10px 0 0', fontSize: 13, color: 'var(--fg-2)', wordBreak: 'break-all' }}>
+          <p style={{ margin: 'var(--stack) 0 0', color: 'var(--fg-2)', wordBreak: 'break-all' }}>
             {base.data?.notify_url || '未配置'}
           </p>
           <p className="stat__delta stat__delta--quiet" style={{ marginTop: 12 }}>

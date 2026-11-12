@@ -15,13 +15,12 @@
 | /api/use | 名词：pn/vb/vl/vs/ve/vp/vm/vt | 已在类型里用 vl/ve |
 | /introduction/carrot | 申请支付服务商扣 **5000** 胡萝卜、申请商户扣 **3000** | ✅ 支付页已加确认与明示 |
 | /introduction/carrot | 萝卜境界：凡人期→练气→筑基→结丹→元婴→化神→炼虚→合体→大乘→真仙 | ✅ 概览显示当前境界与距下一境 |
-| /more/temporary | 临时图床 `POST temporary.emos.best/upload`（file + emos_id，80MB 内） | 未接（红包用） |
+| /more/temporary | 临时图床 `POST temporary.emos.best/upload`（file + emos_id，80MB 内） | ✅ 红包封面在用（`uploadTemporary()`） |
 | /api/watch | 动态片单由服务端每日 08/17 抓取外部 GET 接口 | 无需前端接入 |
 | /api/link | token 仅用户手动重置时失效；`authorization: Bearer` 访问公开接口 | 登录页可说明 |
 
 ## 未实现的接口能力（wiki 有文档、后台无入口）
 
-- `temporary.emos.best/upload` 临时图床（发红包要图片）
 - 动态片单外部推送（服务端行为，前端无需做）
 - Telegram 授权绑定（`/api/link` 的 bot 链接）
 
