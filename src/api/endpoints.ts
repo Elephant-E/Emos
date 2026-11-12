@@ -258,6 +258,15 @@ export const payApi = {
   query: (no: string) => request<Record<string, unknown>>('/api/pay/query', { query: { no } }),
   userInfo: (params: { user_id?: string; username?: string; telegram_user_id?: string }) =>
     request<Record<string, unknown>>('/api/pay/getUserInfo', { query: params }),
+  /** 查别人的签到信息（服务商权限；非服务商 403） */
+  userSign: (userId: string) =>
+    request<{ sign_index: number; sign_at: string; earn_point: number; continuous_days: number; content: string | null }>(
+      '/api/pay/getUserSign',
+      { query: { user_id: userId } },
+    ),
+  /** 给用户发邮件通知，扣 10 胡萝卜 */
+  sendNotifyEmail: (payload: { user_id: string; subject: string; body: string }) =>
+    request<CarrotDelta>('/api/pay/sendNotifyEmail', { method: 'POST', body: payload }),
 }
 
 export const shopApi = {
@@ -309,6 +318,9 @@ export const banApi = {
 }
 
 export const musicApi = {
+  /** 用 spotify 歌手的 id 去 todb 同步一次数据 */
+  syncSpotifyArtist: (artistId: string) =>
+    request<unknown>('/api/music/syncSpotifyArtist', { method: 'PATCH', body: { artist_id: artistId } }),
   deleteMedia: (songId: number, mediaId: string, reason?: string) =>
     request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
   moveMedia: (songId: number, mediaId: string) =>

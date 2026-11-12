@@ -1,10 +1,12 @@
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardTable } from '@/components/CardTable'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
+import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock } from '@/components/StateBlock'
-import { useAccountMutations, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords } from '@/api/queries'
+import { useAccountMutations, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
@@ -12,6 +14,8 @@ import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/li
 export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
   const carrot = useUserCarrot(userId)
+  const sign = useUserSign(userId)
+  const [notify, setNotify] = useState<{ subject: string; body: string } | null>(null)
   const invite = useUserInvite(userId)
   const bans = useBanList()
   const records = useUserRecords(userId)
@@ -31,6 +35,13 @@ export function UserDetailView({ userId }: { userId: string }) {
         hint={`#${userId}`}
         tools={
           <>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => setNotify({ subject: '', body: '' })}
+            >
+              发邮件通知
+            </button>
             <Link className="btn btn--ghost" to="/users">
               封禁列表
             </Link>
@@ -107,6 +118,19 @@ export function UserDetailView({ userId }: { userId: string }) {
               '未出现在封禁列表中'
             )
           }
+        />
+
+        <StatCard
+          label="签到"
+          value={sign.data ? `${sign.data.continuous_days} 天` : '—'}
+          note={
+            sign.data
+              ? `最近签到 ${formatRelative(sign.data.sign_at)} · 本次 +${sign.data.earn_point}`
+              : sign.isLoading
+                ? '读取中'
+                : '需要服务商权限'
+          }
+          secondary
         />
 
         <StatCard
@@ -249,6 +273,66 @@ export function UserDetailView({ userId }: { userId: string }) {
           </CardTable>
         </article>
       </section>
-    </>
+    
+      {notify ? (
+        <Modal
+          title={`发邮件通知 · ${name || userId}`}
+          width={520}
+          onClose={() => setNotify(null)}
+          footer={
+            <>
+              <button type="button" className="btn btn--ghost" onClick={() => setNotify(null)}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!notify.subject.trim() || !notify.body.trim() || actions.notifyEmail.isPending}
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: '发送这封通知？',
+                    message: '会从余额里扣 10 胡萝卜。',
+                    hint: '收件用户在账号页绑定了邮箱才会收到。',
+                    confirmText: '发送',
+                  })
+                  if (!ok) return
+                  actions.notifyEmail.mutate(
+                    { user_id: userId, subject: notify.subject.trim(), body: notify.body.trim() },
+                    {
+                      onSuccess: () => {
+                        toast('已发送', 'success')
+                        setNotify(null)
+                      },
+                    },
+                  )
+                }}
+              >
+                {actions.notifyEmail.isPending ? '发送中…' : '发送'}
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>主题</span>
+            <input
+              className="input"
+              maxLength={100}
+              value={notify.subject}
+              onChange={(e) => setNotify({ ...notify, subject: e.target.value })}
+              autoFocus
+            />
+          </label>
+          <label className="field">
+            <span>正文</span>
+            <textarea
+              className="input"
+              rows={6}
+              value={notify.body}
+              onChange={(e) => setNotify({ ...notify, body: e.target.value })}
+            />
+          </label>
+        </Modal>
+      ) : null}
+</>
   )
 }

@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**163** 个封装。
+代码（`src/api/endpoints.ts`）：**166** 个封装。
 
-- 已接且有界面调用：**158**
+- 已接且有界面调用：**161**
 - 已接但无调用：**2**
-- 未接：**28**
+- 未接：**25**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -29,10 +29,7 @@
 | 支付相关 | 转账给用户 | `POST /api/pay/transfer` |
 | 支付相关 | 创建订单 | `POST /api/pay/create` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
-| 支付相关 | 给用户发送邮件通知 | `POST /api/pay/sendNotifyEmail` |
-| 支付相关 | 查询用户签到信息 | `GET /api/pay/getUserSign` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |
-| 音乐相关 / 其他 | 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` |
 | 音乐相关 / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
 | 音乐相关 / 音乐 | 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` |
 | 音乐相关 / 音乐 | 通过hash批量判断资源是否存在 | `POST /api/music/song/batchHashExist` |
@@ -76,10 +73,7 @@
 | 转账给用户 | `POST /api/pay/transfer` | 支付服务内的转账；胡萝卜转赠已用 /api/carrot/transfer |
 | 创建订单 | `POST /api/pay/create` | 支付单由用户侧发起，后台只处理已有订单 |
 | 测试回调 | `POST /api/pay/testNotify` | 回调自测，联调用 |
-| 给用户发送邮件通知 | `POST /api/pay/sendNotifyEmail` | 手工发通知邮件，运营一次性动作 |
-| 查询用户签到信息 | `GET /api/pay/getUserSign` | 真机 403「请先成为服务商」；用户详情里已有最近签到 |
 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` | 发到 Telegram 频道，bot 侧入口，后台没有场景 |
-| 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` | 从 Spotify 同步歌手，一次性数据修补 |
 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` | 播放地址按需求不展示 |
 | 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` | 手工关联歌曲与影片，数据修补 |
 | 通过hash批量判断资源是否存在 | `POST /api/music/song/batchHashExist` | 按 hash 批量判重，上传前的客户端逻辑 |

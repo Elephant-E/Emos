@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
 import { Poster } from '@/components/Poster'
 import { Tabs } from '@/components/Tabs'
+import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
@@ -41,6 +42,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', search.page_size, search.filter)
   const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums', search.page_size)
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
+  const [syncArtist, setSyncArtist] = useState<string | null>(null)
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
@@ -66,6 +68,11 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
       <div className="toolbar">
         <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, page: 1, q: '' })} label="音乐分类" />
+        {search.tab === 'persons' ? (
+          <button type="button" className="btn btn--ghost" onClick={() => setSyncArtist('')}>
+            从 Spotify 同步
+          </button>
+        ) : null}
         <span className="spacer" />
         <input
           className="input"
@@ -219,6 +226,48 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           />
         </ListCard>
       ) : null}
-    </>
+    
+      {syncArtist !== null ? (
+        <Modal
+          title="从 Spotify 同步歌手"
+          width={480}
+          onClose={() => setSyncArtist(null)}
+          footer={
+            <>
+              <button type="button" className="btn btn--ghost" onClick={() => setSyncArtist(null)}>
+                取消
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary"
+                disabled={!syncArtist.trim() || actions.syncArtist.isPending}
+                onClick={() =>
+                  actions.syncArtist.mutate(syncArtist.trim(), {
+                    onSuccess: () => {
+                      toast('已同步', 'success')
+                      setSyncArtist(null)
+                    },
+                  })
+                }
+              >
+                {actions.syncArtist.isPending ? '同步中…' : '同步'}
+              </button>
+            </>
+          }
+        >
+          <label className="field">
+            <span>歌手链接或 ID</span>
+            <input
+              className="input"
+              value={syncArtist}
+              onChange={(e) => setSyncArtist(e.target.value)}
+              placeholder="https://open.spotify.com/artist/64NFGuC9PjqtNyJqnnTXh5"
+              autoFocus
+            />
+          </label>
+          <p className="card-note">填整条链接或只填 ID 都行，同步会按 todb 的字段覆盖。</p>
+        </Modal>
+      ) : null}
+</>
   )
 }

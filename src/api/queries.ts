@@ -452,6 +452,13 @@ export function useAccountMutations() {
     exitInvite: useMutation({ mutationFn: () => inviteApi.exit(), onSuccess: invalidate }),
     inviteEmps: useMutation({ mutationFn: (userId: string) => inviteApi.emps(userId), onSuccess: invalidate }),
     transfer: useMutation({ mutationFn: (payload: { userId: string; carrot: number }) => carrotApi.transfer(payload.userId, payload.carrot), onSuccess: invalidate }),
+    notifyEmail: useMutation({
+      mutationFn: (payload: { user_id: string; subject: string; body: string }) => payApi.sendNotifyEmail(payload),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['user'] })
+        qc.invalidateQueries({ queryKey: ['carrot'] })
+      },
+    }),
     banChange: useMutation({ mutationFn: (payload: { type: 'disable' | 'unblock'; userId: string; reason?: string }) => banApi.change(payload.type, payload.userId, payload.reason), onSuccess: invalidate }),
   }
 }
@@ -803,6 +810,11 @@ export function useMusicMutations(songId = 0) {
     favorite: useMutation({ mutationFn: (p: { type: string; value: number }) => musicApi.favorite(p.type, p.value), onSuccess: invalidate }),
     rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
     sync: useMutation({ mutationFn: (p: { type: string; value: string }) => musicApi.sync(p.type, p.value), onSuccess: invalidate }),
+    // 允许直接粘整条 spotify 链接，只取 artist/ 后面那段
+    syncArtist: useMutation({
+      mutationFn: (input: string) => musicApi.syncSpotifyArtist(input.split('/artist/').pop()!.split(/[?#]/)[0]),
+      onSuccess: invalidate,
+    }),
     deleteSong: useMutation({ mutationFn: () => musicApi.deleteSong(songId), onSuccess: invalidate }),
     createLyric: useMutation({
       mutationFn: (p: { type: string; language: string; content: string }) => musicApi.createLyric(songId, p),
@@ -868,6 +880,23 @@ export function useUserCarrot(userId: string) {
     queryFn: async () => {
       try {
         return (await payApi.userCarrot(userId)).carrot
+      } catch (error) {
+        if ((error as { status?: number }).status === 403) return null
+        throw error
+      }
+    },
+  })
+}
+
+/** 别人的签到信息：非服务商权限时 403，按「查不到」处理 */
+export function useUserSign(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId, 'sign'] as const,
+    enabled: Boolean(userId),
+    staleTime: 60_000,
+    queryFn: async () => {
+      try {
+        return await payApi.userSign(userId)
       } catch (error) {
         if ((error as { status?: number }).status === 403) return null
         throw error
