@@ -137,7 +137,7 @@ export function OverviewView() {
       </p>
 
       {todoItems.length > 0 ? (
-        <section className="cards cards--4">
+        <section className="cards cards--todos">
           {todoItems.map((item) => (
             <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
@@ -225,7 +225,7 @@ export function OverviewView() {
         </Link>
       </section>
 
-      <section className="cards cards--2 cards--top">
+      <section className="cards cards--2">
         <article className="card">
           <CardHead title="继续观看">
             <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>

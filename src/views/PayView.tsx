@@ -142,7 +142,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         </article>
       </section>
 
-      <section className="cards cards--2 cards--top">
+      <section className="cards cards--2">
         <article className="card" style={{ display: base.error ? 'none' : undefined }}>
           <CardHead title="查询订单" />
           <div className="row-input stack--top">

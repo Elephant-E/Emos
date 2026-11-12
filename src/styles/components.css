@@ -2014,9 +2014,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .search-panel__all:hover { color: var(--fg-2); }
 
 
-/* 同一行卡片高度不一致又不想被拉平时用（例如「继续观看」+ 右侧长表单） */
-.cards--top { align-items: start; }
-
 /* 中等宽度：卡片栅格最多两列 */
 @media (max-width: 1240px) {
   .cards,
