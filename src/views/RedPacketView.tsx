@@ -184,7 +184,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
           ) : null}
 
           <section className="cards cards--form">
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="红包" />
               <div className="card-body stack">
                 <div className="field-row">
@@ -259,7 +259,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               </div>
             </article>
 
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="封面">
                 {coverUrl ? (
                   <button type="button"

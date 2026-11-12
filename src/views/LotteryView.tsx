@@ -167,7 +167,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           ) : null}
 
           <section className="cards cards--form">
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="抽奖" />
               <div className="card-body stack">
                 <label className="field">
@@ -269,7 +269,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               </div>
             </article>
 
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="说明" />
               <div className="card-body">
                 <p className="card-note">开始与结束时间在一周内，到结束时间无论人数是否达标都会开奖。</p>
@@ -304,7 +304,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           ) : (
             <>
               <section className="cards cards--wide">
-                <article className="card card--tight">
+                <article className="card">
                   <CardHead title={winners.data?.lottery_name ?? '抽奖'}>
                     <span className="row" style={{ gap: 8 }}>
                       <button type="button" className="btn btn--quiet" onClick={() => void act('stop')}>

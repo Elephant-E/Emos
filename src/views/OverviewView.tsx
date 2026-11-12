@@ -294,7 +294,7 @@ export function OverviewView() {
           ) : null}
 
           {!stats.data && !stats.error ? (
-            <div className="stack--loose">
+            <div className="stack">
               <div className="skeleton" style={{ height: 40 }} />
               <div className="skeleton" style={{ height: 12, width: '60%' }} />
             </div>
@@ -373,7 +373,7 @@ export function OverviewView() {
               </p>
             ) : null}
 
-            <ul className="stack--loose stack--top">
+            <ul className="stack stack--top">
               {(myWatchlists.data?.items ?? []).map((w) => (
                 <li key={w.id}>
                   <Link

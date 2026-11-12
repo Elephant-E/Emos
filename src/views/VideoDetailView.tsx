@@ -259,7 +259,7 @@ export function VideoDetailView({
       {video ? (
       <div className={isMovie ? 'detail-body detail-body--single' : 'detail-body'}>
         {isMovie ? null : (
-        <article className="card card--tight">
+        <article className="card">
           <CardHead title="季与集">
             <span className="muted tnum-sm">
               共 {seasons.data?.length ?? 0} 季 · 本季 {seasonEpisodes.length} 集
@@ -333,7 +333,7 @@ export function VideoDetailView({
         )}
 
         <div className="detail-col">
-          <article className="card card--tight">
+          <article className="card">
             <CardHead title="资源">
               {currentEpisode && !isMovie ? (
                 <span className="muted text-xs">
@@ -387,7 +387,7 @@ export function VideoDetailView({
             ) : null}
           </article>
 
-          <article className="card card--tight">
+          <article className="card">
             <CardHead title="字幕">
               <button type="button" className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
                 {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '上传字幕'}
@@ -471,7 +471,7 @@ export function VideoDetailView({
       ) : null}
 
       {video && persons.data && persons.data.items.length > 0 ? (
-        <article className="card card--tight" style={{ marginTop: 18 }}>
+        <article className="card" style={{ marginTop: 18 }}>
           <CardHead title="演职员" />
           <div className="person-grid">
             {persons.data.items.slice(0, 8).map((person) => (

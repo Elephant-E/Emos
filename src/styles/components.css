@@ -316,6 +316,8 @@
 
 .card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--r-card);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
@@ -581,7 +583,6 @@ input.input[type='number'] { min-width: 0; }
 @media (max-width: 1240px) {
   .shell { grid-template-columns: var(--rail-w-compact) minmax(0, 1fr); }
   .page { padding: var(--sp-5) var(--pad-card) var(--sp-page); }
-  .page-title { font-size: 36px; }
 
   /* 这个宽度起内容区就装不下表格了：换成横向滚动，
      否则表格只会被裁掉右侧几列 */
@@ -1159,7 +1160,6 @@ input.input[type='number'] { min-width: 0; }
   margin-left: var(--sp-2);
 }
 
-.card { display: flex; flex-direction: column; }
 .card--stat {
   display: grid;
   grid-template-rows: auto auto auto;
@@ -1336,7 +1336,6 @@ input.input[type='number'] { min-width: 0; }
 .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .stack { display: grid; gap: var(--stack); }
-.stack--loose { display: grid; gap: var(--stack); }
 .stack--top { margin-top: var(--stack); }
 
 .row { display: flex; align-items: center; gap: var(--sp-3); }
@@ -1358,12 +1357,13 @@ input.input[type='number'] { min-width: 0; }
 
 .card-head .stat__label,
 .card--stat > .stat__label { margin: 0; }
-.card--stat > .stat__delta { margin-top: 0; }
+.card--stat > .stat__delta { margin: 0; }
 
 /* 固定 3 列：待办 1–2 条时卡片不会被拉伸到整行，3 条时正好铺满 */
 .cards--todos { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+/* 待办卡（.card.todo）没有 card--secondary，单独降一档 */
 .cards--todos .stat__value { font-size: 30px; }
-/* 一屏只留一个主数字，其余降一档，避免 6 个 42px 抢焦点 */
+/* 一屏只留一个主数字，其余降一档，避免抢焦点 */
 .card--secondary .stat__value { font-size: 30px; }
 
 /* 卡片内的表格：首列/末列去掉表格自身的 24px 内边距，
@@ -1746,8 +1746,7 @@ input.input[type='number'] { min-width: 0; }
 .image-picker__del:hover { color: var(--c-red); }
 
 
-/* ── 影片详情：卡片比列表页紧凑，两栏布局 ──────────────── */
-.card--tight { padding: var(--pad-card); }
+/* ── 影片详情：两栏布局 ──────────────── */
 .detail-body {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);

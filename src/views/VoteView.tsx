@@ -116,7 +116,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
           ) : null}
 
           <section className="cards cards--form">
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="投票" />
               <div className="card-body stack">
                 <label className="field">
@@ -199,7 +199,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               </div>
             </article>
 
-            <article className="card card--tight">
+            <article className="card">
               <CardHead title="说明" />
               <div className="card-body">
                 <p className="card-note">至少 2 个、最多 12 个选项。</p>
@@ -235,7 +235,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
           ) : (
             <>
               <section className="cards cards--wide">
-                <article className="card card--tight">
+                <article className="card">
                   <CardHead title={result.data?.question ?? '投票'}>
                     <span className="muted tnum-sm">
                       {formatDateTime(result.data?.time_start)} → {formatDateTime(result.data?.time_end)}
