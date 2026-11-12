@@ -150,11 +150,12 @@ export function UploadView() {
     }))
     setQueue((prev) => [...prev, ...next])
 
+    // 音乐条目互不依赖，并行检索：真机上一次搜索约 2.4 秒，串行会把整批拖成十几秒
+    const musicItems = next.filter((item) => item.kind === 'music')
+    void Promise.all(musicItems.map((item) => bindSong(item)))
+
     for (const item of next) {
-      if (item.kind === 'music') {
-        await bindSong(item)
-        continue
-      }
+      if (item.kind === 'music') continue
       // 先用本地解析器拆片名/季/集：上游 recognize 会把「剧名.S02.mkv」判成 S00E02
       const byName = await resolveByFilename(item.file.name)
       if (byName === 'need-target') {
