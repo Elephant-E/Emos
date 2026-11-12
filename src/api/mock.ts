@@ -418,13 +418,15 @@ export async function mockRequest<T>(
     const video = videos.find((v) => v.video_id === Number(episodeMatch[1]))
     if (video?.video_type === 'movie') return [] as T
     const seasonNumber = Number(query.season_number ?? 1)
-    const count = 18
+    // 每季的集数与 /season 给的 episodes_count 一致（都是 4）；
+    // episode_id 与标题随季变化，切季时必须换一批内容
+    const count = 4
     return Array.from({ length: count }, (_, i) => ({
       item_id: `ve-${seasonNumber}-${i + 1}`,
       season_id: 100 + Math.max(0, seasonNumber - 1),
       season_number: seasonNumber,
-      episode_id: 500 + i,
-      episode_title: video?.video_type === 'movie' ? '正片' : (i === 0 ? '这集vlog我们拍了十年，致最美好的青春（上）——记一次说走就走的旅行' : `第 ${i + 1} 集`),
+      episode_id: 500 + (seasonNumber - 1) * 10 + i,
+      episode_title: `第 ${seasonNumber} 季 · 第 ${i + 1} 集`,
       episode_number: i + 1,
       episode_description: null,
       video_image_poster: video?.video_image_poster ?? null,

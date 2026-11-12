@@ -43,9 +43,11 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0
   const rows = (active.data?.items ?? []) as Array<Record<string, unknown>>
-  // media/listAll 不保证返回 is_can_restore（契约里该字段挂在 media/list 上），
-  // 所以只有明确为 true 才给动作；整页都没有就不渲染操作列
-  const restorable = rows.some((row) => row.is_can_restore === true)
+  // 恢复权限只有一个口径：本人上传，或管理员。
+  // 契约里的 is_can_restore 在真机上恒为 false（本人上传的资源也是 false），
+  // 拿它当门槛会导致整页都没有恢复入口，所以不参与判断。
+  const canRestoreRow = (row: Record<string, unknown>) => Boolean(row.is_self_upload) || Boolean(caps.isAdmin)
+  const restorable = rows.some(canRestoreRow)
 
   const restoreMedia = async (mediaId: string, label: string) => {
     const ok = await confirmDialog({
@@ -158,9 +160,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                 {rows.map((row) => {
                   const mediaId = String(row.media_id ?? '')
                   const name = String(row.media_name ?? mediaId)
-                  // 实测 is_can_restore 在真机上恒为 false（含本人上传），不能当唯一门槛；
-                  // 有权限的用户直接给按钮，真正不可恢复时由接口报错
-                  const canRestore = row.is_can_restore === true || Boolean(row.is_self_upload) || Boolean(caps.isAdmin)
+                  // 与上面 restorable 用同一个判断，避免「整列渲染但行内全空」
+                  const canRestore = canRestoreRow(row)
                   return (
                     <tr key={mediaId}>
                       <td>

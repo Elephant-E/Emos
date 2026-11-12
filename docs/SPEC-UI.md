@@ -300,7 +300,7 @@ const bb = svg.getBBox(), vb = svg.viewBox.baseVal
 | `is_edit_video` | 片单 | 增删片单内影片 |
 | `is_self_upload` | 媒体 / 字幕 | 删除或移动他人内容 |
 | `is_can_claim` | 求片 | 认领 |
-| `is_can_restore` | 回收站资源 | 恢复 |
+| `is_self_upload` / 管理员 | 回收站资源 | 恢复（契约里的 `is_can_restore` 实测恒为 false，含本人上传，不能当门槛） |
 | `is_self` | 片单 / 线路 | 编辑与删除 |
 
 规则：**无权限就不给动作，也不给说明**。
