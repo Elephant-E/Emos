@@ -133,9 +133,9 @@ export function WatchlistDetailView({
   // 订阅用户与清空：都是片单主才有的操作
   const [subsOpen, setSubsOpen] = useState(false)
   const [subsPage, setSubsPage] = useState(1)
+  // 上游这个接口固定 15 条/页（传 20 也回 15），页码按响应的 page_size 算
   const subs = useQuery({
     queryKey: ['watch', 'subscribers', watchId, subsPage] as const,
-    // 上游这个接口固定 15 条/页（传 20 也回 15），页码必须按响应算，否则翻页会跳人
     queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 15 }),
     enabled: subsOpen,
   })
@@ -516,9 +516,7 @@ export function WatchlistDetailView({
         >
           {subs.error ? <ErrorBlock bare error={subs.error} onRetry={() => subs.refetch()} /> : null}
           {subs.isLoading ? <LoadingBlock bare rows={4} columns={4} /> : null}
-          {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? (
-            <EmptyBlock bare title="还没有人订阅" />
-          ) : null}
+          {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? <EmptyBlock bare title="还没有人订阅" /> : null}
           {(subs.data?.items.length ?? 0) > 0 ? (
             <table className="table table--inset">
               <thead>
@@ -542,13 +540,7 @@ export function WatchlistDetailView({
             </table>
           ) : null}
           {subs.data ? (
-            <Pager
-              total={subs.data.total}
-              page={subsPage}
-              pageSize={subs.data.page_size}
-              onPage={setSubsPage}
-              unit="人"
-            />
+            <Pager total={subs.data.total} page={subsPage} pageSize={subs.data.page_size} onPage={setSubsPage} />
           ) : null}
         </Modal>
       ) : null}

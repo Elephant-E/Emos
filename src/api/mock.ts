@@ -250,10 +250,17 @@ export async function mockRequest<T>(
     ] as T
   }
   if (/\/api\/watch\/\d+\/user$/.test(clean)) {
-    return paginate([
-      { username: 'soa', avatar: null, carrot: 10, expiration_date: '2026-12-01', created_at: '2026-11-01T03:18:52.000000Z' },
-      { username: 'lin', avatar: null, carrot: 0, expiration_date: null, created_at: '2026-10-25T03:18:52.000000Z' },
-    ], Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
+    // 上游这个接口固定 15 条/页；总数要与片单的 subscribe_count 对得上，
+    // 否则详情卡写「订阅 128」而弹窗只有 2 个人
+    const page = Number(query.page ?? 1)
+    const rows = Array.from({ length: 128 }, (_, i) => ({
+      username: `sub_${String(i + 1).padStart(3, '0')}`,
+      avatar: null,
+      carrot: i % 3 === 0 ? 2 : 1,
+      expiration_date: `2026-12-${String((i % 28) + 1).padStart(2, '0')}`,
+      created_at: '2026-11-01T03:18:52.000000Z',
+    }))
+    return paginate(rows, page, 15) as T
   }
   if (/\/api\/watch\/\d+\/(video|music)\/empty$/.test(clean)) return { count: 3 } as T
   if (clean === '/api/invite/exit') return {} as T
