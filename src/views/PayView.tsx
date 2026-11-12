@@ -144,7 +144,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
 
       <section className="cards cards--2">
         <article className="card" style={{ display: base.error ? 'none' : undefined }}>
-          <p className="stat__label">查询订单</p>
+          <CardHead title="查询订单" />
           <div className="row-input stack--top">
             <input className="input" placeholder="订单号" value={no} onChange={(e) => setNo(e.target.value)} />
             <button type="button" className="btn btn--ghost" disabled={!no.trim()} onClick={() => setLookup(no.trim())}>
@@ -188,7 +188,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         </article>
 
         <article className="card">
-          <p className="stat__label">服务商转账</p>
+          <CardHead title="服务商转账" />
           <div className="row-input stack--top">
             <input
               className="input"
@@ -237,7 +237,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         </article>
 
         <article className="card">
-          <p className="stat__label">建支付单</p>
+          <CardHead title="建支付单" />
           <div className="row" style={{ marginTop: 12 }}>
             <button type="button" className="btn btn--ghost" onClick={() => setDraft({ payWay: 'web', price: 1, name: '', param: '' })}>
               新建支付单

@@ -372,7 +372,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
           <section className="cards cards--wide">
             <article className="card">
-              <p className="stat__label">账号设置</p>
+              <CardHead title="账号设置" />
 
               <div style={{ display: 'grid', gap: 16, marginTop: 12, maxWidth: 560 }}>
                 <label className="field">
@@ -567,7 +567,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               }
             />
             <article className="card">
-              <p className="stat__label">邀请用户</p>
+              <CardHead title="邀请用户" />
               <div className="row-input" style={{ marginTop: 12 }}>
                 <input className="input" placeholder="用户 ID（e 开头 s 结尾）" value={inviteId} onChange={(e) => setInviteId(e.target.value)} />
                 <button type="button" className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>

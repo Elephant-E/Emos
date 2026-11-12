@@ -472,7 +472,7 @@ export function VideoDetailView({
 
       {video && persons.data && persons.data.items.length > 0 ? (
         <article className="card card--tight" style={{ marginTop: 18 }}>
-          <p className="stat__label">演职员</p>
+          <CardHead title="演职员" />
           <div className="person-grid">
             {persons.data.items.slice(0, 8).map((person) => (
               <div key={person.person_id_tmdb ?? person.name} className="person-card">

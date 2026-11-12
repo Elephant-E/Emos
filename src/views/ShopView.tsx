@@ -456,7 +456,7 @@ export function ShopView({
       {panel === 'seller' ? (
         <Modal title="店铺设置" width={560} onClose={() => onSearch({ tab: 'products' })}>
           <>
-            <p className="stat__label">店铺信息</p>
+            <CardHead title="店铺信息" />
             {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
             {!seller.isLoading && !seller.data ? (
               <>
