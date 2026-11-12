@@ -14,6 +14,7 @@ import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize, duration } from '@/lib/format'
 import { Modal } from '@/components/Modal'
+import { IconStar } from '@/components/icons'
 import { VideoPicker } from '@/components/VideoPicker'
 
 const SONG_TABS = [
@@ -30,7 +31,6 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [tab, setTab] = useState<'lyrics' | 'media'>('lyrics')
   const [adding, setAdding] = useState(false)
   const [mvOpen, setMvOpen] = useState(false)
-  const [ratingOpen, setRatingOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -128,10 +128,34 @@ export function SongDetailView({ songId }: { songId: number }) {
                   <span>资源</span>
                 </div>
                 <div className="detail-stat">
-                  <button type="button" className="detail-stat__link" onClick={() => setRatingOpen(true)} title="改评分">
-                    {song.data.rating ?? '—'}
-                  </button>
-                  <span>评分</span>
+                  <b>{song.data.rating ?? '—'}</b>
+                  <span>平均分</span>
+                </div>
+                <div className="detail-stat">
+                  <span className="rating-stars" role="group" aria-label="我的评分">
+                    {[1, 2, 3, 4, 5].map((n) => {
+                      const on = (song.data?.rating_user ?? 0) >= n
+                      return (
+                        <button
+                          type="button"
+                          key={n}
+                          className={`rating-star${on ? ' is-on' : ''}`}
+                          aria-label={`${n} 星`}
+                          aria-pressed={on}
+                          disabled={actions.rating.isPending}
+                          onClick={() =>
+                            actions.rating.mutate(
+                              { type: 'ms', value: songId, rating: n },
+                              { onSuccess: () => toast(`已评 ${n} 星`, 'success') },
+                            )
+                          }
+                        >
+                          <IconStar filled={on} />
+                        </button>
+                      )
+                    })}
+                  </span>
+                  <span>我的评分</span>
                 </div>
               </div>
             </div>
@@ -142,45 +166,6 @@ export function SongDetailView({ songId }: { songId: number }) {
       <div className="toolbar">
         <Tabs items={SONG_TABS} value={tab} onChange={setTab} label="详情分区" />
       </div>
-
-      {ratingOpen ? (
-        <Modal title="评分" width={360} onClose={() => setRatingOpen(false)}>
-          <div className="pick-list">
-            {[5, 4, 3, 2, 1].map((n) => (
-              <button
-                type="button"
-                key={n}
-                className="pick-row"
-                onClick={() => {
-                  actions.rating.mutate(
-                    { type: 'ms', value: songId, rating: n },
-                    { onSuccess: () => { toast('已评分', 'success'); setRatingOpen(false) } },
-                  )
-                }}
-              >
-                <span className="pick-row__text">
-                  <span className="pick-row__title">{n} 星</span>
-                  {song.data?.rating_user === n ? <span className="pick-row__sub">你打的分</span> : null}
-                </span>
-              </button>
-            ))}
-            <button
-              type="button"
-              className="pick-row"
-              onClick={() =>
-                actions.rating.mutate(
-                  { type: 'ms', value: songId, rating: 0 },
-                  { onSuccess: () => { toast('已清除评分', 'success'); setRatingOpen(false) } },
-                )
-              }
-            >
-              <span className="pick-row__text">
-                <span className="pick-row__title">清除评分</span>
-              </span>
-            </button>
-          </div>
-        </Modal>
-      ) : null}
 
       {tab === 'lyrics' ? (
         <section className="cards cards--wide">

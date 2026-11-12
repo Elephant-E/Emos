@@ -205,3 +205,10 @@ export const IconWhisper = (p: IconProps) => (
     <path d="M5.6 11 4.6 13.4l3.2-1.3" />
   </Svg>
 )
+
+/** 星：评分用。filled 时实心，空时描边 */
+export const IconStar = ({ filled, ...p }: IconProps & { filled?: boolean }) => (
+  <Svg size={14} {...p} fill={filled ? 'currentColor' : 'none'}>
+    <path d="M8 2.3l1.72 3.5 3.85.56-2.79 2.72.66 3.84L8 11.72l-3.44 1.2.66-3.84L2.43 6.36l3.85-.56z" />
+  </Svg>
+)
