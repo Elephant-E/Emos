@@ -155,11 +155,11 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           <table className="table table--fixed table--thumb-wide">
             <thead>
               <tr>
-                <th style={{ width: '41%' }} className="th-thumb">片单</th>
-                <th style={{ width: '13%' }}>可见性</th>
-                <th className="num" style={{ width: '11%' }}>影片</th>
-                <th className="num" style={{ width: '11%' }}>订阅</th>
-                <th className="num" style={{ width: '12%' }}>更新</th>
+                <th style={{ width: '36%' }} className="th-thumb">片单</th>
+                <th style={{ width: '12%' }}>可见性</th>
+                <th className="num" style={{ width: '10%' }}>影片</th>
+                <th className="num" style={{ width: '10%' }}>订阅</th>
+                <th className="num" style={{ width: '15%' }}>更新</th>
                 {search.scope === 'self' ? <th className="num" style={{ width: '88px' }}>排序</th> : null}
                 <th style={{ width: '88px' }}>操作</th>
               </tr>
