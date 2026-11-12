@@ -50,6 +50,31 @@ token 存在 `localStorage.emos_admin_token`。侧栏底部头像可添加/切�
 
 ## 6. 部署
 
+部署形态是 **Workers + Assets**：`worker/index.ts` 负责 `/api/*` 反代到上游并补齐
+`EMOS-PROXY-*` 与 `X-Forwarded-For`，其余路径交给 `dist`，前端是 history 路由所以
+`not_found_handling` 设为 `single-page-application`。
+
+```bash
+npx wrangler login
+npm run deploy        # = build + wrangler deploy
+```
+
+本地可用 `npx wrangler dev` 提前验证线上形态（assets + 代理 + SPA 回退）：
+
+```bash
+npm run build && npx wrangler dev --port 8787
+curl -s -o /dev/null -w '%{http_code}' localhost:8787/library          # 200（回退 index.html）
+curl -s -H "Authorization: Bearer <token>" 'localhost:8787/api/video/list?page=1&page_size=2'
+```
+
+注意两点：
+
+- `VITE_API_BASE` 必须留空。填了就会写死上游地址，前端直连、绕过 Worker 的代理头
+- 前端所有请求都是同源 `/api/*`，所以 **Worker 请求数**（免费 10 万/天）是额度上限；
+  静态资源不计入
+
+
+
 新的 Worker 名是 `emos-club`，与线上现有的 `emos` 不同名，`wrangler deploy` 只会新建，不会覆盖旧的。
 
 替换旧 Worker 时改 `wrangler.jsonc` 的 `name`，或给 `emos-club` 绑定路由。

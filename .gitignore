@@ -11,3 +11,6 @@ dist
 
 .dev.vars
 .audit
+
+# 旧项目的服务端密钥（识别 / Spotify 已删，留着备查）
+.dev.vars.bak
