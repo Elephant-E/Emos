@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ListCard } from '@/components/ListCard'
 import { Poster } from '@/components/Poster'
+import { SpotifyArtists } from '@/components/SpotifyArtists'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
@@ -43,6 +44,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums', search.page_size)
   const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
   const [syncArtist, setSyncArtist] = useState<string | null>(null)
+  const [artistQ, setArtistQ] = useState('')
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
@@ -255,6 +257,27 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
             </>
           }
         >
+          <label className="field">
+            <span>按名字搜索</span>
+            <input
+              className="input"
+              value={artistQ}
+              onChange={(e) => setArtistQ(e.target.value)}
+              placeholder="输入歌手名，回车搜索"
+            />
+          </label>
+          {artistQ.trim().length >= 2 ? (
+            <SpotifyArtists
+              query={artistQ.trim()}
+              onPick={(id) => {
+                setSyncArtist(id)
+                setArtistQ('')
+              }}
+            />
+          ) : (
+            <p className="card-note">搜索走服务端代理（密钥不进前端）；服务端没配密钥时直接填下面的链接。</p>
+          )}
+
           <label className="field">
             <span>歌手链接或 ID</span>
             <input

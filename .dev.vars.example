@@ -1,0 +1,6 @@
+# 复制为 .dev.vars 后填入；wrangler 与 vite dev 共用这一份
+# wrangler secret put TMDB_API_KEY / SPOTIFY_ANON_KEY（部署时）
+TMDB_API_KEY=
+SPOTIFY_ANON_KEY=
+EMOS_PROXY_NAME=@Elephant
+EMOS_PROXY_ID=e7E6K6OE4s

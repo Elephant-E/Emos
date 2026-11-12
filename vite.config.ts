@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import https from 'node:https'
 import { readFile } from 'node:fs/promises'
+import { existsSync, readFileSync } from 'node:fs'
 
 const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.best'
 
@@ -25,8 +26,77 @@ function fixturesPlugin() {
   }
 }
 
+/**
+ * 读取 .dev.vars（KEY=VALUE），与 wrangler 共用同一份配置源。
+ * 服务端能力（识别 / Spotify 搜索）要密钥，密钥只在服务端，不进前端包。
+ */
+function loadDevVars(): Record<string, string> {
+  const file = fileURLToPath(new URL('./.dev.vars', import.meta.url))
+  if (!existsSync(file)) return {}
+  const vars: Record<string, string> = {}
+  for (const line of readFileSync(file, 'utf-8').split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eq = trimmed.indexOf('=')
+    if (eq > 0) vars[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim()
+  }
+  return vars
+}
+
+/**
+ * 开发期模拟 Worker 的两个服务端路由，保证 dev 与线上同一套代码路径。
+ * 缺密钥时返回 501，前端据此退回「手动填」，与线上行为一致。
+ */
+function devApiPlugin() {
+  return {
+    name: 'emos-dev-api',
+    apply: 'serve' as const,
+    configureServer(server: { middlewares: { use: (fn: (req: any, res: any, next: () => void) => void) => void } }) {
+      const env = { ...loadDevVars(), ...process.env }
+      server.middlewares.use(async (req, res, next) => {
+        const path = (req.url || '').split('?')[0]
+        const isIdentify = path === '/api/identify' && req.method === 'POST'
+        const isSpotify = path === '/api/spotify/search' && req.method === 'GET'
+        if (!isIdentify && !isSpotify) return next()
+
+        res.setHeader('Content-Type', 'application/json; charset=utf-8')
+
+        if (isIdentify) {
+          if (!env.TMDB_API_KEY) {
+            res.statusCode = 501
+            return res.end(JSON.stringify({ success: false, message: '服务端未配置 TMDB_API_KEY' }))
+          }
+          const chunks: Buffer[] = []
+          for await (const chunk of req) chunks.push(chunk as Buffer)
+          const payload = JSON.parse(Buffer.concat(chunks).toString('utf-8') || '{}')
+          const { identify } = await import('./server/identify-core.js')
+          const { status, body } = await identify(payload, {
+            tmdbApiKey: env.TMDB_API_KEY,
+            authHeader: req.headers.authorization || '',
+            emosProxyName: env.EMOS_PROXY_NAME || '',
+            emosProxyId: env.EMOS_PROXY_ID || '',
+          })
+          res.statusCode = status
+          return res.end(JSON.stringify(body))
+        }
+
+        if (!env.SPOTIFY_ANON_KEY) {
+          res.statusCode = 501
+          return res.end(JSON.stringify({ success: false, message: '服务端未配置 SPOTIFY_ANON_KEY' }))
+        }
+        const { spotifySearch } = await import('./server/spotify-core.js')
+        const params = Object.fromEntries(new URL(req.url || '', 'http://localhost').searchParams.entries())
+        const { status, body, cacheControl } = await spotifySearch(params, { anonKey: env.SPOTIFY_ANON_KEY })
+        if (cacheControl) res.setHeader('Cache-Control', cacheControl)
+        res.statusCode = status
+        res.end(body)
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react(), fixturesPlugin()],
+  plugins: [react(), fixturesPlugin(), devApiPlugin()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
