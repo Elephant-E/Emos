@@ -12,7 +12,7 @@ import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
-import { formatDateTime, formatSize } from '@/lib/format'
+import { formatDateTime, formatSize, duration } from '@/lib/format'
 import { Modal } from '@/components/Modal'
 import { VideoPicker } from '@/components/VideoPicker'
 
@@ -62,9 +62,7 @@ export function SongDetailView({ songId }: { songId: number }) {
         crumb={['音乐', song.data?.name ?? `#${songId}`]}
         title={song.data?.name ?? '歌曲详情'}
         hint={
-          song.data?.duration
-            ? `${Math.floor(song.data.duration / 60)}:${String(Math.round(song.data.duration % 60)).padStart(2, '0')}`
-            : undefined
+          song.data?.duration ? duration(song.data.duration) : undefined
         }
         tools={
           <>
@@ -282,9 +280,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                           {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
                         </span>
                         <span className="cell-title__code">
-                          {row.file_duration
-                            ? `${Math.floor(Number(row.file_duration) / 60)}:${String(Math.round(Number(row.file_duration) % 60)).padStart(2, '0')}`
-                            : String(row.file_suffix ?? '')}
+                          {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}
                         </span>
                       </td>
                       <td className="muted">{String(row.file_suffix ?? '—')}</td>

@@ -1,20 +1,16 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
+import { focusablesOf } from '@/components/Modal'
 
 /**
  * 决策框的焦点管理，做法与 components/Modal.tsx 一致：打开时聚焦框内第一个可交互元素，
  * Tab 在框内循环，关闭时把焦点还给打开前的元素（否则焦点掉回 body）；框内已有 autoFocus 时不抢焦点。
  */
-function useFocusTrap(boxRef: RefObject<HTMLElement>) {
+function useFocusTrap(boxRef: RefObject<HTMLElement>, idRef: { current: string }) {
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     const box = boxRef.current
-    const focusables = () =>
-      Array.from(
-        box?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      )
+    const focusables = () => focusablesOf(box)
 
     // 下一帧再确认一次：兄弟组件的 effect 可能刚把焦点放进框里（比如 prompt 的输入框）
     if (!box?.contains(document.activeElement)) {
@@ -26,6 +22,8 @@ function useFocusTrap(boxRef: RefObject<HTMLElement>) {
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return
+      // 弹窗叠弹窗时只让最上层处理，否则两个陷阱同时抢 Tab
+      if (!isTopLayer(idRef.current)) return
       const list = focusables()
       if (list.length === 0) return
       const first = list[0]
@@ -44,7 +42,7 @@ function useFocusTrap(boxRef: RefObject<HTMLElement>) {
       document.removeEventListener('keydown', onKeyDown)
       previous?.focus?.()
     }
-  }, [boxRef])
+  }, [boxRef, idRef])
 }
 
 /**
@@ -90,7 +88,7 @@ export function DecisionShell({
     return () => popLayer(id)
   }, [])
 
-  useFocusTrap(boxRef)
+  useFocusTrap(boxRef, idRef)
   useDecisionKeys(idRef, onCancel, () => {
     if (confirmDisabled) return
     onConfirm()

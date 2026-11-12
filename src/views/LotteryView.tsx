@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { Pager } from '@/components/Pager'
@@ -359,12 +360,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       {(winners.data?.users ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((row) => (
                         <tr key={`${row.user_id}-${row.prize_name}`}>
                           <td>
-                            <div className="cell-title">
-                              <span className="thumb">{(row.user_username || '?').slice(0, 1)}</span>
-                              <span>
-                                <span className="cell-title__name">{row.user_username}</span>
-                              </span>
-                            </div>
+                            <UserCell name={String(row.user_username ?? '')} avatar={row.user_avatar} />
                           </td>
                           <td>{row.prize_name}</td>
                           <td className="muted">{row.prize_description ?? '—'}</td>

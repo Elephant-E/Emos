@@ -19,7 +19,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
-import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatRelative, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL, duration } from '@/lib/format'
 
 export interface WatchDetailSearch {
   page: number
@@ -781,7 +781,7 @@ function WatchMusicRows({
                     ) : null}
                   </td>
                   <td className="num muted">
-                    {song.duration ? `${Math.floor(song.duration / 60)}:${String(Math.round(song.duration % 60)).padStart(2, '0')}` : '—'}
+                    {duration(song.duration)}
                   </td>
                   <td className="muted" style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(song.person_artists ?? []).map((x) => x.name).join("/")}</td>
                   {canEdit ? (

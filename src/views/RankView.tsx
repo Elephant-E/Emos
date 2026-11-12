@@ -121,12 +121,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   <tr key={`${row.sign_index}-${row.username}`}>
                     <td className="num muted tnum">{row.sign_index}</td>
                     <td>
-                      <div className="cell-title">
-                        <span className="thumb">{row.username.slice(0, 1)}</span>
-                        <span>
-                          <span className="cell-title__name">{row.username}</span>
-                        </span>
-                      </div>
+                      <UserCell name={row.username} avatar={row.avatar} />
                     </td>
                     <td className="muted">{formatDateTime(row.sign_at)}</td>
                     <td className="num">+{formatThousand(row.earn_point)}</td>
@@ -181,7 +176,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
             <table className="table">
               <thead>
                 <tr>
-                  <th className="th-thumb" style={{ width: '34%' }}>频道</th>
+                  <th style={{ width: '34%' }}>频道</th>
                   <th>用户</th>
                   <th style={{ width: '18%' }}>已看</th>
                   <th style={{ width: '22%' }}>客户端</th>
@@ -191,12 +186,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                 {(live.data ?? []).map((row, index) => (
                   <tr key={`${row.username}-${row.live_title}-${index}`}>
                     <td>
-                      <div className="cell-title">
-                        <span className="thumb">{row.live_title.slice(0, 1)}</span>
-                        <span>
-                          <span className="cell-title__name">{row.live_title}</span>
-                        </span>
-                      </div>
+                      <span className="cell-title__name">{row.live_title}</span>
                     </td>
                     <td className="muted">{row.username}</td>
                     <td className="num muted">{Math.max(0, Math.round(row.play_durations / 60))} 分钟</td>

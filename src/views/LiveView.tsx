@@ -155,7 +155,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 ))}
               </ul>
             ) : null}
-            {media.data && media.data.total > media.data.page_size ? (
+            {media.data && media.data.total > 0 ? (
               <Pager
                 total={media.data.total}
                 page={mediaPage}

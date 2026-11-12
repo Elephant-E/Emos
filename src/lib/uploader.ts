@@ -40,7 +40,7 @@ export interface UploadTarget {
   episode?: number
 }
 
-export interface UploadResult {
+interface UploadResult {
   media_id: string
   carrot: number
 }

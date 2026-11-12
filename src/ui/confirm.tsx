@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DecisionShell } from './decision'
 
-export interface ConfirmOptions {
+interface ConfirmOptions {
   title: string
   message?: string
   hint?: string

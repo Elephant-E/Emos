@@ -44,14 +44,6 @@
   letter-spacing: -0.01em;
 }
 .rail__brand-name svg { color: var(--fg); }
-.rail__brand-name em {
-  font-style: normal;
-  font-size: var(--text-2xs);
-  letter-spacing: 0.26em;
-  color: var(--fg-4);
-  font-weight: 450;
-  margin-left: var(--sp-1);
-}
 .rail__search {
   display: flex;
   align-items: center;
@@ -69,15 +61,6 @@
   background: #181715;
 }
 .rail__search svg { color: var(--fg-5); flex: none; }
-.rail__search input {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  background: transparent;
-  font-size: var(--text-sm);
-}
-.rail__search input::placeholder { color: var(--fg-3); }
-.rail__search input::-webkit-search-cancel-button { display: none; }
 .rail__keys { display: flex; gap: var(--sp-1); }
 .rail__keys kbd {
   display: grid;
@@ -188,12 +171,6 @@
   letter-spacing: -0.01em;
   min-width: 0;
   overflow-wrap: anywhere;
-}
-.page-title span {
-  color: var(--fg-3);
-  margin-left: var(--sp-2);
-  font-weight: 450;
-  letter-spacing: 0;
 }
 .page-title__row {
   display: flex;
@@ -723,7 +700,7 @@ input.input[type='number'] { min-width: 0; }
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #8f8d86;
+  background: var(--fg-3);
   transition: transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .switch input:checked { background: rgba(255, 197, 61, 0.24); }
@@ -803,7 +780,7 @@ input.input[type='number'] { min-width: 0; }
 .toast--success i { background: var(--c-green); }
 .toast--error i { background: var(--c-red); }
 .toast--error { border-color: rgba(242, 112, 74, 0.34); }
-.toast--info i { background: var(--c-blue, #6ea8fe); }
+.toast--info i { background: var(--c-blue); }
 
 .toast i {
   width: 6px;
@@ -944,7 +921,7 @@ input.input[type='number'] { min-width: 0; }
   bottom: calc(100% + var(--sp-2));
   z-index: var(--z-overlay);
   padding: var(--sp-2);
-  border-radius: 12px;
+  border-radius: var(--r-field);
   border: 1px solid var(--line);
   background: var(--raised);
   box-shadow: var(--shadow-pop);
@@ -1055,8 +1032,6 @@ input.input[type='number'] { min-width: 0; }
   background: rgba(255, 255, 255, 0.025);
 }
 
-/* 切换筛选时旧数据还在，但必须让用户看出「这是旧的、正在取新的」，
-   否则界面像是静默无响应，等数据到了再硬换一次 */
 
 /* 集数可能上百，用固定高度的数字网格，高度不随集数增长 */
 .ep-grid {

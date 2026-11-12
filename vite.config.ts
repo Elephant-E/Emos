@@ -1,10 +1,15 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import https from 'node:https'
 import { readFile } from 'node:fs/promises'
 
-const API_ORIGIN = process.env.VITE_API_ORIGIN || 'https://emos.best'
+/**
+ * dev 代理目标。
+ * 注意不能直接读 `process.env.VITE_API_ORIGIN`：Vite 是在解析完配置**之后**才加载
+ * `.env*` 的，那时这里已经执行过了。改成由 defineConfig 回调传入 loadEnv 的结果。
+ */
+const DEFAULT_API_ORIGIN = 'https://emos.best'
 
 function fixturesPlugin() {
   return {
@@ -26,8 +31,8 @@ function fixturesPlugin() {
 }
 
 /**
- * dev 与线上同一份实现：`/api/spotify/search` 走 `worker/spotify.ts`，
- * 密钥从 `.dev.vars` 读；其余 `/api/*` 仍由下面的 proxy 转给上游。
+ * dev 与线上同一份实现：`/api/spotify/search`、`/api/spotify/lookup` 都调用
+ * `worker/spotify.ts`（MusicBrainz，无密钥）；其余 `/api/*` 仍由下面的 proxy 转给上游。
  * 必须在 proxy 之前注册，否则会被转发到上游变成 404。
  */
 function spotifyDevPlugin() {
@@ -57,7 +62,11 @@ function spotifyDevPlugin() {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const apiOrigin = env.VITE_API_ORIGIN || DEFAULT_API_ORIGIN
+
+  return {
   plugins: [react(), fixturesPlugin(), spotifyDevPlugin()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
@@ -67,7 +76,7 @@ export default defineConfig({
     port: 5273,
     proxy: {
       '/api': {
-        target: API_ORIGIN,
+        target: apiOrigin,
         changeOrigin: true,
         secure: false,
         // 上游偶发 10s+ 才响应，默认超时会被切断并变成 ECONNRESET
@@ -81,7 +90,7 @@ export default defineConfig({
         // 复用时抛 ECONNRESET。
         agent: new https.Agent({ keepAlive: false }),
         // 上游 ECONNRESET 时默认返回 500，客户端不会重试。
-        // 改为 504，让 buildUrl 的重试逻辑（502/503/504）接手。
+        // 改为 504（与 worker 的不可达状态码一致），由 client 的重试集合接手。
         configure: (proxy: { on: (event: string, handler: (...args: unknown[]) => void) => void }) => {
           proxy.on('error', (...args: unknown[]) => {
             const res = args[2] as { headersSent?: boolean; writeHead?: (code: number, headers: Record<string, string>) => void; end?: (body: string) => void }
@@ -93,5 +102,8 @@ export default defineConfig({
       },
     },
   },
-  build: { target: 'es2020', sourcemap: true },
+  // 生产不产出 sourcemap：dist 会整目录上传到 Cloudflare Assets，
+  // .map 会连同源码一起被公开下载
+  build: { target: 'es2020', sourcemap: mode !== 'production' },
+  }
 })

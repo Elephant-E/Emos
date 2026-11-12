@@ -119,3 +119,11 @@ function isVideoFile(file: { name: string; type: string }): boolean {
   return VIDEO_EXT.includes(ext)
 }
 
+
+/** 秒 → m:ss；空值给 —。三处视图（音乐列表、片单歌曲行、歌曲详情）共用 */
+export function duration(seconds: number | null | undefined): string {
+  if (!seconds) return '—'
+  const m = Math.floor(seconds / 60)
+  const s = Math.round(seconds % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}

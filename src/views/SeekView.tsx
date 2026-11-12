@@ -204,7 +204,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <ListCard items={data.items} total={data.total ?? data.items.length} idKey={(v) => v.id}>
-          <table className="table">
+          <table className="table table--fixed table--dense">
             <thead>
               <tr>
                 <th style={{ width: '32%' }} className="th-thumb">求片</th>

@@ -1,4 +1,5 @@
 import { PAGE_SIZES } from '@/lib/search'
+import { formatThousand } from '@/lib/format'
 import { useEffect, useState } from 'react'
 import { IconLeft, IconRight } from './icons'
 
@@ -26,7 +27,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
   return (
     <div className="table-foot">
       <span>
-        共 {total.toLocaleString('zh-CN')} 条 · 第 {page} / {totalPages} 页
+        共 {formatThousand(total)} 条 · 第 {page} / {totalPages} 页
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {onPageSize ? (

@@ -13,7 +13,7 @@ import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, 
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
-import { } from '@/lib/format'
+import { duration } from '@/lib/format'
 
 export interface MusicSearch {
   page: number
@@ -28,13 +28,6 @@ const TABS: Array<{ key: MusicSearch['tab']; label: string }> = [
   { key: 'albums', label: '专辑' },
   { key: 'persons', label: '歌手' },
 ]
-
-function duration(seconds: number | null | undefined): string {
-  if (!seconds) return '—'
-  const m = Math.floor(seconds / 60)
-  const s = Math.round(seconds % 60)
-  return `${m}:${String(s).padStart(2, '0')}`
-}
 
 export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch: (patch: Partial<MusicSearch>) => void }) {
   const navigate = useNavigate()

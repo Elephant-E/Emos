@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DecisionShell } from './decision'
 
-export interface PromptOptions {
+interface PromptOptions {
   title: string
   /** 输入框上方的说明 */
   label: string

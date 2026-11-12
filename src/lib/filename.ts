@@ -1,6 +1,6 @@
 import { parse } from 'parse-torrent-title'
 
-export interface ParsedFilename {
+interface ParsedFilename {
   /** 解析出的片名；没有可用标题时为 null */
   title: string | null
   season: number | null

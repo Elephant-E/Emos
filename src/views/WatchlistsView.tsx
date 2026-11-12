@@ -166,11 +166,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 >
                   <td>
                     <div className="cell-title">
-                      {watch.image_poster_url ? (
-                        <Poster src={watch.image_poster_url} name={String(watch.name ?? "?")} shape="wide" />
-                      ) : (
-                        <span className="thumb">{watch.name.slice(0, 1)}</span>
-                      )}
+                      <Poster src={watch.image_poster_url} name={String(watch.name ?? "?")} shape="wide" />
                       <span>
                         <span className="cell-title__name">
                           {watch.name}

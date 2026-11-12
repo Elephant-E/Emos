@@ -250,7 +250,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       {tab === 'orders' && rows.length > 0 ? (
         <div className="table-card">
-          <table className="table table--dense">
+          <table className="table table--fixed table--dense">
             <thead>
               <tr>
                 <th style={{ width: '36%' }}>订单</th>
@@ -300,7 +300,15 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               })}
             </tbody>
           </table>
-          <Pager total={total} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} />
+          <Pager
+            total={total}
+            page={page}
+            // 接口上限 30，实际条数以响应为准；选择器也只给 20 / 30
+            pageSize={orders.data?.page_size ?? Math.min(30, pageSize)}
+            onPage={onPage}
+            onPageSize={onPageSize}
+            sizes={[20, 30]}
+          />
         </div>
       ) : null}
 

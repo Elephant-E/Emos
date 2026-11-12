@@ -32,6 +32,7 @@
   "include": [
     "src",
     "env.d.ts",
-    "vite.config.ts"
+    "vite.config.ts",
+    "worker"
   ]
 }

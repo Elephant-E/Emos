@@ -67,8 +67,8 @@ export async function searchArtists(q: string): Promise<{ status: number; body: 
     if (res && res.ok) break
     if (res && res.status !== 503 && res.status !== 429) break
   }
-  if (!res) return { status: 502, body: { message: 'MusicBrainz 请求超时，稍后重试' } }
-  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流（1 请求/秒），稍等一下再搜' } }
+  if (!res) return { status: 504, body: { message: 'MusicBrainz 请求超时，请重试' } }
+  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流（1 请求/秒），请稍后重试' } }
   if (!res.ok) return { status: 502, body: { message: `MusicBrainz 搜索失败（${res.status}）` } }
 
   const data = (await res.json().catch(() => null)) as {
@@ -79,7 +79,7 @@ export async function searchArtists(q: string): Promise<{ status: number; body: 
     name: a.name,
     hint: [a.type, a.country, a.disambiguation].filter(Boolean).join(' · '),
   }))
-  if (artists.length === 0) return { status: 200, body: { artists: [], message: '没有找到歌手，检查拼写或直接填链接' } }
+  if (artists.length === 0) return { status: 200, body: { artists: [] } }
   searchCache.set(term, { at: Date.now(), hits: artists })
   return { status: 200, body: { artists } }
 }
@@ -98,8 +98,8 @@ export async function resolveSpotifyId(mbid: string): Promise<{ status: number; 
 
   await throttle()
   const res = await safeFetch(`${MB}/artist/${encodeURIComponent(target)}?inc=url-rels&fmt=json`)
-  if (!res) return { status: 502, body: { message: 'MusicBrainz 请求超时，稍后重试' } }
-  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流，稍等一下再试' } }
+  if (!res) return { status: 504, body: { message: 'MusicBrainz 请求超时，请重试' } }
+  if (res.status === 503) return { status: 503, body: { message: 'MusicBrainz 限流（1 请求/秒），请稍后重试' } }
   if (!res.ok) return { status: 502, body: { message: `MusicBrainz 详情失败（${res.status}）` } }
 
   const data = (await res.json().catch(() => null)) as { name?: string; relations?: Array<{ url?: { resource?: string } }> } | null

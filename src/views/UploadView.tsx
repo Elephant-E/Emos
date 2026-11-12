@@ -83,8 +83,7 @@ export function UploadView() {
   const patch = (id: string, changes: Partial<QueueItem>) =>
     setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
 
-  /** 音乐没有「识别」可用（/api/identify 已 404）：按文件名搜一次，
-   *  唯一命中直接绑上，其余交给用户选 */
+  /** 音乐：从文件名里取出歌名搜一次，唯一命中直接绑上，其余交给用户选 */
   const bindSong = async (item: QueueItem) => {
     const term = musicTermFromName(item.file.name)
     setSongTerm(term)

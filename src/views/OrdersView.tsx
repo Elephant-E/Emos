@@ -134,7 +134,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.data && visibleOrders.length > 0 ? (
         <ListCard items={visibleOrders} total={orders.data.total} idKey={(o) => o.order_no}>
-          <table className="table table--dense">
+          <table className="table table--fixed table--dense">
             <thead>
               <tr>
                 <th style={{ width: mineScope ? '34%' : '30%' }} className="th-thumb">订单</th>

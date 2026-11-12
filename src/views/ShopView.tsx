@@ -179,11 +179,15 @@ export function ShopView({
                 我的店铺
               </button>
             </div>
-            {isSeller && mine ? (
+            {/* 分类与店铺入口按「我在看自己的店铺」判断，而不是「已经有店」：
+                否则还没开店的人进不去店铺面板，也就点不到「申请开店」 */}
+            {mine ? (
               <>
-                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'categories' })}>
-                  分类
-                </button>
+                {isSeller ? (
+                  <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'categories' })}>
+                    分类
+                  </button>
+                ) : null}
                 <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'seller' })}>
                   店铺
                 </button>
@@ -297,11 +301,7 @@ export function ShopView({
                     <tr key={product.product_id}>
                       <td>
                         <div className="cell-title">
-                          {product.cover_url ? (
-                            <Poster src={product.cover_url} name={product.name} shape="square" />
-                          ) : (
-                            <span className="thumb">{product.name.slice(0, 1)}</span>
-                          )}
+                          <Poster src={product.cover_url} name={product.name} shape="square" />
                           <span>
                             <span className="cell-title__name">{product.name}</span>
                             {product.up_time ? (
@@ -458,6 +458,20 @@ export function ShopView({
           <>
             <p className="stat__label">店铺信息</p>
             {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {!seller.isLoading && !seller.data ? (
+              <>
+                <p className="card-note">这个账号还没有店铺。</p>
+                <button
+                  type="button"
+                  className="btn btn--primary"
+                  style={{ marginTop: 12 }}
+                  disabled={actions.applySeller.isPending}
+                  onClick={() => setSellerForm({ name: '', description: '', cover_url: null })}
+                >
+                  申请开店（扣 3000 胡萝卜）
+                </button>
+              </>
+            ) : null}
             {seller.data ? (
               <>
                 <div className="detail-stats" style={{ marginTop: 12 }}>

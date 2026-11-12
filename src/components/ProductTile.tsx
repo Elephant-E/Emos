@@ -1,4 +1,5 @@
 import type { ShopProduct } from '@/api/types'
+import { rowLink } from '@/lib/rowLink'
 import { Price } from '@/components/Price'
 import { IconBag } from '@/components/icons'
 import { Poster } from '@/components/Poster'
@@ -19,18 +20,7 @@ export function ProductTile({
 }) {
   const soldOut = product.stock <= 0
   return (
-    <article
-      className="product-tile"
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onOpen()
-        }
-      }}
-    >
+    <article className="product-tile" {...rowLink(onOpen, true, 'button')}>
       <div className="product-tile__cover">
         <Poster src={product.cover_url} name={product.name} shape="square" />
       </div>

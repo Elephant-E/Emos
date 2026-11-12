@@ -4,7 +4,7 @@ import { videoApi } from '@/api/endpoints'
 import { PickList } from './PickList'
 
 /** 上传/归档的落点：影片级（整部电影）或集级（某部剧的某一集） */
-export interface PickTarget {
+interface PickTarget {
   item_type: 'vl' | 've'
   item_id: number
   title: string

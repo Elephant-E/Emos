@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Tabs } from './Tabs'
 
-export type ProductSort = '' | 'sales' | 'price'
+type ProductSort = '' | 'sales' | 'price'
 
 const SORTS: ReadonlyArray<{ key: ProductSort; label: string }> = [
   { key: '', label: '默认' },

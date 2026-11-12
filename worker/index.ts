@@ -38,7 +38,6 @@ export default {
 async function proxyApi(request: Request, url: URL, env: Env): Promise<Response> {
   const target = new URL(url.pathname + url.search, env.API_ORIGIN)
   const headers = new Headers(request.headers)
-  headers.set('Host', target.host)
   if (env.EMOS_PROXY_NAME) headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
   if (env.EMOS_PROXY_ID) headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
   // wiki/proxy 要求必须传 X-Forwarded-For，否则记不到调用方真实 IP
@@ -53,8 +52,9 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
   try {
     upstream = await fetch(new Request(target, init))
   } catch (error) {
-    return new Response(JSON.stringify({ message: `接口不可达：${(error as Error).message}` }), {
-      status: 502,
+    // 与 vite dev 的代理口径一致：连不上上游一律 504，客户端按重试集合处理
+    return new Response(JSON.stringify({ message: '上游响应超时，已重试' }), {
+      status: 504,
       headers: JSON_HEADERS,
     })
   }
@@ -64,8 +64,9 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
   const contentType = upstream.headers.get('Content-Type') ?? ''
   if (!contentType.includes('application/json')) {
     const text = await upstream.text()
-    return new Response(JSON.stringify({ message: text || `接口返回了非 JSON 响应（${upstream.status}）` }), {
-      status: upstream.status >= 400 ? upstream.status : 502,
+    return new Response(JSON.stringify({ message: text || '接口返回了非 JSON 响应' }), {
+      // 保留上游状态码：状态码本身已经表达了结果，不再改写
+      status: upstream.status,
       headers: JSON_HEADERS,
     })
   }
