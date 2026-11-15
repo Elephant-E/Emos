@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
+import { RecordList } from '@/components/RecordList'
 import { Modal } from '@/components/Modal'
 import { StatCard } from '@/components/StatCard'
 import { toast } from '@/ui/toast'
@@ -122,20 +123,17 @@ export function InvitePanel() {
                     直接 {myTree.filter((n) => n.depth === 1).length} · 合计 {formatThousand(myTree.length)} 人
                   </span>
                 </CardHead>
-                <table className="table table--inset">
-                  <thead>
-                    <tr>
-                      <th>用户</th>
-                      <th style={{ width: 130 }}>加入时间</th>
-                      <th style={{ width: 130 }}>最近播放</th>
-                      <th style={{ width: 160 }}>备注</th>
-                      <th style={{ width: 96 }}>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {inviteRows.slice(0, 50).map((row) => (
-                      <tr key={row.userId}>
-                        <td style={{ paddingLeft: 'var(--pad-card)' + (row.depth - 1) * 20 }}>
+                <RecordList
+                  rows={inviteRows.slice(0, 50)}
+                  idKey={(row) => row.userId}
+                  className="table table--inset"
+                  columns={[
+                    {
+                      key: 'user',
+                      label: '用户',
+                      mobile: 'primary',
+                      render: (row) => (
+                        <>
                           <Link
                             to="/users/$userId"
                             params={{ userId: row.userId }}
@@ -149,49 +147,80 @@ export function InvitePanel() {
                             {row.invitedBy ? ` · 由 ${row.invitedBy} 邀请` : ''}
                             {row.isDisabled ? ' · 已禁用' : ''}
                           </span>
-                        </td>
-                        <td className="muted">{formatDateTime(row.joinAt)}</td>
-                        <td className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</td>
-                        <td className="muted">
-                          {row.depth === 1 ? (
-                            <button type="button"
-                              className="btn btn--quiet"
-                              onClick={() => setRemarkFor({ userId: row.userId, username: row.username, remark: row.remark })}
-                            >
-                              {row.remark || '添加备注'}
-                            </button>
-                          ) : row.remark ? (
-                            <span className="ellipsis" title={row.remark}>{row.remark}</span>
-                          ) : (
-                            '—'
-                          )}
-                        </td>
-                        <td>
-                          {row.depth === 1 ? (
-                            <button type="button"
-                              className="btn btn--quiet"
-                              onClick={async () => {
-                                const ok = await confirmDialog({
-                                  title: '撤销这个邀请？',
-                                  message: `撤销后 ${row.username} 的加入关系会被解除。`,
-                                  hint: '会返还 1 个邀请名额。',
-                                  confirmText: '撤销',
-                                  danger: true,
-                                })
-                                if (!ok) return
-                                actions.revoke.mutate(row.userId, { onSuccess: () => toast('已撤销', 'success') })
-                              }}
-                            >
-                              撤销
-                            </button>
-                          ) : (
-                            <span className="muted">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'joinAt',
+                      label: '加入时间',
+                      thWidth: 130,
+                      mobile: 'inline',
+                      mobileLabel: null,
+                      render: (row) => <span className="muted">{formatDateTime(row.joinAt)}</span>,
+                    },
+                    {
+                      key: 'lastPlayed',
+                      label: '最近播放',
+                      thWidth: 130,
+                      mobile: 'inline',
+                      mobileLabel: null,
+                      render: (row) => (
+                        <span className="muted">{row.lastPlayed ? formatDateTime(row.lastPlayed) : '—'}</span>
+                      ),
+                    },
+                    {
+                      key: 'remark',
+                      label: '备注',
+                      thWidth: 160,
+                      mobile: 'block',
+                      render: (row) =>
+                        row.depth === 1 ? (
+                          <button
+                            type="button"
+                            className="btn btn--quiet"
+                            onClick={() => setRemarkFor({ userId: row.userId, username: row.username, remark: row.remark })}
+                          >
+                            {row.remark || '添加备注'}
+                          </button>
+                        ) : row.remark ? (
+                          <span className="ellipsis" title={row.remark}>
+                            {row.remark}
+                          </span>
+                        ) : (
+                          <span className="muted">—</span>
+                        ),
+                    },
+                    {
+                      key: 'action',
+                      label: '操作',
+                      thWidth: 96,
+                      mobile: 'block',
+                      mobileAlign: 'end',
+                      render: (row) =>
+                        row.depth === 1 ? (
+                          <button
+                            type="button"
+                            className="btn btn--quiet"
+                            onClick={async () => {
+                              const ok = await confirmDialog({
+                                title: '撤销这个邀请？',
+                                message: `撤销后 ${row.username} 的加入关系会被解除。`,
+                                hint: '会返还 1 个邀请名额。',
+                                confirmText: '撤销',
+                                danger: true,
+                              })
+                              if (!ok) return
+                              actions.revoke.mutate(row.userId, { onSuccess: () => toast('已撤销', 'success') })
+                            }}
+                          >
+                            撤销
+                          </button>
+                        ) : (
+                          <span className="muted">—</span>
+                        ),
+                    },
+                  ]}
+                />
                 {inviteRows.length > 50 ? (
                   <p className="card-note stack--top">
                     只列出前 50 位。

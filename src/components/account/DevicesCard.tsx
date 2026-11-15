@@ -1,5 +1,6 @@
 import { CardHead } from '@/components/CardHead'
 import { CardTable } from '@/components/CardTable'
+import { RecordList } from '@/components/RecordList'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime } from '@/lib/format'
@@ -54,47 +55,62 @@ export function DevicesCard() {
         count={devices.data?.length ?? 0}
         loadingCols={3}
       >
-        <table className="table table--inset">
-          <thead>
-            <tr>
-              <th>设备</th>
-              <th style={{ width: 150 }}>最后使用</th>
-              <th style={{ width: 96 }}>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(devices.data ?? []).map((device) => (
-              <tr key={device.device_id}>
-                <td>
+        <RecordList
+          rows={devices.data ?? []}
+          idKey={(device) => device.device_id}
+          className="table table--inset"
+          columns={[
+            {
+              key: 'device',
+              label: '设备',
+              mobile: 'primary',
+              render: (device) => (
+                <>
                   <span className="cell-title__name">{decodeDeviceName(device.device_name) || '未命名设备'}</span>
                   <span className="cell-title__code">
                     {device.device_client} {device.device_version}
                   </span>
-                </td>
-                <td className="muted">{device.last_used_at ? formatDateTime(device.last_used_at) : '—'}</td>
-                <td>
-                  <button
-                    type="button"
-                    className="btn btn--quiet"
-                    disabled={actions.logoutDevice.isPending}
-                    onClick={async () => {
-                      const ok = await confirmDialog({
-                        title: `让 ${device.device_name || '这台设备'} 下线？`,
-                        message: '该设备需要重新登录才能继续播放。',
-                        confirmText: '下线',
-                        danger: true,
-                      })
-                      if (!ok) return
-                      actions.logoutDevice.mutate(device.device_id, { onSuccess: () => toast('已下线', 'success') })
-                    }}
-                  >
-                    下线
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ),
+            },
+            {
+              key: 'used',
+              label: '最后使用',
+              thWidth: 150,
+              mobile: 'inline',
+              mobileLabel: null,
+              render: (device) => (
+                <span className="muted">{device.last_used_at ? formatDateTime(device.last_used_at) : '—'}</span>
+              ),
+            },
+            {
+              key: 'action',
+              label: '操作',
+              thWidth: 96,
+              mobile: 'block',
+              mobileAlign: 'end',
+              render: (device) => (
+                <button
+                  type="button"
+                  className="btn btn--quiet"
+                  disabled={actions.logoutDevice.isPending}
+                  onClick={async () => {
+                    const ok = await confirmDialog({
+                      title: `让 ${device.device_name || '这台设备'} 下线？`,
+                      message: '该设备需要重新登录才能继续播放。',
+                      confirmText: '下线',
+                      danger: true,
+                    })
+                    if (!ok) return
+                    actions.logoutDevice.mutate(device.device_id, { onSuccess: () => toast('已下线', 'success') })
+                  }}
+                >
+                  下线
+                </button>
+              ),
+            },
+          ]}
+        />
       </CardTable>
     </article>
   )

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardTable } from '@/components/CardTable'
+import { RecordList } from '@/components/RecordList'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
@@ -268,19 +269,17 @@ export function UserDetailView({ userId }: { userId: string }) {
             loadingRows={3}
             loadingCols={4}
           >
-            <table className="table table--inset">
-              <thead>
-                <tr>
-                  <th>影片</th>
-                  <th style={{ width: 150 }}>时间</th>
-                  <th style={{ width: 140 }}>来源 IP</th>
-                  <th style={{ width: 180 }}>客户端</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(records.data?.items ?? []).map((row, index) => (
-                  <tr key={`${String(row.video_media_id)}-${index}`}>
-                    <td>
+            <RecordList
+              rows={records.data?.items ?? []}
+              idKey={(row) => `${String(row.video_media_id)}-${String(row.time ?? '')}`}
+              className="table table--inset"
+              columns={[
+                {
+                  key: 'video',
+                  label: '影片',
+                  mobile: 'primary',
+                  render: (row) => (
+                    <>
                       <Link
                         to="/media/$videoId"
                         params={{ videoId: String(row.video_id) }}
@@ -291,17 +290,39 @@ export function UserDetailView({ userId }: { userId: string }) {
                         {String(row.video_title ?? '—')}
                       </Link>
                       <span className="cell-title__code">{String(row.video_media_id ?? '')}</span>
-                    </td>
-                    <td className="muted">{formatDateTime(String(row.time ?? ''))}</td>
-                    <td className="muted tnum">
+                    </>
+                  ),
+                },
+                {
+                  key: 'time',
+                  label: '时间',
+                  thWidth: 150,
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{formatDateTime(String(row.time ?? ''))}</span>,
+                },
+                {
+                  key: 'ip',
+                  label: '来源 IP',
+                  thWidth: 140,
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => (
+                    <span className="muted tnum">
                       {String(row.ip ?? '—')}
                       {row.is_proxy ? ' · 代理' : ''}
-                    </td>
-                    <td className="muted ellipsis">{String(row.ua ?? '—')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  ),
+                },
+                {
+                  key: 'ua',
+                  label: '客户端',
+                  thWidth: 180,
+                  mobile: 'hidden',
+                  render: (row) => <span className="muted ellipsis">{String(row.ua ?? '—')}</span>,
+                },
+              ]}
+            />
           </CardTable>
         </article>
       </section>
