@@ -19,6 +19,7 @@ import {
 } from '@/lib/uploader'
 import { detectUploadKind, formatSize, type UploadKind } from '@/lib/format'
 import { findDuplicateMusic, musicTermFromName, resolveTargetByFilename } from '@/lib/upload-resolve'
+import { runPool } from '@/lib/concurrency'
 import { USE_MOCK } from '@/api/client'
 
 type Status =
@@ -268,16 +269,8 @@ export function UploadView() {
   /** 批量上传：按 3 个并发把队列跑完 */
   const uploadAll = async () => {
     const pending = queue.filter((item) => item.status === 'ready' && (item.target || item.song))
-    const limit = 3
-    let cursor = 0
-    const worker = async () => {
-      while (cursor < pending.length) {
-        const item = pending[cursor]
-        cursor += 1
-        await startUpload(item)
-      }
-    }
-    await Promise.all(Array.from({ length: Math.min(limit, pending.length) }, worker))
+    // 同时开 3 个，避免一次性打满带宽
+    await runPool(pending, 3, startUpload)
   }
 
   const active = queue.filter((item) => item.status !== 'done')
