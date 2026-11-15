@@ -12,12 +12,11 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
-import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/api/queries'
+import { useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export interface LiveSearch {
   page: number
@@ -33,11 +32,10 @@ const PATH_TYPE_LABEL: Record<string, string> = {
 
 export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
   const library = useLiveLibrary()
-  const compact = useMediaQuery('(max-width: 600px)')
-  const list = useLiveList(search.page, search.library, 15, !compact)
+  // 两端都滚动加载
   const infinite = usePagedInfinite(
     (page) => liveApi.list({ page, page_size: 15, library_id: search.library || undefined }),
-    { enabled: compact, resetKey: `${search.library}` },
+    { resetKey: `${search.library}` },
   )
   const [mediaPage, setMediaPage] = useState(1)
   // 换频道时源列表回到第一页，不然会停在上一个频道的页码上
@@ -100,7 +98,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     )
   }
 
-  const liveItems = compact ? infinite.items : (list.data?.items ?? [])
+  const liveItems = infinite.items
   const channel = liveItems.find((item) => item.id === search.channel)
 
   const renderSources = () => {
@@ -216,16 +214,14 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       </div>
 
       {library.error ? (
-        <p className="card-note">媒体库列表读取失败（分页与「全部」仍可用）：{library.error instanceof Error ? library.error.message : ''}</p>
+        <p className="card-note">媒体库列表读取失败：{library.error instanceof Error ? library.error.message : ''}</p>
       ) : null}
       <ListSection
-        isLoading={list.isLoading}
-        error={list.error}
-        onRetry={() => list.refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={liveItems}
-        total={compact ? infinite.total : (list.data?.total ?? 0)}
-        page={search.page}
-        pageSize={compact ? infinite.pageSize : (list.data?.page_size ?? 20)}
+        total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         onPage={(page) => onSearch({ page })}

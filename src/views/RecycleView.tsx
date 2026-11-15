@@ -6,13 +6,12 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { RecordList } from '@/components/RecordList'
-import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
+import { useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import {formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 type Tab = 'media' | 'video'
 
@@ -40,10 +39,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
 }) {
-  // 只查当前 tab：两个都查的话切 tab 直接命中缓存，看不到加载态
-  const compact = useMediaQuery('(max-width: 600px)')
-  const media = useDeletedMedia(page, pageSize, tab === 'media' ? q : undefined, by, tab === 'media' && !compact)
-  const videos = useDeletedVideos(page, pageSize, tab === 'video' ? q : undefined, tab === 'video' && !compact)
+  // 只查当前 tab；两端都滚动加载
   const infinite = usePagedInfinite<Record<string, unknown>>(
     (next) =>
       tab === 'media'
@@ -56,7 +52,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         : videoApi
             .list({ only_delete: true, page: next, page_size: pageSize, ...(q ? { title: q } : {}) })
             .then((r) => ({ items: r.items as unknown as Array<Record<string, unknown>>, total: r.total, page_size: r.page_size })),
-    { enabled: compact, resetKey: `${tab}|${q}|${by}|${pageSize}` },
+    { resetKey: `${tab}|${q}|${by}|${pageSize}` },
   )
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
@@ -65,9 +61,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
   useDebounced(term, (next) => onQuery(next, by), { current: q })
 
-  const active = tab === 'media' ? media : videos
-  const total = compact ? infinite.total : (active.data?.total ?? 0)
-  const rows = (compact ? infinite.items : (active.data?.items ?? [])) as Array<Record<string, unknown>>
+  const total = infinite.total
+  const rows = infinite.items as Array<Record<string, unknown>>
   // 恢复口径按契约：只有 is_can_restore 为 true 的资源可恢复。
   // 实测现在全为 false（含本人上传），所以这一列当前不显示——
   // 与其给一排点了必然 422 的按钮，不如不显示，等上游放开后自然出现。
@@ -156,9 +151,9 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       </div>
 
       <ListSection
-        isLoading={active.isLoading}
-        error={active.error}
-        onRetry={() => active.refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={rows}
         total={total}
         page={page}
