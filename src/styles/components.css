@@ -686,29 +686,26 @@ input.input[type='number'] { min-width: 0; }
   color: var(--fg-2);
   cursor: pointer;
 }
+/*
+ * 旋钮用 background-image 画，不用 ::after。
+ * 伪元素挂在 <input>（替换元素）上时，Safari/WebKit 不渲染，开关就只剩一个会变色的圆角条，
+ * 看起来像「点了没反应」；渐变两种浏览器都画。
+ * 位置：未选中圆心 10px（左侧留 2px），选中圆心 24px（右移 14px）。
+ */
 .switch input {
   appearance: none;
   width: 34px;
   height: 20px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
+  background-image: radial-gradient(circle at 10px 10px, var(--fg-3) 0 8px, transparent 8px);
   cursor: pointer;
-  transition: background var(--t-fast) var(--ease);
+  transition: background-color var(--t-fast) var(--ease);
 }
-.switch input::after {
-  content: '';
-  position: absolute;
-  top: var(--sp-hair);
-  left: var(--sp-hair);
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--fg-3);
-  transition: transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+.switch input:checked {
+  background-color: rgba(255, 197, 61, 0.24);
+  background-image: radial-gradient(circle at 24px 10px, var(--c-yellow) 0 8px, transparent 8px);
 }
-.switch input:checked { background: rgba(255, 197, 61, 0.24); }
-.switch input:checked::after { transform: translateX(14px); background: var(--c-yellow); }
 
 .chip {
   display: inline-flex;
