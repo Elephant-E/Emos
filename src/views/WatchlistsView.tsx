@@ -175,13 +175,13 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                         <span className="cell-title__name">
                           {watch.name}
                           {watch.carrot > 0 ? (
-                            <span className="badge badge--wait" style={{ marginLeft: 8 }}>
+                            <span className="badge badge--wait" style={{ marginLeft: 'var(--sp-2)' }}>
                               <i />
                               {watch.carrot} 胡萝卜
                             </span>
                           ) : null}
                           {watch.is_subscribe ? (
-                            <span className="badge badge--run" style={{ marginLeft: 8 }}>
+                            <span className="badge badge--run" style={{ marginLeft: 'var(--sp-2)' }}>
                               <i />
                               已订阅
                             </span>

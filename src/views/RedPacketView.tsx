@@ -155,8 +155,8 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
       {search.tab === 'send' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 18 }}>
-              <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
+              <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
                 <span>红包已发出</span>
                 <b className="tnum">{created}</b>
                 <button type="button"
@@ -245,7 +245,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                     <option value="172800">48 小时</option>
                   </select>
                 </label>
-                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
+                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 'var(--sp-1)' }}>
                   {Number(carrot) > balance ? (
                     <span className="muted text-xs">余额不够，最多 {formatThousand(balance)}</span>
                   ) : null}
@@ -275,8 +275,8 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   </button>
                 ) : null}
               </CardHead>
-              <div className="card-body" style={{ display: 'grid', gap: 12 }}>
-                <div className="row" style={{ gap: 12, flexWrap: 'wrap' }}>
+              <div className="card-body" style={{ display: 'grid', gap: 'var(--sp-3)' }}>
+                <div className="row" style={{ gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
                   <label className="btn btn--ghost" style={{ cursor: 'pointer' }}>
                     {coverBusy ? '上传中…' : coverUrl ? '换一张' : '上传图片 / 音频'}
                     <input

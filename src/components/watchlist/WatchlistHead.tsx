@@ -27,8 +27,8 @@ export function WatchlistHead({
           shape="wide"
           className="detail-head__poster"
         />
-        <div style={{ display: 'grid', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gap: 'var(--sp-2)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
             <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
               <i />
               {item.is_public ? '公开' : '私密'}

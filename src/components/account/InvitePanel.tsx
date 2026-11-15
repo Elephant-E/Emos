@@ -92,7 +92,7 @@ export function InvitePanel() {
             />
             <article className="card">
               <CardHead title="邀请用户" />
-              <div className="row-input" style={{ marginTop: 12 }}>
+              <div className="row-input" style={{ marginTop: 'var(--stack)' }}>
                 <input className="input" placeholder="用户 ID（e 开头 s 结尾）" value={inviteId} onChange={(e) => setInviteId(e.target.value)} />
                 <button type="button" className="btn btn--primary" onClick={() => setInviting(true)} disabled={!inviteId.trim()}>
                   邀请
@@ -105,7 +105,7 @@ export function InvitePanel() {
                   {actions.inviteEmps.isPending ? '邀请中…' : '邀请进 EMOS'}
                 </button>
               </div>
-              <div className="row" style={{ marginTop: 12, gap: 12 }}>
+              <div className="row" style={{ marginTop: 'var(--stack)', gap: 'var(--sp-3)' }}>
                 <button type="button" className="btn btn--danger-text" onClick={() => void exitInvite()}>
                   退出邀请关系
                 </button>
@@ -135,7 +135,7 @@ export function InvitePanel() {
                   <tbody>
                     {inviteRows.slice(0, 50).map((row) => (
                       <tr key={row.userId}>
-                        <td style={{ paddingLeft: 24 + (row.depth - 1) * 20 }}>
+                        <td style={{ paddingLeft: 'var(--pad-card)' + (row.depth - 1) * 20 }}>
                           <Link
                             to="/users/$userId"
                             params={{ userId: row.userId }}

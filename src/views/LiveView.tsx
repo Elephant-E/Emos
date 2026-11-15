@@ -103,7 +103,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               title={
                 <>
                   直播源
-                  <span className="muted tnum-sm" style={{ marginLeft: 8, letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
+                  <span className="muted tnum-sm" style={{ marginLeft: 'var(--sp-2)', letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
                 </>
               }
             >
@@ -119,7 +119,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
-              <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
+              <ul style={{ display: 'grid', gap: 'var(--sp-hair)', marginTop: 'var(--stack)' }}>
                 {media.data.items.map((row) => (
                   <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', padding: 'var(--sp-2) var(--sp-hair)', borderBottom: '1px solid var(--line-soft)' }}>
                     <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>

@@ -121,7 +121,7 @@ export function UserDetailView({ userId }: { userId: string }) {
       ) : null}
 
       {limited ? (
-        <p className="card-note" style={{ marginTop: 4 }}>
+        <p className="card-note" style={{ marginTop: 'var(--sp-1)' }}>
           当前账号没有服务商权限，看不到余额、观影权限与注册时间。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请成为服务商</Link>后可看全。
         </p>
       ) : null}

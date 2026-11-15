@@ -65,11 +65,11 @@ export function ProductDetailModal({
       {product.error ? <ErrorBlock bare error={product.error} onRetry={() => product.refetch()} /> : null}
       {p ? (
         <>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>
             <div className="product-tile__cover" style={{ width: 160, flex: 'none', borderRadius: 10 }}>
               <Poster src={p.cover_url} name={p.name} shape="square" />
             </div>
-            <div style={{ display: 'grid', gap: 8, alignContent: 'start', minWidth: 0 }}>
+            <div style={{ display: 'grid', gap: 'var(--sp-2)', alignContent: 'start', minWidth: 0 }}>
               <span style={{ fontSize: 15, color: 'var(--fg)' }}>{p.name}</span>
               <Price price={p.price} priceOrigin={p.price_origin} />
               <div className="product-tile__meta">
@@ -92,10 +92,10 @@ export function ProductDetailModal({
             </div>
           </div>
 
-          {p.description ? <p className="card-note" style={{ marginTop: 12 }}>{p.description}</p> : null}
+          {p.description ? <p className="card-note" style={{ marginTop: 'var(--stack)' }}>{p.description}</p> : null}
           {p.exchange_way ? <p className="card-note">兑换方式：{p.exchange_way}</p> : null}
 
-          <div className="field-row field-row--wide" style={{ marginTop: 12 }}>
+          <div className="field-row field-row--wide" style={{ marginTop: 'var(--stack)' }}>
             <label className="field">
               <span>数量</span>
               <input
@@ -156,18 +156,18 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
         </>
       }
     >
-      <div className="row" style={{ gap: 12 }}>
+      <div className="row" style={{ gap: 'var(--sp-3)' }}>
         <div className="product-tile__cover" style={{ width: 64, height: 64, flex: 'none', borderRadius: 8 }}>
           <Poster src={product.cover_url} name={product.name} shape="square" />
         </div>
-        <span style={{ display: 'grid', gap: 4, minWidth: 0 }}>
+        <span style={{ display: 'grid', gap: 'var(--sp-1)', minWidth: 0 }}>
           <span className="ellipsis" style={{ color: 'var(--fg)' }}>{product.name}</span>
           <span className="muted text-xs">
             {formatPrice(product.price)} · 库存 {formatThousand(product.stock)}
           </span>
         </span>
       </div>
-      <label className="field" style={{ marginTop: 12 }}>
+      <label className="field" style={{ marginTop: 'var(--stack)' }}>
         <span>数量</span>
         <input
           className="input tnum"

@@ -118,8 +118,8 @@ export function SongDetailView({ songId }: { songId: number }) {
       {song.data ? (
         <section className="detail-head">
           <div className="detail-head__row">
-            <div style={{ display: 'grid', gap: 8, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'grid', gap: 'var(--sp-2)', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
                 {song.data.is_favorite ? (
                   <span className="badge badge--ok">
                     <i />
@@ -218,8 +218,8 @@ export function SongDetailView({ songId }: { songId: number }) {
               />
             ) : null}
             {(lyrics.data ?? []).map((row, index) => (
-              <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 18 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
+              <div key={String(row.lyric_id ?? index)} style={{ marginBottom: 'var(--gap-card)' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--sp-2)', marginBottom: 'var(--sp-2)' }}>
                   <span style={{ color: 'var(--fg-2)' }}>{String(row.type ?? 'text').toUpperCase()}</span>
                   <span className="meta-sm">
                     {String(row.language ?? '—')}
@@ -310,7 +310,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td>
                         <span className="cell-title__name">
               {String(row.name ?? '—')}
-              {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
+              {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 'var(--sp-2)' }}><i />主资源</span> : null}
                         </span>
                         <span className="cell-title__code">
               {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}

@@ -142,8 +142,8 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       {search.tab === 'create' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 18 }}>
-              <div className="card-body row" style={{ gap: 12 }}>
+            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
+              <div className="card-body row" style={{ gap: 'var(--sp-3)' }}>
                 <span>抽奖已创建</span>
                 <b className="tnum">{created}</b>
                 <button type="button"
@@ -226,7 +226,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 </CardHead>
                 <div className="stack">
                   {prizes.map((prize, index) => (
-                    <div key={index} className="row" style={{ gap: 8, alignItems: 'flex-start' }}>
+                    <div key={index} className="row" style={{ gap: 'var(--sp-2)', alignItems: 'flex-start' }}>
                       <label className="field" style={{ flex: '1 1 140px' }}>
                         <span>名称</span>
                         <input
@@ -261,7 +261,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       {prizes.length > 1 ? (
                         <button type="button"
                           className="btn btn--danger-text"
-                          style={{ marginTop: 24 }}
+                          style={{ marginTop: 'var(--pad-card)' }}
                           onClick={() => setPrizes((prev) => prev.filter((_, i) => i !== index))}
                         >
                           删除
@@ -271,7 +271,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                   ))}
                 </div>
 
-                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
+                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 'var(--sp-1)' }}>
                   <button type="button" className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
                     {sending ? '创建中…' : '创建抽奖'}
                   </button>
@@ -316,7 +316,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               <section className="cards cards--wide">
                 <article className="card">
                   <CardHead title={winners.data?.lottery_name ?? '抽奖'}>
-                    <span className="row" style={{ gap: 8 }}>
+                    <span className="row" style={{ gap: 'var(--sp-2)' }}>
                       <button type="button" className="btn btn--quiet" onClick={() => void act('stop')}>
                         手动开奖
                       </button>
@@ -356,7 +356,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               {(winners.data?.users.length ?? 0) === 0 ? (
                 <EmptyBlock title="还没开奖或没人中奖" />
               ) : (
-                <div className="table-card" style={{ marginTop: 18 }}>
+                <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
                   <table className="table">
                     <thead>
                       <tr>

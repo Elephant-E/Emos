@@ -3,10 +3,10 @@ import { IconAlert, IconEmpty } from './icons'
 export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: number; columns?: number; bare?: boolean }) {
   return (
     <div className={bare ? undefined : 'table-card'} aria-busy="true" aria-live="polite">
-      <div style={{ padding: 16 }}>
-        <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 18 }} />
+      <div style={{ padding: 'var(--sp-4)' }}>
+        <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 'var(--gap-card)' }} />
         {Array.from({ length: rows }).map((_, r) => (
-          <div key={r} style={{ display: 'flex', gap: 16, marginBottom: 12, alignItems: 'center' }}>
+          <div key={r} style={{ display: 'flex', gap: 'var(--sp-4)', marginBottom: 'var(--stack)', alignItems: 'center' }}>
             <div className="skeleton" style={{ height: 40, width: 34, flex: 'none' }} />
             {Array.from({ length: columns }).map((__, c) => (
               <div

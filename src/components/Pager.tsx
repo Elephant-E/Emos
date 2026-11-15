@@ -29,7 +29,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
       <span>
         共 {formatThousand(total)} 条 · 第 {page} / {totalPages} 页
       </span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
         {onPageSize ? (
           <select
             className="input"
@@ -63,7 +63,7 @@ export function Pager({ total, page, pageSize, onPage, onPageSize, sizes = PAGE_
         </div>
 
         {totalPages > 5 ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
             <span className="muted text-xs">跳至</span>
             <input
               className="input"

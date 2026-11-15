@@ -161,7 +161,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             剧集
           </button>
         </div>
-        <label className="switch" style={{ marginLeft: 4 }}>
+        <label className="switch" style={{ marginLeft: 'var(--sp-1)' }}>
           <input type="checkbox" checked={search.mine} onChange={(e) => onSearch({ mine: e.target.checked, page: 1 })} />
           只看我认领的
         </label>
@@ -352,14 +352,14 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             </dl>
           ) : null}
 
-          <p className="stat__label" style={{ marginTop: 16 }}>悬赏记录</p>
+          <p className="stat__label" style={{ marginTop: 'var(--sp-4)' }}>悬赏记录</p>
           {history.error ? <ErrorBlock bare error={history.error} onRetry={() => history.refetch()} /> : null}
           {history.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
           {(history.data?.length ?? 0) === 0 && !history.isLoading && !history.error ? (
             <EmptyBlock bare title="还没有人加过胡萝卜" />
           ) : null}
           {(history.data?.length ?? 0) > 0 ? (
-            <table className="table table--inset" style={{ marginTop: 8 }}>
+            <table className="table table--inset" style={{ marginTop: 'var(--sp-2)' }}>
               <thead>
                 <tr>
                   <th>用户</th>

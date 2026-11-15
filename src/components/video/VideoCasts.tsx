@@ -27,7 +27,7 @@ export function VideoCasts({ persons, limit = 8 }: { persons: VideoPerson[]; lim
   const [broken, setBroken] = useState<Set<string>>(new Set())
   const keyOf = (person: VideoPerson) => String(person.person_id_tmdb ?? person.name)
   return (
-    <article className="card" style={{ marginTop: 18 }}>
+    <article className="card" style={{ marginTop: 'var(--gap-card)' }}>
       <CardHead title="演职员" />
       <div className="person-grid">
         {persons.slice(0, limit).map((person) => {

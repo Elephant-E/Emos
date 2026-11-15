@@ -123,7 +123,7 @@ export function WatchlistForm({
           onChange={(e) => setForm({ ...form, point: Math.min(50000, Math.max(0, Number(e.target.value) || 0)) })}
         />
       </label>
-      <div style={{ display: 'flex', gap: 24 }}>
+      <div style={{ display: 'flex', gap: 'var(--pad-card)' }}>
         <label className="switch">
           <input
             type="checkbox"

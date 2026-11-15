@@ -41,7 +41,7 @@ export function ClientLoginCard({
                 {token} · 复制
               </button>
             ) : (
-              <span className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
+              <span className="row" style={{ gap: 'var(--sp-2)', justifyContent: 'flex-end' }}>
                 <span className="muted tnum">
                   {token.slice(0, 6)}…{token.slice(-4)}
                 </span>

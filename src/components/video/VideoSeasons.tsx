@@ -42,11 +42,11 @@ export function VideoSeasons({
       </CardHead>
 
       {seasonsError ? <ErrorBlock bare error={seasonsError} onRetry={onRetrySeasons} /> : null}
-      {seasonsLoading ? <div className="skeleton" style={{ height: 34, marginTop: 12 }} /> : null}
+      {seasonsLoading ? <div className="skeleton" style={{ height: 34, marginTop: 'var(--stack)' }} /> : null}
       {seasons.length > 0 ? (
         <select
           className="input"
-          style={{ marginTop: 12 }}
+          style={{ marginTop: 'var(--stack)' }}
           value={season}
           aria-label="选择季"
           onChange={(event) => onPickSeason(Number(event.target.value))}
@@ -61,7 +61,7 @@ export function VideoSeasons({
       ) : null}
 
       {episodesError ? <ErrorBlock bare error={episodesError} onRetry={onRetryEpisodes} /> : null}
-      {episodesLoading ? <div className="skeleton" style={{ height: 160, marginTop: 12 }} /> : null}
+      {episodesLoading ? <div className="skeleton" style={{ height: 160, marginTop: 'var(--stack)' }} /> : null}
       {!episodesError && !episodesLoading && seasonEpisodes.length === 0 ? (
         <EmptyBlock bare title="这一季还没有集" />
       ) : null}

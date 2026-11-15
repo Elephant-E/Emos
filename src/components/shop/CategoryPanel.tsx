@@ -70,7 +70,7 @@ export function CategoryPanel({
         {!categories.error && (categories.data?.length ?? 0) === 0 ? <EmptyBlock bare title="还没有分类" /> : null}
 
         {(categories.data?.length ?? 0) > 0 ? (
-          <ul style={{ display: 'grid', gap: 2, marginTop: 12 }}>
+          <ul style={{ display: 'grid', gap: 'var(--sp-hair)', marginTop: 'var(--stack)' }}>
             {(categories.data ?? []).map((category) => (
               <li
                 key={category.category_id}

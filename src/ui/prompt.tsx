@@ -83,7 +83,7 @@ export function PromptHost() {
         settle(value.trim())
       }}
     >
-      <label className="field" style={{ marginTop: 12 }}>
+      <label className="field" style={{ marginTop: 'var(--stack)' }}>
         <span>{pending.label}</span>
         <input
           ref={inputRef}

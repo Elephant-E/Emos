@@ -130,7 +130,7 @@ export function UploadView() {
       </div>
 
       {queue.length > 0 ? (
-        <div className="table-card" style={{ marginTop: 18 }}>
+        <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
           <table className="table">
             <thead>
               <tr>

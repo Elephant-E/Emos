@@ -95,8 +95,8 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
       {search.tab === 'create' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 18 }}>
-              <div className="card-body row" style={{ gap: 12 }}>
+            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
+              <div className="card-body row" style={{ gap: 'var(--sp-3)' }}>
                 <span>投票已创建</span>
                 <b className="tnum">{created.id}</b>
                 <span className="muted">{formatDateTime(created.timeEnd)} 结束</span>
@@ -147,9 +147,9 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                     加一个
                   </button>
                 </CardHead>
-                <div style={{ display: 'grid', gap: 8 }}>
+                <div style={{ display: 'grid', gap: 'var(--sp-2)' }}>
                   {options.map((option, index) => (
-                    <div key={index} className="row" style={{ gap: 8 }}>
+                    <div key={index} className="row" style={{ gap: 'var(--sp-2)' }}>
                       <span className="tnum muted" style={{ width: 18 }}>{index + 1}</span>
                       <input
                         className="input"
@@ -192,7 +192,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   </label>
                 </div>
 
-                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
+                <div className="row" style={{ justifyContent: 'flex-end', marginTop: 'var(--sp-1)' }}>
                   <button type="button" className="btn btn--primary" disabled={sending} onClick={() => void submit()}>
                     {sending ? '创建中…' : '创建投票'}
                   </button>
@@ -254,7 +254,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                               {formatThousand(count)} 票 · {Math.round(share * 100)}%
                             </span>
                           </div>
-                          <div className="progress-line" style={{ marginTop: 8 }}>
+                          <div className="progress-line" style={{ marginTop: 'var(--sp-2)' }}>
                             <i style={{ transform: `scaleX(${share.toFixed(3)})` }} />
                           </div>
                         </div>
@@ -268,7 +268,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               {totalVotes === 0 ? (
                 <EmptyBlock title="还没有人投票" />
               ) : (
-                <div className="table-card" style={{ marginTop: 18 }}>
+                <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
                   <table className="table">
                     <thead>
                       <tr>

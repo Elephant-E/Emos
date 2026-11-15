@@ -32,7 +32,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
     <article className="card">
               <CardHead title="账号设置" />
 
-              <div style={{ display: 'grid', gap: 16, marginTop: 12, maxWidth: 560 }}>
+              <div className="settings-stack">
                 <label className="field">
                   <span>笔名</span>
                   <div className="row-input">
@@ -96,7 +96,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                   高清海报
                 </label>
 
-                <div className="row" style={{ gap: 12 }}>
+                <div className="row" style={{ gap: 'var(--sp-3)' }}>
                   <span className="muted text-sm">
                     Telegram {user.telegram_user_id ? `已绑定 ${user.telegram_user_id}` : '未绑定'}
                   </span>
@@ -129,7 +129,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                   ) : null}
                 </div>
 
-                <div className="detail-stats" style={{ marginTop: 4 }}>
+                <div className="detail-stats" style={{ marginTop: 'var(--sp-1)' }}>
                   <div className="detail-stat">
                     <b>{caps.canView ? '已开通' : '未开通'}</b>
                     <span>观影权限</span>
@@ -148,7 +148,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
                   {!caps.canUpload ? (
                     <button type="button" className="btn btn--ghost" onClick={() => setConsent('upload')}>
                       开通上传权限

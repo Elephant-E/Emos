@@ -138,7 +138,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           <p style={{ margin: 'var(--stack) 0 0', color: 'var(--fg-2)', wordBreak: 'break-all' }}>
             {base.data?.notify_url || '未配置'}
           </p>
-          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 12 }}>
+          <p className="stat__delta stat__delta--quiet" style={{ marginTop: 'var(--stack)' }}>
             {base.data?.description || '—'}
           </p>
         </article>
@@ -156,13 +156,13 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
 
           {order.isFetching ? <LoadingBlock bare rows={2} columns={2} /> : null}
           {order.error ? (
-            <p className="state__hint" style={{ marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
               没有查到这个订单，或订单号有误。
             </p>
           ) : null}
           {order.data ? (
             <>
-            <div className="detail-stats" style={{ marginTop: 18 }}>
+            <div className="detail-stats" style={{ marginTop: 'var(--gap-card)' }}>
               <div className="detail-stat">
                 <b>{PAY_STATUS[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
                 <span>支付状态</span>
@@ -180,7 +180,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                 <span>商品</span>
               </div>
             </div>
-            <div className="row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
+            <div className="row" style={{ justifyContent: 'flex-end', marginTop: 'var(--stack)' }}>
               <button type="button" className="btn btn--danger-text" disabled={closing} onClick={() => void closeOrder()}>
                 {closing ? '关闭中…' : '关闭订单'}
               </button>
@@ -235,7 +235,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               {payActions.transfer.isPending ? '转账中…' : '转账'}
             </button>
           </div>
-          <p className="state__hint" style={{ marginTop: 12 }}>
+          <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
             单次 1 – 50000，费率千六；与上面的胡萝卜转赠不是同一套账。
           </p>
         </article>
@@ -245,13 +245,13 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
         {!base.error ? (
         <article className="card">
           <CardHead title="建支付单" />
-          <div className="row" style={{ marginTop: 12 }}>
+          <div className="row" style={{ marginTop: 'var(--stack)' }}>
             <button type="button" className="btn btn--ghost" onClick={() => setDraft({ payWay: 'web', price: 1, name: '', param: '' })}>
               新建支付单
             </button>
           </div>
           {created ? (
-            <p className="state__hint" style={{ marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
               单号 {created.no}
               {created.pay_url ? (
                 <>
@@ -263,7 +263,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               ) : null}
             </p>
           ) : (
-            <p className="state__hint" style={{ marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
               网页支付生成可分享的支付链接；TG 机器人支付走会话内跳转。
             </p>
           )}

@@ -41,7 +41,7 @@ export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void 
   if (series) {
     return (
       <>
-        <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+        <div className="row" style={{ gap: 'var(--sp-2)', alignItems: 'center' }}>
           <button type="button" className="btn btn--quiet" onClick={() => setSeries(null)}>
             换一部
           </button>

@@ -80,7 +80,7 @@ export function MediaMoveModal({
       </label>
 
       {target ? (
-        <p className="card-note" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <p className="card-note" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
           <span>目标：{target.title}</span>
           <button
             type="button"

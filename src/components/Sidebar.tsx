@@ -145,7 +145,7 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
       </button>
 
       <div className="rail__scroll" ref={scrollRef}>
-      <nav className="rail__nav" style={{ marginTop: 12 }}>
+      <nav className="rail__nav" style={{ marginTop: 'var(--stack)' }}>
         {PINNED.map((item) => {
           const Icon = item.icon
           const active = pathname === item.to

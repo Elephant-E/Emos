@@ -189,7 +189,7 @@ export function ShopView({
       {seller.error ? <ErrorBlock error={seller.error} onRetry={() => seller.refetch()} /> : null}
 
       {mine && isSeller && tab === 'products' && !panel ? (
-        <section className="cards cards--4" style={{ marginBottom: 18 }}>
+        <section className="cards cards--4" style={{ marginBottom: 'var(--gap-card)' }}>
           <StatCard
             label="待发货"
             value={counts.ordersPending ?? '—'}
@@ -398,7 +398,7 @@ export function ShopView({
                 <button
                   type="button"
                   className="btn btn--primary"
-                  style={{ marginTop: 12 }}
+                  style={{ marginTop: 'var(--stack)' }}
                   disabled={actions.applySeller.isPending}
                   onClick={() => setSellerForm({ name: '', description: '', cover_url: null })}
                 >
@@ -408,7 +408,7 @@ export function ShopView({
             ) : null}
             {seller.data ? (
               <>
-                <div className="detail-stats" style={{ marginTop: 12 }}>
+                <div className="detail-stats" style={{ marginTop: 'var(--stack)' }}>
                   <div className="detail-stat">
                     <b>{seller.data.name}</b>
                     <span>店铺名称</span>
@@ -422,11 +422,11 @@ export function ShopView({
                     <span>店铺 ID</span>
                   </div>
                 </div>
-                {seller.data.description ? <p className="detail-desc" style={{ marginTop: 12 }}>{seller.data.description}</p> : null}
+                {seller.data.description ? <p className="detail-desc" style={{ marginTop: 'var(--stack)' }}>{seller.data.description}</p> : null}
                 {isSeller ? (
                   <button type="button"
                     className="btn btn--ghost"
-                    style={{ marginTop: 12 }}
+                    style={{ marginTop: 'var(--stack)' }}
                     onClick={() =>
                       setSellerForm({
                         name: seller.data!.name ?? '',
@@ -440,7 +440,7 @@ export function ShopView({
                 ) : (
                   <button type="button"
                     className="btn btn--primary"
-                    style={{ marginTop: 12 }}
+                    style={{ marginTop: 'var(--stack)' }}
                     onClick={() => setSellerForm({ name: '', description: '', cover_url: null })}
                   >
                     申请开店（扣 3000 胡萝卜）

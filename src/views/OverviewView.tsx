@@ -308,13 +308,13 @@ export function OverviewView() {
             </p>
           ) : null}
 
-          <div style={{ display: !stats.data || weekDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
+          <div style={{ display: !stats.data || weekDays === 0 ? 'none' : 'flex', alignItems: 'flex-end', gap: 'var(--sp-2)', height: 60 }}>
             {(stats.data?.weeks[0] ?? []).map((day, _i, arr) => {
               const minutes = Math.round(day.seconds / 60)
               const peak = Math.max(...arr.map((d) => d.seconds), 1)
               const h = minutes <= 0 ? 8 : Math.max(8, Math.round((day.seconds / peak) * 44))
               return (
-                <span key={day.date} title={`${day.date} · ${minutes > 0 ? `${minutes} 分钟` : '没看'}`} style={{ display: 'grid', gap: 8, justifyItems: 'center' }}>
+                <span key={day.date} title={`${day.date} · ${minutes > 0 ? `${minutes} 分钟` : '没看'}`} style={{ display: 'grid', gap: 'var(--sp-2)', justifyItems: 'center' }}>
                   <span
                     style={{
                       width: 18,
@@ -338,7 +338,7 @@ export function OverviewView() {
           ) : null}
 
           {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
-            <ul style={{ display: 'grid', gap: 8, marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>
+            <ul style={{ display: 'grid', gap: 'var(--sp-2)', marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>
               {carrotHistory.data.items.slice(0, 3).map((row, index) => (
                 <li key={index} className="row--baseline" style={{ display: 'flex' }}>
                   <span style={{ color: 'var(--fg-3)' }}>{row.trigger_type_string || row.trigger_type}</span>
@@ -366,9 +366,9 @@ export function OverviewView() {
               </Link>
             </CardHead>
 
-            {myWatchlists.isLoading ? <div className="skeleton" style={{ height: 64, marginTop: 12 }} /> : null}
+            {myWatchlists.isLoading ? <div className="skeleton" style={{ height: 64, marginTop: 'var(--stack)' }} /> : null}
             {!myWatchlists.isLoading && (myWatchlists.data?.items.length ?? 0) === 0 ? (
-              <p className="card-note" style={{ marginTop: 12 }}>
+              <p className="card-note" style={{ marginTop: 'var(--stack)' }}>
                 还没有自己的片单
               </p>
             ) : null}

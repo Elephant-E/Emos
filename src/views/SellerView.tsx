@@ -74,7 +74,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       ) : null}
 
       {products.length > 0 ? (
-        <div style={{ marginTop: 18 }}>
+        <div style={{ marginTop: 'var(--gap-card)' }}>
           <ProductGrid
             products={products}
             hasMore={query.hasNextPage}

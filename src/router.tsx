@@ -32,7 +32,7 @@ import type { VideoType } from '@/api/types'
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
   notFoundComponent: () => (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 12 }}>
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 'var(--sp-3)' }}>
       <p style={{ fontSize: 20 }}>页面不存在</p>
       <a className="btn btn--ghost" href="/">
         回到概览
