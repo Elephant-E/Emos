@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { qk } from '@/api/queries'
-import { UserCell } from '@/components/UserCell'
+import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -350,30 +350,20 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
               {(winners.data?.users.length ?? 0) === 0 ? (
                 <EmptyBlock title="还没开奖或没人中奖" />
               ) : (
-                <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className="th-thumb" style={{ width: '28%' }}>用户</th>
-                        <th style={{ width: '24%' }}>奖品</th>
-                        <th>说明</th>
-                        <th style={{ width: '18%' }}>参加时间</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(winners.data?.users ?? []).map((row) => (
-                        <tr key={`${row.user_id}-${row.prize_name}`}>
-                          <td>
-                            <UserCell name={String(row.user_username ?? '')} avatar={row.user_avatar} />
-                          </td>
-                          <td>{row.prize_name}</td>
-                          <td className="muted">{row.prize_description ?? '—'}</td>
-                          <td className="muted">{formatDateTime(row.join_at)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <RecordRow
+                  rows={winners.data?.users ?? []}
+                  idKey={(row) => `${row.user_id}-${row.prize_name}`}
+                  posterShape="square"
+                  poster={(row) => row.user_avatar}
+                  title={(row) => String(row.user_username ?? '')}
+                  meta={(row) => <span>{row.prize_name}</span>}
+                  facts={(row) => (
+                    <>
+                      <span>{row.prize_description ?? '无说明'}</span>
+                      <span>{formatDateTime(row.join_at)}</span>
+                    </>
+                  )}
+                />
               )}
             </>
           )}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { UserCell } from '@/components/UserCell'
+import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -338,30 +338,20 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
           ) : (records.data?.items.length ?? 0) === 0 ? (
             <EmptyBlock title="还没有人领" />
           ) : (
-            <div className="table-card">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th className="th-thumb" style={{ width: '46%' }}>用户</th>
-                    <th>用户 ID</th>
-                    <th className="num" style={{ width: '14%' }}>胡萝卜</th>
-                    <th style={{ width: '20%' }}>领取时间</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(records.data?.items ?? []).map((row) => (
-                    <tr key={`${row.user_id}-${row.receive_at}`}>
-                      <td>
-                        <UserCell name={row.username ?? row.user_id} avatar={row.avatar} />
-                      </td>
-                      <td className="muted">{row.user_id}</td>
-                      <td className="num">+{formatThousand(row.carrot)}</td>
-                      <td className="muted">{formatDateTime(row.receive_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <RecordRow
+              rows={records.data?.items ?? []}
+              idKey={(row) => `${row.user_id}-${row.receive_at}`}
+              posterShape="square"
+              poster={(row) => row.avatar}
+              title={(row) => row.username ?? row.user_id}
+              meta={(row) => <span>{row.user_id}</span>}
+              facts={(row) => (
+                <>
+                  <span className="mark-up">+{formatThousand(row.carrot)}</span>
+                  <span>{formatDateTime(row.receive_at)}</span>
+                </>
+              )}
+            />
           )}
         </>
       )}

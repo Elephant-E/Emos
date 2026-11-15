@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
-import { UserCell } from '@/components/UserCell'
+import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -261,28 +261,15 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
               {totalVotes === 0 ? (
                 <EmptyBlock title="还没有人投票" />
               ) : (
-                <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: 64 }} className="num">#</th>
-                        <th className="th-thumb" style={{ width: '32%' }}>用户</th>
-                        <th>选了</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {voters.map((row) => (
-                        <tr key={`${row.user_id}-${row.index}`}>
-                          <td className="num muted tnum">{row.index}</td>
-                          <td>
-                            <UserCell name={row.username} avatar={row.avatar} />
-                          </td>
-                          <td className="muted">{result.data?.options[Number(row.option_index)] ?? '—'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <RecordRow
+                  rows={voters}
+                  idKey={(row) => `${row.user_id}-${row.index}`}
+                  posterShape="square"
+                  poster={(row) => row.avatar}
+                  title={(row) => row.username}
+                  meta={(row) => <span>#{row.index}</span>}
+                  facts={(row) => <span>选了 {result.data?.options[Number(row.option_index)] ?? '—'}</span>}
+                />
               )}
             </>
           )}
