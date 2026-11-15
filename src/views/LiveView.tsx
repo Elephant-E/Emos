@@ -123,43 +123,44 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
-              <ul style={{ display: 'grid', gap: 'var(--sp-hair)', marginTop: 'var(--stack)' }}>
-                {media.data.items.map((row) => (
-                  <li key={row.media_id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', padding: 'var(--sp-2) var(--sp-hair)', borderBottom: '1px solid var(--line-soft)' }}>
-                    <span style={{ color: 'var(--fg-2)', minWidth: 140 }}>{row.name}</span>
-                    <span className="meta-sm">{PATH_TYPE_LABEL[row.path_type] ?? row.path_type}</span>
-                    <span className="meta-sm ellipsis" style={{ flex: 1, minWidth: 0 }}>
-                      {row.path_url}
-                    </span>
-                    <span className="meta-sm">
-                      {row.pseudonym ?? '—'}
-                    </span>
+              <RecordRow
+                rows={media.data.items}
+                idKey={(row) => row.media_id}
+                title={(row) => row.name}
+                meta={(row) => (
+                  <>
+                    <span>{PATH_TYPE_LABEL[row.path_type] ?? row.path_type}</span>
                     <span className={`badge ${row.status === 'normal' ? 'badge--ok' : 'badge--warn'}`}>
                       <i />
                       {row.status === 'normal' ? '正常' : row.status === 'error' ? '异常' : String(row.status ?? '—')}
                     </span>
-                    {row.is_can_edit ? (
-                      <button type="button"
-                        className="btn btn--danger-text"
-                        disabled={actions.removeMedia.isPending}
-                        onClick={async () => {
-                          const ok = await confirmDialog({
-                            title: '删除这个源？',
-                            message: `「${row.name}」会从频道移除。`,
-                            hint: '若这是最后一个源，频道将无内容可播。',
-                            confirmText: '删除',
-                            danger: true,
-                          })
-                          if (!ok) return
-                          actions.removeMedia.mutate(row.media_id, { onSuccess: () => toast('已删除', 'success') })
-                        }}
-                      >
-                        删除
-                      </button>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+                    <span>{row.pseudonym ?? '未知上传者'}</span>
+                  </>
+                )}
+                facts={(row) => <span className="ellipsis">{row.path_url}</span>}
+                actions={(row) =>
+                  row.is_can_edit ? (
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      disabled={actions.removeMedia.isPending}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: '删除这个源？',
+                          message: `「${row.name}」会从频道移除。`,
+                          hint: '若这是最后一个源，频道将无内容可播。',
+                          confirmText: '删除',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.removeMedia.mutate(row.media_id, { onSuccess: () => toast('已删除', 'success') })
+                      }}
+                    >
+                      删除
+                    </button>
+                  ) : null
+                }
+              />
             ) : null}
           </article>
     </div>
