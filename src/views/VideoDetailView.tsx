@@ -2,11 +2,12 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
 import { VideoCasts } from '@/components/video/VideoCasts'
+import { MediaEditModal } from '@/components/video/MediaEditModal'
+import { SubtitleEditModal } from '@/components/video/SubtitleEditModal'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { ModalFooter } from '@/components/ModalFooter'
 import { IconDots } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
@@ -462,72 +463,44 @@ export function VideoDetailView({
       {video && (persons.data?.items.length ?? 0) > 0 ? <VideoCasts persons={persons.data?.items ?? []} /> : null}
 
       {renaming ? (
-        <Modal
-          title="编辑资源"
+        <MediaEditModal
+          media={renaming}
+          pending={actions.renameMedia.isPending}
           onClose={() => setRenaming(null)}
-          footer={
-            <ModalFooter
-              onCancel={() => setRenaming(null)}
-              onConfirm={() =>
-                                  actions.renameMedia.mutate(renaming, {
-                                    onSuccess: () => {
-                                      toast('已重命名', 'success')
-                                      setRenaming(null)
-                                    },
-                                  })}
-              confirmText="保存"
-            />
+          onRename={(next) =>
+            actions.renameMedia.mutate(next, {
+              onSuccess: () => {
+                toast('已重命名', 'success')
+                setRenaming(null)
+              },
+            })
           }
-        >
-          <label className="field">
-            <span>资源名</span>
-            <input className="input" value={renaming.name} onChange={(e) => setRenaming({ ...renaming, name: e.target.value })} autoFocus />
-          </label>
-          <div className="pick-tabs">
-            <button type="button"
-              className="btn btn--ghost"
-              onClick={() =>
-                actions.syncMetadata.mutate(renaming.mediaId, { onSuccess: () => toast('已同步元数据', 'success') })
-              }
-            >
-              同步元数据
-            </button>
-            <button type="button"
-              className="btn btn--ghost"
-              onClick={() => {
-                setMoveSeason(season)
-                setMoving({ mediaId: renaming.mediaId, name: renaming.name })
-                // 不关「编辑资源」：移动弹窗关掉后要能回到它
-              }}
-            >
-              移到其他位置
-            </button>
-            <button type="button"
-              className="btn btn--danger"
-              style={{ marginLeft: 'auto' }}
-              onClick={async () => {
-                const reason = await confirmDelete({
-                  title: '删除这个资源？',
-                  message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
-                  isSelf: renaming.isSelf,
-                  owner: renaming.owner,
-                })
-                if (reason === null) return
-                actions.removeMedia.mutate(
-                  { mediaId: renaming.mediaId, reason },
-                  {
-                    onSuccess: (res) => {
-                      toast(`已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`, 'success')
-                      setRenaming(null)
-                    },
-                  },
-                )
-              }}
-            >
-              删除
-            </button>
-          </div>
-        </Modal>
+          onSyncMetadata={() =>
+            actions.syncMetadata.mutate(renaming.mediaId, { onSuccess: () => toast('已同步元数据', 'success') })
+          }
+          onMove={(current) => {
+            setMoveSeason(season)
+            setMoving({ mediaId: current.mediaId, name: current.name })
+          }}
+          onDelete={async () => {
+            const reason = await confirmDelete({
+              title: '删除这个资源？',
+              message: '删除后播放端立刻不可用，会扣除相应胡萝卜，可到回收站恢复。',
+              isSelf: renaming.isSelf,
+              owner: renaming.owner,
+            })
+            if (reason === null) return
+            actions.removeMedia.mutate(
+              { mediaId: renaming.mediaId, reason },
+              {
+                onSuccess: (res) => {
+                  toast(`已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`, 'success')
+                  setRenaming(null)
+                },
+              },
+            )
+          }}
+        />
       ) : null}
 
       {moving ? (
@@ -672,48 +645,37 @@ export function VideoDetailView({
       ) : null}
 
       {renamingSub ? (
-        <Modal
-          title="编辑字幕"
+        <SubtitleEditModal
+          subtitle={renamingSub}
           onClose={() => setRenamingSub(null)}
-          footer={
-            <ModalFooter
-              onCancel={() => setRenamingSub(null)}
-              onConfirm={() =>
-                                  actions.renameSubtitle.mutate(renamingSub, {
-                                    onSuccess: () => {
-                                      toast('已重命名', 'success')
-                                      setRenamingSub(null)
-                                    },
-                                  })}
-              confirmText="保存"
-            />
+          onSave={(next) =>
+            actions.renameSubtitle.mutate(next, {
+              onSuccess: () => {
+                toast('已重命名', 'success')
+                setRenamingSub(null)
+              },
+            })
           }
-        >
-          <label className="field">
-            <span>字幕标题</span>
-            <input className="input" value={renamingSub.title} onChange={(e) => setRenamingSub({ ...renamingSub, title: e.target.value })} autoFocus />
-          </label>
-          <button type="button"
-            className="btn btn--ghost"
-            onClick={async () => {
-              const reason = await confirmDelete({
-                title: '删除这条字幕？',
-                message: '观看端将不再显示它，会扣除 1 个胡萝卜，可重新上传。',
-                isSelf: renamingSub.isSelf,
-                owner: renamingSub.owner,
-              })
-              if (reason === null) return
-              actions.removeSubtitle.mutate({ subtitleId: renamingSub.id, reason }, {
+          onDelete={async () => {
+            const reason = await confirmDelete({
+              title: '删除这条字幕？',
+              message: '观看端将不再显示它，会扣除 1 个胡萝卜，可重新上传。',
+              isSelf: renamingSub.isSelf,
+              owner: renamingSub.owner,
+            })
+            if (reason === null) return
+            actions.removeSubtitle.mutate(
+              { subtitleId: renamingSub.id, reason },
+              {
                 onSuccess: () => {
                   toast('已删除字幕', 'success')
                   setRenamingSub(null)
                 },
-              })
-            }}
-          >
-            删除字幕
-          </button>
-        </Modal>
+              },
+            )
+          }}
+          pending={actions.renameSubtitle.isPending}
+        />
       ) : null}
     </>
   )
