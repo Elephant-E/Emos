@@ -624,9 +624,10 @@ input.input[type='number'] { min-width: 0; }
   .shell { grid-template-columns: var(--rail-w-compact) minmax(0, 1fr); }
   .page { padding: var(--sp-5) var(--pad-card) var(--sp-page); }
 
-  /* 这个宽度起内容区就装不下表格了：换成横向滚动，
-     否则表格只会被裁掉右侧几列 */
-  .table { min-width: 820px; }
+  /* 列表表格（在 .table-card 里）到这个宽度就装不下：给最小宽让它横向滚动，
+     否则只会被裁掉右侧几列。卡片内的 .table--inset 不在此列——
+     给它 820px 会把整张卡片撑出屏幕（手机详情页就是这么被裁的）。 */
+  .table-card .table { min-width: 820px; }
 }
 @media (max-width: 900px) {
   .shell { grid-template-columns: var(--rail-w-icon) minmax(0, 1fr); }
@@ -2272,6 +2273,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-2);
 }
 .record-card__row--block { justify-content: flex-start; }
+.record-card__row--block.is-end { justify-content: flex-end; }
 .record-card__label {
   font-size: var(--text-xs);
   color: var(--fg-4);

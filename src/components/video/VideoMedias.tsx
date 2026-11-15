@@ -1,4 +1,5 @@
 import { CardHead } from '@/components/CardHead'
+import { RecordList } from '@/components/RecordList'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
 import { formatSize } from '@/lib/format'
@@ -46,51 +47,65 @@ export function VideoMedias({
       ) : null}
 
       {rows.length > 0 ? (
-        <table className="table table--inset">
-          <thead>
-            <tr>
-              <th>资源名</th>
-              <th className="num" style={{ width: 92 }}>大小</th>
-              <th style={{ width: 96 }}>上传者</th>
-              <th style={{ width: 48 }} />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const mediaId = String(row.media_id ?? '')
-              return (
-                <tr key={mediaId}>
-                  <td>
-                    <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
-                  </td>
-                  <td className="num muted">
-                    {formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}
-                  </td>
-                  <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                  <td>
-                    {row.is_self_upload || canEdit ? (
-                      <button
-                        type="button"
-                        className="row-menu"
-                        aria-label="编辑资源"
-                        onClick={() =>
-                          onEdit({
-                            mediaId,
-                            name: String(row.media_name ?? ''),
-                            isSelf: Boolean(row.is_self_upload),
-                            owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
-                          })
-                        }
-                      >
-                        <IconDots />
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <RecordList
+          rows={rows}
+          idKey={(row) => String(row.media_id ?? '')}
+          className="table table--inset"
+          columns={[
+            {
+              key: 'name',
+              label: '资源名',
+              mobile: 'primary',
+              render: (row) => <span className="cell-title__name">{String(row.media_name ?? '—')}</span>,
+            },
+            {
+              key: 'size',
+              label: '大小',
+              mobileLabel: null,
+              thClass: 'num',
+              thWidth: 92,
+              mobile: 'inline',
+              render: (row) => (
+                <span className="muted">
+                  {formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}
+                </span>
+              ),
+            },
+            {
+              key: 'owner',
+              label: '上传者',
+              mobileLabel: null,
+              thWidth: 96,
+              mobile: 'inline',
+              render: (row) => <span className="muted">{String(row.user_pseudonym ?? '—')}</span>,
+            },
+            {
+              key: 'actions',
+              label: '',
+              thWidth: 48,
+              mobile: 'block',
+              mobileAlign: 'end',
+              render: (row) =>
+                row.is_self_upload || canEdit ? (
+                  <button
+                    type="button"
+                    className="row-menu"
+                    aria-label="编辑资源"
+                    onClick={() =>
+                      onEdit({
+                        mediaId: String(row.media_id ?? ''),
+                        name: String(row.media_name ?? ''),
+                        isSelf: Boolean(row.is_self_upload),
+                        owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
+                      })
+                    }
+                  >
+                    <IconDots />
+                  </button>
+                ) : null,
+            },
+          ]}
+        />
       ) : null}
     </article>
   )

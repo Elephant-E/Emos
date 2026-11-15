@@ -1,4 +1,5 @@
 import { CardHead } from '@/components/CardHead'
+import { RecordList } from '@/components/RecordList'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
 import { formatDateTime } from '@/lib/format'
@@ -62,50 +63,67 @@ export function VideoSubtitles({
       {!error && !loading && rows.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
 
       {rows.length > 0 ? (
-        <table className="table table--inset">
-          <thead>
-            <tr>
-              <th>字幕</th>
-              <th style={{ width: 70 }}>格式</th>
-              <th style={{ width: 96 }}>上传者</th>
-              <th style={{ width: 48 }} />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const id = String(row.subtitle_id)
-              return (
-                <tr key={id}>
-                  <td>
+        <RecordList
+          rows={rows}
+          idKey={(row) => String(row.subtitle_id)}
+          className="table table--inset"
+          columns={[
+            {
+              key: 'title',
+              label: '字幕',
+              mobile: 'primary',
+              render: (row) => (
+                <span className="cell-title">
+                  <span>
                     <span className="cell-title__name">{String(row.subtitle_title)}</span>
                     <span className="cell-title__code">{formatDateTime(String(row.created_at ?? ''))}</span>
-                  </td>
-                  <td className="muted">{String(row.subtitle_codec ?? '—')}</td>
-                  <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                  <td>
-                    {row.is_self_upload || canEdit ? (
-                      <button
-                        type="button"
-                        className="row-menu"
-                        aria-label="编辑字幕"
-                        onClick={() =>
-                          onEdit({
-                            id,
-                            title: String(row.subtitle_title),
-                            isSelf: Boolean(row.is_self_upload),
-                            owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
-                          })
-                        }
-                      >
-                        <IconDots />
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                  </span>
+                </span>
+              ),
+            },
+            {
+              key: 'codec',
+              label: '格式',
+              mobileLabel: null,
+              thWidth: 70,
+              mobile: 'inline',
+              render: (row) => <span className="muted">{String(row.subtitle_codec ?? '—')}</span>,
+            },
+            {
+              key: 'owner',
+              label: '上传者',
+              mobileLabel: null,
+              thWidth: 96,
+              mobile: 'inline',
+              render: (row) => <span className="muted">{String(row.user_pseudonym ?? '—')}</span>,
+            },
+            {
+              key: 'actions',
+              label: '',
+              thWidth: 48,
+              mobile: 'block',
+              mobileAlign: 'end',
+              render: (row) =>
+                row.is_self_upload || canEdit ? (
+                  <button
+                    type="button"
+                    className="row-menu"
+                    aria-label="编辑字幕"
+                    onClick={() =>
+                      onEdit({
+                        id: String(row.subtitle_id),
+                        title: String(row.subtitle_title),
+                        isSelf: Boolean(row.is_self_upload),
+                        owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
+                      })
+                    }
+                  >
+                    <IconDots />
+                  </button>
+                ) : null,
+            },
+          ]}
+        />
       ) : null}
     </article>
   )
