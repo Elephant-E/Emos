@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * 手机端的「滚动加载」：把分页接口当成无限列表用。
  *
  * 站内列表都是 `useQuery({ page })` 的分页模型，URL 里也有 page。
- * 手机上不需要页码控件，只要往下滑就能续上一页，所以这里在客户端把已加载的页面累加：
+ * 全站不再有页码控件，往下滑就续一页，所以这里在客户端把已加载的页面累加：
  *
  * - 首屏只取第 1 页
  * - `loadMore()` 取下一页并追加，直到 `total` 取完
  * - 返回 `hasMore`，由调用方在列表底部放一个哨兵触发
  *
- * 桌面端仍走分页（URL 里的 page 不变），两套入口共用同一个 fetch 函数。
+ * 桌面端也走滚动加载（URL 里的 page 不变），两套入口共用同一个 fetch 函数。
  */
 export function usePagedInfinite<T>(
   fetchPage: (page: number) => Promise<{ items: T[]; total: number; page_size: number }>,

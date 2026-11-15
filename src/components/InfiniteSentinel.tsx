@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 /**
  * 列表底部的哨兵：进入视口就触发下一次加载。
- * 只在手机端渲染（桌面仍用分页器），`root` 用页面滚动容器。
+ * 只在手机端渲染（桌面与手机都用滚动加载），`root` 用页面滚动容器。
  */
 export function InfiniteSentinel({
   onLoadMore,

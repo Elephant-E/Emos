@@ -5,18 +5,18 @@ import { useMediaQuery } from '@/lib/useMediaQuery'
 import { InfiniteSentinel } from './InfiniteSentinel'
 
 /**
- * 列表页的「卡片 + 四态 + 分页器」外壳。
+ * 列表页的「四态 + 容器」外壳。
  *
- * 站内原来每个列表页各写一遍：`error ? ErrorBlock : isLoading ? LoadingBlock :
- * items.length === 0 ? EmptyBlock : <ListCard>…</ListCard>`，共 15 处。
- * 手写版经常漏两种情形——页码越界被说成「本来就没有」、分页器在空态里消失。
- * 这里一次说清：
+ * 站内每个列表页原本各写一遍 `error ? ErrorBlock : isLoading ? LoadingBlock :
+ * items.length === 0 ? EmptyBlock : …`，经常漏掉某种情形。这里一次说清：
  *
  * - 出错 → 错误块（带重试）
- * - 加载 → 骨架
- * - 空且 `total > 0` → 页码越界（回第一页），并保留分页器
- * - 空且 `total === 0` → 真正的空态（标题/动作由调用方给）
- * - 有数据 → 卡片 + 表格 + 分页器
+ * - 加载 → 与真实内容同形的骨架（行卡片 / 网格 / 表格）
+ * - 空 → 空态（标题与动作由调用方给）
+ * - 有数据 → 内容 + 触底哨兵（滚动加载；分页器已全站移除）
+ *
+ * 容器由三个开关决定：`bare`（内容自带网格，不套任何壳）、`cardList`（手机端卡片列表）、
+ * 默认则套一层 `.table-card`。
  */
 export function ListSection<T>({
   isLoading,
@@ -33,7 +33,7 @@ export function ListSection<T>({
   loadingKind,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
-  /** 手机端改为滚动加载：传了它就不再渲染分页器，滑到底部触发 onLoadMore */
+  /** 滚动加载：滑到底部触发 onLoadMore（不传就只渲染当前这批） */
   infinite,
   /** 内容自带网格（RecordGrid）时连外层容器也不要：直接渲染，只留状态块与哨兵 */
   bare = false,
@@ -86,7 +86,7 @@ export function ListSection<T>({
   }
 
   // 手机端的卡片列表已经有自己的边框，外面再套 .table-card 就成了一层套一层；
-  // 同时手机不需要页码控件——滑到底部自动续下一页
+  // 卡片列表自带边框，外面不要再套一层;也无需页码控件——滑到底部自动续页
   if (cardList && compact) {
     return (
       <div className="record-section">
@@ -98,7 +98,7 @@ export function ListSection<T>({
     )
   }
 
-  // 兜底分支（表格/列表卡）：桌面也必须有哨兵，否则分页器删掉后只能看到第一页
+  // 兜底分支（列表卡）：桌面同样要有哨兵，否则只能看到第一批
   return (
     <ListCard scope={scope}>
       {children}

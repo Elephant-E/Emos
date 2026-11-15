@@ -150,9 +150,3 @@ export function ClearSearchButton({ onClick }: { onClick: () => void }) {
     </button>
   )
 }
-
-/**
- * 页码越界：列表为空但页码 > 1。
- * 与「本来就没有内容」区分开，并给一个回第一页的出口——
- * 否则用户被困在当前页，只能手改 URL。
- */
