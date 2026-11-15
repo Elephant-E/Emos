@@ -2503,7 +2503,15 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 
 /* ── 信息量大的列表：一行一条（RecordRow）────────────────────── */
-.record-rows { display: grid; gap: var(--stack); }
+.record-rows {
+  display: grid;
+  gap: var(--gap-card);
+  grid-template-columns: minmax(0, 1fr);
+}
+/* 信息行卡片比图片网格宽，但也没必要一张占满整屏：宽屏两列 */
+@media (min-width: 1100px) {
+  .record-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .record-row {
   display: grid;
   grid-template-columns: 96px minmax(0, 1fr);
@@ -2587,9 +2595,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-row__actions--full > * { width: 100%; }
 /* 宽屏上三个等分按钮别拉到整行：给一个上限，靠左对齐信息 */
-@media (min-width: 900px) {
-  .record-row__actions--full { max-width: 360px; }
-}
+
 /* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
 @media (min-width: 900px) {
   .record-row { align-items: start; }

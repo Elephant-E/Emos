@@ -165,7 +165,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         items={items}
         total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        cardList
+        bare
         idKey={(v) => v.id}
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={5}
