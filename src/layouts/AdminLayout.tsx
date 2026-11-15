@@ -8,6 +8,8 @@ import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
 import { PromptHost } from '@/ui/prompt'
 import { NavContext } from '@/ui/nav'
+import * as Collapsible from '@radix-ui/react-collapsible'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export function AdminLayout() {
   const { data } = useSession()
@@ -15,6 +17,8 @@ export function AdminLayout() {
   const pageRef = useRef<HTMLElement>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  /** 桌面端侧栏常显，手机端才交给 Collapsible 做展开动画 */
+  const isCompact = useMediaQuery('(max-width: 600px)')
 
   // ⌘K / Ctrl+K 在任意页面打开搜索面板，与侧栏的键帽提示一致
   useEffect(() => {
@@ -35,16 +39,22 @@ export function AdminLayout() {
 
   return (
     <NavContext.Provider value={() => setNavOpen(true)}>
-      <MobileTopbar user={data} onOpenNav={() => setNavOpen(true)} />
-      <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
-        <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} open={navOpen} onClose={() => setNavOpen(false)} />
-        {navOpen ? <button type="button" className="shell__scrim" aria-label="关闭导航" onClick={() => setNavOpen(false)} /> : null}
-        <main className="page" ref={pageRef}>
-          <div className="page-body" key={pathname}>
-            <Outlet />
-          </div>
-        </main>
-      </div>
+      <Collapsible.Root open={navOpen} onOpenChange={setNavOpen} asChild>
+        <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
+          <MobileTopbar user={data} />
+          <Collapsible.Content asChild forceMount={isCompact ? undefined : true}>
+            <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} open={navOpen} onClose={() => setNavOpen(false)} />
+          </Collapsible.Content>
+          {navOpen ? (
+            <button type="button" className="shell__scrim" aria-label="关闭导航" onClick={() => setNavOpen(false)} />
+          ) : null}
+          <main className="page" ref={pageRef}>
+            <div className="page-body" key={pathname}>
+              <Outlet />
+            </div>
+          </main>
+        </div>
+      </Collapsible.Root>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <ToastHost />
       <ConfirmHost />

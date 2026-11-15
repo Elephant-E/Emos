@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { forwardRef, useEffect, useRef, useState, type HTMLAttributes } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { rememberAccount } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
@@ -77,18 +77,21 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   },
 ]
 
-export function Sidebar({
-  user,
-  onOpenSearch,
-  open = false,
-  onClose,
-}: {
-  user?: UserInfo
-  onOpenSearch: () => void
-  /** 手机端抽屉是否展开（桌面端忽略） */
-  open?: boolean
-  onClose?: () => void
-}) {
+/**
+ * 侧栏。桌面端是常驻导航栏；手机端作为 Radix Collapsible 的内容，
+ * 展开高度由 Radix 写入的 --radix-collapsible-content-height 驱动，
+ * 因此这里必须把外部传入的 props / ref 透传到 <aside>（asChild 依赖这一点）。
+ */
+export const Sidebar = forwardRef<
+  HTMLElement,
+  {
+    user?: UserInfo
+    onOpenSearch: () => void
+    /** 手机端面板是否展开（桌面端忽略） */
+    open?: boolean
+    onClose?: () => void
+  } & HTMLAttributes<HTMLElement>
+>(function Sidebar({ user, onOpenSearch, open = false, onClose, ...rest }, ref) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [menuOpen, setMenuOpen] = useState(false)
   const footRef = useRef<HTMLDivElement | null>(null)
@@ -124,7 +127,7 @@ export function Sidebar({
   }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
-    <aside className={open ? 'rail is-open' : 'rail'}>
+    <aside ref={ref} {...rest} className={`rail${open ? ' is-open' : ''}${rest.className ? ` ${rest.className}` : ''}`}>
       <div className="rail__brand">
         <div className="rail__brand-name">
           <IconLogo />
@@ -213,4 +216,4 @@ export function Sidebar({
       </div>
     </aside>
   )
-}
+})

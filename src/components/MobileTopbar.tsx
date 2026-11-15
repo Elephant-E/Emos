@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import * as Collapsible from '@radix-ui/react-collapsible'
 import { IconMenu } from './icons'
 import { Avatar } from './Avatar'
 import { AccountMenu } from './AccountMenu'
@@ -11,10 +12,8 @@ import type { UserInfo } from '@/api/types'
  */
 export function MobileTopbar({
   user,
-  onOpenNav,
 }: {
   user?: UserInfo | undefined
-  onOpenNav: () => void
 }) {
   const [accountsOpen, setAccountsOpen] = useState(false)
   const name = user?.pseudonym || user?.username || '未登录'
@@ -22,9 +21,11 @@ export function MobileTopbar({
   return (
     <>
       <header className="topbar">
-        <button type="button" className="topbar__btn" onClick={onOpenNav} aria-label="打开导航">
-          <IconMenu />
-        </button>
+        <Collapsible.Trigger asChild>
+          <button type="button" className="topbar__btn" aria-label="导航">
+            <IconMenu />
+          </button>
+        </Collapsible.Trigger>
         <span className="topbar__brand">
           EMOS<em>Club</em>
         </span>

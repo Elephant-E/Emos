@@ -2125,27 +2125,24 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
    导航收成抽屉：内容区拿到完整宽度；汉堡在页头左侧，点遮罩或选完入口自动收起 */
 @media (max-width: 600px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
-  /* 展开的是顶栏本身：面板整宽从顶栏下沿展开，不是侧边抽屉 */
+  /* 展开的是顶栏本身：整宽面板从顶栏下沿拉开。
+     高度由 Radix Collapsible 提供的 --radix-collapsible-content-height 驱动，动画就是真实展开 */
   .rail {
     position: fixed;
     inset: 52px 0 auto;
     width: auto;
-    max-height: calc(100vh - 52px);
     z-index: calc(var(--z-modal) - 1);
     background: var(--panel);
     border-right: 0;
     border-bottom: 1px solid var(--line);
     overflow-y: auto;
+    overscroll-behavior: contain;
     padding: var(--sp-3) var(--sp-4) var(--sp-4);
-    opacity: 0;
-    transform: translateY(-6px);
-    pointer-events: none;
-    transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
   }
-  .rail.is-open {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
+  /* 展开动画用 Radix 官方写法：高度取它写入的 --radix-collapsible-content-height */
+  .rail[data-state='open'] {
+    overflow-y: auto;
+    animation: nav-expand 240ms var(--ease);
   }
   .shell__scrim {
     position: fixed;
@@ -2209,4 +2206,10 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail { top: 52px; }
   .page { padding: var(--sp-4) var(--sp-4) var(--sp-7); }
   .page-title { font-size: 26px; }
+}
+
+/* 顶栏面板展开：0 → 实际内容高度（Radix Collapsible 提供变量） */
+@keyframes nav-expand {
+  from { height: 0; opacity: 0.5; }
+  to { height: var(--radix-collapsible-content-height); opacity: 1; }
 }
