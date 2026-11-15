@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -137,6 +138,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
         loadingRows={6}
         loadingCols={5}
+        cardList
         outOfRange={!filtered && search.page > 1}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
         emptyAction={
@@ -147,76 +149,120 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           ) : undefined
         }
       >
-          <table className="table table--auto table--dense">
-            <thead>
-              <tr>
-                <th className="th-thumb">订单</th>
-                <th className="num">单价 × 数量</th>
-                {/* price_settle 只有店铺侧接口返回，买家视角没有这一列 */}
-                {mineScope ? null : (
-                  <th className="num" title="平台结算给店铺的胡萝卜">
-                    结算
-                  </th>
-                )}
-                <th>支付</th>
-                <th>发货</th>
-                <th className="num">下单时间</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleOrders.map((order) => {
-                const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
-                const sent = Boolean(order.time_delivery)
-                return (
-                  <tr key={order.order_no}>
-                    <td>
-                      <div className="cell-title">
-                        <Poster src={order.order_cover_url} name={order.order_title} shape="square" />
-                        <span>
-              <span className="cell-title__name">{order.order_title}</span>
-              <span className="cell-title__code">
-              {order.order_no}
-              {order.user?.user_id ? (
-              <>
-              {' · '}
-              <Link
-              to="/users/$userId"
-              params={{ userId: order.user.user_id }}
-              onClick={(e) => e.stopPropagation()}
-              style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
-              >
-              {order.user.username ?? order.user.user_id}
-              </Link>
-              </>
-              ) : order.user?.username ? (
-              ` · ${order.user.username}`
-              ) : null}
-              {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
-              </span>
+                    <RecordList
+            rows={visibleOrders}
+            idKey={(order) => order.order_no}
+            className="table table--auto table--dense"
+            columns={[
+              {
+                key: 'order',
+                label: '订单',
+                thClass: 'th-thumb',
+                mobile: 'primary',
+                render: (order) => (
+                  <div className="cell-title">
+                    <Poster src={order.order_cover_url} name={order.order_title} shape="square" />
+                    <span>
+                      <span className="cell-title__name">{order.order_title}</span>
+                      <span className="cell-title__code">
+                        {order.order_no}
+                        {order.user?.user_id ? (
+                          <>
+                            {' · '}
+                            <Link
+                              to="/users/$userId"
+                              params={{ userId: order.user.user_id }}
+                              style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
+                            >
+                              {order.user.username ?? order.user.user_id}
+                            </Link>
+                          </>
+                        ) : order.user?.username ? (
+                          ` · ${order.user.username}`
+                        ) : null}
+                        {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
+                      </span>
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                key: 'price',
+                label: '单价 × 数量',
+                thClass: 'num',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (order) => (
+                  <span className="tnum">
+                    {order.price_order} × {order.buy_number ?? 1}
+                  </span>
+                ),
+              },
+              ...(mineScope
+                ? []
+                : [
+                    {
+                      key: 'settle',
+                      label: '结算',
+                      thClass: 'num',
+                      mobile: 'hidden' as const,
+                      render: (order: (typeof visibleOrders)[number]) => (
+                        <span className="tnum muted">
+                          {order.price_settle == null ? '—' : order.price_settle}
                         </span>
-                      </div>
-                    </td>
-                    <td className="num tnum">{order.price_order} × {order.buy_number ?? 1}</td>
-                    {mineScope ? null : (
-                      <td className="num tnum muted">{order.price_settle == null ? '—' : order.price_settle}</td>
-                    )}
-                    <td>
-                      <span className={`badge ${paid ? 'badge--ok' : 'badge--wait'}`}>
-                        <i />
-                        {paid ? '已支付' : '待支付'}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={`badge ${sent ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'}`}>
-                        <i />
-                        {sent ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
-                      </span>
-                    </td>
-                    <td className="num muted">{formatDateTime(order.created_at)}</td>
-                    <td>
-                      <span className="action-group">
-                        {mineScope && !paid ? (
+                      ),
+                    },
+                  ]),
+              {
+                key: 'paid',
+                label: '支付',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (order) => {
+                  const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+                  return (
+                    <span className={`badge ${paid ? 'badge--ok' : 'badge--wait'}`}>
+                      <i />
+                      {paid ? '已支付' : '待支付'}
+                    </span>
+                  )
+                },
+              },
+              {
+                key: 'delivered',
+                label: '发货',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (order) => {
+                  const sent = Boolean(order.time_delivery)
+                  return (
+                    <span
+                      className={`badge ${sent ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'}`}
+                    >
+                      <i />
+                      {sent ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
+                    </span>
+                  )
+                },
+              },
+              {
+                key: 'created',
+                label: '下单时间',
+                thClass: 'num',
+                mobile: 'hidden',
+                render: (order) => <span className="muted">{formatDateTime(order.created_at)}</span>,
+              },
+              {
+                key: 'actions',
+                label: '操作',
+                mobile: 'block',
+                mobileAlign: 'end',
+                render: (order) => {
+                  const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+                  const sent = Boolean(order.time_delivery)
+                  return (
+                    <span className="action-group">
+                      {mineScope && !paid ? (
               <button type="button"
               className="btn btn--primary"
               disabled={actions.payOrder.isPending}
@@ -236,8 +282,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               >
               付款
               </button>
-                        ) : null}
-                        {!mineScope && !sent && paid ? (
+                      ) : null}
+                      {!mineScope && !sent && paid ? (
               <button type="button"
               className="btn btn--quiet"
               onClick={() =>
@@ -249,8 +295,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               >
               发货
               </button>
-                        ) : null}
-                        {!mineScope && sent ? (
+                      ) : null}
+                      {!mineScope && sent ? (
               <button type="button"
               className="btn btn--quiet"
               onClick={() =>
@@ -262,8 +308,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               >
               撤销发货
               </button>
-                        ) : null}
-                        {mineScope && paid && !sent ? (
+                      ) : null}
+                      {mineScope && paid && !sent ? (
               <button type="button"
               className="btn btn--quiet"
               onClick={() =>
@@ -274,8 +320,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               >
               催发货
               </button>
-                        ) : null}
-                        {mineScope && !paid ? (
+                      ) : null}
+                      {mineScope && !paid ? (
               <button type="button"
               className="btn btn--quiet"
               onClick={async () => {
@@ -291,13 +337,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               >
               关闭
               </button>
-                        ) : null}
-                        {!mineScope ? (
+                      ) : null}
+                      {!mineScope ? (
               <button type="button" className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
               备注
               </button>
-                        ) : null}
-                        <button type="button"
+                      ) : null}
+                      <button type="button"
               className="btn btn--danger-text"
               onClick={async () => {
               const ok = await confirmDialog({
@@ -310,16 +356,15 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               if (!ok) return
               remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
               }}
-                        >
+                      >
               删除
-                        </button>
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      </button>
+                    </span>
+                  )
+                },
+              },
+            ]}
+          />
       </ListSection>
 
       {remarking ? (
