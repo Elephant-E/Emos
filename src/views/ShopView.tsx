@@ -51,7 +51,6 @@ export function ShopView({
   onSearch,
 }: {
   tab: Tab
-  page: number
   pageSize: number
   categoryId: number
   q: string

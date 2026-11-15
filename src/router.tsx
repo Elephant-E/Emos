@@ -181,7 +181,6 @@ function ShopRoute() {
   return (
     <ShopView
       tab={search.tab}
-      page={search.page}
       pageSize={search.page_size}
       categoryId={search.category}
       q={search.q}
@@ -251,7 +250,6 @@ const recycleRoute = createRoute({
   path: '/recycle',
   validateSearch: (s: Record<string, unknown>): RecycleSearch => ({
     tab: s.tab === 'video' ? 'video' : 'media',
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
     by: s.by === 'user_id' ? ('user_id' as const) : ('media_id' as const),
@@ -265,14 +263,11 @@ function RecycleRoute() {
   return (
     <RecycleView
       tab={search.tab}
-      page={search.page}
       pageSize={search.page_size}
       q={search.q}
       by={search.by}
-      onQuery={(q, by) => navigate({ search: { ...search, q, by, page: 1 } })}
-      onTab={(tab) => navigate({ search: { tab, page: 1, page_size: search.page_size, q: '', by: 'media_id' } })}
-      onPage={(page) => navigate({ search: { ...search, page } })}
-      onPageSize={(page_size) => navigate({ search: { ...search, page_size, page: 1 } })}
+      onQuery={(q, by) => navigate({ search: { ...search, q, by } })}
+      onTab={(tab) => navigate({ search: { tab, page_size: search.page_size, q: '', by: 'media_id' } })}
     />
   )
 }
@@ -335,8 +330,6 @@ function FundRoute() {
       onTab={(tab) => navigate({ search: { ...search, tab } })}
       page={search.page}
       pageSize={search.page_size}
-      onPage={(page) => navigate({ search: { ...search, page } })}
-      onPageSize={(page_size) => navigate({ search: { ...search, page_size, page: 1 } })}
     />
   )
 }

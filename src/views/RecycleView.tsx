@@ -17,7 +17,6 @@ type Tab = 'media' | 'video'
 
 export interface RecycleSearch {
   tab: 'media' | 'video'
-  page: number
   page_size: number
   q: string
   by: 'media_id' | 'user_id'
@@ -28,13 +27,10 @@ const RECYCLE_TABS = [
   { key: 'video', label: '影片' },
 ] as const
 
-export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q, by, onQuery }: {
+export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
   tab: Tab
   onTab: (tab: Tab) => void
-  page: number
-  onPage: (page: number) => void
   pageSize: number
-  onPageSize: (size: number) => void
   q: string
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
@@ -156,10 +152,6 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         onRetry={() => infinite.retry()}
         items={rows}
         total={total}
-        page={page}
-        pageSize={pageSize}
-        onPage={onPage}
-        onPageSize={onPageSize}
         idKey={(r) => String(r.media_id ?? r.video_id ?? '')}
         scope={tab}
         cardList

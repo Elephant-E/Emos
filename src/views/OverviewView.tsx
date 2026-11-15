@@ -123,7 +123,7 @@ export function OverviewView() {
             <Link className="btn btn--ghost" to="/upload">
               上传
             </Link>
-            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, page_size: 20, q: '', by: 'media_id' }}>
+            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page_size: 20, q: '', by: 'media_id' }}>
               回收站
             </Link>
           </>

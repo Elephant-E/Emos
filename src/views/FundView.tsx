@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { RecordList } from '@/components/RecordList'
 import { ImagePickerMulti } from '@/components/ImagePicker'
@@ -13,9 +13,8 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
-import { qk, useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
+import { qk, useAccountMutations, useCarrot } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const FUND_TABS = [
   { key: 'orders', label: '基金订单' },
@@ -23,19 +22,16 @@ const FUND_TABS = [
   { key: 'carrot', label: '胡萝卜' },
 ] as const
 
-function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; pageSize: number; onPage: (page: number) => void; onPageSize: (size: number) => void }) {
+function CarrotSection({ pageSize }: { pageSize: number }) {
   const carrot = useCarrot()
-  const compact = useMediaQuery('(max-width: 600px)')
-  const history = useCarrotHistory(page, pageSize)
   const infinite = usePagedInfinite<Record<string, unknown>>(
     (next) => carrotApi.history({ page: next, page_size: pageSize }) as unknown as Promise<{ items: Array<Record<string, unknown>>; total: number; page_size: number }>,
-    { enabled: compact, resetKey: `${pageSize}` },
+    { resetKey: `${pageSize}` },
   )
   const actions = useAccountMutations()
   const [transferring, setTransferring] = useState(false)
   const [transferTo, setTransferTo] = useState('')
   const [transferAmount, setTransferAmount] = useState(10)
-  const rows = history.data?.items ?? []
 
   /** 转赠唯一入口：按钮与回车都走这里，先确认再扣款 */
   const submitTransfer = async () => {
@@ -82,25 +78,21 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
       </section>
 
       <ListSection
-        isLoading={history.isLoading}
-        error={history.error}
-        onRetry={() => history.refetch()}
-        items={(compact ? infinite.items : rows) as typeof rows}
-        total={compact ? infinite.total : (history.data?.total ?? 0)}
-        page={page}
-        pageSize={pageSize}
-        onPage={onPage}
-        onPageSize={onPageSize}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
+        items={infinite.items}
+        total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`}
-        scope={page}
+        scope="carrot"
         loadingRows={8}
         loadingCols={3}
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordList<Record<string, unknown>>
-            rows={(compact ? infinite.items : rows) as Array<Record<string, unknown>>}
+            rows={infinite.items}
             idKey={(row) => `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${String(row.point ?? '')}`}
             className="table"
             columns={[
@@ -177,22 +169,13 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
 
 type Row = Record<string, unknown>
 
-export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
+export function FundView({ tab, onTab, pageSize }: {
   tab: 'orders' | 'merchant' | 'carrot'
   onTab: (tab: 'orders' | 'merchant' | 'carrot') => void
   page: number
   pageSize: number
-  onPage: (page: number) => void
-  onPageSize: (size: number) => void
 }) {
   const qc = useQueryClient()
-  const orders = useQuery({
-    queryKey: ['fund', 'orders', page, pageSize] as const,
-    // 接口上限 30（传 50 直接 422），老链接里超限的值在这里夹住
-    queryFn: () => fundApi.orders({ page, page_size: Math.min(30, pageSize) }),
-    // 只在基金订单 tab 取数，切到支付服务或胡萝卜时不请求
-    enabled: tab === 'orders',
-  })
 
   const [creating, setCreating] = useState(false)
   const [code, setCode] = useState('')
@@ -248,16 +231,15 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
     },
   })
 
-  const compact = useMediaQuery('(max-width: 600px)')
   const infinite = usePagedInfinite<Row>(
     (next) =>
       fundApi
         .orders({ page: next, page_size: Math.min(30, pageSize) })
         .then((r) => ({ items: r.items as unknown as Row[], total: r.total, page_size: r.page_size })),
-    { enabled: compact && tab === 'orders', resetKey: `${pageSize}` },
+    { enabled: tab === 'orders', resetKey: `${pageSize}` },
   )
-  const rows = (compact ? infinite.items : ((orders.data?.items ?? []) as Row[]))
-  const total = compact ? infinite.total : (orders.data?.total ?? 0)
+  const rows = infinite.items
+  const total = infinite.total
 
   return (
     <>
@@ -279,25 +261,20 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
 
       <div className="content-in" key={tab}>
         {tab === 'merchant' ? <PayView embedded /> : null}
-        {tab === 'carrot' ? <CarrotSection page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} /> : null}
+        {tab === 'carrot' ? <CarrotSection pageSize={pageSize} /> : null}
       </div>
 
       {tab === 'orders' ? (
         <ListSection
-          isLoading={orders.isLoading}
-          error={orders.error}
-          onRetry={() => orders.refetch()}
+          isLoading={infinite.loading && infinite.items.length === 0}
+          error={infinite.error}
+          onRetry={() => infinite.retry()}
           items={rows}
           total={total}
-          page={page}
-          pageSize={orders.data?.page_size ?? Math.min(30, pageSize)}
-          onPage={onPage}
-          onPageSize={onPageSize}
-          sizes={[20, 30]}
           cardList
           infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
           idKey={(r) => String(r.order_no ?? r.created_at)}
-          scope={page}
+          scope="orders"
           loadingRows={8}
           loadingCols={4}
           emptyTitle="还没有基金订单"

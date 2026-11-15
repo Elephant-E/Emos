@@ -58,7 +58,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         crumb={['媒体库', search.type ? VIDEO_TYPE_LABEL[search.type] : '全部']}
         title="媒体库"
         tools={
-          <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, page_size: 20, q: '', by: 'media_id' }}>
+          <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page_size: 20, q: '', by: 'media_id' }}>
             回收站
           </Link>
         }
