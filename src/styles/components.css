@@ -763,7 +763,20 @@ input.input[type='number'] { min-width: 0; }
   margin-top: var(--gap-card);
 }
 
+/* 详情页头统一：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
+.detail-head__text { display: grid; gap: var(--sp-1); min-width: 0; }
+.detail-head__chips { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.detail-head__name {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-head__meta { margin: 0; font-size: var(--text-xs); color: var(--fg-4); }
 
 .detail-desc { color: var(--fg-3); font-size: var(--text-sm); line-height: 1.75; max-width: 74ch; }
 

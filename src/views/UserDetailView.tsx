@@ -5,6 +5,7 @@ import { RecordList } from '@/components/RecordList'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
+import { Avatar } from '@/components/Avatar'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
 import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
@@ -125,6 +126,30 @@ export function UserDetailView({ userId }: { userId: string }) {
         <p className="card-note" style={{ marginTop: 'var(--sp-1)' }}>
           当前账号没有服务商权限，看不到余额、观影权限与注册时间。<Link to="/pay" style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}>申请成为服务商</Link>后可看全。
         </p>
+      ) : null}
+
+      {/* 详情页头统一形态：左侧头像（图片）、右侧文本与状态 */}
+      {known ? (
+        <section className="detail-head">
+          <div className="detail-head__row">
+            <Avatar url={info?.avatar ?? null} name={name} size={72} />
+            <div className="detail-head__text">
+              <div className="detail-head__chips">
+                <span className={`badge ${banned ? 'badge--warn' : 'badge--ok'}`}>
+                  <i />
+                  {banned ? '已封禁' : '正常'}
+                </span>
+                {self ? <span className="chip">我自己</span> : null}
+                {info?.is_viewing ? <span className="chip">在线</span> : null}
+              </div>
+              <p className="detail-head__name">{name}</p>
+              <p className="detail-head__meta">
+                #{userId}
+                {info?.created_at ? ` · ${formatDateTime(info.created_at)} 注册` : ''}
+              </p>
+            </div>
+          </div>
+        </section>
       ) : null}
 
       {/* 无服务商权限时 pay 取不到，多数指标显示「—」；封禁状态、邀请关系来自其它接口，
