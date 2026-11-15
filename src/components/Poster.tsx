@@ -50,7 +50,7 @@ export function Poster({
         src={url}
         alt=""
         loading="lazy"
-        style={{ ...style, display: 'none' }}
+        style={{ ...style, visibility: 'hidden' }}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
       />

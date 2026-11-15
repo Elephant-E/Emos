@@ -81,6 +81,11 @@ export function RecordGrid<T>({
               : {})}
           >
             {poster ? (
+              /*
+               * 图片位始终占位（按比例），不能因为「图还没到/没有图」就收起来：
+               * 一列里有的卡有图、有的没有，标题与信息行就会一高一低，
+               * 视觉上就是「右侧的年份没对齐」。
+               */
               <div className={`record-tile__media record-tile__media--${shape}`}>
                 <Poster src={poster(row)} shape={shape} className="record-tile__poster" collapseOnEmpty />
               </div>
