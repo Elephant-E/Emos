@@ -5,7 +5,7 @@ import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -215,7 +215,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
 
       {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-      {!list.error && list.data && list.data.items.length === 0 ? <EmptyBlock title="这个媒体库还没有频道" /> : null}
+      {!list.error && list.data && list.data.items.length === 0 && search.page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+      ) : null}
+      {!list.error && list.data && list.data.items.length === 0 && search.page === 1 ? (
+        <EmptyBlock title="这个媒体库还没有频道" />
+      ) : null}
 
       {list.data && list.data.items.length > 0 ? (
         <>

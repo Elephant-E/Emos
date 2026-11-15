@@ -4,7 +4,7 @@ import { ListCard } from '@/components/ListCard'
 import { ImagePickerMulti } from '@/components/ImagePicker'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Tabs } from '@/components/Tabs'
 import { Pager } from '@/components/Pager'
@@ -76,7 +76,12 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
 
       {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
       {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
-      {!history.isLoading && !history.error && rows.length === 0 ? <EmptyBlock title="还没有胡萝卜记录" /> : null}
+      {!history.isLoading && !history.error && rows.length === 0 && page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onPage(1)} />
+      ) : null}
+      {!history.isLoading && !history.error && rows.length === 0 && page === 1 ? (
+        <EmptyBlock title="还没有胡萝卜记录" />
+      ) : null}
       {rows.length > 0 ? (
         <ListCard items={rows} total={rows.length} idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`} scope={page}>
           <table className="table">

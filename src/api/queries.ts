@@ -547,7 +547,7 @@ export function useShopProducts({
   enabled?: boolean
 }) {
   return useQuery({
-    queryKey: ['shop', 'products', sellerId, page, categoryId, name, sortBy, onlyUp] as const,
+    queryKey: ['shop', 'products', sellerId, page, pageSize, categoryId, name, sortBy, onlyUp] as const,
     queryFn: () => shopProductsQuery({ sellerId, page, pageSize, categoryId, name, sortBy, onlyUp }),
     enabled,
   })

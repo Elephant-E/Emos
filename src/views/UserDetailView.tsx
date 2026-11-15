@@ -152,6 +152,7 @@ export function UserDetailView({ userId }: { userId: string }) {
         />
 
         <StatCard
+          secondary
           label="签到"
           value={sign.data ? `${sign.data.continuous_days} 天` : '—'}
           note={
@@ -161,7 +162,6 @@ export function UserDetailView({ userId }: { userId: string }) {
                 ? '读取中'
                 : '需要服务商权限'
           }
-          secondary
         />
 
         <StatCard
@@ -172,10 +172,10 @@ export function UserDetailView({ userId }: { userId: string }) {
         />
 
         <StatCard
+          secondary
           label="上传量"
           value={info ? formatSize(info.size_upload).replace(/\s/g, '') : '—'}
           note="累计入库体积"
-          secondary
         />
 
         <StatCard

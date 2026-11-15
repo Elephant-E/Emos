@@ -50,7 +50,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
   const [idTerm, setIdTerm] = useState(search.id)
 
   const records = useQuery({
-    queryKey: ['redpacket', 'receive', search.id, search.page] as const,
+    queryKey: ['redpacket', 'receive', search.id, search.page, search.page_size] as const,
     queryFn: () => redPacketApi.receive({ red_packet_id: search.id, page: search.page, page_size: search.page_size }),
     enabled: Boolean(search.id),
   })

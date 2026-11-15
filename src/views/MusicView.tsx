@@ -6,7 +6,7 @@ import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -96,7 +96,10 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
       {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-      {active.data && !active.error && active.data.items.length === 0 ? (
+      {active.data && !active.error && active.data.items.length === 0 && search.page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+      ) : null}
+      {active.data && !active.error && active.data.items.length === 0 && search.page === 1 ? (
         <EmptyBlock
           title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'}
           action={

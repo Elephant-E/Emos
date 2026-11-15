@@ -2046,3 +2046,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 单元格里放输入框（行内排序）时收紧左右内边距：
    表格默认左右各 24px，加上 72px 的输入框，固定列宽下会溢出被裁 */
 .table td.cell--input { padding-inline: var(--sp-3); }
+
+/* 窄屏：详情页两栏折叠成单栏，否则右列会被推出视口（820 实测页面级横向滚动 65px） */
+@media (max-width: 980px) {
+  .detail-body { grid-template-columns: minmax(0, 1fr); }
+}

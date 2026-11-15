@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type { WatchlistFormValues } from '@/components/WatchlistForm'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { useSession, useWatchPage } from '@/api/queries'
@@ -126,7 +126,11 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
       {!error && isLoading ? <LoadingBlock rows={5} columns={4} /> : null}
 
-      {!error && !isLoading && data && data.items.length === 0 ? (
+      {!error && !isLoading && data && data.items.length === 0 && search.page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+      ) : null}
+
+      {!error && !isLoading && data && data.items.length === 0 && search.page === 1 ? (
         <EmptyBlock
           action={
             search.q ? (

@@ -114,6 +114,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           unit="胡萝卜"
         />
         <StatCard
+          secondary
           label="累计支出"
           value={base.isLoading ? '—' : formatThousand(base.data?.total_expenditure ?? 0)}
           unit="胡萝卜"

@@ -3,7 +3,7 @@ import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -132,7 +132,11 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
       {active.isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
 
-      {!active.error && !active.isLoading && rows.length === 0 ? (
+      {!active.error && !active.isLoading && rows.length === 0 && page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onPage(1)} />
+      ) : null}
+
+      {!active.error && !active.isLoading && rows.length === 0 && page === 1 ? (
         <EmptyBlock
           action={
             q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined

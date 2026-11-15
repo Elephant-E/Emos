@@ -4,7 +4,7 @@ import { ListCard } from '@/components/ListCard'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
@@ -125,7 +125,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
       {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-      {orders.data && visibleOrders.length === 0 ? (
+      {orders.data && visibleOrders.length === 0 && search.page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+      ) : null}
+      {orders.data && visibleOrders.length === 0 && search.page === 1 ? (
         <EmptyBlock
           title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
           action={

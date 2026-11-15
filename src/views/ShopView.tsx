@@ -7,7 +7,7 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -210,13 +210,15 @@ export function ShopView({
             /* 取不到（比如非管理员，订单接口 403）与 0 单是两回事 */
             note={counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
           />
-          <StatCard label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
-          <StatCard label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
+          <StatCard secondary label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
+          <StatCard secondary label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
           <StatCard
+            secondary
             label="销量"
             value={counts.salesTotal ?? '—'}
             unit="件"
-            note={counts.salesCapped ? '前 200 件累计' : '全部商品累计'}
+            // 上游 product/list 的 page_size 上限是 100，所以只能累计前 100 件
+            note={counts.salesCapped ? '前 100 件累计' : '全部商品累计'}
           />
         </section>
       ) : null}
@@ -254,7 +256,10 @@ export function ShopView({
             <ErrorBlock error={products.error} onRetry={() => products.refetch()} />
           ) : null}
           {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-          {mine && products.data && products.data.items.length === 0 ? (
+          {mine && products.data && products.data.items.length === 0 && page > 1 ? (
+            <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+          ) : null}
+          {mine && products.data && products.data.items.length === 0 && page === 1 ? (
             <EmptyBlock
               title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
               action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}

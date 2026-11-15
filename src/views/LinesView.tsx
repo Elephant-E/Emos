@@ -138,15 +138,19 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
               ))}
             </tbody>
           </table>
-          <Pager
-            total={rows.length}
-            page={search.page}
-            pageSize={search.page_size}
-            sizes={[20, 50]}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-          />
         </div>
+      ) : null}
+
+      {/* 页码区独立于表格：越界时表格不渲染，但翻页与回第一页的入口要还在 */}
+      {rows.length > 0 ? (
+        <Pager
+          total={rows.length}
+          page={search.page}
+          pageSize={search.page_size}
+          sizes={[20, 50]}
+          onPage={(page) => onSearch({ page })}
+          onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        />
       ) : null}
 
       {creating ? (

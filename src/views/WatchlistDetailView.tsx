@@ -6,7 +6,7 @@ import { InlineSortInput } from '@/components/InlineSortInput'
 import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -330,7 +330,10 @@ export function WatchlistDetailView({
           音乐分支（WatchMusicRows）同样包卡，三态保持一致 */}
       {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
 
-      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 ? (
+      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 && search.page > 1 ? (
+        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
+      ) : null}
+      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 && search.page === 1 ? (
         <EmptyBlock title="片单里还没有影片" />
       ) : null}
 
