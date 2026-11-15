@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardTable } from '@/components/CardTable'
 import { Tabs } from '@/components/Tabs'
@@ -20,6 +20,7 @@ import {
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
+import { buildInviteRows, pickMySubtree, type InviteHistoryRow } from '@/lib/invite-tree'
 import { copyText } from '@/lib/clipboard'
 import { getToken } from '@/api/client'
 
@@ -76,52 +77,12 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
    */
   const otpMode = Boolean(user?.must_otp)
 
-  // /api/invite/tree 返回全站扁平树（3000+ 节点），本页只要当前用户的下级：按 invite_user_id 从自己往下走
-  const myTree = (() => {
-    const all = tree.data ?? []
-    const me = user?.user_id
-    if (!me || all.length === 0) return []
-    const byParent = new Map<string, typeof all>()
-    for (const node of all) {
-      const parent = node.invite_user_id
-      if (!parent) continue
-      const list = byParent.get(parent)
-      if (list) list.push(node)
-      else byParent.set(parent, [node])
-    }
-    const out: Array<(typeof all)[number] & { depth: number }> = []
-    const walk = (uid: string, depth: number) => {
-      for (const child of byParent.get(uid) ?? []) {
-        out.push({ ...child, depth })
-        walk(child.user_id, depth + 1)
-      }
-    }
-    walk(me, 1)
-    return out
-  })()
-
-  // 合并「我邀请的」与「下级邀请的」：同一张表用缩进区分层级；最近播放来自 inviteHistory，只有直接邀请的人有
-  const inviteRows = (() => {
-    const nameById = new Map<string, string>()
-    for (const node of tree.data ?? []) nameById.set(node.user_id, node.username)
-    const playedById = new Map<string, string | null>()
-    const remarkById = new Map<string, string>()
-    for (const row of inviteHistory.data?.items ?? []) {
-      playedById.set(String(row.user_id), (row.last_video_player as string) ?? null)
-      const remark = String(row.invite_remark ?? '').trim()
-      if (remark) remarkById.set(String(row.user_id), remark)
-    }
-    return myTree.map((node) => ({
-      userId: node.user_id,
-      username: node.username,
-      depth: node.depth,
-      joinAt: node.join_at,
-      isDisabled: Boolean(node.is_disabled),
-      invitedBy: node.depth > 1 ? (nameById.get(node.invite_user_id ?? '') ?? null) : null,
-      lastPlayed: playedById.get(node.user_id) ?? null,
-      remark: remarkById.get(node.user_id) ?? '',
-    }))
-  })()
+  // 全站扁平树（3000+ 节点）→ 我这一支（带层级）→ 合并备注与最近播放；计算见 lib/invite-tree.ts
+  const myTree = useMemo(() => pickMySubtree(tree.data ?? [], user?.user_id), [tree.data, user?.user_id])
+  const inviteRows = useMemo(
+    () => buildInviteRows(myTree, tree.data ?? [], (inviteHistory.data?.items ?? []) as unknown as InviteHistoryRow[]),
+    [myTree, tree.data, inviteHistory.data],
+  )
 
   /** 邀请进 EMOS：会扣胡萝卜，先确认再发 */
   const inviteEmps = async () => {
