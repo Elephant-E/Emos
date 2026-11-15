@@ -370,20 +370,20 @@ export function VideoDetailView({
                     return (
                       <tr key={mediaId}>
                         <td>
-                          <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
+              <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
                         </td>
                         <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
-                          {row.is_self_upload || caps.isAdmin ? (
-                            <button type="button"
-                              className="row-menu"
-                              aria-label="编辑资源"
-                              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
-                            >
-                              <IconDots />
-                            </button>
-                          ) : null}
+              {row.is_self_upload || caps.isAdmin ? (
+              <button type="button"
+              className="row-menu"
+              aria-label="编辑资源"
+              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
+              >
+              <IconDots />
+              </button>
+              ) : null}
                         </td>
                       </tr>
                     )
@@ -452,17 +452,17 @@ export function VideoDetailView({
                     return (
                       <tr key={id}>
                         <td>
-                          <span className="cell-title__name">{String(row.subtitle_title)}</span>
-                          <span className="cell-title__code">{formatDateTime(String(row.created_at))}</span>
+              <span className="cell-title__name">{String(row.subtitle_title)}</span>
+              <span className="cell-title__code">{formatDateTime(String(row.created_at))}</span>
                         </td>
                         <td className="muted">{String(row.subtitle_codec)}</td>
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
-                          {row.is_self_upload || caps.isAdmin ? (
-                            <button type="button" className="row-menu" aria-label="编辑字幕" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
-                              <IconDots />
-                            </button>
-                          ) : null}
+              {row.is_self_upload || caps.isAdmin ? (
+              <button type="button" className="row-menu" aria-label="编辑字幕" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
+              <IconDots />
+              </button>
+              ) : null}
                         </td>
                       </tr>
                     )
@@ -515,13 +515,13 @@ export function VideoDetailView({
           footer={
             <ModalFooter
               onCancel={() => setRenaming(null)}
-              onConfirm={() => () =>
-                                                                                                                              actions.renameMedia.mutate(renaming, {
-                                                                                                                                            onSuccess: () => {
-                                                                                                                                                          toast('已重命名', 'success')
-                                                                                                                                                          setRenaming(null)
-                                                                                                                                            },
-                                                                                                                              })}
+              onConfirm={() =>
+                                  actions.renameMedia.mutate(renaming, {
+                                    onSuccess: () => {
+                                      toast('已重命名', 'success')
+                                      setRenaming(null)
+                                    },
+                                  })}
               confirmText="保存"
             />
           }
@@ -696,15 +696,15 @@ export function VideoDetailView({
                         className="btn btn--quiet"
                         disabled={samePlace}
                         onClick={() =>
-                          mediaApi
-                            .move(moving.mediaId, 've', ep.episode_id)
-                            .then(() => {
-                              toast('已移动', 'success')
-                              setMoving(null)
-                              setMoveVideo(null)
-                              void media.refetch()
-                            })
-                            .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
+              mediaApi
+              .move(moving.mediaId, 've', ep.episode_id)
+              .then(() => {
+              toast('已移动', 'success')
+              setMoving(null)
+              setMoveVideo(null)
+              void media.refetch()
+              })
+              .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
                         }
                       >
                         {samePlace ? '当前位置' : '移到这里'}
@@ -725,13 +725,13 @@ export function VideoDetailView({
           footer={
             <ModalFooter
               onCancel={() => setRenamingSub(null)}
-              onConfirm={() => () =>
-                                                                                                                              actions.renameSubtitle.mutate(renamingSub, {
-                                                                                                                                            onSuccess: () => {
-                                                                                                                                                          toast('已重命名', 'success')
-                                                                                                                                                          setRenamingSub(null)
-                                                                                                                                            },
-                                                                                                                              })}
+              onConfirm={() =>
+                                  actions.renameSubtitle.mutate(renamingSub, {
+                                    onSuccess: () => {
+                                      toast('已重命名', 'success')
+                                      setRenamingSub(null)
+                                    },
+                                  })}
               confirmText="保存"
             />
           }

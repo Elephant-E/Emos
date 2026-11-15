@@ -298,11 +298,11 @@ export function SongDetailView({ songId }: { songId: number }) {
                     <tr key={String(row.media_id ?? index)}>
                       <td>
                         <span className="cell-title__name">
-                          {String(row.name ?? '—')}
-                          {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
+              {String(row.name ?? '—')}
+              {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 8 }}><i />主资源</span> : null}
                         </span>
                         <span className="cell-title__code">
-                          {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}
+              {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}
                         </span>
                       </td>
                       <td className="muted">{String(row.file_suffix ?? '—')}</td>
@@ -313,35 +313,35 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td className="muted">{String((row.user as { username?: string } | undefined)?.username ?? '—')}</td>
                       <td>
                         <span className="action-group">
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={() => {
-                              setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
-                              setMoveTerm('')
-                            }}
-                          >
-                            移动
-                          </button>
-                          <button type="button"
-                            className="btn btn--danger-text"
-                            onClick={async () => {
-                              // 音频列表没有 is_self_upload，归属看 user
-                              const ownerUser = row.user as { user_id?: string; username?: string } | undefined
-                              const reason = await confirmDelete({
-                                title: '删除这个资源？',
-                                message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
-                                isSelf: Boolean(ownerUser?.user_id) && ownerUser?.user_id === session.data?.user_id,
-                                owner: ownerUser?.username ?? null,
-                              })
-                              if (reason === null) return
-                              actions.deleteMedia.mutate(
-                                { mediaId: String(row.media_id), reason },
-                                { onSuccess: () => toast('已删除', 'success') },
-                              )
-                            }}
-                          >
-                            删除
-                          </button>
+              <button type="button"
+              className="btn btn--quiet"
+              onClick={() => {
+              setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
+              setMoveTerm('')
+              }}
+              >
+              移动
+              </button>
+              <button type="button"
+              className="btn btn--danger-text"
+              onClick={async () => {
+              // 音频列表没有 is_self_upload，归属看 user
+              const ownerUser = row.user as { user_id?: string; username?: string } | undefined
+              const reason = await confirmDelete({
+              title: '删除这个资源？',
+              message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
+              isSelf: Boolean(ownerUser?.user_id) && ownerUser?.user_id === session.data?.user_id,
+              owner: ownerUser?.username ?? null,
+              })
+              if (reason === null) return
+              actions.deleteMedia.mutate(
+              { mediaId: String(row.media_id), reason },
+              { onSuccess: () => toast('已删除', 'success') },
+              )
+              }}
+              >
+              删除
+              </button>
                         </span>
                       </td>
                     </tr>
@@ -397,9 +397,9 @@ export function SongDetailView({ songId }: { songId: number }) {
                       musicApi
                         .moveMedia(row.song_id, moving.mediaId)
                         .then(() => {
-                          toast('已移动', 'success')
-                          setMoving(null)
-                          void media.refetch()
+              toast('已移动', 'success')
+              setMoving(null)
+              void media.refetch()
                         })
                         .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
                     }
@@ -420,14 +420,14 @@ export function SongDetailView({ songId }: { songId: number }) {
           footer={
             <ModalFooter
               onCancel={() => setAdding(false)}
-              onConfirm={() => () =>
-                                                                                                                              actions.createLyric.mutate(lyricForm, {
-                                                                                                                                            onSuccess: (res) => {
-                                                                                                                                                          toast(`已添加歌词${res.carrot ? `，+${res.carrot} 胡萝卜` : ''}`, 'success')
-                                                                                                                                                          setAdding(false)
-                                                                                                                                                          setLyricForm({ type: 'text', language: 'zh-CN', content: '' })
-                                                                                                                                            },
-                                                                                                                              })}
+              onConfirm={() =>
+                                  actions.createLyric.mutate(lyricForm, {
+                                    onSuccess: (res) => {
+                                      toast(`已添加歌词${res.carrot ? `，+${res.carrot} 胡萝卜` : ''}`, 'success')
+                                      setAdding(false)
+                                      setLyricForm({ type: 'text', language: 'zh-CN', content: '' })
+                                    },
+                                  })}
               confirmText="保存"
               pending={actions.createLyric.isPending}
               disabled={!lyricForm.content.trim() || actions.createLyric.isPending}

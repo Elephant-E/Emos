@@ -174,26 +174,26 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                       <div className="cell-title">
                         <Poster src={order.order_cover_url} name={order.order_title} shape="square" />
                         <span>
-                          <span className="cell-title__name">{order.order_title}</span>
-                          <span className="cell-title__code">
-                            {order.order_no}
-                            {order.user?.user_id ? (
-                              <>
-                                {' · '}
-                                <Link
-                                  to="/users/$userId"
-                                  params={{ userId: order.user.user_id }}
-                                  onClick={(e) => e.stopPropagation()}
-                                  style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
-                                >
-                                  {order.user.username ?? order.user.user_id}
-                                </Link>
-                              </>
-                            ) : order.user?.username ? (
-                              ` · ${order.user.username}`
-                            ) : null}
-                            {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
-                          </span>
+              <span className="cell-title__name">{order.order_title}</span>
+              <span className="cell-title__code">
+              {order.order_no}
+              {order.user?.user_id ? (
+              <>
+              {' · '}
+              <Link
+              to="/users/$userId"
+              params={{ userId: order.user.user_id }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
+              >
+              {order.user.username ?? order.user.user_id}
+              </Link>
+              </>
+              ) : order.user?.username ? (
+              ` · ${order.user.username}`
+              ) : null}
+              {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
+              </span>
                         </span>
                       </div>
                     </td>
@@ -217,101 +217,101 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     <td>
                       <span className="action-group">
                         {mineScope && !paid ? (
-                          <button type="button"
-                            className="btn btn--primary"
-                            disabled={actions.payOrder.isPending}
-                            onClick={async () => {
-                              // price_order 是单价，实付 = 单价 × 数量
-                              const total = order.price_order * (order.buy_number ?? 1)
-                              const ok = await confirmDialog({
-                                title: '支付订单？',
-                                message: `「${order.order_title}」 ${order.order_no}`,
-                                hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
-                                confirmText: '支付',
-                                danger: true,
-                              })
-                              if (!ok) return
-                              actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
-                            }}
-                          >
-                            付款
-                          </button>
+              <button type="button"
+              className="btn btn--primary"
+              disabled={actions.payOrder.isPending}
+              onClick={async () => {
+              // price_order 是单价，实付 = 单价 × 数量
+              const total = order.price_order * (order.buy_number ?? 1)
+              const ok = await confirmDialog({
+              title: '支付订单？',
+              message: `「${order.order_title}」 ${order.order_no}`,
+              hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
+              confirmText: '支付',
+              danger: true,
+              })
+              if (!ok) return
+              actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
+              }}
+              >
+              付款
+              </button>
                         ) : null}
                         {!mineScope && !sent && paid ? (
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={() =>
-                              actions.deliver.mutate(
-                                { orderNo: order.order_no, sent: true },
-                                { onSuccess: () => toast('已标记发货', 'success') },
-                              )
-                            }
-                          >
-                            发货
-                          </button>
+              <button type="button"
+              className="btn btn--quiet"
+              onClick={() =>
+              actions.deliver.mutate(
+              { orderNo: order.order_no, sent: true },
+              { onSuccess: () => toast('已标记发货', 'success') },
+              )
+              }
+              >
+              发货
+              </button>
                         ) : null}
                         {!mineScope && sent ? (
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={() =>
-                              actions.deliver.mutate(
-                                { orderNo: order.order_no, sent: false },
-                                { onSuccess: () => toast('已撤销发货', 'success') },
-                              )
-                            }
-                          >
-                            撤销发货
-                          </button>
+              <button type="button"
+              className="btn btn--quiet"
+              onClick={() =>
+              actions.deliver.mutate(
+              { orderNo: order.order_no, sent: false },
+              { onSuccess: () => toast('已撤销发货', 'success') },
+              )
+              }
+              >
+              撤销发货
+              </button>
                         ) : null}
                         {mineScope && paid && !sent ? (
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={() =>
-                              actions.urgeOrder.mutate(order.order_no, {
-                                onSuccess: () => toast('已催发货', 'success'),
-                              })
-                            }
-                          >
-                            催发货
-                          </button>
+              <button type="button"
+              className="btn btn--quiet"
+              onClick={() =>
+              actions.urgeOrder.mutate(order.order_no, {
+              onSuccess: () => toast('已催发货', 'success'),
+              })
+              }
+              >
+              催发货
+              </button>
                         ) : null}
                         {mineScope && !paid ? (
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={async () => {
-                              const ok = await confirmDialog({
-                                title: '关闭这个订单？',
-                                message: '关闭后无法再付款，需要重新下单。',
-                                confirmText: '关闭',
-                                danger: true,
-                              })
-                              if (!ok) return
-                              actions.closeOrder.mutate(order.order_no, { onSuccess: () => toast('已关闭', 'success') })
-                            }}
-                          >
-                            关闭
-                          </button>
+              <button type="button"
+              className="btn btn--quiet"
+              onClick={async () => {
+              const ok = await confirmDialog({
+              title: '关闭这个订单？',
+              message: '关闭后无法再付款，需要重新下单。',
+              confirmText: '关闭',
+              danger: true,
+              })
+              if (!ok) return
+              actions.closeOrder.mutate(order.order_no, { onSuccess: () => toast('已关闭', 'success') })
+              }}
+              >
+              关闭
+              </button>
                         ) : null}
                         {!mineScope ? (
-                          <button type="button" className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
-                            备注
-                          </button>
+              <button type="button" className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
+              备注
+              </button>
                         ) : null}
                         <button type="button"
-                          className="btn btn--danger-text"
-                          onClick={async () => {
-                            const ok = await confirmDialog({
-                              title: '删除这个订单？',
-                              message: `订单 ${order.order_no} 会从列表移除。`,
-                              hint: '此操作不可撤销。',
-                              confirmText: '删除',
-                              danger: true,
-                            })
-                            if (!ok) return
-                            remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
-                          }}
+              className="btn btn--danger-text"
+              onClick={async () => {
+              const ok = await confirmDialog({
+              title: '删除这个订单？',
+              message: `订单 ${order.order_no} 会从列表移除。`,
+              hint: '此操作不可撤销。',
+              confirmText: '删除',
+              danger: true,
+              })
+              if (!ok) return
+              remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+              }}
                         >
-                          删除
+              删除
                         </button>
                       </span>
                     </td>
@@ -329,16 +329,16 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           footer={
             <ModalFooter
               onCancel={() => setRemarking(null)}
-              onConfirm={() => () =>
-                                                                                                                              actions.remark.mutate(
-                                                                                                                                            { orderNo: remarking.orderNo, remark: remarking.remark },
-                                                                                                                                            {
-                                                                                                                                                          onSuccess: () => {
-                                                                                                                                                                        toast('备注已保存', 'success')
-                                                                                                                                                                        setRemarking(null)
-                                                                                                                                                          },
-                                                                                                                                            },
-                                                                                                                              )}
+              onConfirm={() =>
+                                  actions.remark.mutate(
+                                    { orderNo: remarking.orderNo, remark: remarking.remark },
+                                    {
+                                      onSuccess: () => {
+                                          toast('备注已保存', 'success')
+                                          setRemarking(null)
+                                      },
+                                    },
+                                  )}
               confirmText="保存"
             />
           }

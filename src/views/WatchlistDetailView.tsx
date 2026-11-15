@@ -366,7 +366,7 @@ export function WatchlistDetailView({
                       <span>
                         <span className="cell-title__name">{video.video_title}</span>
                         <span className="cell-title__code">
-                          {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
+              {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
                         </span>
                       </span>
                     </div>
@@ -384,10 +384,10 @@ export function WatchlistDetailView({
                         label={`${video.video_title} 的排序`}
                         stopRowClick
                         onCommit={(sort) =>
-                          updateVideoEntry.mutate(
-                            { videoId: video.video_id, sort, remark: video.remark ?? null },
-                            { onSuccess: () => toast('已调整排序', 'success') },
-                          )
+              updateVideoEntry.mutate(
+              { videoId: video.video_id, sort, remark: video.remark ?? null },
+              { onSuccess: () => toast('已调整排序', 'success') },
+              )
                         }
                       />
                     ) : (
@@ -399,12 +399,12 @@ export function WatchlistDetailView({
                       <button type="button"
                         className="btn btn--quiet"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          setRemarkFor({
-                            videoId: video.video_id,
-                            title: video.video_title,
-                            remark: video.remark ?? '',
-                          })
+              e.stopPropagation()
+              setRemarkFor({
+              videoId: video.video_id,
+              title: video.video_title,
+              remark: video.remark ?? '',
+              })
                         }}
                       >
                         {video.remark || '添加备注'}
@@ -418,17 +418,17 @@ export function WatchlistDetailView({
                     <button type="button"
                         className="btn btn--danger-text"
                         onClick={async () => {
-                          const ok = await confirmDialog({
-                            title: '移出这个影片？',
-                            message: `《${video.video_title}》会从本片单移除。`,
-                            hint: '影片本身不会被删除，其它片单不受影响。',
-                            confirmText: '移出',
-                            danger: true,
-                          })
-                          if (!ok) return
-                          removeVideo.mutate(video.video_id, {
-                            onSuccess: () => toast('已移出', 'success'),
-                          })
+              const ok = await confirmDialog({
+              title: '移出这个影片？',
+              message: `《${video.video_title}》会从本片单移除。`,
+              hint: '影片本身不会被删除，其它片单不受影响。',
+              confirmText: '移出',
+              danger: true,
+              })
+              if (!ok) return
+              removeVideo.mutate(video.video_id, {
+              onSuccess: () => toast('已移出', 'success'),
+              })
                         }}
                         disabled={removeVideo.isPending}
                       >
@@ -494,11 +494,11 @@ export function WatchlistDetailView({
             <ModalFooter
               onCancel={() => setDynamicOpen(false)}
               onConfirm={() => {
-                                                                                                                              setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
-                                                                                                                                            onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
-                                                                                                                              })
-                                                                                                                              setDynamicOpen(false)
-                                                                                                                }}
+                                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
+                                    onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
+                                  })
+                                  setDynamicOpen(false)
+                              }}
               confirmText="保存"
             />
           }
@@ -564,16 +564,16 @@ export function WatchlistDetailView({
           footer={
             <ModalFooter
               onCancel={() => setMaintainerOpen(false)}
-              onConfirm={() => () =>
-                                                                                                                              setMaintainers.mutate(
-                                                                                                                                            maintainerIds,
-                                                                                                                                            {
-                                                                                                                                                          onSuccess: () => {
-                                                                                                                                                                        toast('已保存', 'success')
-                                                                                                                                                                        setMaintainerOpen(false)
-                                                                                                                                                          },
-                                                                                                                                            },
-                                                                                                                              )}
+              onConfirm={() =>
+                                  setMaintainers.mutate(
+                                    maintainerIds,
+                                    {
+                                      onSuccess: () => {
+                                          toast('已保存', 'success')
+                                          setMaintainerOpen(false)
+                                      },
+                                    },
+                                  )}
               confirmText="保存"
               pending={setMaintainers.isPending}
               disabled={setMaintainers.isPending}
@@ -599,21 +599,21 @@ export function WatchlistDetailView({
           footer={
             <ModalFooter
               onCancel={() => setRemarkFor(null)}
-              onConfirm={() => () =>
-                                                                                                                              updateVideoEntry.mutate(
-                                                                                                                                            {
-                                                                                                                                                          videoId: remarkFor.videoId,
-                                                                                                                                                          // sort 取当前列表的值，而不是弹窗打开那一刻的值
-                                                                                                                                                          sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
-                                                                                                                                                          remark: remarkFor.remark.trim() || null,
-                                                                                                                                            },
-                                                                                                                                            {
-                                                                                                                                                          onSuccess: () => {
-                                                                                                                                                                        toast('已保存', 'success')
-                                                                                                                                                                        setRemarkFor(null)
-                                                                                                                                                          },
-                                                                                                                                            },
-                                                                                                                              )}
+              onConfirm={() =>
+                                  updateVideoEntry.mutate(
+                                    {
+                                      videoId: remarkFor.videoId,
+                                      // sort 取当前列表的值，而不是弹窗打开那一刻的值
+                                      sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
+                                      remark: remarkFor.remark.trim() || null,
+                                    },
+                                    {
+                                      onSuccess: () => {
+                                          toast('已保存', 'success')
+                                          setRemarkFor(null)
+                                      },
+                                    },
+                                  )}
               confirmText="保存"
               pending={updateVideoEntry.isPending}
               disabled={updateVideoEntry.isPending}
@@ -734,10 +734,10 @@ function WatchMusicRows({
                       disabled={removeSong.isPending && removeSong.variables === song.song_id}
                       onClick={async () => {
                         const ok = await confirmDialog({
-                          title: `从片单移除《${song.name}》？`,
-                          message: '歌曲本身不会被删除。',
-                          confirmText: '移除',
-                          danger: true,
+              title: `从片单移除《${song.name}》？`,
+              message: '歌曲本身不会被删除。',
+              confirmText: '移除',
+              danger: true,
                         })
                         if (!ok) return
                         removeSong.mutate(song.song_id, { onSuccess: () => toast('已移除', 'success') })
