@@ -189,6 +189,8 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           ) : null}
         </article>
 
+        {/* 不是服务商时这两张卡的表单一律 403，直接不渲染 */}
+        {!base.error ? (
         <article className="card">
           <CardHead title="服务商转账" />
           <div className="row-input stack--top">
@@ -238,6 +240,9 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           </p>
         </article>
 
+        ) : null}
+
+        {!base.error ? (
         <article className="card">
           <CardHead title="建支付单" />
           <div className="row" style={{ marginTop: 12 }}>
@@ -263,6 +268,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </p>
           )}
         </article>
+        ) : null}
       </section>
 
       {draft ? (

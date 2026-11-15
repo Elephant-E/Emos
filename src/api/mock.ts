@@ -489,7 +489,10 @@ export async function mockRequest<T>(
   if (clean === '/api/seek/claim') return { seek_id: 1 } as T
   if (clean === '/api/invite/remark') return {} as T
   if (clean === '/api/pay/query') return { pay_status: 'pay', price_order: 68, pay_way: 'alipay', order_name: '限量海报 A3' } as T
-  if (clean === '/api/pay/getUserInfo') return { user_id: 'e1000Xs', username: 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
+  if (clean === '/api/pay/getUserInfo') {
+    const id = String(query.user_id ?? 'e7E6K6OE4s')
+    return { user_id: id, username: id === 'e7E6K6OE4s' ? 'elephant' : 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
+  }
   if (clean === '/api/pay/getUserCarrot') return { carrot: 120 } as T
   if (clean === '/api/pay/apply') return { status: 'review' } as T
   if (clean === '/api/fund/order/check') {

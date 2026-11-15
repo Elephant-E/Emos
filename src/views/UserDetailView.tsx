@@ -9,6 +9,7 @@ import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
 import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
+import { promptDialog } from '@/ui/prompt'
 import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
 
 export function UserDetailView({ userId }: { userId: string }) {
@@ -83,16 +84,16 @@ export function UserDetailView({ userId }: { userId: string }) {
               <button type="button"
                 className="btn btn--ghost"
                 onClick={async () => {
-                  const ok = await confirmDialog({
-                    title: `封禁 ${name || userId}？`,
+                  const reason = await promptDialog({
+                    title: `封禁 ${name || userId}`,
+                    label: '封禁原因（会显示在封禁列表里）',
                     message: '该用户将无法继续访问服务。',
-                    hint: '可在封禁列表里随时解除。',
+                    placeholder: '例如：多次上传违规内容',
                     confirmText: '封禁',
-                    danger: true,
                   })
-                  if (!ok) return
+                  if (reason === null) return
                   actions.banChange.mutate(
-                    { type: 'disable', userId, reason: '后台手动封禁' },
+                    { type: 'disable', userId, reason: reason.trim() || '后台手动封禁' },
                     { onSuccess: () => toast('已封禁', 'success') },
                   )
                 }}

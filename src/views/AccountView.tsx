@@ -61,7 +61,8 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const [inviteRemark, setInviteRemark] = useState('')
   const [remarkFor, setRemarkFor] = useState<{ userId: string; username: string; remark: string } | null>(null)
 
-  const inviteHistory = useInviteHistory(1)
+  // 备注与「最近活跃」都来自这张表，首页取满 100 条，避免第 11 个被邀请人之后全是「—」
+  const inviteHistory = useInviteHistory(1, 100)
   const tree = useInviteTree()
 
   useEffect(() => {
