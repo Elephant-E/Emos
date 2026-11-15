@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
+import { DynamicFetchModal } from '@/components/watchlist/DynamicFetchModal'
 import { WatchlistHead } from '@/components/watchlist/WatchlistHead'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { UserCell } from '@/components/UserCell'
@@ -412,30 +413,19 @@ export function WatchlistDetailView({
       ) : null}
 
       {dynamicOpen ? (
-        <Modal
-          title="动态抓取"
+        <DynamicFetchModal
+          current={dynamicUrl}
+          pending={setDynamic.isPending}
           onClose={() => setDynamicOpen(false)}
-          footer={
-            <ModalFooter
-              onCancel={() => setDynamicOpen(false)}
-              onConfirm={() => {
-                                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
-                                    onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
-                                  })
-                                  setDynamicOpen(false)
-                              }}
-              confirmText="保存"
-            />
+          onSave={(url) =>
+            setDynamic.mutate(url, {
+              onSuccess: () => {
+                toast(url ? '已开启动态抓取' : '已关闭动态抓取', 'success')
+                setDynamicOpen(false)
+              },
+            })
           }
-        >
-          <label className="field">
-            <span>抓取地址（留空关闭）</span>
-            <input className="input" value={dynamicUrl} onChange={(e) => setDynamicUrl(e.target.value)} placeholder="https://…" />
-          </label>
-          <p className="state__hint" style={{ textAlign: 'left' }}>
-            填了地址后，片单会按该地址定期同步内容；清空即关闭。
-          </p>
-        </Modal>
+        />
       ) : null}
 
 
