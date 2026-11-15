@@ -277,7 +277,7 @@ export function WatchlistDetailView({
               {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
             </>
           )}
-          facts={(video) => <span>{video.remark ? `备注：${video.remark}` : '无备注'}</span>}
+          facts={(video) => (video.remark ? <span>备注：{video.remark}</span> : null)}
           actions={
             item?.is_edit_video
               ? (video) => (
