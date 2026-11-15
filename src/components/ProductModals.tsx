@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { Price, formatPrice } from '@/components/Price'
 import { Modal } from '@/components/Modal'
 import { Poster } from '@/components/Poster'
-import { LoadingBlock } from '@/components/StateBlock'
+import { LoadingBlock, ErrorBlock } from '@/components/StateBlock'
 import { useShopMutations, useShopProduct } from '@/api/queries'
 import { formatThousand } from '@/lib/format'
 import { toast } from '@/ui/toast'
@@ -48,6 +48,7 @@ export function ProductDetailModal({
                   {
                     onSuccess: (res) => {
                       onBought()
+                      onClose()
                       toast(`订单 ${res.no} 已创建，去订单页付款`, 'success')
                     },
                   },
@@ -61,6 +62,7 @@ export function ProductDetailModal({
       }
     >
       {product.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
+      {product.error ? <ErrorBlock bare error={product.error} onRetry={() => product.refetch()} /> : null}
       {p ? (
         <>
           <div style={{ display: 'flex', gap: 16 }}>

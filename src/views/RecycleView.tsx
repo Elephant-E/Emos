@@ -149,14 +149,14 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       {rows.length > 0 ? (
         <ListCard items={rows} total={rows.length} idKey={(r) => String(r.media_id ?? r.video_id ?? '')} scope={tab}>
           {tab === 'media' ? (
-            <table className="table table--fixed">
+            <table className="table table--auto">
               <thead>
                 <tr>
-                  <th style={{ width: '34%' }}>资源</th>
-                  <th style={{ width: '22%' }}>所属</th>
-                  <th className="num" style={{ width: '12%' }}>大小</th>
-                  <th style={{ width: '12%' }}>存储</th>
-                  <th className="num" style={{ width: '15%' }}>入库时间</th>
+                  <th>资源</th>
+                  <th>所属</th>
+                  <th className="num">大小</th>
+                  <th>存储</th>
+                  <th className="num">入库时间</th>
                   {restorable ? <th style={{ width: '96px' }}>操作</th> : null}
                 </tr>
               </thead>
@@ -198,13 +198,13 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
               </tbody>
             </table>
           ) : (
-            <table className="table table--fixed">
+            <table className="table table--auto">
               <thead>
                 <tr>
-                  <th className="th-thumb" style={{ width: '46%' }}>影片</th>
-                  <th style={{ width: '14%' }}>类型</th>
-                  <th className="num" style={{ width: '14%' }}>TODB</th>
-                  <th className="num" style={{ width: '16%' }}>上映</th>
+                  <th className="th-thumb">影片</th>
+                  <th>类型</th>
+                  <th className="num">TODB</th>
+                  <th className="num">上映</th>
                   <th style={{ width: '96px' }}>
                     操作
                   </th>

@@ -85,14 +85,14 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
 
       {paged.length > 0 ? (
         <div className="table-card">
-          <table className="table table--fixed">
+          <table className="table table--auto">
             <thead>
               <tr>
-                <th style={{ width: '24%' }}>名称</th>
+                <th>名称</th>
                 <th>地址</th>
-                <th style={{ width: '18%' }}>简介</th>
-                <th style={{ width: '18%' }}>创建时间</th>
-                <th style={{ width: '12%' }}>
+                <th>简介</th>
+                <th>创建时间</th>
+                <th>
                   操作
                 </th>
               </tr>

@@ -43,7 +43,7 @@ export const inviteApi = {
   revoke: (userId: string) => request<{ invite_remaining: number }>('/api/invite/revoke', { method: 'POST', body: { user_id: userId } }),
   /** 退出被邀请的关系；退出后要重新找人邀请 */
   exit: () => request<unknown>('/api/invite/exit', { method: 'POST' }),
-  /** 邀请某人进入 EMPS，返回花掉的胡萝卜（负数） */
+  /** 邀请某人进入 EMOS，返回花掉的胡萝卜（负数） */
   emps: (inviteUserId: string) => request<{ carrot: number }>('/api/invite/emps', { method: 'POST', body: { invite_user_id: inviteUserId } }),
   // 返回全站扁平树（3000+ 节点），前端按 invite_user_id 自行拼子树
   tree: () =>

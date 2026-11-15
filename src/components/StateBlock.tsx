@@ -58,13 +58,13 @@ export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
         </span>
         <p className="state__title" role="alert">{timedOut ? '连不上服务器' : '这一屏没取到数据'}</p>
         {!timedOut && message ? <p className="state__hint">{message}</p> : null}
-        <div className="state__actions">
-          {onRetry ? (
+        {onRetry ? (
+          <div className="state__actions">
             <button type="button" className="btn btn--ghost" onClick={onRetry}>
               重试
             </button>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   )

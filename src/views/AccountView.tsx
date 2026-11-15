@@ -121,10 +121,10 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
     }))
   })()
 
-  /** 邀请进 EMPS：会扣胡萝卜，先确认再发 */
+  /** 邀请进 EMOS：会扣胡萝卜，先确认再发 */
   const inviteEmps = async () => {
     const ok = await confirmDialog({
-      title: '邀请 TA 进入 EMPS？',
+      title: '邀请 TA 进入 EMOS？',
       message: `对象：${inviteId.trim()}`,
       hint: '会消耗你自己的胡萝卜，具体数额由后端结算。',
       confirmText: '邀请',
@@ -578,7 +578,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                   disabled={!inviteId.trim() || actions.inviteEmps.isPending}
                   onClick={() => void inviteEmps()}
                 >
-                  {actions.inviteEmps.isPending ? '邀请中…' : '邀请进 EMPS'}
+                  {actions.inviteEmps.isPending ? '邀请中…' : '邀请进 EMOS'}
                 </button>
               </div>
               <div className="row" style={{ marginTop: 12, gap: 12 }}>
@@ -769,6 +769,25 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
             <span className="card-note">{newPassword.length}/6</span>
           </label>
         </Modal>
+      ) : null}
+
+      {info.error || tree.error || inviteHistory.error ? (
+        <p className="card-note">
+          邀请数据没取全：
+          {(info.error ?? tree.error ?? inviteHistory.error)?.message ?? '请稍后重试'}
+          <button
+            type="button"
+            className="btn btn--quiet"
+            style={{ marginLeft: 'var(--sp-2)' }}
+            onClick={() => {
+              void info.refetch()
+              void tree.refetch()
+              void inviteHistory.refetch()
+            }}
+          >
+            重试
+          </button>
+        </p>
       ) : null}
 
       {inviting ? (

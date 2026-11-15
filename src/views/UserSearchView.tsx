@@ -62,12 +62,12 @@ export function UserSearchView() {
 
       {rows.length > 0 ? (
         <ListCard items={rows} total={rows.length} idKey={(r) => r.user_id}>
-          <table className="table table--fixed">
+          <table className="table table--auto">
             <thead>
               <tr>
-                <th className="th-thumb" style={{ width: '34%' }}>用户</th>
-                <th style={{ width: '30%' }}>原因</th>
-                <th className="num" style={{ width: '18%' }}>注册时间</th>
+                <th className="th-thumb">用户</th>
+                <th>原因</th>
+                <th className="num">注册时间</th>
                 <th style={{ width: '96px' }}>操作</th>
               </tr>
             </thead>

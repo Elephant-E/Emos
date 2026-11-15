@@ -65,9 +65,12 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
     if (!timeStart || !timeEnd) return toast('设置开始和结束时间', 'error')
     if (toApiTime(timeEnd) <= toApiTime(timeStart)) return toast('结束时间要晚于开始时间', 'error')
     if (prizes.some((p) => !p.name.trim())) return toast('每个奖品都要有名字', 'error')
-    if (prizes.some((p) => !Number(p.number) || Number(p.number) < 1)) return toast('奖品数量至少 1', 'error')
-
-    const cost = Number(amount) || 1
+    if (prizes.length > 20) return toast('奖品最多 20 个', 'error')
+    if (prizes.some((p) => !Number(p.number) || Number(p.number) < 1 || Number(p.number) > 100)) {
+      return toast('奖品数量要在 1 – 100 之间', 'error')
+    }
+    const cost = Number(amount)
+    if (!Number.isFinite(cost) || cost < 1 || cost > 50_000) return toast('参与费用要在 1 – 50000 之间', 'error')
     const body: LotteryCreateBody = {
       name: name.trim(),
       description: description.trim() || undefined,
@@ -210,7 +213,12 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 </div>
 
                 <CardHead title="奖品">
-                  <button type="button" className="btn btn--quiet" onClick={() => setPrizes((prev) => [...prev, emptyPrize()])}>
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    disabled={prizes.length >= 20}
+                    onClick={() => setPrizes((prev) => [...prev, emptyPrize()])}
+                  >
                     加一个
                   </button>
                 </CardHead>

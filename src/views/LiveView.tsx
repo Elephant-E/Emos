@@ -213,6 +213,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         </button>
       </div>
 
+      {library.error ? (
+        <p className="card-note">媒体库列表读取失败（分页与「全部」仍可用）：{library.error instanceof Error ? library.error.message : ''}</p>
+      ) : null}
       {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
       {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
       {!list.error && list.data && list.data.items.length === 0 && search.page > 1 ? (

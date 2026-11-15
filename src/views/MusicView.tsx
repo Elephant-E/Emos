@@ -101,7 +101,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       ) : null}
       {active.data && !active.error && active.data.items.length === 0 && search.page === 1 ? (
         <EmptyBlock
-          title={search.q ? `没有找到「${search.q}」` : '这个库还是空的'}
+          title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合筛选的歌曲' : '这个库还是空的'}
           action={
             filtered ? (
               <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
@@ -196,7 +196,9 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                       ) : isAlbum && row.count_song ? (
                         <span className="muted">{String(row.count_song)} 首</span>
                       ) : search.tab === 'persons' ? (
-                        <span className="muted">{row.is_virtual === '0' || row.is_virtual === 0 ? '真人' : '虚拟'}</span>
+                        <span className="muted">
+                          {row.is_virtual == null ? '—' : row.is_virtual === '0' || row.is_virtual === 0 ? '真人' : '虚拟'}
+                        </span>
                       ) : (
                         <span className="muted">—</span>
                       )}

@@ -246,6 +246,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       />
 
       {images.isLoading ? <p className="muted">读取图库…</p> : null}
+      {images.error ? <p className="card-note">图库读取失败：{images.error instanceof Error ? images.error.message : '请稍后重试'}</p> : null}
       {images.data && imageRows.length === 0 ? (
         <p className="muted">{term ? `没有找到「${term}」` : '图库还是空的'}</p>
       ) : null}

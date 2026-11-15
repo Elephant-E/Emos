@@ -135,14 +135,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
 
       {!error && !isLoading && data && data.items.length > 0 ? (
         <ListCard items={data.items} total={data.total} idKey={(v) => v.video_id}>
-          <table className="table table--fixed">
+          <table className="table table--auto">
             <thead>
               <tr>
-                <th className="th-thumb" style={{ width: '42%' }}>片名</th>
-                <th style={{ width: '12%' }}>类型</th>
-                <th className="num" style={{ width: '13%' }}>资源</th>
-                <th className="num" style={{ width: '11%' }}>求片</th>
-                <th className="num" style={{ width: '16%' }}>上映</th>
+                <th className="th-thumb">片名</th>
+                <th>类型</th>
+                <th className="num">资源</th>
+                <th className="num">求片</th>
+                <th className="num">上映</th>
               </tr>
             </thead>
             <tbody>
