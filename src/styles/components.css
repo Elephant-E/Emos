@@ -1403,6 +1403,7 @@ input.input[type='number'] { min-width: 0; }
 /* 海报墙：一行贴着顶边缓慢横移，重滤镜后只作气氛 */
 .login__wall {
   position: absolute;
+  z-index: 0;
   top: 0;
   left: 0;
   right: 0;
@@ -1433,6 +1434,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .login__veil {
   position: absolute;
+  z-index: 1;
   inset: 0;
   background:
     radial-gradient(120% 90% at 12% 18%, rgba(8, 7, 10, 0.2), rgba(8, 7, 10, 0.94) 62%),
@@ -1476,7 +1478,19 @@ input.input[type='number'] { min-width: 0; }
   100% { background-position: 0 0; }
 }
 
-.login__aside { display: grid; gap: var(--pad-card); max-width: 560px; }
+/*
+ * 层级：海报墙 0 → 蒙版 1 → 文案与卡片 2。
+ * 之前 aside 没有定位，被绝对定位的 .login__veil 整个压在下面，
+ * 标题看起来灰得几乎看不清（右侧卡片因为自带 position: relative 而没事）。
+ * 这里把三层写成显式顺序，不依赖绘制顺序的巧合。
+ */
+.login__aside {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: var(--pad-card);
+  max-width: 560px;
+}
 
 .login__mark {
   display: flex;
@@ -1515,6 +1529,7 @@ input.input[type='number'] { min-width: 0; }
 
 .login__panel {
   position: relative;
+  z-index: 2;
   display: grid;
   gap: var(--sp-4);
   justify-items: stretch;
