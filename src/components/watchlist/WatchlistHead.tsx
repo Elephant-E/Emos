@@ -1,4 +1,5 @@
 import { Poster } from '@/components/Poster'
+import { DetailHead, DetailStats } from '@/components/DetailHead'
 import { formatRelative, formatThousand } from '@/lib/format'
 import type { WatchItem } from '@/api/types'
 
@@ -19,60 +20,56 @@ export function WatchlistHead({
   onSubscribers?: () => void
 }) {
   return (
-    <section className="detail-head">
-      <div className="detail-head__row">
+    <DetailHead
+      media={
         <Poster
           src={item.image_poster_url}
           name={String(item.name ?? '?')}
           shape="wide"
           className="detail-head__poster"
         />
-        <div className="detail-head__text">
-          <div className="detail-head__chips">
-            <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
-              <i />
-              {item.is_public ? '公开' : '私密'}
+      }
+      chips={
+        <>
+          <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
+            <i />
+            {item.is_public ? '公开' : '私密'}
+          </span>
+          {(item.tags ?? []).map((tag) => (
+            <span key={tag} className="chip">
+              {tag}
             </span>
-            {(item.tags ?? []).map((tag) => (
-              <span key={tag} className="chip">
-                {tag}
-              </span>
-            ))}
-            {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
-          </div>
-          {item.description ? <p className="detail-desc">{item.description}</p> : null}
-          <div className="detail-stats">
-            <div className="detail-stat">
-              <b>{formatThousand(count)}</b>
-              <span>{countLabel}</span>
-            </div>
-            <div className="detail-stat">
-              {onSubscribers ? (
-                <button type="button" className="detail-stat__link tnum" onClick={onSubscribers} title="看订阅用户">
-                  {formatThousand(item.subscribe_count)}
-                </button>
-              ) : (
-                <b>{formatThousand(item.subscribe_count)}</b>
-              )}
-              <span>订阅</span>
-            </div>
-            <div className="detail-stat">
-              <b>{formatRelative(item.updated_at)}</b>
-              <span>更新</span>
-            </div>
-            <div className="detail-stat">
-              <b>{item.author?.username || '—'}</b>
-              <span>作者</span>
-            </div>
-            {item.maintainers?.length ? (
-              <div className="detail-stat">
-                <b>{item.maintainers.map((m) => m.username).filter(Boolean).join('/')}</b>
-                <span>维护者</span>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </section>
+          ))}
+          {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
+        </>
+      }
+    >
+      {item.description ? <p className="detail-desc">{item.description}</p> : null}
+      <DetailStats
+        items={[
+          { value: <b>{formatThousand(count)}</b>, label: countLabel },
+          {
+            value: onSubscribers ? (
+              <button type="button" className="detail-stat__link tnum" onClick={onSubscribers} title="看订阅用户">
+                {formatThousand(item.subscribe_count)}
+              </button>
+            ) : (
+              <b>{formatThousand(item.subscribe_count)}</b>
+            ),
+            label: '订阅',
+          },
+          { value: <b>{formatRelative(item.updated_at)}</b>, label: '更新' },
+          { value: <b>{item.author?.username || '—'}</b>, label: '作者' },
+          ...(item.maintainers?.length
+            ? [
+                {
+                  value: <b>{item.maintainers.map((m) => m.username).filter(Boolean).join('/')}</b>,
+                  label: '维护者',
+                },
+              ]
+            : []),
+        ]}
+      />
+    </DetailHead>
   )
 }
