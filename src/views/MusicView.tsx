@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
 import { Poster } from '@/components/Poster'
@@ -10,7 +10,7 @@ import { EmptyBlock } from '@/components/StateBlock'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import { duration } from '@/lib/format'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 
@@ -29,8 +29,7 @@ const TABS: Array<{ key: MusicSearch['tab']; label: string }> = [
 
 export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch: (patch: Partial<MusicSearch>) => void }) {
   const navigate = useNavigate()
-  const [term, setTerm] = useState(search.q)
-  useEffect(() => setTerm(search.q), [search.q])
+  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
   const songs = useMusicSongs(1, search.q, search.tab === 'songs', search.page_size, search.filter)
@@ -43,7 +42,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
   const activeRows = (active.data?.items ?? []) as Array<Record<string, unknown>>
-  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
   // 「无资源 / 已收藏」只作用于歌曲 tab：筛出 0 条不等于「音乐库为空」
   const filter = search.tab === 'songs' ? search.filter : ''
   const filtered = Boolean(search.q) || Boolean(filter)

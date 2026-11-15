@@ -8,7 +8,7 @@ import { RecordRow } from '@/components/RecordRow'
 import { useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import {formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -51,10 +51,8 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
   )
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
-  const [term, setTerm] = useState(q)
-
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
-  useDebounced(term, (next) => onQuery(next, by), { current: q })
+  const [term, setTerm] = useSearchTerm(q, (next) => onQuery(next, by))
 
   const rows = infinite.items as Array<Record<string, unknown>>
   // 恢复口径按契约：只有 is_can_restore 为 true 的资源可恢复。

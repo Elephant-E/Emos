@@ -20,7 +20,7 @@ import type {} from '@/api/types'
 import { qk, useWatch, useWatchMusic, useWatchMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -37,7 +37,7 @@ export function WatchlistDetailView({
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const [term, setTerm] = useState(search.q)
+  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
   const [adding, setAdding] = useState(false)
   const [addingSong, setAddingSong] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -67,7 +67,6 @@ export function WatchlistDetailView({
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
 
-  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
 
   const item = watch.data?.items[0]
   const isMusic = item?.type === 'music'
