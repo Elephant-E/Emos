@@ -2232,6 +2232,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .seg button { height: 34px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
   .toolbar button { min-height: 34px; min-width: 34px; }
+  /* 筛选工具栏：去掉「tabs 后强制换行」的撑杆，控件自然回流，压到 2 行以内 */
+  .toolbar { gap: var(--sp-2); row-gap: var(--sp-2); }
+  .toolbar .spacer { display: none; }
+  /* 搜索框可与分段筛选同排：允许收缩，省掉一整行 */
+  .toolbar > .input { flex: 1 1 140px; min-width: 0; }
+  /* 分段筛选单行可滑，不要折成两行 */
+  .toolbar .seg { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; scrollbar-width: none; }
+  .toolbar .seg::-webkit-scrollbar { display: none; }
+  .toolbar .seg > * { flex: none; }
+  /* 分页脚：手机上收紧内边距，两行更紧凑 */
+  .table-foot { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
+
   /* 页头工具区：手机上不换行，改成单行横向滚动。
      否则片单详情那种 7 个按钮会堆成 3 行、把标题挤到 168px 高 */
   .head-tools {
@@ -2243,6 +2255,10 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
   .head-tools::-webkit-scrollbar { display: none; }
   .head-tools > * { flex: none; }
+  /* 右侧渐隐：提示还有按钮没露出来 */
+  .head-tools {
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+  }
 
   /* 分页器的上一页/下一页 28×34，手机上偏小 */
   .pager button { min-height: 36px; min-width: 36px; }
