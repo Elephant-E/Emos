@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { Poster } from '@/components/Poster'
 import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
-import { Pager } from '@/components/Pager'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -43,6 +41,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const actions = useMusicMutations()
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
+  const activeRows = (active.data?.items ?? []) as Array<Record<string, unknown>>
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
   // 「无资源 / 已收藏」只作用于歌曲 tab：筛出 0 条不等于「音乐库为空」
   const filter = search.tab === 'songs' ? search.filter : ''
@@ -94,34 +93,32 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         ) : null}
       </div>
 
-      {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
-      {active.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-      {active.data && !active.error && active.data.items.length === 0 && search.page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-      ) : null}
-      {active.data && !active.error && active.data.items.length === 0 && search.page === 1 ? (
-        <EmptyBlock
-          title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合筛选的歌曲' : '这个库还是空的'}
-          action={
-            filtered ? (
-              <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
-                清空筛选
-              </button>
-            ) : undefined
-          }
-        />
-      ) : null}
-
-      {active.data && active.data.items.length > 0 ? (
-        <ListCard
-          items={active.data.items as readonly unknown[]}
-          total={active.data.total}
-          idKey={(v) => {
-            const row = v as Record<string, number | undefined>
-            return row.song_id ?? row.album_id ?? row.person_id ?? ''
-          }}
-          scope={search.tab}
-        >
+      <ListSection
+        isLoading={active.isLoading}
+        error={active.error}
+        onRetry={() => active.refetch()}
+        items={activeRows}
+        total={active.data?.total ?? 0}
+        page={search.page}
+        pageSize={active.data?.page_size ?? search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        idKey={(v) => {
+          const row = v as Record<string, number | undefined>
+          return row.song_id ?? row.album_id ?? row.person_id ?? ''
+        }}
+        scope={`${search.tab}-${search.q}-${search.filter}`}
+        loadingRows={8}
+        loadingCols={4}
+        emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合筛选的歌曲' : '这个库还是空的'}
+        emptyAction={
+          filtered ? (
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
+              清空筛选
+            </button>
+          ) : undefined
+        }
+      >
           <table className="table">
             <thead>
               <tr>
@@ -141,7 +138,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
               </tr>
             </thead>
             <tbody>
-              {(active.data.items as Array<Record<string, unknown>>).map((row) => {
+              {activeRows.map((row) => {
                 const isSong = search.tab === 'songs'
                 const isAlbum = search.tab === 'albums'
                 const id = Number(row.song_id ?? row.album_id ?? row.person_id ?? 0)
@@ -237,15 +234,8 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
               })}
             </tbody>
           </table>
-          <Pager
-            total={active.data.total}
-            page={search.page}
-            pageSize={search.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-          />
-        </ListCard>
-      ) : null}
+      </ListSection>
+
     
       {syncArtist !== null ? (
         <Modal
