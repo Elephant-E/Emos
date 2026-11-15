@@ -274,28 +274,12 @@ export function WatchlistDetailView({
               {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
             </>
           )}
-          facts={(video) =>
-            video.remark ? (
-              <span>备注：{video.remark}</span>
-            ) : item?.is_edit_video ? (
-              <button
-                type="button"
-                className="btn btn--quiet"
-                onClick={() =>
-                  setRemarkFor({ videoId: video.video_id, title: video.video_title, remark: video.remark ?? '' })
-                }
-              >
-                添加备注
-              </button>
-            ) : (
-              <span>无备注</span>
-            )
-          }
-          extra={
+          facts={(video) => <span>{video.remark ? `备注：${video.remark}` : '无备注'}</span>}
+          actions={
             item?.is_edit_video
               ? (video) => (
-                  <div className="detail-sort">
-                    <span className="detail-sort__label">排序</span>
+                  <>
+                    {/* 功能操作统一放右侧：排序、备注、移出 */}
                     <InlineSortInput
                       value={video.sort}
                       label={`${video.video_title} 的排序`}
@@ -306,29 +290,19 @@ export function WatchlistDetailView({
                         )
                       }
                     />
-                  </div>
-                )
-              : undefined
-          }
-          actions={
-            item?.is_edit_video
-              ? (video) => (
-                  <>
-                    {video.remark ? (
-                      <button
-                        type="button"
-                        className="btn btn--quiet"
-                        onClick={() =>
-                          setRemarkFor({
-                            videoId: video.video_id,
-                            title: video.video_title,
-                            remark: video.remark ?? '',
-                          })
-                        }
-                      >
-                        改备注
-                      </button>
-                    ) : null}
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() =>
+                        setRemarkFor({
+                          videoId: video.video_id,
+                          title: video.video_title,
+                          remark: video.remark ?? '',
+                        })
+                      }
+                    >
+                      {video.remark ? '改备注' : '加备注'}
+                    </button>
                     <button
                       type="button"
                       className="btn btn--danger-text"
