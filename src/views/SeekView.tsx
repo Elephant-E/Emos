@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
-import { SeekRecords } from '@/components/SeekRecords'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -17,7 +16,7 @@ import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
-import { formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
@@ -190,11 +189,23 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             meta={(item) => (
               <>
                 <span className="chip">{VIDEO_TYPE_LABEL[item.video_type]}</span>
-                <span>{item.seek_carrot ? `悬赏 ${formatThousand(item.seek_carrot)} 胡萝卜` : '无悬赏'}</span>
                 {item.upload_username ? <span className="cell-title__code">认领 {item.upload_username}</span> : null}
               </>
             )}
-            extra={(item) => <SeekRecords seekId={item.id} count={item.count_request} />}
+            extra={(item) => (
+              <div className="seek-records">
+                <p className="seek-records__head">求片记录</p>
+                <div className="seek-records__row">
+                  <span>{item.count_request} 人求</span>
+                  <span>{item.seek_carrot ? `悬赏 ${formatThousand(item.seek_carrot)} 胡萝卜` : '无悬赏'}</span>
+                  <span>
+                    {item.status === 'upload' && item.upload_expired_at
+                      ? `${formatRelative(item.upload_expired_at)}到期`
+                      : `${formatRelative(item.updated_at)}更新`}
+                  </span>
+                </div>
+              </div>
+            )}
             fullActions
             actions={(item) => {
               // 求片页要在列表里就能处理，三个动作缺一不可：详情 / 认领 / 催片
