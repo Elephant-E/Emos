@@ -1,3 +1,4 @@
+import type { BadgeTone } from '@/components/Badge'
 export function formatThousand(n: number | null | undefined): string {
   if (n === null || n === undefined || Number.isNaN(n)) return '—'
   return n.toLocaleString('zh-CN')
@@ -51,12 +52,12 @@ export function formatRelative(iso: string | null | undefined): string {
 export const VIDEO_TYPE_LABEL: Record<string, string> = { movie: '电影', tv: '剧集' }
 export const VIDEO_TYPE_COLOR: Record<string, string> = { movie: 'var(--c-yellow)', tv: 'var(--c-green)' }
 
-export const SEEK_STATUS: Record<string, { label: string; cls: string }> = {
-  default: { label: '求片中', cls: 'badge--wait' },
-  upload: { label: '已认领', cls: 'badge--run' },
-  complete: { label: '已完成', cls: 'badge--ok' },
-  cancel: { label: '已取消', cls: 'badge--off' },
-  forget: { label: '已遗忘', cls: 'badge--off' },
+export const SEEK_STATUS: Record<string, { label: string; tone: BadgeTone }> = {
+  default: { label: '求片中', tone: 'wait' },
+  upload: { label: '已认领', tone: 'run' },
+  complete: { label: '已完成', tone: 'ok' },
+  cancel: { label: '已取消', tone: 'off' },
+  forget: { label: '已遗忘', tone: 'off' },
 }
 
 // 萝卜 → 境界对照表，见 docs/WIKI-NOTES.md

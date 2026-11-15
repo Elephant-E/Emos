@@ -1,5 +1,6 @@
 import { Poster } from '@/components/Poster'
 import { DetailHead, DetailStats } from '@/components/DetailHead'
+import { Badge } from '@/components/Badge'
 import { formatRelative, formatThousand } from '@/lib/format'
 import type { WatchItem } from '@/api/types'
 
@@ -31,10 +32,7 @@ export function WatchlistHead({
       }
       chips={
         <>
-          <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
-            <i />
-            {item.is_public ? '公开' : '私密'}
-          </span>
+          <Badge tone={item.is_public ? 'ok' : 'off'}>{item.is_public ? '公开' : '私密'}</Badge>
           {(item.tags ?? []).map((tag) => (
             <span key={tag} className="chip">
               {tag}

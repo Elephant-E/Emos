@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
+import { Badge } from '@/components/Badge'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 
@@ -162,22 +163,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 ) : order.user?.username ? (
                   <span>{order.user.username}</span>
                 ) : null}
-                <span className={`badge ${order.status_pay === 'pay' || order.status_pay === 'paid' ? 'badge--ok' : 'badge--wait'}`}>
-                  <i />
+                <Badge tone={order.status_pay === 'pay' || order.status_pay === 'paid' ? 'ok' : 'wait'}>
                   {order.status_pay === 'pay' || order.status_pay === 'paid' ? '已支付' : '待支付'}
-                </span>
-                <span
-                  className={`badge ${
-                    order.time_delivery ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'
-                  }`}
-                >
-                  <i />
-                  {order.time_delivery
-                    ? '已发货'
-                    : (order.urge_number ?? 0) > 0
-                      ? `催发货 ${order.urge_number}`
-                      : '待发货'}
-                </span>
+                </Badge>
+                <Badge tone={order.time_delivery ? 'ok' : (order.urge_number ?? 0) > 0 ? 'warn' : 'off'}>
+                  {order.time_delivery ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
+                </Badge>
               </>
             )}
             facts={(order) => (
