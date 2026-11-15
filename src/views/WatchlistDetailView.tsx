@@ -283,6 +283,7 @@ export function WatchlistDetailView({
               ? (video) => (
                   <>
                     {/* 功能操作统一放右侧：排序、备注、移出 */}
+                    <span className="record-row__label-mini">排序</span>
                     <InlineSortInput
                       value={video.sort}
                       label={`${video.video_title} 的排序`}
