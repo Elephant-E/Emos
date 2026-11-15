@@ -9,6 +9,7 @@ import { MediaEditModal } from '@/components/video/MediaEditModal'
 import { SubtitleEditModal } from '@/components/video/SubtitleEditModal'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
+import { DetailHead, DetailStats } from '@/components/DetailHead'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
@@ -185,52 +186,43 @@ export function VideoDetailView({
       ) : null}
 
       {video ? (
-        <section className="detail-head">
-          <div className="detail-head__row">
-            {video.video_image_poster ? (
+        <DetailHead
+          media={
+            video.video_image_poster ? (
               <Poster src={video.video_image_poster} name={video.video_title} className="poster-img detail-head__poster" />
-            ) : null}
-            <div className="detail-head__text">
-              <div className="detail-head__chips">
-                <span className="zone">
-                  <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                  {VIDEO_TYPE_LABEL[video.video_type]}
+            ) : null
+          }
+          chips={
+            <>
+              <span className="zone">
+                <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
+                {VIDEO_TYPE_LABEL[video.video_type]}
+              </span>
+              {video.genres?.map((genre) => (
+                <span key={genre.id} className="chip">
+                  {genre.name}
                 </span>
-                {video.genres?.map((genre) => (
-                  <span key={genre.id} className="chip">
-                    {genre.name}
-                  </span>
-                ))}
-                {/* seek_is_request 为 false 也可能存在求片（实测 seek_id 有值却 false），按 id/count 判断 */}
-                {video.request_count > 0 || video.seek_id ? (
-                  <span className="chip" style={{ color: 'var(--c-yellow)', borderColor: 'rgba(255,197,61,.4)' }}>
-                    {video.request_count} 人求片
-                  </span>
-                ) : null}
-                {video.is_delete ? <span className="chip" style={{ color: 'var(--c-red)' }}>已删除</span> : null}
-              </div>
-              {video.video_origin_title ? <p className="detail-desc">{video.video_origin_title}</p> : null}
-              <div className="detail-stats">
-                <div className="detail-stat">
-                  <b>{video.todb_id}</b>
-                  <span>TODB</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{video.tmdb_id ?? '—'}</b>
-                  <span>TMDB</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{video.medias_count}</b>
-                  <span>资源</span>
-                </div>
-                <div className="detail-stat">
-                  <b>{video.subtitles_count}</b>
-                  <span>字幕</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+              ))}
+              {/* seek_is_request 为 false 也可能存在求片（实测 seek_id 有值却 false），按 id/count 判断 */}
+              {video.request_count > 0 || video.seek_id ? (
+                <span className="chip" style={{ color: 'var(--c-yellow)', borderColor: 'rgba(255,197,61,.4)' }}>
+                  {video.request_count} 人求片
+                </span>
+              ) : null}
+              {video.is_delete ? <span className="chip" style={{ color: 'var(--c-red)' }}>已删除</span> : null}
+            </>
+          }
+        >
+          {video.video_origin_title ? <p className="detail-desc">{video.video_origin_title}</p> : null}
+          <DetailStats
+            items={[
+              { value: <b>{video.todb_id}</b>, label: 'TODB' },
+              { value: <b>{video.tmdb_id ?? '—'}</b>, label: 'TMDB' },
+              { value: <b>{video.medias_count}</b>, label: '资源' },
+              { value: <b>{video.subtitles_count}</b>, label: '字幕' },
+            ]}
+          />
+        </DetailHead>
       ) : null}
 
       {video ? (
