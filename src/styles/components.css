@@ -2571,7 +2571,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__body {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: var(--sp-1);
   min-width: 0;
 }
