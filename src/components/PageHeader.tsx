@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { Fragment, isValidElement, useEffect, useRef, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { IconGrid } from './icons'
 
@@ -29,10 +29,23 @@ const SECTION_PATH: Record<string, string> = {
   回收站: '/recycle',
 }
 
+/** 过滤掉条件渲染留下的 null，工具按钮之间不留空档（fragment 也要拆开看） */
+function childrenOf(node: ReactNode): ReactNode {
+  const isNull = (child: ReactNode) => child === null || child === undefined || child === false
+  if (Array.isArray(node)) return node.filter((child) => !isNull(child))
+  if (isValidElement<{ children?: ReactNode }>(node) && node.type === Fragment) {
+    const inner = node.props.children
+    const list = (Array.isArray(inner) ? inner : [inner]).filter((child) => !isNull(child))
+    return list.length > 0 ? list : null
+  }
+  return node
+}
+
 export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
   const root = crumb[0]
   // 传了 fragment 但里面全是 null 时不要渲染空容器（会留一块空白）
-  const hasTools = Boolean(tools) && !(Array.isArray(tools) && tools.every((t) => t == null))
+  // 传了 fragment 但内容全是 null 时不渲染容器（否则右上角留一个 0×4 的空盒）
+  const toolNodes = tools ? childrenOf(tools) : null
   const path = SECTION_PATH[root]
   // 工具横向溢出时才加渐隐：没溢出还渐隐会把最后一个按钮右边缘裁掉
   const toolsRef = useRef<HTMLDivElement>(null)
@@ -73,9 +86,9 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
           {hint ? <span className="page-title__hint">{hint}</span> : null}
         </div>
       </div>
-      {tools && hasTools ? (
+      {toolNodes ? (
         <div className="head-tools" ref={toolsRef}>
-          {tools}
+          {toolNodes}
         </div>
       ) : null}
     </div>
