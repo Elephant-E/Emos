@@ -2513,6 +2513,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   border-radius: var(--r-card);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
 }
+.record-row--plain { grid-template-columns: minmax(0, 1fr); }
+/* 卡片里的行（资源、字幕这类详情内嵌列表）不再套第二层框 */
+.card .record-row {
+  border: 0;
+  background: none;
+  border-radius: 0;
+  padding: var(--sp-2) 0;
+}
+.card .record-row + .record-row { border-top: 1px solid var(--line-soft); }
+.card .record-row__actions { margin-top: var(--sp-2); }
 .record-row.is-clickable { cursor: pointer; }
 .record-row.is-clickable:hover { border-color: var(--line-hot); }
 .record-row__media { position: relative; width: 96px; }
@@ -2582,7 +2592,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 /* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
 @media (min-width: 900px) {
-  .record-row { grid-template-columns: 96px minmax(0, 1fr); align-items: start; }
+  .record-row { align-items: start; }
+  .record-row:not(.record-row--plain) { grid-template-columns: 96px minmax(0, 1fr); }
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */

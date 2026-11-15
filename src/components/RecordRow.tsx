@@ -48,7 +48,7 @@ export function RecordRow<T>({
         return (
           <article
             key={idKey(row)}
-            className={`record-row${onOpen ? ' is-clickable' : ''}`}
+            className={`record-row${onOpen ? ' is-clickable' : ''}${poster ? '' : ' record-row--plain'}`}
             {...(onOpen
               ? {
                   role: 'button',

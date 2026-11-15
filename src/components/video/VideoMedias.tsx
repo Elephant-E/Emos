@@ -1,5 +1,5 @@
 import { CardHead } from '@/components/CardHead'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
 import { formatDateTime, formatSize } from '@/lib/format'
@@ -47,73 +47,36 @@ export function VideoMedias({
       ) : null}
 
       {rows.length > 0 ? (
-        <RecordList
+        <RecordRow
           rows={rows}
           idKey={(row) => String(row.media_id ?? '')}
-          className="table table--inset"
-          columns={[
-            {
-              key: 'name',
-              label: '资源名',
-              mobile: 'primary',
-              // 标题下挂入库时间：与字幕卡同构（标题 + 时间 / 大小 · 上传者），
-              // 否则两张卡的信息行对不上，右边也显得参差
-              render: (row) => (
-                <span className="cell-title">
-                  <span>
-                    <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
-                    <span className="cell-title__code">{formatDateTime(String(row.created_at ?? ''))}</span>
-                  </span>
-                </span>
-              ),
-            },
-            {
-              key: 'size',
-              label: '大小',
-              mobileLabel: null,
-              thClass: 'num',
-              thWidth: 92,
-              mobile: 'inline',
-              render: (row) => (
-                <span className="muted">
-                  {formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}
-                </span>
-              ),
-            },
-            {
-              key: 'owner',
-              label: '上传者',
-              mobileLabel: null,
-              thWidth: 96,
-              mobile: 'inline',
-              render: (row) => <span className="muted">{String(row.user_pseudonym ?? '—')}</span>,
-            },
-            {
-              key: 'actions',
-              label: '',
-              thWidth: 48,
-              mobile: 'block',
-              mobileAlign: 'end',
-              render: (row) =>
-                row.is_self_upload || canEdit ? (
-                  <button
-                    type="button"
-                    className="row-menu"
-                    aria-label="编辑资源"
-                    onClick={() =>
-                      onEdit({
-                        mediaId: String(row.media_id ?? ''),
-                        name: String(row.media_name ?? ''),
-                        isSelf: Boolean(row.is_self_upload),
-                        owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
-                      })
-                    }
-                  >
-                    <IconDots />
-                  </button>
-                ) : null,
-            },
-          ]}
+          title={(row) => String(row.media_name ?? '—')}
+          facts={(row) => (
+            <>
+              <span>{formatDateTime(String(row.created_at ?? ''))}</span>
+              <span>{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</span>
+              <span>{String(row.user_pseudonym ?? '—')}</span>
+            </>
+          )}
+          actions={(row) =>
+            row.is_self_upload || canEdit ? (
+              <button
+                type="button"
+                className="row-menu"
+                aria-label="编辑资源"
+                onClick={() =>
+                  onEdit({
+                    mediaId: String(row.media_id ?? ''),
+                    name: String(row.media_name ?? ''),
+                    isSelf: Boolean(row.is_self_upload),
+                    owner: row.user_pseudonym ? String(row.user_pseudonym) : null,
+                  })
+                }
+              >
+                <IconDots />
+              </button>
+            ) : null
+          }
         />
       ) : null}
     </article>
