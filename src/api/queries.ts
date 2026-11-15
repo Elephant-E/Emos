@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
+import { MUSIC_DISABLED } from '@/lib/feature-flags'
 
 /**
  * queryKey 工厂。
@@ -326,7 +327,7 @@ export function useWatchMusic(
   return useQuery({
     queryKey: ['watch', watchId, 'music', params] as const,
     queryFn: () => watchApi.music(watchId, params),
-    enabled,
+    enabled: enabled && !MUSIC_DISABLED,
   })
 }
 
@@ -352,7 +353,7 @@ export function useWatchMusicSearch(watchId: number, title: string) {
   return useQuery({
     queryKey: ['watch', watchId, 'musicSearch', title] as const,
     queryFn: () => watchApi.searchMusic(watchId, { song_name: title, page_size: 8 }),
-    enabled: title.trim().length > 0,
+    enabled: !MUSIC_DISABLED && title.trim().length > 0,
   })
 }
 
@@ -851,7 +852,7 @@ export function useMusicSongs(
         has_media: filter === 'no_media' ? false : undefined,
         is_favorite: filter === 'favorite' ? true : undefined,
       }),
-    enabled,
+    enabled: enabled && !MUSIC_DISABLED,
   })
 }
 
@@ -859,7 +860,7 @@ export function useMusicAlbums(page: number, term: string, enabled = true, pageS
   return useQuery({
     queryKey: ['music', 'albums', page, pageSize, term] as const,
     queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
-    enabled,
+    enabled: enabled && !MUSIC_DISABLED,
   })
 }
 
@@ -867,7 +868,7 @@ export function useMusicPersons(page: number, term: string, enabled = true, page
   return useQuery({
     queryKey: ['music', 'persons', page, pageSize, term] as const,
     queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
-    enabled,
+    enabled: enabled && !MUSIC_DISABLED,
   })
 }
 

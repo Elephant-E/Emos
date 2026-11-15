@@ -7,6 +7,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { duration } from '@/lib/format'
+import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 import { rowLink } from '@/lib/rowLink'
 import type { WatchItem } from '@/api/types'
 import { useWatchMusicMutations, useWatchMusicSearch, type useWatchMusic } from '@/api/queries'
@@ -40,6 +41,11 @@ export function WatchMusicRows({
   const { addSong, removeSong } = useWatchMusicMutations(watchId)
   const [songTerm, setSongTerm] = useState('')
   const songCandidates = useWatchMusicSearch(watchId, songTerm)
+
+  // 上游停用音乐域：片单里的音乐行不再请求
+  if (MUSIC_DISABLED) {
+    return <EmptyBlock title={MUSIC_DISABLED_TITLE} hint={MUSIC_DISABLED_HINT} />
+  }
 
   return (
     <>

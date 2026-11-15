@@ -6,6 +6,7 @@ import { toast } from '@/ui/toast'
 import { detectUploadKind, type UploadKind } from '@/lib/format'
 import { findDuplicateMusic, musicTermFromName, resolveTargetByFilename } from '@/lib/upload-resolve'
 import { runPool } from '@/lib/concurrency'
+import { MUSIC_DISABLED, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 import { DEFAULT_UPLOAD_STORAGE, uploadAndSave, uploadSong, uploadSubtitle, type UploadTarget } from '@/lib/uploader'
 
 export const KIND_LABEL: Record<UploadKind, string> = { video: '视频', subtitle: '字幕', music: '音乐' }
@@ -100,11 +101,22 @@ export function useUploadQueue({ onSongTerm }: { onSongTerm?: (term: string) => 
 
   const addFiles = async (files: FileList | File[]) => {
     const all = Array.from(files)
+    let skippedMusic = 0
     const typed = all
       .map((file) => ({ file, kind: detectUploadKind(file) }))
       .filter((entry): entry is { file: File; kind: UploadKind } => entry.kind !== null)
-    if (typed.length !== all.length) {
-      toast(`${all.length - typed.length} 个文件类型不支持，已跳过`, 'error')
+      // 音乐上传随音乐域一起停用：不静默丢弃，明确告诉用户是功能不可用，而不是文件有问题
+      .filter((entry) => {
+        if (entry.kind !== 'music' || !MUSIC_DISABLED) return true
+        skippedMusic += 1
+        return false
+      })
+    if (skippedMusic > 0) {
+      toast(`${skippedMusic} 个音频未加入：${MUSIC_DISABLED_TITLE}`, 'error')
+    }
+    const unsupported = all.length - typed.length - skippedMusic
+    if (unsupported > 0) {
+      toast(`${unsupported} 个文件类型不支持，已跳过`, 'error')
     }
     // 同一个文件拖两次没有意义：队列里已有的（失败的不算）直接跳过
     const fresh = typed.filter(

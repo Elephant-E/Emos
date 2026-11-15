@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
 import { Poster } from '@/components/Poster'
-import { mediaApi, musicApi, recordApi, seekApi, videoApi, watchApi } from '@/api/endpoints'
+import { mediaApi, recordApi, seekApi, videoApi, watchApi } from '@/api/endpoints'
 import { useSession } from '@/api/queries'
 import { formatThousand, episodeCode } from '@/lib/format'
 
@@ -55,12 +55,6 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   const videos = useQuery({
     queryKey: ['global-search', 'video', q] as const,
     queryFn: () => videoApi.search({ title: q, page: 1, page_size: PAGE_SIZE }),
-    enabled: searching,
-    staleTime: 60_000,
-  })
-  const songs = useQuery({
-    queryKey: ['global-search', 'song', q] as const,
-    queryFn: () => musicApi.songSearch({ name: q, page: 1, page_size: PAGE_SIZE }),
     enabled: searching,
     staleTime: 60_000,
   })
@@ -124,25 +118,6 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           all: () => {
             close()
             void navigate({ to: '/library', search: { page: 1, page_size: 20, q, type: '' } })
-          },
-        },
-        {
-          key: 'song',
-          label: '音乐',
-          loading: songs.isFetching,
-          hits: (songs.data?.items ?? []).map((row) => ({
-            key: `song-${row.song_id}`,
-            title: row.name,
-            sub: (row.person_artists ?? []).map((p) => p.name).filter(Boolean).slice(0, 2).join(' / '),
-            shape: 'square' as const,
-            open: () => {
-              close()
-              void navigate({ to: '/music/song/$songId', params: { songId: String(row.song_id) } })
-            },
-          })),
-          all: () => {
-            close()
-            void navigate({ to: '/music', search: { page: 1, page_size: 20, tab: 'songs', q, filter: '' } })
           },
         },
         {
@@ -275,7 +250,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
         })),
       },
     ]
-  }, [searching, videos.data, videos.isFetching, songs.data, songs.isFetching, watches.data, watches.isFetching, seeks.data, seeks.isFetching, recentViews.data, recentViews.isFetching, recentUploads.data, recentUploads.isFetching, myWatchlists.data, myWatchlists.isFetching, q])
+  }, [searching, videos.data, videos.isFetching, watches.data, watches.isFetching, seeks.data, seeks.isFetching, recentViews.data, recentViews.isFetching, recentUploads.data, recentUploads.isFetching, myWatchlists.data, myWatchlists.isFetching, q])
 
   const hits = useMemo(() => blocks.flatMap((block) => block.hits), [blocks])
 
@@ -307,8 +282,8 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
       <input
         className="input"
         type="search"
-        aria-label="搜索影片、音乐、片单、求片"
-        placeholder="搜索影片、音乐、片单、求片"
+        aria-label="搜索影片、片单、求片"
+        placeholder="搜索影片、片单、求片"
         value={term}
         autoFocus
         onChange={(event) => {
@@ -366,7 +341,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
               {block.loading && block.hits.length === 0 ? <p className="search-panel__loading">查询中…</p> : null}
               {block.all && block.hits.length > 0 ? (
                 <button type="button" className="search-panel__all" onClick={block.all}>
-                  在{block.key === 'video' ? '媒体库' : block.key === 'song' ? '音乐' : block.key === 'watch' ? '片单' : '求片'}中查看全部
+                  在{block.key === 'video' ? '媒体库' : block.key === 'watch' ? '片单' : '求片'}中查看全部
                 </button>
               ) : null}
             </section>

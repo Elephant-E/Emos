@@ -6,6 +6,7 @@ import { PickList } from '@/components/PickList'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
+import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { uploadSong } from '@/lib/uploader'
@@ -57,6 +58,16 @@ export function SongDetailView({ songId }: { songId: number }) {
   })
   /** 挪到当前这首歌下面没有意义，过滤掉 */
   const moveTargetsCandidates = (moveTargets.data?.items ?? []).filter((row) => row.song_id !== songId)
+
+  // 上游停用音乐域：详情、歌词、资源都不再请求
+  if (MUSIC_DISABLED) {
+    return (
+      <>
+        <PageHeader crumb={['音乐', `#${songId}`]} title="歌曲详情" />
+        <EmptyBlock title={MUSIC_DISABLED_TITLE} hint={MUSIC_DISABLED_HINT} />
+      </>
+    )
+  }
 
   return (
     <>

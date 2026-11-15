@@ -6,11 +6,13 @@ import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
+import { EmptyBlock } from '@/components/StateBlock'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { duration } from '@/lib/format'
+import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 
 export interface MusicSearch {
   page: number
@@ -46,6 +48,16 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   // 「无资源 / 已收藏」只作用于歌曲 tab：筛出 0 条不等于「音乐库为空」
   const filter = search.tab === 'songs' ? search.filter : ''
   const filtered = Boolean(search.q) || Boolean(filter)
+
+  // 上游 2026-11-14 停用音乐域：查询已全部 enabled=false，这里只留一句说明
+  if (MUSIC_DISABLED) {
+    return (
+      <>
+        <PageHeader crumb={['音乐', '曲库']} title="音乐" />
+        <EmptyBlock title={MUSIC_DISABLED_TITLE} hint={MUSIC_DISABLED_HINT} />
+      </>
+    )
+  }
 
   return (
     <>

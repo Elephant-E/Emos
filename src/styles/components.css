@@ -155,7 +155,13 @@
   justify-content: space-between;
   gap: var(--pad-card);
   max-width: var(--page-max);
-  margin-inline: auto;
+  /*
+   * 标题与页面内容之间的间距由这里统一负责。
+   * 以前是靠各页恰好渲染的 .toolbar 的 margin-top 撑开的，没有工具栏的页面
+   * （比如整页只有一句说明时）就会贴着标题——间距不该取决于内容长什么样。
+   * 与下方元素的 margin-top 相邻折叠，不会叠加成双倍。
+   */
+  margin: 0 auto var(--gap-card);
 }
 .crumb {
   display: flex;
