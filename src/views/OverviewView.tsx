@@ -43,8 +43,8 @@ export function OverviewView() {
   const carrotHistory = useCarrotHistory(1, 3)
   const todos = useTodos()
   const todoAll = [
-    { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page: 1, page_size: 20, tab: 'default' as const } },
-    { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { page: 1, pay: 'paid' as const, delivery: 'pending' as const } },
+    { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { page_size: 20, tab: 'default' as const } },
+    { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { pay: 'paid' as const, delivery: 'pending' as const } },
     { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
   ]
   // 加载中也占位：空态要区分「还没有数据」与「取不到」
@@ -202,7 +202,7 @@ export function OverviewView() {
           })()}
         />
 
-        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self',  q: '' }}>
+        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page_size: 20, scope: 'self',  q: '' }}>
           <p className="stat__label">片单槽位</p>
           <p className="stat__value">
             {ready ? caps.slotRemaining : '—'}
@@ -228,7 +228,7 @@ export function OverviewView() {
       <section className="cards cards--2">
         <article className="card">
           <CardHead title="继续观看">
-            <Link className="btn btn--quiet" to="/library" search={{ page: 1, page_size: 20, q: '', type: '' }}>
+            <Link className="btn btn--quiet" to="/library" search={{ page_size: 20, q: '', type: '' }}>
               去媒体库
             </Link>
           </CardHead>
@@ -361,7 +361,7 @@ export function OverviewView() {
         <section className="cards cards--wide">
           <article className="card">
             <CardHead title="我的片单">
-              <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self',  q: '' }}>
+              <Link className="btn btn--quiet" to="/watchlists" search={{ page_size: 20, scope: 'self',  q: '' }}>
                 全部
               </Link>
             </CardHead>
@@ -379,7 +379,7 @@ export function OverviewView() {
                   <Link
                     to="/watchlists/$watchId"
                     params={{ watchId: String(w.id) }}
-                    search={{ page: 1, page_size: 20, q: '' }}
+                    search={{ page_size: 20, q: '' }}
                     className="row text-sm"
                   >
                     <span className="text-body ellipsis" style={{ flex: 1 }}>{w.name}</span>

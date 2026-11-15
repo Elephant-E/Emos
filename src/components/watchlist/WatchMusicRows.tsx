@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
-import { Pager } from '@/components/Pager'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -14,7 +13,6 @@ import { useWatchMusicMutations, useWatchMusicSearch, type useWatchMusic } from 
 
 /** 片单详情页的查询参数（影视与音乐共用） */
 export interface WatchDetailSearch {
-  page: number
   page_size: number
   q: string
 }
@@ -22,16 +20,12 @@ export interface WatchDetailSearch {
 export function WatchMusicRows({
   watchId,
   item,
-  search,
-  onSearch,
   songs,
   addingSong,
   onCloseAdd,
 }: {
   watchId: number
   item: WatchItem
-  search: WatchDetailSearch
-  onSearch: (patch: Partial<WatchDetailSearch>) => void
   songs: ReturnType<typeof useWatchMusic>
   addingSong: boolean
   onCloseAdd: () => void
@@ -108,13 +102,6 @@ export function WatchMusicRows({
               ))}
             </tbody>
           </table>
-          <Pager
-            total={songs.data.total}
-            page={search.page}
-            pageSize={songs.data.page_size || search.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(size) => onSearch({ page_size: size, page: 1 })}
-          />
         </div>
       ) : null}
       {addingSong ? (

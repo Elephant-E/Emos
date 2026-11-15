@@ -87,7 +87,6 @@ const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/library',
   validateSearch: (s: Record<string, unknown>): LibrarySearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
@@ -156,7 +155,6 @@ const shopRoute = createRoute({
   path: '/shop',
   validateSearch: (s: Record<string, unknown>): {
     tab: 'products' | 'categories' | 'seller'
-    page: number
     page_size: number
     category: number
     q: string
@@ -165,7 +163,6 @@ const shopRoute = createRoute({
     scope: 'all' | 'mine'
   } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
     q: asString(s.q),
@@ -195,7 +192,6 @@ const ordersRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/orders',
   validateSearch: (s: Record<string, unknown>): OrdersSearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
@@ -215,7 +211,6 @@ const liveRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/live',
   validateSearch: (s: Record<string, unknown>): LiveSearch => ({
-    page: asPage(s.page),
     library: Number(s.library) || 0,
     channel: Number(s.channel) || 0,
   }),
@@ -232,7 +227,6 @@ const linesRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/lines',
   validateSearch: (s: Record<string, unknown>): LinesSearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),
@@ -276,7 +270,6 @@ const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
   validateSearch: (s: Record<string, unknown>): MusicSearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
     q: asString(s.q),
@@ -306,15 +299,14 @@ const payRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/pay',
   beforeLoad: () => {
-    throw redirect({ to: '/fund', search: { tab: 'merchant', page: 1, page_size: 20 } })
+    throw redirect({ to: '/fund', search: { tab: 'merchant', page_size: 20 } })
   },
 })
 
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
-    page: asPage(s.page),
+  validateSearch: (s: Record<string, unknown>): { page_size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
     page_size: asPageSize(s.page_size),
     tab: s.tab === 'merchant' ? 'merchant' : s.tab === 'carrot' ? 'carrot' : 'orders',
   }),
@@ -328,7 +320,6 @@ function FundRoute() {
     <FundView
       tab={search.tab}
       onTab={(tab) => navigate({ search: { ...search, tab } })}
-      page={search.page}
       pageSize={search.page_size}
     />
   )
@@ -340,7 +331,6 @@ const redPacketRoute = createRoute({
   validateSearch: (s: Record<string, unknown>): RedPacketSearch => ({
     tab: s.tab === 'records' ? 'records' : 'send',
     id: asString(s.id),
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
   }),
   component: RedPacketRoute,
@@ -431,7 +421,6 @@ const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
   validateSearch: (s: Record<string, unknown>): SeekSearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
     q: typeof s.q === 'string' ? s.q : '',
@@ -451,7 +440,6 @@ const watchlistsRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists',
   validateSearch: (s: Record<string, unknown>): WatchSearch => ({
-    page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
     q: typeof s.q === 'string' ? s.q : '',
@@ -468,9 +456,8 @@ function WatchlistsRoute() {
 const watchlistDetailRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists/$watchId',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string } => ({
-    page: asPage(s.page),
-    // 取 URL 的 page_size；写死 20 会覆盖 Pager 选的条数
+  validateSearch: (s: Record<string, unknown>): { page_size: number; q: string } => ({
+    // 取 URL 的 page_size
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),

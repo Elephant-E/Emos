@@ -20,7 +20,6 @@ import { formatRelative, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface WatchSearch {
-  page: number
   page_size: number
   scope: 'all' | 'self' | 'subscribed'
   q: string
@@ -47,7 +46,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
 
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
   const session = useSession()
   const watchParams = {
     page_size: search.page_size,
@@ -112,7 +111,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       />
 
       <div className="toolbar">
-        <Tabs items={TABS} value={search.scope} onChange={(scope) => onSearch({ scope, page: 1 })} label="范围" />
+        <Tabs items={TABS} value={search.scope} onChange={(scope) => onSearch({ scope })} label="范围" />
         <span className="spacer" />
         <input
           className="input"
@@ -143,7 +142,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         emptyTitle={emptyTitle(search.q, search.scope)}
         emptyAction={
           search.q ? (
-            <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />
+            <ClearSearchButton onClick={() => onSearch({ q: '' })} />
           ) : (
             <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
               新建片单
@@ -155,7 +154,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             rows={items}
             idKey={(watch) => watch.id}
             onOpen={(watch) =>
-              navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } })
+              navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page_size: 20, q: '' } })
             }
             className="table table--auto table--thumb-wide"
             columns={[

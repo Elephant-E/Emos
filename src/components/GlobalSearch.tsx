@@ -54,19 +54,19 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
 
   const videos = useQuery({
     queryKey: ['global-search', 'video', q] as const,
-    queryFn: () => videoApi.search({ title: q, page: 1, page_size: PAGE_SIZE }),
+    queryFn: () => videoApi.search({ title: q, page_size: PAGE_SIZE }),
     enabled: searching,
     staleTime: 60_000,
   })
   const watches = useQuery({
     queryKey: ['global-search', 'watch', q] as const,
-    queryFn: () => watchApi.list({ name: q, page: 1, page_size: PAGE_SIZE }),
+    queryFn: () => watchApi.list({ name: q, page_size: PAGE_SIZE }),
     enabled: searching,
     staleTime: 60_000,
   })
   const seeks = useQuery({
     queryKey: ['global-search', 'seek', q] as const,
-    queryFn: () => seekApi.list({ video_title: q, page: 1, page_size: PAGE_SIZE, status: ['default', 'upload', 'complete', 'cancel', 'forget'] }),
+    queryFn: () => seekApi.list({ video_title: q, page_size: PAGE_SIZE, status: ['default', 'upload', 'complete', 'cancel', 'forget'] }),
     enabled: searching,
     staleTime: 60_000,
   })
@@ -81,13 +81,13 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   // 我上传的资源：listAll 按 user_id 过滤，返回顺序是入库时间正序，取最后几条再看时间倒序
   const recentUploads = useQuery({
     queryKey: ['global-search', 'recent-uploads', userId] as const,
-    queryFn: () => mediaApi.listAll({ user_id: userId, page: 1, page_size: 20 }),
+    queryFn: () => mediaApi.listAll({ user_id: userId, page_size: 20 }),
     enabled: showingRecents && Boolean(userId),
     staleTime: 60_000,
   })
   const myWatchlists = useQuery({
     queryKey: ['global-search', 'my-watchlists'] as const,
-    queryFn: () => watchApi.list({ is_self: true, page: 1, page_size: RECENT_SIZE }),
+    queryFn: () => watchApi.list({ is_self: true, page_size: RECENT_SIZE }),
     enabled: showingRecents,
     staleTime: 60_000,
   })
@@ -117,7 +117,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           })),
           all: () => {
             close()
-            void navigate({ to: '/library', search: { page: 1, page_size: 20, q, type: '' } })
+            void navigate({ to: '/library', search: { page_size: 20, q, type: '' } })
           },
         },
         {
@@ -135,13 +135,13 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
               void navigate({
                 to: '/watchlists/$watchId',
                 params: { watchId: String(row.id) },
-                search: { page: 1, page_size: 20, q: '' },
+                search: { page_size: 20, q: '' },
               })
             },
           })),
           all: () => {
             close()
-            void navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q, scope: 'all' } })
+            void navigate({ to: '/watchlists', search: { page_size: 20, q, scope: 'all' } })
           },
         },
         {
@@ -158,13 +158,13 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
               close()
               void navigate({
                 to: '/seek',
-                search: { page: 1, page_size: 20, tab: 'all', q: String(row.video_title ?? ''), type: '', mine: false },
+                search: { page_size: 20, tab: 'all', q: String(row.video_title ?? ''), type: '', mine: false },
               })
             },
           })),
           all: () => {
             close()
-            void navigate({ to: '/seek', search: { page: 1, page_size: 20, tab: 'all', q, type: '', mine: false } })
+            void navigate({ to: '/seek', search: { page_size: 20, tab: 'all', q, type: '', mine: false } })
           },
         },
       ]
@@ -244,7 +244,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
             void navigate({
               to: '/watchlists/$watchId',
               params: { watchId: String(row.id) },
-              search: { page: 1, page_size: 20, q: '' },
+              search: { page_size: 20, q: '' },
             })
           },
         })),

@@ -101,16 +101,3 @@ export function ClearSearchButton({ onClick }: { onClick: () => void }) {
  * 与「本来就没有内容」区分开，并给一个回第一页的出口——
  * 否则用户被困在当前页，只能手改 URL。
  */
-export function OutOfRangeBlock({ onFirstPage }: { onFirstPage: () => void }) {
-  return (
-    <EmptyBlock
-      title="这一页没有内容"
-      hint="页码超出了结果范围"
-      action={
-        <button type="button" className="btn btn--ghost" onClick={onFirstPage}>
-          回到第一页
-        </button>
-      }
-    />
-  )
-}

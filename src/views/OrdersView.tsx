@@ -17,7 +17,6 @@ import { formatDateTime, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface OrdersSearch {
-  page: number
   page_size: number
   pay: 'all' | 'paid' | 'unpaid'
   delivery: 'all' | 'sent' | 'pending'
@@ -42,7 +41,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   const delivery = DELIVERY_TABS.find((t) => t.key === search.delivery) ?? DELIVERY_TABS[0]
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
 
   const mineScope = search.scope === 'mine'
   // 两个视角共用同一份筛选：分开写会出现「店铺订单能搜到、我的订单搜不到」
@@ -92,10 +91,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         tools={
           <>
             <div className="seg" role="group" aria-label="视角">
-              <button type="button" aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop', page: 1 })}>
+              <button type="button" aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop' })}>
                 店铺订单
               </button>
-              <button type="button" aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine', page: 1 })}>
+              <button type="button" aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine' })}>
                 我的订单
               </button>
             </div>
@@ -104,7 +103,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       />
 
       <div className="toolbar">
-        <Tabs items={PAY_TABS} value={search.pay} onChange={(pay) => onSearch({ pay, page: 1 })} label="支付状态" />
+        <Tabs items={PAY_TABS} value={search.pay} onChange={(pay) => onSearch({ pay })} label="支付状态" />
         <span className="spacer" />
         <input
           className="input"
@@ -116,7 +115,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         />
         <div className="seg" role="group" aria-label="发货状态">
           {DELIVERY_TABS.map((tab) => (
-            <button type="button" key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key, page: 1 })}>
+            <button type="button" key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key })}>
               {tab.label}
             </button>
           ))}
@@ -141,11 +140,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
         loadingRows={6}
         loadingCols={5}
-        outOfRange={!filtered && search.page > 1}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
         emptyAction={
           filtered ? (
-            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all' })}>
               清空筛选
             </button>
           ) : undefined

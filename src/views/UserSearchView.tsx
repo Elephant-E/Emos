@@ -62,10 +62,6 @@ export function UserSearchView() {
         onRetry={() => bans.refetch()}
         items={rows}
         total={rows.length}
-        page={1}
-        pageSize={rows.length || 20}
-        onPage={() => {}}
-        paginated={false}
         idKey={(r) => r.user_id}
         loadingRows={4}
         loadingCols={3}

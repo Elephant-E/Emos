@@ -21,7 +21,6 @@ import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TY
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
-  page: number
   page_size: number
   tab: 'all' | 'default' | 'upload' | 'complete'
   q: string
@@ -94,7 +93,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
   const [term, setTerm] = useState(search.q)
   useEffect(() => setTerm(search.q), [search.q])
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
 
   const seekParams = {
     page_size: search.page_size,
@@ -144,7 +143,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               />
 
       <div className="toolbar">
-        <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, page: 1 })} label="状态" />
+        <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab })} label="状态" />
         <span className="spacer" />
         <input
           className="input"
@@ -155,18 +154,18 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           onChange={(e) => setTerm(e.target.value)}
         />
         <div className="seg" role="group" aria-label="类型">
-          <button type="button" aria-pressed={search.type === ''} onClick={() => onSearch({ type: '', page: 1 })}>
+          <button type="button" aria-pressed={search.type === ''} onClick={() => onSearch({ type: '' })}>
             不限
           </button>
-          <button type="button" aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie' })}>
             电影
           </button>
-          <button type="button" aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv', page: 1 })}>
+          <button type="button" aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv' })}>
             剧集
           </button>
         </div>
         <label className="switch" style={{ marginLeft: 'var(--sp-1)' }}>
-          <input type="checkbox" checked={search.mine} onChange={(e) => onSearch({ mine: e.target.checked, page: 1 })} />
+          <input type="checkbox" checked={search.mine} onChange={(e) => onSearch({ mine: e.target.checked })} />
           只看我认领的
         </label>
       </div>
@@ -178,15 +177,13 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         items={items}
         total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         cardList
         idKey={(v) => v.id}
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={6}
         loadingCols={4}
         emptyTitle={emptyTitle(search.q, search.mine, search.type)}
-        emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+        emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
       >
           <RecordList
             rows={items}

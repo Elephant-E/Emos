@@ -172,7 +172,6 @@ type Row = Record<string, unknown>
 export function FundView({ tab, onTab, pageSize }: {
   tab: 'orders' | 'merchant' | 'carrot'
   onTab: (tab: 'orders' | 'merchant' | 'carrot') => void
-  page: number
   pageSize: number
 }) {
   const qc = useQueryClient()

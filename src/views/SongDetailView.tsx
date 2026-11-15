@@ -53,7 +53,7 @@ export function SongDetailView({ songId }: { songId: number }) {
   const [moveTerm, setMoveTerm] = useState('')
   const moveTargets = useQuery({
     queryKey: ['music', 'move-target', moveTerm],
-    queryFn: () => musicApi.songSearch({ name: moveTerm, page: 1, page_size: 10 }),
+    queryFn: () => musicApi.songSearch({ name: moveTerm, page_size: 10 }),
     enabled: Boolean(moving) && moveTerm.trim().length > 0,
   })
   /** 挪到当前这首歌下面没有意义，过滤掉 */
@@ -79,7 +79,7 @@ export function SongDetailView({ songId }: { songId: number }) {
         }
         tools={
           <>
-            <Link className="btn btn--ghost" to="/music" search={{ page: 1, page_size: 20, tab: 'songs', q: '', filter: '' }}>
+            <Link className="btn btn--ghost" to="/music" search={{ page_size: 20, tab: 'songs', q: '', filter: '' }}>
               返回列表
             </Link>
             <button type="button" className="btn btn--ghost" onClick={() => setMvOpen(true)}>

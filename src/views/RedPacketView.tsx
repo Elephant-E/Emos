@@ -24,7 +24,6 @@ type RedPacketTab = 'send' | 'records'
 export interface RedPacketSearch {
   tab: RedPacketTab
   id: string
-  page: number
   page_size: number
 }
 
@@ -50,8 +49,8 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
   const [idTerm, setIdTerm] = useState(search.id)
 
   const records = useQuery({
-    queryKey: ['redpacket', 'receive', search.id, search.page, search.page_size] as const,
-    queryFn: () => redPacketApi.receive({ red_packet_id: search.id, page: search.page, page_size: search.page_size }),
+    queryKey: ['redpacket', 'receive', search.id, search.page_size] as const,
+    queryFn: () => redPacketApi.receive({ red_packet_id: search.id, page: 1, page_size: search.page_size }),
     enabled: Boolean(search.id),
   })
 
@@ -170,7 +169,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
-                    onSearch({ tab: 'records', id: created, page: 1 })
+                    onSearch({ tab: 'records', id: created })
                     setIdTerm(created)
                   }}
                 >
@@ -325,7 +324,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
               <span>红包 ID</span>
               <input className="input" value={idTerm} onChange={(e) => setIdTerm(e.target.value)} placeholder="例如 BLJg3EDpYAno" />
             </label>
-            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ id: idTerm.trim(), page: 1 })}>
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ id: idTerm.trim() })}>
               查询
             </button>
           </div>

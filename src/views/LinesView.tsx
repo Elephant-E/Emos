@@ -1,26 +1,24 @@
 import { useState } from 'react'
 import { ListSection } from '@/components/ListSection'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 import { RecordList } from '@/components/RecordList'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { IconPlus } from '@/components/icons'
+import type { LineItem } from '@/api/types'
 import { useLineList, useLineMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime } from '@/lib/format'
 
 export interface LinesSearch {
-  page: number
   page_size: number
   q: string
 }
 
 export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch: (patch: Partial<LinesSearch>) => void }) {
   const lines = useLineList()
-  const compact = useMediaQuery('(max-width: 600px)')
   const actions = useLineMutations()
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
@@ -44,7 +42,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
     if (!q) return true
     return line.name.toLowerCase().includes(q) || line.url.toLowerCase().includes(q) || (line.tagline ?? '').toLowerCase().includes(q)
   })
-  const paged = rows.slice((search.page - 1) * search.page_size, search.page * search.page_size)
 
   return (
     <>
@@ -60,7 +57,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
             aria-label="搜索名称、地址或简介"
           placeholder="搜索名称、地址或简介"
           value={search.q}
-          onChange={(e) => onSearch({ q: e.target.value, page: 1 })}
+          onChange={(e) => onSearch({ q: e.target.value })}
         />
         <span className="spacer" />
         <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
@@ -73,26 +70,21 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         isLoading={lines.isLoading}
         error={lines.error}
         onRetry={() => lines.refetch()}
-        items={compact ? rows : paged}
+        items={rows}
         total={rows.length}
-        page={search.page}
-        pageSize={search.page_size}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         cardList
-        // 线路是「一次取全 + 前端分页」，手机端不需要分页器，直接滑
+        // 线路一次取全，直接列出
         infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
-        sizes={[20, 50]}
         idKey={(line) => line.id}
         loadingRows={4}
         loadingCols={4}
         emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
         emptyAction={
-          (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
+          (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined
         }
       >
-        <RecordList
-            rows={paged}
+        <RecordList<LineItem>
+            rows={rows}
             idKey={(line) => line.id}
             className="table table--auto"
             columns={[

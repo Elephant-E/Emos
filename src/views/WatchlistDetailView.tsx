@@ -68,7 +68,7 @@ export function WatchlistDetailView({
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
 
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
 
   const item = watch.data?.items[0]
   const isMusic = item?.type === 'music'
@@ -76,12 +76,11 @@ export function WatchlistDetailView({
   // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮
   const songs = useWatchMusic(
     id,
-    { page: search.page, page_size: search.page_size, song_name: search.q || undefined },
+    { page: 1, page_size: search.page_size, song_name: search.q || undefined },
     isMusic,
   )
 
 
-  const go = (patch: Partial<WatchDetailSearch>) => onSearch(patch)
 
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
@@ -123,8 +122,6 @@ export function WatchlistDetailView({
     empty.mutate(undefined, {
       onSuccess: () => {
         toast('已清空', 'success')
-        // 清空后总数为 0，停在越界页会只剩空表，退回第 1 页
-        if (search.page !== 1) go({ page: 1 })
       },
       // 失败提示由全局 MutationCache 统一弹出
     })
@@ -182,7 +179,7 @@ export function WatchlistDetailView({
                         danger: true,
                       })
                       if (!ok) return
-                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q: '', scope: 'self' } }) })
+                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page_size: 20, q: '', scope: 'self' } }) })
                     }}
                   >
                     删除
@@ -237,7 +234,7 @@ export function WatchlistDetailView({
       </div>
 
       {isMusic ? (
-        <WatchMusicRows watchId={id} item={item} search={search} onSearch={onSearch} songs={songs} addingSong={addingSong} onCloseAdd={() => setAddingSong(false)} />
+        <WatchMusicRows watchId={id} item={item} songs={songs} addingSong={addingSong} onCloseAdd={() => setAddingSong(false)} />
       ) : (
         <>
 

@@ -10,7 +10,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -19,7 +18,6 @@ import { formatRelative } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface LiveSearch {
-  page: number
   library: number
   channel: number
 }
@@ -164,14 +162,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 ))}
               </ul>
             ) : null}
-            {media.data && media.data.total > 0 ? (
-              <Pager
-                total={media.data.total}
-                page={mediaPage}
-                pageSize={media.data.page_size}
-                onPage={setMediaPage}
-              />
-            ) : null}
           </article>
     </div>
     )
@@ -189,7 +179,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         <Tabs
           items={[{ key: 0, label: '全部' }, ...(library.data ?? []).map((item) => ({ key: item.id, label: item.title }))]}
           value={search.library}
-          onChange={(libraryId) => onSearch({ library: libraryId, channel: 0, page: 1 })}
+          onChange={(libraryId) => onSearch({ library: libraryId, channel: 0 })}
           label="媒体库"
         />
         <span className="spacer" />
@@ -224,7 +214,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        onPage={(page) => onSearch({ page })}
         idKey={(v) => v.id}
         scope={`${search.library}-${search.channel}`}
         loadingRows={6}

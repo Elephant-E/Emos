@@ -1,6 +1,4 @@
-import { useState } from 'react'
 import { Modal } from '@/components/Modal'
-import { Pager } from '@/components/Pager'
 import { UserCell } from '@/components/UserCell'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { formatThousand } from '@/lib/format'
@@ -16,8 +14,7 @@ export function SubscribersModal({
   watchName: string
   onClose: () => void
 }) {
-  const [page, setPage] = useState(1)
-  const subs = useWatchSubscribers(watchId, page, true)
+  const subs = useWatchSubscribers(watchId, 1, true)
 
   return (
     <Modal
@@ -57,7 +54,6 @@ export function SubscribersModal({
           </tbody>
         </table>
       ) : null}
-      {subs.data ? <Pager total={subs.data.total} page={page} pageSize={subs.data.page_size} onPage={setPage} /> : null}
     </Modal>
   )
 }

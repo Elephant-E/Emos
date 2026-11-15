@@ -39,7 +39,7 @@ export function UploadView() {
 
   const songs = useQuery({
     queryKey: qk.uploadSongs(songTerm),
-    queryFn: () => musicApi.songSearch({ name: songTerm, page: 1, page_size: 10 }),
+    queryFn: () => musicApi.songSearch({ name: songTerm, page_size: 10 }),
     enabled: placing?.mode === 'song' && songTerm.trim().length > 0,
   })
 

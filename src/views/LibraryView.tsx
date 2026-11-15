@@ -13,7 +13,6 @@ import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
-  page: number
   page_size: number
   q: string
   type: '' | VideoType
@@ -30,7 +29,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const [query, setQuery] = useState(search.q)
   useEffect(() => setQuery(search.q), [search.q])
 
-  useDebounced(query, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(query, (next) => onSearch({ q: next }), { current: search.q })
 
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
@@ -65,7 +64,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       />
 
       <div className="toolbar">
-        <Tabs items={TABS} value={search.type} onChange={(type) => onSearch({ type, page: 1 })} label="类型" />
+        <Tabs items={TABS} value={search.type} onChange={(type) => onSearch({ type })} label="类型" />
         <span className="spacer" />
         <input
           className="input"
@@ -76,7 +75,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key !== 'Enter') return
-            onSearch({ q: query.trim(), page: 1 })
+            onSearch({ q: query.trim() })
           }}
         />
         <button type="button" className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
@@ -102,7 +101,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         }
         emptyAction={
           search.q || search.type ? (
-            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '' })}>
               清空筛选
             </button>
           ) : (

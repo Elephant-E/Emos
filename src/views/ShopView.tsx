@@ -97,7 +97,7 @@ export function ShopView({
   const [buyTarget, setBuyTarget] = useState<ShopProduct | null>(null)
   const [term, setTerm] = useState(q)
   useEffect(() => setTerm(q), [q])
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: q })
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string; cover_url: string | null } | null>(null)
 
   // createOrUpdate 是整体覆盖：payload 里少 description / exchange_way / time_start /
@@ -165,10 +165,10 @@ export function ShopView({
         tools={
           <>
             <div className="seg" role="group" aria-label="范围">
-              <button type="button" aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0, page: 1 })}>
+              <button type="button" aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0 })}>
                 全部商品
               </button>
-              <button type="button" aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0, page: 1 })}>
+              <button type="button" aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0 })}>
                 我的店铺
               </button>
             </div>
@@ -219,13 +219,13 @@ export function ShopView({
               style={{ marginTop: 0 }}
               categories={(categories.data ?? []).map((c) => ({ id: c.category_id, name: c.name }))}
               categoryId={categoryId}
-              onCategory={(category) => onSearch({ category, page: 1 })}
+              onCategory={(category) => onSearch({ category })}
               allLabel="全部分类"
               showCategories={mine}
               term={term}
               onTerm={setTerm}
               sort={sort}
-              onSort={(next) => onSearch({ sort: next, page: 1 })}
+              onSort={(next) => onSearch({ sort: next })}
               placeholder="搜索商品名"
               extra={
                 isSeller && mine ? (
@@ -251,7 +251,7 @@ export function ShopView({
           {!mine && !browse.isLoading && !browse.error && browseItems.length === 0 ? (
             <EmptyBlock
               title={q ? `没有找到「${q}」` : '还没有在售商品'}
-              action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+              action={q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
             />
           ) : null}
 
@@ -281,7 +281,7 @@ export function ShopView({
               loadingRows={6}
               loadingCols={5}
               emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
-              emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+              emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
             >
               <RecordList
                   rows={infinite.items}

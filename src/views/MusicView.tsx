@@ -15,7 +15,6 @@ import { duration } from '@/lib/format'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 
 export interface MusicSearch {
-  page: number
   page_size: number
   tab: 'songs' | 'albums' | 'persons'
   q: string
@@ -34,9 +33,9 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   useEffect(() => setTerm(search.q), [search.q])
 
   // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
-  const songs = useMusicSongs(search.page, search.q, search.tab === 'songs', search.page_size, search.filter)
-  const albums = useMusicAlbums(search.page, search.q, search.tab === 'albums', search.page_size)
-  const persons = useMusicPersons(search.page, search.q, search.tab === 'persons', search.page_size)
+  const songs = useMusicSongs(1, search.q, search.tab === 'songs', search.page_size, search.filter)
+  const albums = useMusicAlbums(1, search.q, search.tab === 'albums', search.page_size)
+  const persons = useMusicPersons(1, search.q, search.tab === 'persons', search.page_size)
   const [syncArtist, setSyncArtist] = useState<string | null>(null)
   const [mvAlbum, setMvAlbum] = useState<{ albumId: number; name: string } | null>(null)
   const albumActions = useAlbumMutations()
@@ -44,7 +43,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
 
   const active = search.tab === 'songs' ? songs : search.tab === 'albums' ? albums : persons
   const activeRows = (active.data?.items ?? []) as Array<Record<string, unknown>>
-  useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
+  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
   // 「无资源 / 已收藏」只作用于歌曲 tab：筛出 0 条不等于「音乐库为空」
   const filter = search.tab === 'songs' ? search.filter : ''
   const filtered = Boolean(search.q) || Boolean(filter)
@@ -67,7 +66,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       />
 
       <div className="toolbar">
-        <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, page: 1, q: '' })} label="音乐分类" />
+        <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, q: '' })} label="音乐分类" />
         {search.tab === 'persons' ? (
           <button type="button" className="btn btn--ghost" onClick={() => setSyncArtist('')}>
             从 Spotify 同步
@@ -84,13 +83,13 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         />
         {search.tab === 'songs' ? (
           <div className="seg" role="group" aria-label="过滤">
-            <button type="button" aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '' })}>
               全部
             </button>
-            <button type="button" aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media' })}>
               无资源
             </button>
-            <button type="button" aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite', page: 1 })}>
+            <button type="button" aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite' })}>
               我收藏的
             </button>
           </div>
@@ -103,10 +102,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         onRetry={() => active.refetch()}
         items={activeRows}
         total={active.data?.total ?? 0}
-        page={search.page}
-        pageSize={active.data?.page_size ?? search.page_size}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         idKey={(v) => {
           const row = v as Record<string, number | undefined>
           return row.song_id ?? row.album_id ?? row.person_id ?? ''
@@ -117,7 +112,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合筛选的歌曲' : '这个库还是空的'}
         emptyAction={
           filtered ? (
-            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '', page: 1 })}>
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', filter: '' })}>
               清空筛选
             </button>
           ) : undefined
