@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
@@ -95,19 +97,28 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   useEffect(() => setTerm(search.q), [search.q])
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
-  const { data, isLoading, error, refetch, isFetching } = useSeekPage({
-    page: search.page,
+  const compact = useMediaQuery('(max-width: 600px)')
+  const seekParams = {
     page_size: search.page_size,
     status: statuses,
     video_title: search.q || undefined,
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
-  })
-  const items = data?.items ?? []
+  }
+  const { data, isLoading, error, refetch, isFetching } = useSeekPage(
+    { ...seekParams, page: search.page },
+    { enabled: !compact },
+  )
+  // 手机端：滚动加载，页码控件不出现
+  const infinite = usePagedInfinite(
+    (page) => seekApi.list({ ...seekParams, page, sort_order: 'desc' }),
+    { enabled: compact, resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${search.page_size}` },
+  )
+  const items = compact ? infinite.items : (data?.items ?? [])
 
   // 列表按 updated_at 排序，首行不一定是最大 id；用当前页最大 id 做增量基准，
   // 否则有人认领老求片就会把它顶上来，lastId 变小导致每轮都全量重查
-  const lastId = (data?.items ?? []).reduce((max, item) => Math.max(max, Number(item.id) || 0), 0)
+  const lastId = items.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0)
   const poll = useSeekPoll(lastId)
   useEffect(() => {
     // 有新求片才让列表重查：否则每 30 秒重查一次 2.4 万条的列表
@@ -171,10 +182,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         isLoading={isLoading}
         error={error}
         onRetry={() => refetch()}
-        items={data?.items ?? []}
-        total={data?.total ?? 0}
+        items={items}
+        total={compact ? infinite.total : (data?.total ?? 0)}
         page={search.page}
-        pageSize={data?.page_size ?? search.page_size}
+        pageSize={compact ? infinite.pageSize : (data?.page_size ?? search.page_size)}
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         cardList

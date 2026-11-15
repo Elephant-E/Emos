@@ -257,10 +257,11 @@ export function useVideoPage(params: VideoPageParams & { enabled?: boolean }) {
   })
 }
 
-export function useSeekPage(params: SeekQuery) {
+export function useSeekPage(params: SeekQuery, opts?: { enabled?: boolean }) {
   return useQuery({
     queryKey: qk.seeksPage(params),
     queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
+    enabled: opts?.enabled ?? true,
   })
 }
 
