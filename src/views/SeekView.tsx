@@ -153,7 +153,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             rows={items}
             idKey={(item) => item.id}
             poster={(item) => item.video_image_poster}
-            posterOverlay={(item) => (SEEK_STATUS[item.status] ?? SEEK_STATUS.default).label}
+            posterOverlay={(item) => {
+              const status = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
+              return <span className={`badge ${status.cls}`}><i />{status.label}</span>
+            }}
 
             title={(item) => item.video_title_display}
             meta={(item) => (

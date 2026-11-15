@@ -2803,3 +2803,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   font-size: var(--text-xs);
   color: var(--fg-4);
 }
+
+/* 封面上的状态角标：胶囊贴在封面左下角，底色半透明压在图上 */
+.record-row__overlay .badge {
+  background: rgba(10, 9, 8, 0.72);
+  backdrop-filter: blur(6px);
+}

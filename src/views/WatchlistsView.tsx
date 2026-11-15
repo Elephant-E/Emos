@@ -149,6 +149,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             badges={(watch) => (
               // 0 值不渲染（沿用全站规则），空片单不显示「0 部 0 订阅」
               <>
+                {watch.is_public ? null : <span>私密</span>}
                 {watch.video_count > 0 ? <span>{watch.video_count} 部</span> : null}
                 {watch.subscribe_count > 0 ? <span>{watch.subscribe_count} 订阅</span> : null}
               </>
