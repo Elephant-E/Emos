@@ -6,12 +6,11 @@ import { CategoryPanel } from '@/components/shop/CategoryPanel'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { shopApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { ProductToolbar } from '@/components/ProductToolbar'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
@@ -119,8 +118,6 @@ export function ShopView({
         : prev,
     )
   }, [editingDetail.data, editing?.product_id])
-
-  const items = infinite.items
 
   const saveProduct = () => {
     const categoryId = editing?.category_id ?? categories.data?.[0]?.category_id
@@ -281,143 +278,82 @@ export function ShopView({
               emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
               emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
             >
-              <RecordList
-                  rows={infinite.items}
-                  idKey={(product) => product.product_id}
-                  className="table"
-                  columns={[
-                    {
-                      key: 'product',
-                      label: '商品',
-                      thClass: 'th-thumb',
-                      thWidth: mine ? '34%' : '44%',
-                      mobile: 'primary',
-                      render: (product, { mobile }) => (
-                        <div className="cell-title">
-                          <Poster src={product.cover_url} name={product.name} shape="square" collapseOnEmpty={mobile} />
-                          <span>
-                            <span className="cell-title__name">{product.name}</span>
-                            {product.up_time ? (
-                              <span className="cell-title__code">{formatDateTime(product.up_time)}</span>
-                            ) : null}
-                          </span>
-                        </div>
-                      ),
-                    },
-                    {
-                      key: 'price',
-                      label: '价格',
-                      thClass: 'num',
-                      thWidth: '12%',
-                      mobile: 'inline',
-                      mobileLabel: null,
-                      render: (product) => <Price price={product.price} priceOrigin={product.price_origin} />,
-                    },
-                    {
-                      key: 'stock',
-                      label: '库存',
-                      thClass: 'num',
-                      thWidth: '12%',
-                      mobile: 'inline',
-                      mobileLabel: null,
-                      render: (product) => <>{formatThousand(product.stock)} 件</>,
-                    },
-                    {
-                      key: 'sales',
-                      label: '销量',
-                      thClass: 'num',
-                      thWidth: '12%',
-                      mobile: 'inline',
-                      mobileLabel: null,
-                      render: (product) => <>{formatThousand(product.sales ?? 0)} 已售</>,
-                    },
-                    ...(mine
-                      ? [
-                          {
-                            key: 'sort',
-                            label: '排序',
-                            thClass: 'num',
-                            thWidth: '9%',
-                            mobile: 'row' as const,
-                            render: (product: (typeof items)[number]) => (
-                              <InlineSortInput
-                                value={product.sort}
-                                label={`${product.name} 的排序`}
-                                onCommit={(sort) =>
-                                  actions.setSort.mutate({ productId: product.product_id, sort })
-                                }
-                              />
-                            ),
-                          },
-                        ]
-                      : []),
-                    {
-                      key: 'status',
-                      label: '状态',
-                      thWidth: '14%',
-                      mobile: 'inline',
-                      mobileLabel: null,
-                      render: (product) => (
-                        <span className={`badge ${product.is_up ? 'badge--ok' : 'badge--off'}`}>
-                          <i />
-                          {product.is_up ? '已上架' : '已下架'}
-                        </span>
-                      ),
-                    },
-                    ...(mine
-                      ? [
-                          {
-                            key: 'actions',
-                            label: '操作',
-                            thWidth: '1%',
-                            mobile: 'block' as const,
-                            mobileAlign: 'end' as const,
-                            render: (product: (typeof items)[number]) =>
-                              isSeller ? (
-                                <span className="action-group">
-                                  <button
-                                    type="button"
-                                    className="btn btn--quiet"
-                                    onClick={() =>
-                                      actions.toggleUp.mutate(product.product_id, {
-                                        onSuccess: () => toast(product.is_up ? '已下架' : '已上架', 'success'),
-                                      })
-                                    }
-                                  >
-                                    {product.is_up ? '下架' : '上架'}
-                                  </button>
-                                  <button type="button" className="btn btn--quiet" onClick={() => setEditing(product)}>
-                                    编辑
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="btn btn--danger-text"
-                                    disabled={actions.removeProduct.isPending}
-                                    onClick={async () => {
-                                      const ok = await confirmDialog({
-                                        title: `删除商品「${product.name}」？`,
-                                        message: '商品会从商城下架并删除，已产生的订单不受影响。',
-                                        hint: '删除后无法恢复。',
-                                        confirmText: '删除',
-                                        danger: true,
-                                      })
-                                      if (!ok) return
-                                      actions.removeProduct.mutate(product.product_id, {
-                                        onSuccess: () => toast('商品已删除', 'success'),
-                                      })
-                                    }}
-                                  >
-                                    删除
-                                  </button>
-                                </span>
-                              ) : (
-                                <span className="muted">—</span>
-                              ),
-                          },
-                        ]
-                      : []),
-                  ]}
-                />
+              <RecordRow
+                rows={infinite.items}
+                idKey={(product) => product.product_id}
+                posterShape="square"
+                poster={(product) => product.cover_url}
+                title={(product) => product.name}
+                meta={(product) => (
+                  <>
+                    <span className={`badge ${product.is_up ? 'badge--ok' : 'badge--off'}`}>
+                      <i />
+                      {product.is_up ? '已上架' : '已下架'}
+                    </span>
+                    <Price price={product.price} priceOrigin={product.price_origin} />
+                    <span>{formatThousand(product.stock)} 件</span>
+                    {(product.sales ?? 0) > 0 ? <span>{formatThousand(product.sales ?? 0)} 已售</span> : null}
+                  </>
+                )}
+                facts={(product) => (
+                  <>
+                    {product.up_time ? <span>{formatDateTime(product.up_time)} 上架</span> : null}
+                    {mine ? (
+                      <>
+                        <span>排序</span>
+                        <InlineSortInput
+                          value={product.sort}
+                          label={`${product.name} 的排序`}
+                          onCommit={(sort) => actions.setSort.mutate({ productId: product.product_id, sort })}
+                        />
+                      </>
+                    ) : null}
+                  </>
+                )}
+                actions={
+                  mine && isSeller
+                    ? (product) => (
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn--quiet"
+                            disabled={actions.toggleUp.isPending}
+                            onClick={() =>
+                              actions.toggleUp.mutate(product.product_id, {
+                                onSuccess: () => toast(product.is_up ? '已下架' : '已上架', 'success'),
+                              })
+                            }
+                          >
+                            {product.is_up ? '下架' : '上架'}
+                          </button>
+                          <button type="button" className="btn btn--quiet" onClick={() => setEditing(product)}>
+                            编辑
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn--danger-text"
+                            disabled={actions.removeProduct.isPending}
+                            onClick={async () => {
+                              const ok = await confirmDialog({
+                                title: `删除商品「${product.name}」？`,
+                                message: '商品会从商城下架并删除，已产生的订单不受影响。',
+                                hint: '删除后无法恢复。',
+                                confirmText: '删除',
+                                danger: true,
+                              })
+                              if (!ok) return
+                              actions.removeProduct.mutate(product.product_id, {
+                                onSuccess: () => toast('商品已删除', 'success'),
+                              })
+                            }}
+                          >
+                            删除
+                          </button>
+                        </>
+                      )
+                    : undefined
+                }
+              />
             </ListSection>
           ) : null}
       </>

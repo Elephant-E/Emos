@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardTable } from '@/components/CardTable'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
@@ -294,59 +294,29 @@ export function UserDetailView({ userId }: { userId: string }) {
             loadingRows={3}
             loadingCols={4}
           >
-            <RecordList
+            <RecordRow
               rows={records.data?.items ?? []}
               idKey={(row) => `${String(row.video_media_id)}-${String(row.time ?? '')}`}
-              className="table table--inset"
-              columns={[
-                {
-                  key: 'video',
-                  label: '影片',
-                  mobile: 'primary',
-                  render: (row) => (
-                    <>
-                      <Link
-                        to="/media/$videoId"
-                        params={{ videoId: String(row.video_id) }}
-                        search={{ season: 0, episode: 1 }}
-                        className="cell-title__name"
-                        style={{ color: 'var(--fg)' }}
-                      >
-                        {String(row.video_title ?? '—')}
-                      </Link>
-                      <span className="cell-title__code">{String(row.video_media_id ?? '')}</span>
-                    </>
-                  ),
-                },
-                {
-                  key: 'time',
-                  label: '时间',
-                  thWidth: 150,
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => <span className="muted">{formatDateTime(String(row.time ?? ''))}</span>,
-                },
-                {
-                  key: 'ip',
-                  label: '来源 IP',
-                  thWidth: 140,
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => (
-                    <span className="muted tnum">
-                      {String(row.ip ?? '—')}
-                      {row.is_proxy ? ' · 代理' : ''}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'ua',
-                  label: '客户端',
-                  thWidth: 180,
-                  mobile: 'hidden',
-                  render: (row) => <span className="muted ellipsis">{String(row.ua ?? '—')}</span>,
-                },
-              ]}
+              title={(row) => (
+                <Link
+                  to="/media/$videoId"
+                  params={{ videoId: String(row.video_id) }}
+                  search={{ season: 0, episode: 1 }}
+                >
+                  {String(row.video_title ?? '—')}
+                </Link>
+              )}
+              meta={(row) => <span>{String(row.video_media_id ?? '')}</span>}
+              facts={(row) => (
+                <>
+                  <span>{formatDateTime(String(row.time ?? ''))}</span>
+                  <span className="tnum">
+                    {String(row.ip ?? '—')}
+                    {row.is_proxy ? ' · 代理' : ''}
+                  </span>
+                  <span className="ellipsis">{String(row.ua ?? '未知客户端')}</span>
+                </>
+              )}
             />
           </CardTable>
         </article>

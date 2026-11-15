@@ -2356,17 +2356,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 32px), transparent 100%);
   }
 
-  /* 分页器的上一页/下一页 28×34，手机上偏小 */
-    /* 卡片里的排序输入：表格里是「隐形」的单元格输入，卡片里要看得出来能编辑 */
-  .record-card .input--cell {
-    width: 72px;
-    height: 32px;
-    padding: 0 var(--sp-2);
-    border: 1px solid var(--line-soft);
-    border-radius: var(--r-chip);
-    text-align: right;
-  }
-  .record-card .remark-btn { height: 32px; }
 
   /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
      卡头高度也随之放宽，避免文字挤在一起 */
@@ -2715,7 +2704,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
 .record-row .input--cell {
   width: 56px;
-  height: 30px;
+  height: 32px;
   padding: 0 var(--sp-2);
   border: 1px solid var(--line-soft);
   border-radius: var(--r-item);
@@ -2753,7 +2742,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
 .record-row .input--cell {
   width: 56px;
-  height: 30px;
+  height: 32px;
   padding: 0 var(--sp-2);
   border: 1px solid var(--line-soft);
   border-radius: var(--r-item);
@@ -2787,11 +2776,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
 /* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。
    用 :has 统一兜住还没接 ListSection cardList 的页面 */
-.table-card:has(.record-cards) {
-  border: 0;
-  background: none;
-  padding: 0;
-}
 .record-section { display: grid; gap: var(--gap-card); }
 /* 滚动加载哨兵：占位很小，只是在进入视口时触发下一次请求 */
 .infinite-sentinel {
@@ -2803,63 +2787,19 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   font-size: var(--text-xs);
 }
 
-.record-cards {
-  display: grid;
-  gap: var(--sp-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.record-card {
-  border: 1px solid var(--line-soft);
-  border-radius: var(--r-card);
-  background: var(--raised);
-}
-.record-card__body {
-  display: grid;
-  gap: var(--sp-2);
-  padding: var(--sp-3);
-}
-.record-card__body.is-tappable { cursor: pointer; }
-.record-card__head { display: grid; gap: 2px; min-width: 0; }
 /* 卡片头沿用列表里的缩略图 + 两行标题排版，不另做一套 */
-.record-card__head .cell-title { gap: var(--sp-3); }
-.record-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-1) var(--sp-3);
-  font-size: var(--text-xs);
-  color: var(--fg-3);
-}
-.record-card__meta-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
-.record-card__row {
+/* 行里的值必须能收缩并省略：长片名/长路径否则会把卡片顶宽（手机上没有横向滚动兜底） */
+/* 卡片头：有海报时标题必须能收缩。flex 子项默认 min-width:auto，
+   长片名会把整张卡顶宽（手机上没有横向滚动兜底），这里逐层放开 */
+
+/* 上传队列：行卡 + 自己的一行脚（已入库/待处理 + 清理） */
+.upload-queue { margin-top: var(--gap-card); }
+.upload-queue .table-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  font-size: var(--text-sm);
-  color: var(--fg-2);
-}
-.record-card__row--block { justify-content: flex-start; }
-.record-card__row--block.is-end { justify-content: flex-end; }
-.record-card__label {
+  margin-top: var(--sp-3);
   font-size: var(--text-xs);
   color: var(--fg-4);
-  flex: none;
 }
-.record-card__value { min-width: 0; color: var(--fg-2); }
-/* 行里的值必须能收缩并省略：长片名/长路径否则会把卡片顶宽（手机上没有横向滚动兜底） */
-.record-card__row:not(.record-card__row--block) > :not(.record-card__label) {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-/* 卡片头：有海报时标题必须能收缩。flex 子项默认 min-width:auto，
-   长片名会把整张卡顶宽（手机上没有横向滚动兜底），这里逐层放开 */
-.record-card__head { min-width: 0; }
-.record-card .cell-title { min-width: 0; }
-.record-card .cell-title > span { min-width: 0; overflow: hidden; }
-.record-card .cell-title__name,
-.record-card .cell-title__code { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.record-card .cell-title__row { min-width: 0; }

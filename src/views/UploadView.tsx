@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { qk, useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
@@ -135,119 +135,70 @@ export function UploadView() {
       </div>
 
       {queue.length > 0 ? (
-        <div className="table-card" style={{ marginTop: 'var(--gap-card)' }}>
-          <RecordList
+        <div className="upload-queue">
+          <RecordRow
             rows={queue}
             idKey={(item) => item.id}
-            className="table"
-            columns={[
-              {
-                key: 'file',
-                label: '文件',
-                thWidth: '40%',
-                mobile: 'primary',
-                render: (item) => (
-                  <div className="queue-name">
-                    <b title={item.file.name}>{item.file.name}</b>
-                    {item.status === 'uploading' ? (
-                      <div className="progress-line">
-                        <i style={{ transform: `scaleX(${item.progress.toFixed(3)})` }} />
-                      </div>
-                    ) : (
-                      <span>{item.message ?? KIND_LABEL[item.kind]}</span>
-                    )}
-                  </div>
-                ),
-              },
-              {
-                key: 'size',
-                label: '大小',
-                thClass: 'num',
-                thWidth: '14%',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (item) => <span className="muted">{formatSize(item.file.size)}</span>,
-              },
-              {
-                key: 'status',
-                label: '状态',
-                thWidth: '14%',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (item) => (
-                  <span className={`badge ${STATUS[item.status].cls}`}>
-                    <i />
-                    {STATUS[item.status].label}
-                  </span>
-                ),
-              },
-              {
-                key: 'target',
-                label: '目标',
-                thWidth: '22%',
-                mobile: 'row',
-                render: (item) => {
-                  const placed = item.kind === 'music' ? item.song : item.target
-                  const placedTitle = item.song
-                    ? `${item.song.name}${item.song.artists ? ` · ${item.song.artists}` : ''}`
-                    : (item.target?.title ?? '')
-                  return placed ? (
-                    <span style={{ color: 'var(--fg-2)' }}>
-                      {placedTitle}
-                      {item.existing ? <span className="meta-sm"> · 已有 {item.existing} 个资源</span> : null}
-                      {item.song?.has_media ? <span className="meta-sm"> · 已有音频</span> : null}
+            title={(item) => item.file.name}
+            meta={(item) => (
+              <>
+                <span className={`badge ${STATUS[item.status].cls}`}>
+                  <i />
+                  {STATUS[item.status].label}
+                </span>
+                <span>{formatSize(item.file.size)}</span>
+                {item.status === 'uploading' ? <span>{Math.round(item.progress * 100)}%</span> : null}
+              </>
+            )}
+            facts={(item) => {
+              const placedTitle = item.song
+                ? `${item.song.name}${item.song.artists ? ` · ${item.song.artists}` : ''}`
+                : (item.target?.title ?? '')
+              return (
+                <>
+                  <span>{item.message ?? KIND_LABEL[item.kind]}</span>
+                  {placedTitle ? <span className="ellipsis">目标：{placedTitle}</span> : null}
+                  {item.existing ? <span>已有 {item.existing} 个资源</span> : null}
+                  {item.song?.has_media ? <span>已有音频</span> : null}
+                  {item.status === 'uploading' ? (
+                    <span className="progress-line">
+                      <i style={{ transform: `scaleX(${item.progress.toFixed(3)})` }} />
                     </span>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn--ghost"
-                      onClick={() => setPlacing({ item, mode: item.kind === 'music' ? 'song' : 'target' })}
-                    >
-                      {item.kind === 'music' ? '选歌曲' : '选目标'}
-                    </button>
-                  )
-                },
-              },
-              {
-                key: 'actions',
-                label: '操作',
-                thWidth: '1%',
-                mobile: 'block',
-                mobileAlign: 'end',
-                render: (item) =>
-                  item.status === 'done' ? (
-                    item.kind === 'music' && item.song ? (
-                      <Link className="btn btn--quiet" to="/music/song/$songId" params={{ songId: String(item.song.song_id) }}>
-                        查看
-                      </Link>
-                    ) : item.target ? (
-                      <Link
-                        className="btn btn--quiet"
-                        to="/media/$videoId"
-                        // 剧集的 item_id 是 episode_id，跳转要用所属影片
-                        params={{ videoId: String(item.target.video_id ?? item.target.item_id) }}
-                        search={{ season: item.target.season ?? 1, episode: item.target.episode ?? 1 }}
-                      >
-                        查看
-                      </Link>
-                    ) : null
-                  ) : item.status === 'duplicate' ? (
-                    <span className="muted text-xs">已跳过</span>
-                  ) : item.status === 'uploading' ? (
-                    <span className="muted">{Math.round(item.progress * 100)}%</span>
-                  ) : (
-                    <button type="button" className="btn btn--quiet" onClick={() => startUpload(item)}>
-                      {item.status === 'need-target' || item.status === 'need-song'
-                        ? item.kind === 'music'
-                          ? '选歌曲'
-                          : '选目标'
-                        : item.status === 'failed'
-                          ? '重试'
-                          : '上传'}
-                    </button>
-                  ),
-              },
-            ]}
+                  ) : null}
+                </>
+              )
+            }}
+            actions={(item) =>
+              item.status === 'done' ? (
+                item.kind === 'music' && item.song ? (
+                  <Link className="btn btn--quiet" to="/music/song/$songId" params={{ songId: String(item.song.song_id) }}>
+                    查看
+                  </Link>
+                ) : item.target ? (
+                  <Link
+                    className="btn btn--quiet"
+                    to="/media/$videoId"
+                    // 剧集的 item_id 是 episode_id，跳转要用所属影片
+                    params={{ videoId: String(item.target.video_id ?? item.target.item_id) }}
+                    search={{ season: item.target.season ?? 1, episode: item.target.episode ?? 1 }}
+                  >
+                    查看
+                  </Link>
+                ) : null
+              ) : item.status === 'duplicate' ? (
+                <span className="meta-sm">已跳过</span>
+              ) : item.status === 'uploading' ? null : (
+                <button type="button" className="btn btn--quiet" onClick={() => startUpload(item)}>
+                  {item.status === 'need-target' || item.status === 'need-song'
+                    ? item.kind === 'music'
+                      ? '选歌曲'
+                      : '选目标'
+                    : item.status === 'failed'
+                      ? '重试'
+                      : '上传'}
+                </button>
+              )
+            }
           />
           <div className="table-foot">
             <span>

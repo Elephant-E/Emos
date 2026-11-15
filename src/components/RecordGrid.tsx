@@ -13,7 +13,7 @@ import { Poster } from './Poster'
  *   平板 900+   3 列
  *   手机 ≤900   2 列
  *
- * 数值型列表（订单、资金、回收站、线路）仍用 RecordList：
+ * 信息型列表（订单、资金、回收站、线路、榜单、设备、邀请、直播…）用 RecordRow：
  * 那些页面要靠数字横向对比，表格密度是刚需。
  */
 export interface RecordGridProps<T> {
