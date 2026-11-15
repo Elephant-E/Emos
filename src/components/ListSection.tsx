@@ -56,7 +56,7 @@ export function ListSection<T>({
   /** 网格骨架的图片比例（bare 页用） */
   gridShape?: 'poster' | 'wide' | 'square'
   /** 骨架形态：默认按 bare 推断（网格 / 表格），行卡片页显式指定 rows */
-  loadingKind?: 'table' | 'grid' | 'rows'
+  loadingKind?: 'table' | 'grid' | 'rows' | 'single-rows'
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   bare?: boolean
@@ -67,6 +67,7 @@ export function ListSection<T>({
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
   if (isLoading) {
     // 骨架与真实内容同形：行卡片 / 网格 / 表格各给各的
+    if (loadingKind === 'single-rows') return <LoadingRows count={loadingRows} single />
     if (loadingKind === 'rows') return <LoadingRows count={loadingRows} />
     if (loadingKind === 'grid' || (bare && loadingKind !== 'table')) {
       return <LoadingGrid count={loadingRows} shape={gridShape} />

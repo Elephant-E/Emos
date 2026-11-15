@@ -23,7 +23,29 @@ export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; 
 }
 
 /** 行卡片骨架：与 RecordRow 同形（封面 + 标题/信息 + 字段行 + 三键） */
-export function LoadingRows({ count = 6 }: { count?: number }) {
+export function LoadingRows({ count = 6, single = false }: { count?: number; single?: boolean }) {
+  if (single) {
+    // 单列（管理型）列表：小图 72×108 + 信息条 + 右侧动作条
+    return (
+      <div className="record-rows record-rows--single" aria-busy="true" aria-live="polite">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="record-row">
+            <div className="record-row__media skeleton" style={{ height: 108 }} />
+            <div className="record-row__body">
+              <div className="skeleton" style={{ height: 14, width: '46%' }} />
+              <div className="skeleton" style={{ height: 11, width: '30%' }} />
+              <div className="skeleton" style={{ height: 11, width: '38%' }} />
+            </div>
+            <div className="record-row__actions">
+              <div className="skeleton" style={{ width: 56, height: 30, borderRadius: 'var(--r-item)' }} />
+              <div className="skeleton" style={{ width: 64, height: 30, borderRadius: 'var(--r-item)' }} />
+              <div className="skeleton" style={{ width: 48, height: 30, borderRadius: 'var(--r-item)' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
   return (
     <div className="record-rows" aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (

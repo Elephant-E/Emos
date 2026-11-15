@@ -257,7 +257,7 @@ export function WatchlistDetailView({
         items={videoRows}
         total={infinite.total}
         bare
-        loadingKind="rows"
+        loadingKind="single-rows"
         loadingRows={6}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(v) => v.video_id}

@@ -2381,12 +2381,17 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 600px) {
-  /* 详情头的统计块在手机上放不下四列：改成两列换行，不要溢出到卡片外 */
+  /* 详情头在手机上收紧：卡片内边距、图文间距、统计字号都降一档 */
+  .detail-head { padding: var(--sp-3); gap: var(--sp-3); }
+  .detail-head__row { gap: var(--sp-3); }
   .detail-stats {
     grid-auto-flow: row;
-    grid-template-columns: repeat(2, minmax(0, max-content));
-    gap: var(--sp-3) var(--sp-5);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2) var(--sp-4);
   }
+  .detail-stat b,
+  .detail-stat__link { font-size: 16px; }
+  .detail-desc { font-size: var(--text-xs); line-height: 1.6; }
   .record-grid--poster,
   .record-grid--square { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
