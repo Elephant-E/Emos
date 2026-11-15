@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { CardTable } from '@/components/CardTable'
 import { ClientLoginCard } from '@/components/account/ClientLoginCard'
+import { DevicesCard } from '@/components/account/DevicesCard'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
@@ -15,7 +15,6 @@ import {
   useInviteHistory,
   useInviteInfo,
   useInviteTree,
-  useVideoDevices,
   useSession,
 } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -31,19 +30,8 @@ const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'invite', label: '邀请' },
 ]
 
-/** 设备名来自客户端上报，可能是 URL 编码（如 Apple%20TV） */
-function decodeDeviceName(raw?: string | null): string {
-  if (!raw) return ''
-  try {
-    return decodeURIComponent(raw)
-  } catch {
-    return raw
-  }
-}
-
 export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
   const session = useSession()
-  const devices = useVideoDevices()
   const carrot = useCarrot()
   const info = useInviteInfo()
   const actions = useAccountMutations()
@@ -174,79 +162,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           </section>
 
           <section className="cards cards--wide">
-            <article className="card">
-              <CardHead title="已登录设备">
-                {devices.data && devices.data.length > 0 ? (
-                  <button type="button"
-                    className="btn btn--quiet"
-                    disabled={actions.logoutDevice.isPending}
-                    onClick={async () => {
-                      const ok = await confirmDialog({
-                        title: '让所有设备下线？',
-                        message: '包括你正在用的这一台，之后需要在播放器里重新登录。',
-                        confirmText: '全部下线',
-                        danger: true,
-                      })
-                      if (!ok) return
-                      actions.logoutDevice.mutate(null, { onSuccess: () => toast('已全部下线', 'success') })
-                    }}
-                  >
-                    全部下线
-                  </button>
-                ) : null}
-              </CardHead>
-              <CardTable
-                loading={devices.isLoading}
-                error={devices.error}
-                onRetry={() => devices.refetch()}
-                empty="没有登录中的设备"
-                count={devices.data?.length ?? 0}
-                loadingCols={3}
-              >
-                <table className="table table--inset">
-                  <thead>
-                    <tr>
-                      <th>设备</th>
-                      <th style={{ width: 150 }}>最后使用</th>
-                      <th style={{ width: 96 }}>操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(devices.data ?? []).map((device) => (
-                      <tr key={device.device_id}>
-                        <td>
-                          <span className="cell-title__name">{decodeDeviceName(device.device_name) || '未命名设备'}</span>
-                          <span className="cell-title__code">
-                            {device.device_client} {device.device_version}
-                          </span>
-                        </td>
-                        <td className="muted">{device.last_used_at ? formatDateTime(device.last_used_at) : '—'}</td>
-                        <td>
-                          <button type="button"
-                            className="btn btn--quiet"
-                            disabled={actions.logoutDevice.isPending}
-                            onClick={async () => {
-                              const ok = await confirmDialog({
-                                title: `让 ${device.device_name || '这台设备'} 下线？`,
-                                message: '该设备需要重新登录才能继续播放。',
-                                confirmText: '下线',
-                                danger: true,
-                              })
-                              if (!ok) return
-                              actions.logoutDevice.mutate(device.device_id, {
-                                onSuccess: () => toast('已下线', 'success'),
-                              })
-                            }}
-                          >
-                            下线
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardTable>
-            </article>
+            <DevicesCard />
           </section>
 
           <section className="cards cards--wide">
