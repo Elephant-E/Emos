@@ -9,6 +9,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { voteApi } from '@/api/endpoints'
 import { formatDateTime, formatThousand } from '@/lib/format'
+import { copyText } from '@/lib/clipboard'
 
 const TABS = [
   { key: 'create' as const, label: '创建投票' },
@@ -102,7 +103,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
-                    void navigator.clipboard?.writeText(String(created.id))
+                    void copyText(String(created.id), '投票 ID')
                     toast('已复制投票 ID', 'success')
                   }}
                 >

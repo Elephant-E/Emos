@@ -5,7 +5,7 @@ import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Poster } from '@/components/Poster'
 import { rankApi } from '@/api/endpoints'
-import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
+import { formatDateTime, formatSize, formatThousand, episodeCode } from '@/lib/format'
 
 const TABS = [
   { key: 'carrot' as const, label: '萝卜' },
@@ -160,7 +160,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                     </td>
                     <td className="muted">
                       {row.season_number != null
-                        ? `S${String(row.season_number).padStart(2, '0')}E${String(row.episode_number ?? 0).padStart(2, '0')}`
+                        ? episodeCode(row.season_number, row.episode_number)
                         : '—'}
                     </td>
                     <td className="muted">{row.username}</td>

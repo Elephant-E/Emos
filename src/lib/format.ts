@@ -127,3 +127,15 @@ export function duration(seconds: number | null | undefined): string {
   const s = Math.round(seconds % 60)
   return `${m}:${String(s).padStart(2, '0')}`
 }
+
+/** 两位补零：集号、季号在多处要用（S01E03 这种） */
+export function pad2(n: number): string {
+  return String(Math.max(0, Math.trunc(n))).padStart(2, '0')
+}
+
+/** 季集编号：只有季给 `S02`，两者都有给 `S02E05`；都没有返回空串 */
+export function episodeCode(season?: number | null, episode?: number | null): string {
+  const s = season ? `S${pad2(season)}` : ''
+  const e = episode != null ? `E${pad2(episode)}` : ''
+  return `${s}${e}`
+}

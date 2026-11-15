@@ -1,7 +1,6 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate,
-} from './types'
+  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate, VideoSearchItem } from './types'
 
 
 export const sessionApi = {
@@ -99,8 +98,9 @@ export const uploadApi = {
 export const videoApi = {
   list: (params: { page?: number; page_size?: number; title?: string; type?: VideoType; tmdb_id?: number; todb_id?: number; video_id?: number; only_delete?: boolean; with_media?: boolean }) =>
     request<ListResult<VideoItem>>('/api/video/list', { query: params }),
+  /** 只回 5 个字段（video_id/type/title/todb_id/tmdb_id），不是完整 VideoItem */
   search: (params: { title?: string; page?: number; page_size?: number; sort_by?: string; type?: VideoType }) =>
-    request<ListResult<VideoItem>>('/api/video/search', { query: params }),
+    request<ListResult<VideoSearchItem>>('/api/video/search', { query: params }),
   sync: (params: { tmdb_id?: number; todb_id?: number }) => request<Array<Record<string, unknown>>>('/api/video/sync', { method: 'PATCH', query: params }),
   remove: (videoId: number) => request<{ carrot: number; is_delete: boolean }>(`/api/video/${videoId}/delete`, { method: 'PUT' }),
   seasons: (videoId: number) => request<VideoSeason[]>(`/api/video/${videoId}/season`),

@@ -17,7 +17,7 @@ import {
   uploadSubtitle,
   type UploadTarget,
 } from '@/lib/uploader'
-import { detectUploadKind, formatSize, type UploadKind } from '@/lib/format'
+import { detectUploadKind, formatSize, type UploadKind, episodeCode } from '@/lib/format'
 import { parseFilename } from '@/lib/filename'
 import { USE_MOCK } from '@/api/client'
 
@@ -260,7 +260,7 @@ export function UploadView() {
         return {
           item_type: 've',
           item_id: episode.episode_id,
-          title: `${video.video_title} · S${String(seasonNo).padStart(2, '0')}E${String(parsed.episode).padStart(2, '0')}`,
+          title: `${video.video_title} · ${episodeCode(seasonNo, parsed.episode)}`,
           video_id: video.video_id,
           season: seasonNo,
           episode: parsed.episode,

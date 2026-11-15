@@ -20,6 +20,7 @@ import {
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
+import { copyText } from '@/lib/clipboard'
 import { getToken } from '@/api/client'
 
 type Tab = 'profile' | 'invite'
@@ -212,7 +213,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       <button type="button"
                         className="btn btn--quiet tnum"
                         onClick={() => {
-                          void navigator.clipboard.writeText(token)
+                          void copyText(token, '令牌')
                           toast('已复制令牌', 'success')
                         }}
                       >
@@ -229,7 +230,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <button type="button"
                           className="btn btn--quiet"
                           onClick={() => {
-                            void navigator.clipboard.writeText(token)
+                            void copyText(token, '令牌')
                             toast('已复制令牌', 'success')
                           }}
                         >
@@ -251,7 +252,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                         <button type="button"
                           className="btn btn--quiet"
                           onClick={() => {
-                            void navigator.clipboard.writeText(String(url))
+                            void copyText(String(url), '邀请链接')
                             toast(`已复制${label}地址`, 'success')
                           }}
                         >
@@ -272,7 +273,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
                       <button type="button"
                         className="btn btn--quiet tnum"
                         onClick={() => {
-                          void navigator.clipboard.writeText(user.password ?? '')
+                          void copyText(user.password ?? '', '临时密码')
                           toast('已复制密码', 'success')
                         }}
                       >

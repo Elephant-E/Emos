@@ -5,7 +5,7 @@ import { Modal } from '@/components/Modal'
 import { Poster } from '@/components/Poster'
 import { mediaApi, musicApi, recordApi, seekApi, videoApi, watchApi } from '@/api/endpoints'
 import { useSession } from '@/api/queries'
-import { formatThousand } from '@/lib/format'
+import { formatThousand, episodeCode } from '@/lib/format'
 
 const PAGE_SIZE = 5
 const RECENT_SIZE = 4
@@ -93,7 +93,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   })
   const myWatchlists = useQuery({
     queryKey: ['global-search', 'my-watchlists'] as const,
-    queryFn: () => watchApi.list({ is_self: true, type: 'video', page: 1, page_size: RECENT_SIZE }),
+    queryFn: () => watchApi.list({ is_self: true, page: 1, page_size: RECENT_SIZE }),
     enabled: showingRecents,
     staleTime: 60_000,
   })
@@ -183,7 +183,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
               close()
               void navigate({
                 to: '/seek',
-                search: { page: 1, page_size: 20, tab: 'all', q: row.video_title_display, type: '', mine: false },
+                search: { page: 1, page_size: 20, tab: 'all', q: String(row.video_title ?? ''), type: '', mine: false },
               })
             },
           })),
@@ -215,7 +215,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           return {
             key: `recent-view-${String(row.video_media_id ?? row.video_id)}-${index}`,
             title: String(row.video_title ?? '—'),
-            sub: [season ? `S${String(season).padStart(2, '0')}E${String(episode).padStart(2, '0')}` : '', percent ? `${percent}%` : '']
+            sub: [episodeCode(season, episode), percent ? `${percent}%` : '']
               .filter(Boolean)
               .join(' · '),
             poster: row.video_image_poster ? String(row.video_image_poster) : null,
@@ -239,7 +239,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           return {
             key: `recent-upload-${String(row.media_id)}-${index}`,
             title: String(row.video_title ?? mediaName ?? '—'),
-            sub: [season ? `S${String(season).padStart(2, '0')}E${String(episode).padStart(2, '0')}` : '', mediaName]
+            sub: [episodeCode(season, episode), mediaName]
               .filter(Boolean)
               .join(' · '),
             shape: 'poster' as const,
@@ -328,7 +328,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
         }}
       />
 
-      <div ref={bodyRef} className="search-panel">
+      <div ref={bodyRef} className="search-panel" role="listbox" aria-label="搜索结果">
         {showingRecents ? null : q.length > 0 && q.length < MIN_LENGTH ? (
           <p className="card-note">输入至少 {MIN_LENGTH} 个字</p>
         ) : null}
@@ -346,6 +346,8 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
                     type="button"
                     key={hit.key}
                     data-hit={index}
+                    role="option"
+                    aria-selected={index === active}
                     className={`search-panel__row${index === active ? ' is-active' : ''}`}
                     onMouseEnter={() => setActive(index)}
                     onClick={() => hit.open()}

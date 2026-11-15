@@ -11,6 +11,7 @@ import { redPacketApi } from '@/api/endpoints'
 import { useSession } from '@/api/queries'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
+import { copyText } from '@/lib/clipboard'
 import { uploadTemporary } from '@/lib/uploader'
 import type { RedPacketCreateBody } from '@/api/types'
 
@@ -161,7 +162,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
-                    void navigator.clipboard?.writeText(created)
+                    void copyText(created, '口令')
                     toast('已复制红包 ID', 'success')
                   }}
                 >

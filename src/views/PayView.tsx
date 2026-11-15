@@ -9,6 +9,7 @@ import { payApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatThousand } from '@/lib/format'
+import { copyText } from '@/lib/clipboard'
 
 const PAY_STATUS: Record<string, string> = {
   default: '待支付',
@@ -250,7 +251,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               {created.pay_url ? (
                 <>
                   {' · '}
-                  <button type="button" className="btn btn--quiet" onClick={() => void navigator.clipboard?.writeText(created.pay_url ?? '')}>
+                  <button type="button" className="btn btn--quiet" onClick={() => void copyText(created.pay_url ?? '', '支付链接')}>
                     复制支付链接
                   </button>
                 </>

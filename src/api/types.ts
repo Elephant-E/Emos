@@ -7,7 +7,8 @@ export interface ListResult<T> {
 
 export interface CarrotDelta {
   carrot: number
-  sign: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
+  /** 只有签到类接口会带；恢复/移动这些只回 carrot（真机核对过） */
+  sign?: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
 
 export interface IdResult {
@@ -158,6 +159,36 @@ export interface VideoMedia {
   user_pseudonym: string | null
   is_self_upload: boolean
   created_at?: string
+  /** 资源列表实测的其余字段（有就带上，缺也不影响渲染） */
+  media_file_metadata?: Record<string, unknown> | null
+  storage_title?: string | null
+  user_id?: string | null
+  deleted_at?: string | null
+  is_can_restore?: boolean
+  part_id?: number | null
+  part_number?: number | null
+  part_title?: string | null
+  season_id?: number | null
+  season_number?: number | null
+  season_title?: string | null
+  episode_id?: number | null
+  episode_number?: number | null
+  episode_title?: string | null
+  video_id?: number | null
+  video_title?: string | null
+  video_type?: string | null
+  todb_id?: number | null
+  tmdb_id?: number | null
+  subtitle_count?: number | null
+}
+
+/** `/api/video/search` 只回这 5 个字段（真机核对），别按 VideoItem 用 */
+export interface VideoSearchItem {
+  video_id: number
+  video_type: string
+  video_title: string
+  todb_id: number | null
+  tmdb_id: number | null
 }
 
 interface WatchAuthor {
@@ -181,8 +212,8 @@ export interface WatchItem {
   is_self: boolean
   is_edit_video: boolean
   is_subscribe: boolean
-  user_is_show: boolean
-  user_sort: number
+  user_is_show: boolean | null
+  user_sort: number | null
   subscribe_count: number
   video_count: number
   maintainers: WatchAuthor[]

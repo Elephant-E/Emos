@@ -8,7 +8,7 @@ export function InlineSortInput({
   onCommit,
   stopRowClick,
 }: {
-  value: number
+  value: number | null
   label: string
   onCommit: (next: number) => void
   /** 放在可点击的行里时，阻止点击与按键冒泡到整行 */
@@ -19,19 +19,19 @@ export function InlineSortInput({
       className="input input--cell tnum"
       type="number"
       aria-label={label}
-      defaultValue={value}
+      defaultValue={value ?? ''}
       onClick={stopRowClick ? (e) => e.stopPropagation() : undefined}
       onKeyDown={stopRowClick ? (e) => e.stopPropagation() : undefined}
       onBlur={(e) => {
         // 清空后 Number('') === 0，会把排序写成 0 排到最前；空值与非法值一律当作放弃修改
         const raw = e.target.value.trim()
         if (!raw) {
-          e.target.value = String(value)
+          e.target.value = value == null ? '' : String(value)
           return
         }
         const next = Number(raw)
         if (!Number.isFinite(next) || next === value) {
-          e.target.value = String(value)
+          e.target.value = value == null ? '' : String(value)
           return
         }
         onCommit(next)

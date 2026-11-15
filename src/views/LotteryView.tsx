@@ -10,6 +10,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { lotteryApi } from '@/api/endpoints'
 import { formatDateTime, formatThousand } from '@/lib/format'
+import { copyText } from '@/lib/clipboard'
 import type { LotteryCreateBody, LotteryPrize } from '@/api/types'
 
 const TABS = [
@@ -147,7 +148,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
-                    void navigator.clipboard?.writeText(created)
+                    void copyText(created, '抽奖 ID')
                     toast('已复制抽奖 ID', 'success')
                   }}
                 >
