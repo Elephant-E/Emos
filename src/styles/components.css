@@ -2557,6 +2557,21 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 「求片记录」：一行说明 + 一行数据 */
 .seek-records { display: grid; gap: var(--sp-1); margin-top: var(--sp-1); }
 .seek-records__head { margin: 0; font-size: var(--text-xs); color: var(--fg-3); }
+.seek-records__list { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--sp-1); }
+.seek-records__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-item);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: var(--text-xs);
+  color: var(--fg-2);
+}
+.seek-records__user { color: var(--fg); }
+.seek-records__carrot { color: var(--fg-3); }
+.seek-records__time { margin-left: auto; color: var(--fg-4); font-variant-numeric: tabular-nums; }
+.seek-records__more { justify-content: center; color: var(--fg-4); }
 .seek-records__row {
   display: flex;
   flex-wrap: wrap;
