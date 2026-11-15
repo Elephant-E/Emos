@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CardHead } from '@/components/CardHead'
+import { ConsentDialog } from '@/components/ConsentDialog'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useAccountMutations, useCapabilities, useSession } from '@/api/queries'
@@ -19,6 +20,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
   const otpMode = Boolean(user?.must_otp)
   const [pseudonym, setPseudonym] = useState('')
   const [password, setPassword] = useState<{ password: number | null; second: number } | null>(null)
+  const [consent, setConsent] = useState<'upload' | 'download' | null>(null)
 
   useEffect(() => {
     if (session.data) setPseudonym(session.data.pseudonym ?? '')
@@ -148,21 +150,13 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
 
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {!caps.canUpload ? (
-                    <button type="button"
-                      className="btn btn--ghost"
-                      onClick={() =>
-                        actions.agreeUpload.mutate(undefined, { onSuccess: () => toast('已开启上传权限', 'success') })
-                      }
-                    >
-                      同意上传协议并开通
+                    <button type="button" className="btn btn--ghost" onClick={() => setConsent('upload')}>
+                      开通上传权限
                     </button>
                   ) : null}
                   {!caps.canDown ? (
-                    <button type="button"
-                      className="btn btn--ghost"
-                      onClick={() => actions.agreeDown.mutate(undefined, { onSuccess: () => toast('已开启下载权限', 'success') })}
-                    >
-                      同意下载协议并开通
+                    <button type="button" className="btn btn--ghost" onClick={() => setConsent('download')}>
+                      开通下载权限
                     </button>
                   ) : null}
                   <button type="button"
@@ -217,6 +211,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                   </p>
                 ) : null}
               </div>
+      {consent ? <ConsentDialog kind={consent} onClose={() => setConsent(null)} /> : null}
     </article>
   )
 }

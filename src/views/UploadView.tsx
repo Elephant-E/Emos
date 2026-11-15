@@ -1,25 +1,25 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { qk, useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
-import { musicApi, userApi } from '@/api/endpoints'
-import { toast } from '@/ui/toast'
+import { musicApi } from '@/api/endpoints'
 import { UPLOAD_STORAGES } from '@/lib/uploader'
 import { KIND_LABEL, useUploadQueue, type Status } from '@/lib/use-upload-queue'
+import { ConsentDialog } from '@/components/ConsentDialog'
 import { formatSize } from '@/lib/format'
 import { USE_MOCK } from '@/api/client'
 
 /** 从文件名猜一个歌名：去掉扩展名和开头的音轨号，「歌手 - 歌名」取歌名那段 */
 export function UploadView() {
-  const qc = useQueryClient()
   const caps = useCapabilities()
   const inputRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
+  const [consent, setConsent] = useState(false)
   const [songTerm, setSongTerm] = useState('')
   const {
     queue,
@@ -58,17 +58,8 @@ export function UploadView() {
               {USE_MOCK ? '假数据模式' : '直传后端'}
             </span>
             {!caps.canUpload ? (
-              <button
-                type="button"
-                className="btn btn--ghost"
-                onClick={() =>
-                  userApi.agreeUpload().then(() => {
-                    toast('已同意上传协议', 'success')
-                    void qc.invalidateQueries({ queryKey: qk.session })
-                  })
-                }
-              >
-                同意上传协议
+              <button type="button" className="btn btn--ghost" onClick={() => setConsent(true)}>
+                开通上传权限
               </button>
             ) : null}
           </>
@@ -311,6 +302,7 @@ export function UploadView() {
           </PickList>
         </Modal>
       ) : null}
+      {consent ? <ConsentDialog kind="upload" onClose={() => setConsent(false)} /> : null}
     </>
   )
 }

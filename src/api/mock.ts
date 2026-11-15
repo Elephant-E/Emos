@@ -495,6 +495,8 @@ export async function mockRequest<T>(
     user.is_show_adult = !user.is_show_adult
     return { is_show_adult: user.is_show_adult } as T
   }
+  if (clean === '/api/user/agreeUploadAgreement') return {} as T
+  if (clean === '/api/user/agreeDownAgreement') return {} as T
   if (clean === '/api/pay/getUserInfo') {
     const id = String(query.user_id ?? 'e7E6K6OE4s')
     return { user_id: id, username: id === 'e7E6K6OE4s' ? 'elephant' : 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
@@ -954,7 +956,6 @@ export async function mockRequest<T>(
   if (clean === '/api/upload/video/save') return { count: 1, media_id: 'mock-media', carrot: 3 } as T
   if (clean === '/api/upload/subtitle/save') return { carrot: 2, subtitle_id: 'mock-subtitle' } as T
   if (clean === '/api/upload/music/save') return { carrot: 2, media_id: 'mock-song' } as T
-  if (clean === '/api/user/agreeUploadAgreement') return {} as T
 
   if (/^\/api\/watch\/\d+\/video\/\d+$/.test(clean)) return { count: 1 } as T
   if (/^\/api\/watch\/\d+\/subscribe$/.test(clean)) return { is_subscribe: true } as T

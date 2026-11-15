@@ -19,7 +19,9 @@ export const userApi = {
     request<{ logout_count: number }>('/api/user/server/videoLogout', { method: 'POST', body: { device_id: deviceId } }),
   showEmpty: (isShowEmpty: boolean) => request<{ is_show_empty: boolean }>('/api/user/showEmpty', { method: 'PUT', body: { is_show_empty: isShowEmpty } }),
   pseudonym: (name: string) => request<{ pseudonym: string }>('/api/user/pseudonym', { method: 'PUT', query: { name } }),
+  /** 同意上传须知；旧项目也是「先读文本、用户确认后再调用」，不是代同意 */
   agreeUpload: () => request<unknown>('/api/user/agreeUploadAgreement', { method: 'PUT' }),
+  /** 同意下载须知（契约里没有这条，旧项目在用） */
   agreeDown: () => request<unknown>('/api/user/agreeDownAgreement', { method: 'PUT' }),
   sign: (content?: string) => request<{ sign_index: number; earn_point: number; continuous_days: number }>('/api/user/sign', { method: 'PUT', query: { content } }),
   // must_otp 未启用时 password 为 null
