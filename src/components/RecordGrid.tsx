@@ -57,6 +57,7 @@ export function RecordGrid<T>({
     <div className={`record-grid record-grid--${shape}`}>
       {rows.map((row) => {
         const clickable = Boolean(onOpen)
+        const subNode = sub?.(row)
         return (
           <article
             key={idKey(row)}
@@ -97,7 +98,7 @@ export function RecordGrid<T>({
                 {time ? <span className="record-tile__time">{time(row)}</span> : null}
               </div>
               {meta ? <p className="record-tile__meta">{meta(row)}</p> : null}
-              {sub ? <p className="record-tile__sub">{sub(row)}</p> : null}
+              {subNode ? <p className="record-tile__sub">{subNode}</p> : null}
             </div>
           </article>
         )
