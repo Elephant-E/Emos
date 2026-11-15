@@ -7,9 +7,9 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { duration } from '@/lib/format'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
-import { rowLink } from '@/lib/rowLink'
 import type { WatchItem } from '@/api/types'
 import { useWatchMusicMutations, useWatchMusicSearch, type useWatchMusic } from '@/api/queries'
+import { RecordRow } from '@/components/RecordRow'
 
 /** 片单详情页的查询参数（影视与音乐共用） */
 export interface WatchDetailSearch {
@@ -52,57 +52,42 @@ export function WatchMusicRows({
       ) : null}
 
       {songs.data && songs.data.items.length > 0 ? (
-        <div className="table-card">
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: canEdit ? '52%' : '72%' }}>歌曲</th>
-                <th className="num" style={{ width: '14%' }}>时长</th>
-                <th style={{ width: '20%' }}>艺人</th>
-                {canEdit ? <th style={{ width: '96px' }}>操作</th> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {songs.data.items.map((song: import('@/api/types').MusicSong) => (
-                <tr
-                  key={song.song_id}
-                  {...rowLink(() => navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } }))}
-                >
-                  <td>
-                    <span className="cell-title__name">{song.name}</span>
-                    {song.description ? (
-                      <span className="cell-title__code">{song.description.slice(0, 40)}</span>
-                    ) : null}
-                  </td>
-                  <td className="num muted">
-                    {duration(song.duration)}
-                  </td>
-                  <td className="muted" style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(song.person_artists ?? []).map((x) => x.name).join("/")}</td>
-                  {canEdit ? (
-                  <td onClick={(e) => e.stopPropagation()}>
-                    <button type="button"
-                      className="btn btn--danger-text"
-                      disabled={removeSong.isPending && removeSong.variables === song.song_id}
-                      onClick={async () => {
-                        const ok = await confirmDialog({
-              title: `从片单移除《${song.name}》？`,
-              message: '歌曲本身不会被删除。',
-              confirmText: '移除',
-              danger: true,
-                        })
-                        if (!ok) return
-                        removeSong.mutate(song.song_id, { onSuccess: () => toast('已移除', 'success') })
-                      }}
-                    >
-                      移除
-                    </button>
-                  </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <RecordRow
+          rows={songs.data.items}
+          idKey={(song) => song.song_id}
+          onOpen={(song) => navigate({ to: '/music/song/$songId', params: { songId: String(song.song_id) } })}
+          title={(song) => song.name}
+          meta={(song) => (
+            <>
+              <span>{(song.person_artists ?? []).map((x) => x.name).join(' / ') || '未知艺人'}</span>
+              <span>{duration(song.duration)}</span>
+            </>
+          )}
+          facts={(song) => (song.description ? <span className="ellipsis">{song.description}</span> : null)}
+          actions={
+            canEdit
+              ? (song) => (
+                  <button
+                    type="button"
+                    className="btn btn--danger-text"
+                    disabled={removeSong.isPending && removeSong.variables === song.song_id}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: `从片单移除《${song.name}》？`,
+                        message: '歌曲本身不会被删除。',
+                        confirmText: '移除',
+                        danger: true,
+                      })
+                      if (!ok) return
+                      removeSong.mutate(song.song_id, { onSuccess: () => toast('已移除', 'success') })
+                    }}
+                  >
+                    移除
+                  </button>
+                )
+              : undefined
+          }
+        />
       ) : null}
       {addingSong ? (
         <Modal title="添加歌曲" onClose={onCloseAdd} width={460}>

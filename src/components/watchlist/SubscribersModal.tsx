@@ -1,5 +1,5 @@
 import { Modal } from '@/components/Modal'
-import { UserCell } from '@/components/UserCell'
+import { RecordRow } from '@/components/RecordRow'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { formatThousand } from '@/lib/format'
 import { useWatchSubscribers } from '@/api/queries'
@@ -33,26 +33,20 @@ export function SubscribersModal({
         <EmptyBlock bare title="还没有人订阅" />
       ) : null}
       {(subs.data?.items.length ?? 0) > 0 ? (
-        <table className="table table--inset">
-          <thead>
-            <tr>
-              <th className="th-thumb">用户</th>
-              <th className="num" style={{ width: 90 }}>付费</th>
-              <th style={{ width: 110 }}>到期</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(subs.data?.items ?? []).map((row, index) => (
-              <tr key={`${row.username}-${index}`}>
-                <td>
-                  <UserCell name={row.username} avatar={row.avatar} />
-                </td>
-                <td className="num muted">{row.carrot ? formatThousand(row.carrot) : '—'}</td>
-                <td className="muted">{row.expiration_date ?? '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <RecordRow
+          rows={subs.data?.items ?? []}
+          idKey={(row) => `${row.username}-${row.created_at}`}
+          single
+          posterShape="square"
+          poster={(row) => row.avatar}
+          title={(row) => row.username}
+          facts={(row) => (
+            <>
+              <span>{row.carrot ? `${formatThousand(row.carrot)} 付费` : '免费订阅'}</span>
+              <span>{row.expiration_date ? `${row.expiration_date} 到期` : '长期有效'}</span>
+            </>
+          )}
+        />
       ) : null}
     </Modal>
   )
