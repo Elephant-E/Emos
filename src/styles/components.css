@@ -2139,10 +2139,15 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     overscroll-behavior: contain;
     padding: var(--sp-3) var(--sp-4) var(--sp-4);
   }
-  /* 展开动画用 Radix 官方写法：高度取它写入的 --radix-collapsible-content-height */
+  /* 展开/收起都用 Radix 写入的 --radix-collapsible-content-height；
+     收起态存在动画时，Radix 会等内容动画播完再卸载 */
   .rail[data-state='open'] {
     overflow-y: auto;
     animation: nav-expand 240ms var(--ease);
+  }
+  .rail[data-state='closed'] {
+    overflow: hidden;
+    animation: nav-collapse 200ms var(--ease);
   }
   .shell__scrim {
     position: fixed;
@@ -2161,7 +2166,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail__item > span:not(.rail__ico) { display: initial; }
   .rail__label { display: block; }
   .rail__item { justify-content: flex-start; height: 40px; }
-  .rail__search { display: flex; }
+  /* 面板紧贴顶栏：搜索框不再叠 --sp-4 的间距，键帽在手机上没有意义 */
+  .rail__search {
+    display: flex;
+    margin: 0 0 var(--sp-1);
+  }
+  .rail__keys { display: none; }
+  /* 顶栏下沿的分隔线交给面板顶部，避免和顶栏边框叠成两条 */
+  .shell--nav-open .topbar { border-bottom-color: transparent; }
 
   .topbar {
     display: flex;
@@ -2212,4 +2224,10 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 @keyframes nav-expand {
   from { height: 0; opacity: 0.5; }
   to { height: var(--radix-collapsible-content-height); opacity: 1; }
+}
+
+/* 手机端导航面板收起：实际内容高度 → 0 */
+@keyframes nav-collapse {
+  from { height: var(--radix-collapsible-content-height); opacity: 1; }
+  to { height: 0; opacity: 0.5; }
 }
