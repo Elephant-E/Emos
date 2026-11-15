@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -76,6 +77,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         pageSize={search.page_size}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        cardList
         sizes={[20, 50]}
         idKey={(line) => line.id}
         loadingRows={4}
@@ -85,59 +87,71 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
         }
       >
-        <table className="table table--auto">
-            <thead>
-              <tr>
-                <th>名称</th>
-                <th>地址</th>
-                <th>简介</th>
-                <th>创建时间</th>
-                <th>
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paged.map((line) => (
-                <tr key={line.id}>
-                  <td>
-                    <div className="cell-title">
-                      <span>
-                        <span className="cell-title__name">{line.name}</span>
-                        {line.is_self ? <span className="cell-title__code">我的</span> : null}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="muted" style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {line.url}
-                  </td>
-                  <td className="muted">{line.tagline ?? '—'}</td>
-                  <td className="muted">{formatDateTime(line.created_at)}</td>
-                  <td>
-                    {line.is_self ? (
-                      <button type="button"
-                        className="btn btn--danger-text"
-                        disabled={actions.remove.isPending}
-                        onClick={async () => {
-                          const ok = await confirmDialog({
-                            title: `删除线路「${line.name}」？`,
-                            message: '使用这条线路的客户端会立刻失效。',
-                            hint: '建议先在客户端切到其它线路。',
-                            confirmText: '删除',
-                            danger: true,
-                          })
-                          if (!ok) return
-                          actions.remove.mutate(line.id, { onSuccess: () => toast('已删除', 'success') })
-                        }}
-                      >
-                        删除
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <RecordList
+            rows={paged}
+            idKey={(line) => line.id}
+            className="table table--auto"
+            columns={[
+              {
+                key: 'name',
+                label: '名称',
+                mobile: 'primary',
+                render: (line) => (
+                  <div className="cell-title">
+                    <span>
+                      <span className="cell-title__name">{line.name}</span>
+                      {line.is_self ? <span className="cell-title__code">我的</span> : null}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                key: 'url',
+                label: '地址',
+                mobile: 'row',
+                render: (line) => <span className="muted ellipsis">{line.url}</span>,
+              },
+              {
+                key: 'tagline',
+                label: '简介',
+                mobile: 'row',
+                render: (line) => <span className="muted">{line.tagline ?? '—'}</span>,
+              },
+              {
+                key: 'created',
+                label: '创建时间',
+                mobile: 'hidden',
+                render: (line) => <span className="muted">{formatDateTime(line.created_at)}</span>,
+              },
+              {
+                key: 'actions',
+                label: '操作',
+                mobile: 'block',
+                mobileAlign: 'end',
+                render: (line) =>
+                  line.is_self ? (
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      disabled={actions.remove.isPending}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `删除线路「${line.name}」？`,
+                          message: '使用这条线路的客户端会立刻失效。',
+                          hint: '建议先在客户端切到其它线路。',
+                          confirmText: '删除',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.remove.mutate(line.id, { onSuccess: () => toast('已删除', 'success') })
+                      }}
+                    >
+                      删除
+                    </button>
+                  ) : null,
+              },
+            ]}
+          />
       </ListSection>
 
 

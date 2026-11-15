@@ -2246,7 +2246,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .card--stat { padding: var(--sp-3); }
-  .card--stat .stat__delta { margin-top: var(--sp-2); }
+  /* 两列后卡片变窄：note 里的片段会被 flex 拆开换行（「片单槽位 … 2」断成两行），
+     窄屏改回普通文本流，按整句换行 */
+  .card--stat .stat__delta {
+    display: block;
+    margin-top: var(--sp-2);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+  }
 
   /* 详情头：缺图时不要留一块空海报位 */
   .thumb:empty { display: none; }
