@@ -60,7 +60,9 @@ export function ListSection<T>({
 }) {
   const compact = useMediaQuery('(max-width: 600px)')
 
-  if (error) return <ErrorBlock error={error} onRetry={onRetry} />
+  // 三态也要与内容同形：内容不套壳时，空/错/骨架也不套
+  const stateBare = bare || cardList
+  if (error) return <ErrorBlock bare={stateBare} error={error} onRetry={onRetry} />
   if (isLoading) {
     // 骨架与真实内容同形：行卡片 / 网格 / 表格各给各的
     if (loadingKind === 'single-rows') return <LoadingRows count={loadingRows} single />
@@ -72,7 +74,7 @@ export function ListSection<T>({
   }
 
   if (items.length === 0) {
-    return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
+    return <EmptyBlock bare={stateBare} title={emptyTitle} hint={emptyHint} action={emptyAction} />
   }
 
   // 内容自带网格：不要再套任何容器，否则就是「一层套一层」
@@ -80,7 +82,9 @@ export function ListSection<T>({
     return (
       <>
         {children}
-        {infinite ? <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} /> : null}
+        {infinite && (infinite.hasMore || infinite.loading) ? (
+          <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} />
+        ) : null}
       </>
     )
   }
@@ -102,7 +106,9 @@ export function ListSection<T>({
   return (
     <ListCard scope={scope}>
       {children}
-      {infinite ? <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} /> : null}
+      {infinite && (infinite.hasMore || infinite.loading) ? (
+        <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} />
+      ) : null}
     </ListCard>
   )
 }

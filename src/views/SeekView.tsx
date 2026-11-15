@@ -150,6 +150,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
       >
           <RecordRow
+            multi
             rows={items}
             idKey={(item) => item.id}
             poster={(item) => item.video_image_poster}

@@ -134,6 +134,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         items={visibleOrders}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         cardList
+        loadingKind="rows"
         scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
         loadingRows={6}
         loadingCols={5}

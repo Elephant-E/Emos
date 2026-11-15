@@ -2553,9 +2553,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-rows {
   display: grid;
   gap: var(--gap-card);
-  /* 自适应列数：行卡最少 280px（封面 112 + 文字列 + 内边距），
-     带侧栏的 1280 屏可用宽度 900，正好三张 */
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* 信息型列表默认单列全宽：列一窄，状态徽标、订单号这类字段就会被裁掉，
+     「一行一条」本来也是表格时代最要紧的可扫读性 */
+  grid-template-columns: minmax(0, 1fr);
+}
+/* 待办型（求片）：字段少、以卡片为单位浏览，可以并排多列 */
+.record-rows--multi {
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
 }
 /* 管理型列表固定单列 */
 .record-rows--single { grid-template-columns: minmax(0, 1fr); }
@@ -2568,12 +2572,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   gap: var(--sp-4);
 }
 .record-rows--single .record-row__body { justify-content: flex-start; }
-.record-rows--single .record-row__facts { margin-top: auto; }
+
 .record-rows--single .record-row__actions { align-self: center; }
 .record-rows--single .record-row__media { width: 72px; }
 /* 方图（用户头像）：与图片本身同宽高，不按 2:3 拉长 */
 .record-row__media--square,
 .record-rows--single .record-row__media--square { width: 72px; }
+/* 没有图 / 没有信息块 / 没有动作时，对应的网格单元直接消失，别留空格与额外间距 */
+.record-row__media:empty,
+.record-row__extra:empty,
+.record-row__actions:empty { display: none; }
 .record-row__media--square .record-row__poster,
 .record-row__media--square .record-row__poster.poster-img {
   width: 72px;
@@ -2613,7 +2621,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row {
   position: relative;
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
+  /* 图片列宽由图片自身决定：没有图时整列收起，不留 112px 空槽 */
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--sp-4);
   padding: var(--sp-4);
   border: 1px solid var(--line);
@@ -2630,7 +2639,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .card .record-row + .record-row { border-top: 1px solid var(--line-soft); }
 /* 卡片内的行：⋯ 放到标题行右侧，不要单独占一行留下大片空白 */
-.card .record-row { padding-right: 36px; }
+.card .record-row { padding-right: 108px; }
 .card .record-row__actions {
   position: absolute;
   top: var(--sp-2);
@@ -2645,6 +2654,20 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   border-radius: var(--r-item);
   background: rgba(255, 255, 255, 0.055);
 }
+/* 方图/无图行：写在通用规则之后，避免被 112px 覆盖 */
+.record-row__media--square { width: 72px; }
+/* 没有图 / 没有信息块 / 没有动作时，对应的网格单元直接消失，别留空格与额外间距 */
+.record-row__media:empty,
+.record-row__extra:empty,
+.record-row__actions:empty { display: none; }
+.record-row__media--square .record-row__poster,
+.record-row__media--square .record-row__poster.poster-img {
+  width: 72px;
+  height: 72px;
+}
+/* 没有封面时不留空槽：改成一列文字 + 右侧动作 */
+.record-row--no-poster { grid-template-columns: minmax(0, 1fr) auto; }
+.record-row--no-poster .record-row__media { display: none; }
 .record-row__poster,
 .record-row__poster.poster-img {
   width: 112px;
@@ -2690,8 +2713,10 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-row__meta,
 .record-row__facts { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; font-size: var(--text-xs); color: var(--fg-3); }
+.record-row__meta,
+.record-row__facts { flex-wrap: wrap; min-width: 0; }
 .record-row__meta > *,
-.record-row__facts > * { flex: none; }
+.record-row__facts > * { flex: 0 1 auto; min-width: 0; max-width: 100%; }
 /* 分隔点生成在相邻元素之前；胶囊/徽标自带宽高与底色，不要在它们内部再多一颗点 */
 .record-row__meta > * + *:not(.chip):not(.badge)::before,
 .record-row__facts > * + *:not(.chip):not(.badge)::before {

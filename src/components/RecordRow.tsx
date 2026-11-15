@@ -17,6 +17,8 @@ export interface RecordRowProps<T> {
   posterShape?: 'poster' | 'square'
   /** 标题允许两行（消息内容这类需要多行展示的） */
   wrapTitle?: boolean
+  /** 待办型多列布局（求片这类字段少、按卡浏览的列表） */
+  multi?: boolean
   onOpen?: (row: T) => void
   poster?: (row: T) => string | null | undefined
   title: (row: T) => ReactNode
@@ -39,6 +41,7 @@ export function RecordRow<T>({
   single = false,
   posterShape = 'poster',
   wrapTitle = false,
+  multi = false,
   onOpen,
   poster,
   title,
@@ -50,7 +53,7 @@ export function RecordRow<T>({
   fullActions = false,
 }: RecordRowProps<T>) {
   return (
-    <div className={`record-rows${single ? ' record-rows--single' : ''}`}>
+    <div className={`record-rows${single ? ' record-rows--single' : ''}${multi ? ' record-rows--multi' : ''}`}>
       {rows.map((row) => {
         const metaNode = meta?.(row)
         const factsNode = facts?.(row)
