@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**169** 个封装。
+代码（`src/api/endpoints.ts`）：**168** 个封装。
 
 - 已接且有界面调用：**165**
-- 已接但无调用：**1**
-- 未接：**22**
+- 已接但无调用：**0**
+- 未接：**23**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -26,6 +26,7 @@
 | 视频相关 / 资源相关 | 获取播放地址 | `GET /api/video/media/playUrl` |
 | 视频相关 / 观影记录 | 更新记录 | `PUT /api/video/record/change` |
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
+| 视频相关 | 获取视频标识id | `GET /api/video/getVideoId` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
 | 商城相关 / 商品 | 修改分类 | `PUT /api/shop/product/category` |
@@ -49,7 +50,6 @@
 
 | 分组 | 封装 | 方法 路径 | 判断 |
 |---|---|---|---|
-| 视频相关 | `videoApi.getVideoId` | `GET /api/video/getVideoId` | 按 todb/tmdb 反查 video_id，页面都有 video_id |
 
 ## 刻意不接 / 后台工具
 
@@ -66,6 +66,7 @@
 | 获取播放地址 | `GET /api/video/media/playUrl` | 播放地址按需求不展示 |
 | 更新记录 | `PUT /api/video/record/change` | 改观影记录，属于用户侧行为，后台不改 |
 | 搜索获取目录树 | `GET /api/video/tree` | 取目录树，后台用不上（列表页走 /api/video/list） |
+| 获取视频标识id | `GET /api/video/getVideoId` | 按 todb/tmdb id 反查 video_id，后台各页都已有 video_id |
 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量重置片单内容的对外接口：契约写明「请先联系官方确认」，且每次提交会清空整个片单 |
 | 测试回调 | `POST /api/pay/testNotify` | 回调自测，联调用 |
 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` | 发到 Telegram 频道，bot 侧入口，后台没有场景 |
