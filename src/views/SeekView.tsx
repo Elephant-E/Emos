@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
+import { IconAlert, IconInbox, IconRight } from '@/components/icons'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -63,18 +64,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   /** 「详情」在任何状态下都能点开 */
 
   /** 催片按钮在所有状态下都出现，初始悬赏额定在此处 */
-  const urgeButton = (item: SeekItem) => (
-    <button type="button"
-      className="btn btn--quiet"
-      onClick={(e) => {
-        e.stopPropagation()
-        setUrgeTarget(item)
-        setCarrot(10)
-      }}
-    >
-      催片
-    </button>
-  )
+  const openUrge = (item: SeekItem) => {
+    setUrgeTarget(item)
+    setCarrot(10)
+  }
   const session = useSession()
   const myNames = [session.data?.pseudonym, session.data?.username].filter(Boolean) as string[]
   const [carrot, setCarrot] = useState(10)
@@ -185,6 +178,24 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             }}
             poster={(item) => item.video_image_poster}
             posterOverlay={(item) => (SEEK_STATUS[item.status] ?? SEEK_STATUS.default).label}
+            corner={(item) =>
+              item.video_list_id ? (
+                <button
+                  type="button"
+                  className="row-menu"
+                  aria-label="打开影片详情"
+                  onClick={() =>
+                    navigate({
+                      to: '/media/$videoId',
+                      params: { videoId: String(item.video_list_id) },
+                      search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+                    })
+                  }
+                >
+                  <IconRight size={16} strokeWidth={1.9} />
+                </button>
+              ) : null
+            }
             title={(item) => item.video_title_display}
             meta={(item) => (
               <>
@@ -215,6 +226,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               return (
                 <>
                   <button type="button" className="btn btn--quiet" onClick={() => setDetailFor(item)}>
+                    <IconInbox size={15} strokeWidth={1.8} />
                     详情
                   </button>
                   {canClaim ? (
@@ -246,7 +258,16 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                       撤回
                     </button>
                   ) : null}
-                  {item.status === 'upload' || item.status === 'default' ? urgeButton(item) : null}
+                  {item.status === 'upload' || item.status === 'default' ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() => openUrge(item)}
+                    >
+                      <IconAlert size={15} strokeWidth={1.8} />
+                      催片
+                    </button>
+                  ) : null}
                 </>
               )
             }}

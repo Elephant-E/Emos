@@ -18,6 +18,8 @@ export interface RecordRowProps<T> {
   meta?: (row: T) => ReactNode
   /** 第二行：数量、悬赏、时间等 */
   facts?: (row: T) => ReactNode
+  /** 右上角的独立动作（如「打开」圆形按钮） */
+  corner?: (row: T) => ReactNode
   /** 封面底部的角标（状态这类） */
   posterOverlay?: (row: T) => ReactNode
   /** 跨整行的信息块（如「求片记录」），放在正文与动作之间 */
@@ -36,6 +38,7 @@ export function RecordRow<T>({
   meta,
   facts,
   posterOverlay,
+  corner,
   extra,
   actions,
   fullActions = false,
@@ -74,15 +77,17 @@ export function RecordRow<T>({
                 {posterOverlay ? <div className="record-row__overlay">{posterOverlay(row)}</div> : null}
               </div>
             ) : null}
+            {corner ? <div className="record-row__corner">{corner(row)}</div> : null}
             <div className="record-row__body">
               <h3 className="record-row__title">{title(row)}</h3>
               {metaNode ? <div className="record-row__meta">{metaNode}</div> : null}
               {factsNode ? <div className="record-row__facts">{factsNode}</div> : null}
-              {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
-              {actions ? (
-                <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>{actions(row)}</div>
-              ) : null}
             </div>
+            {/* 跨整行的块放在 row 层，不放在 body 里：body 只有文字列宽 */}
+            {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
+            {actions ? (
+              <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>{actions(row)}</div>
+            ) : null}
           </article>
         )
       })}

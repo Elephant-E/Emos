@@ -2513,10 +2513,11 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .record-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .record-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: var(--sp-3);
-  padding: var(--sp-3);
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding: var(--sp-4);
   border: 1px solid var(--line);
   border-radius: var(--r-card);
   background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
@@ -2533,33 +2534,33 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .card .record-row__actions { margin-top: var(--sp-2); }
 .record-row.is-clickable { cursor: pointer; }
 .record-row.is-clickable:hover { border-color: var(--line-hot); }
-.record-row__media { position: relative; width: 96px; }
+.record-row__media { position: relative; width: 112px; }
 .record-row__poster,
 .record-row__poster.poster-img {
-  width: 96px;
-  height: 144px;
+  width: 112px;
+  height: 168px;
   border-radius: var(--r-item);
   object-fit: cover;
 }
 .record-row__overlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: grid;
-  place-items: center;
-  padding: var(--sp-1) 0;
-  border-radius: 0 0 var(--r-item) var(--r-item);
-  background: rgba(12, 14, 17, 0.66);
-  backdrop-filter: blur(4px);
+  left: var(--sp-2);
+  bottom: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  background: rgba(12, 14, 17, 0.72);
+  backdrop-filter: blur(6px);
   font-size: var(--text-2xs);
   color: var(--fg-2);
+  white-space: nowrap;
 }
 .record-row__body { display: grid; gap: var(--sp-1); min-width: 0; }
 .record-row__title {
   margin: 0;
-  font-size: var(--text-base, 15px);
-  font-weight: 500;
+  padding-right: var(--sp-6);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--fg);
   overflow: hidden;
   white-space: nowrap;
@@ -2571,6 +2572,17 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__facts > * { flex: none; }
 .record-row__meta > * + *::before,
 .record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
+.record-row__corner { position: absolute; top: var(--sp-3); right: var(--sp-3); }
+.record-row__corner .row-menu {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--fg-2);
+  opacity: 1;
+}
+.record-row__corner .row-menu:hover { border-color: var(--line-hot); color: var(--fg); }
 .record-row__extra { grid-column: 1 / -1; }
 /* 「求片记录」：一行说明 + 一行数据 */
 .seek-records { display: grid; gap: var(--sp-1); margin-top: var(--sp-1); }
@@ -2593,7 +2605,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-2);
 }
-.record-row__actions--full > * { width: 100%; }
+.record-row__actions--full > * {
+  width: 100%;
+  height: 40px;
+  border-radius: 999px;
+  padding: 0 var(--sp-2);
+  gap: var(--sp-1);
+  white-space: nowrap;
+  font-size: var(--text-sm);
+}
+.record-row__actions--full svg { width: 14px; height: 14px; }
 /* 宽屏上三个等分按钮别拉到整行：给一个上限，靠左对齐信息 */
 
 /* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
