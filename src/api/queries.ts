@@ -36,6 +36,7 @@ export const qk = {
   seeksPage: (p: object) => ['seeks', p] as const,
   whisper: ['whisper'] as const,
   upload: ['upload'] as const,
+  uploadSongs: (term: string) => ['upload', 'song-pick', term] as const,
   uploadImages: ['upload', 'images'] as const,
 
   user: ['user'] as const,
