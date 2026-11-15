@@ -2320,6 +2320,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     font-size: var(--text-sm);
     color: var(--fg-3);
   }
+  /* 主按钮是浅底，文字必须用深色；上面的通用规则会把文字也刷成浅灰 */
+  .head-tools .btn--primary { color: var(--on-light); }
   /* 描边退一档：这是次要入口，不该比正文内容更抢眼 */
   .head-tools .btn--ghost { border-color: var(--line-soft); }
   .head-tools .btn--ghost:hover { border-color: var(--line); color: var(--fg-2); }
