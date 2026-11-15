@@ -7,6 +7,8 @@ interface PageHeaderProps {
   title: string
   hint?: ReactNode
   tools?: ReactNode
+  /** 手机上工具放在标题行的右侧（而不是另起一行） */
+  inlineTools?: boolean
 }
 
 /** 面包屑首段对应的列表页，点它能回到那一级 */
@@ -29,11 +31,11 @@ const SECTION_PATH: Record<string, string> = {
   回收站: '/recycle',
 }
 
-export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
+export function PageHeader({ crumb, title, hint, tools, inlineTools }: PageHeaderProps) {
   const root = crumb[0]
   const path = SECTION_PATH[root]
   return (
-    <div className="page__head">
+    <div className={inlineTools ? 'page__head page__head--inline' : 'page__head'}>
       <div>
         <nav className="crumb" aria-label="面包屑">
           <IconGrid />
