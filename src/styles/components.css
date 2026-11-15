@@ -2571,8 +2571,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__body {
   display: flex;
   flex-direction: column;
-  /* 卡片本身不可点、只有「详情」一个入口，文字块与封面垂直居中更稳 */
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--sp-1);
   min-width: 0;
 }
