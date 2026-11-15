@@ -2574,10 +2574,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-row__title {
   margin: 0;
-  padding-right: var(--sp-6);
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  padding-right: var(--sp-2);
+  font-size: var(--text-body);
+  font-weight: 500;
   color: var(--fg);
   overflow: hidden;
   white-space: nowrap;
@@ -2601,7 +2600,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   gap: var(--sp-3);
   padding: var(--sp-2) var(--sp-3);
   border-radius: var(--r-item);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--field);
   font-size: var(--text-xs);
   color: var(--fg-2);
 }
@@ -2614,8 +2613,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-row__actions--full > * {
   width: 100%;
-  height: 40px;
-  border-radius: 999px;
+  height: 36px;
+  border-radius: var(--r-item);
   padding: 0 var(--sp-2);
   gap: var(--sp-1);
   white-space: nowrap;
