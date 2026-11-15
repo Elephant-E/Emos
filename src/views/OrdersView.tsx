@@ -9,13 +9,12 @@ import { Poster } from '@/components/Poster'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { shopApi } from '@/api/endpoints'
-import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
+import { useShopMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export interface OrdersSearch {
   page: number
@@ -53,18 +52,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
   }
-  // 两个视角只挂自己那条，否则每次订单操作都会多取一份屏幕上看不到的列表
-  const compact = useMediaQuery('(max-width: 600px)')
-  const shopOrders = useShopOrders(search.page, filter, search.page_size, !mineScope && !compact)
-  const mineOrders = useShopMineOrders(search.page, filter, search.page_size, mineScope && !compact)
-  const orders = mineScope ? mineOrders : shopOrders
-  // 手机端滚动加载：两个接口按视角二选一
-  const infinite = usePagedInfinite<NonNullable<typeof orders.data>['items'][number]>(
+  // 两端都滚动加载：两个接口按视角二选一
+  const infinite = usePagedInfinite<Awaited<ReturnType<typeof shopApi.ordersShop>>['items'][number]>(
     (page) =>
       mineScope
         ? shopApi.ordersUser({ page, page_size: search.page_size, ...filter })
         : shopApi.ordersShop({ page, page_size: search.page_size, ...filter }),
-    { enabled: compact, resetKey: `${search.scope}|${search.page_size}` },
+    { resetKey: `${mineScope}|${search.page_size}` },
   )
   const actions = useShopMutations()
   // 店铺订单和自己下的单走两个接口，判断只写一处
@@ -76,7 +70,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
 
   // 实测后端只对 is_delivery 生效，is_pay / order_title / order_no 会被忽略，
   // 所以在当前页上再筛一遍：后端生效时等于没筛，不生效时也不会把已支付的算进「待支付」
-  const visibleOrders = (compact ? infinite.items : (orders.data?.items ?? [])).filter((order) => {
+  const visibleOrders = infinite.items.filter((order) => {
     if (search.pay !== 'all') {
       const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
       if (search.pay === 'paid' ? !paid : paid) return false
@@ -136,15 +130,11 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       ) : null}
 
       <ListSection
-        isLoading={orders.isLoading}
-        error={orders.error}
-        onRetry={() => orders.refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={visibleOrders}
-        total={compact ? infinite.total : (orders.data?.total ?? 0)}
-        page={search.page}
-        pageSize={orders.data?.page_size ?? search.page_size}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(o) => o.order_no}
         cardList

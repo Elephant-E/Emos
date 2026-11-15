@@ -18,13 +18,12 @@ import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type {} from '@/api/types'
-import { qk, useWatch, useWatchMusic, useWatchMutations, useWatchVideos } from '@/api/queries'
+import { qk, useWatch, useWatchMusic, useWatchMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export function WatchlistDetailView({
   watchId,
@@ -61,18 +60,12 @@ export function WatchlistDetailView({
   })
 
   const watch = useWatch(id)
-  const compact = useMediaQuery('(max-width: 600px)')
-  const videos = useWatchVideos(
-    id,
-    { page: search.page, page_size: search.page_size, video_title: search.q || undefined },
-    !compact,
-  )
-  // 手机端滚动加载
+  // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.videos(id, { page, page_size: search.page_size, video_title: search.q || undefined }),
-    { enabled: compact, resetKey: `${id}|${search.q}|${search.page_size}` },
+    { resetKey: `${id}|${search.q}|${search.page_size}` },
   )
-  const videoRows = compact ? infinite.items : (videos.data?.items ?? [])
+  const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
@@ -249,18 +242,15 @@ export function WatchlistDetailView({
         <>
 
       <ListSection
-        isLoading={videos.isLoading}
-        error={videos.error}
-        onRetry={() => videos.refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={videoRows}
-        total={compact ? infinite.total : (videos.data?.total ?? 0)}
-        page={search.page}
-        pageSize={videos.data?.page_size ?? search.page_size}
-        onPage={(page) => go({ page })}
+        total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(v) => v.video_id}
-        scope={`${search.q}-${search.page}`}
+        scope={search.q}
         loadingRows={6}
         loadingCols={4}
         emptyTitle="片单里还没有影片"

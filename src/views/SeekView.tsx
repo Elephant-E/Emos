@@ -3,7 +3,6 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
@@ -14,7 +13,7 @@ import { ModalFooter } from '@/components/ModalFooter'
 import { seekApi } from '@/api/endpoints'
 import { useQuery } from '@tanstack/react-query'
 import { formatDateTime } from '@/lib/format'
-import { qk, useSeekPage, useSeekPoll, useSession } from '@/api/queries'
+import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
@@ -97,7 +96,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   useEffect(() => setTerm(search.q), [search.q])
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
-  const compact = useMediaQuery('(max-width: 600px)')
   const seekParams = {
     page_size: search.page_size,
     status: statuses,
@@ -105,16 +103,12 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
   }
-  const { data, isLoading, error, refetch } = useSeekPage(
-    { ...seekParams, page: search.page },
-    { enabled: !compact },
-  )
-  // 手机端：滚动加载，页码控件不出现
+  // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => seekApi.list({ ...seekParams, page, sort_order: 'desc' }),
-    { enabled: compact, resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${search.page_size}` },
+    { resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${search.page_size}` },
   )
-  const items = compact ? infinite.items : (data?.items ?? [])
+  const items = infinite.items
 
   // 列表按 updated_at 排序，首行不一定是最大 id；用当前页最大 id 做增量基准，
   // 否则有人认领老求片就会把它顶上来，lastId 变小导致每轮都全量重查
@@ -178,13 +172,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       </div>
 
       <ListSection
-        isLoading={isLoading}
-        error={error}
-        onRetry={() => refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={items}
-        total={compact ? infinite.total : (data?.total ?? 0)}
-        page={search.page}
-        pageSize={compact ? infinite.pageSize : (data?.page_size ?? search.page_size)}
+        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}

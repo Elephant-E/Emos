@@ -12,13 +12,12 @@ import { Poster } from '@/components/Poster'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
-import { qk, useSession, useWatchPage } from '@/api/queries'
+import { qk, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export interface WatchSearch {
   page: number
@@ -50,7 +49,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
   const session = useSession()
-  const compact = useMediaQuery('(max-width: 600px)')
   const watchParams = {
     page_size: search.page_size,
     // 不传 type：上游只认 video，传 music 直接 422
@@ -58,12 +56,12 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
   }
-  const { data, isLoading, error, refetch } = useWatchPage({ ...watchParams, page: search.page }, !compact)
+  // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.list({ ...watchParams, page }),
-    { enabled: compact, resetKey: `${search.scope}|${search.q}|${search.page_size}` },
+    { resetKey: `${search.scope}|${search.q}|${search.page_size}` },
   )
-  const items = compact ? infinite.items : (data?.items ?? [])
+  const items = infinite.items
 
   const remove = useMutation({
     mutationFn: (watchId: number) => watchApi.remove(watchId),
@@ -131,15 +129,11 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       </div>
 
       <ListSection
-        isLoading={isLoading}
-        error={error}
-        onRetry={() => refetch()}
+        isLoading={infinite.loading && infinite.items.length === 0}
+        error={infinite.error}
+        onRetry={() => infinite.retry()}
         items={items}
-        total={compact ? infinite.total : (data?.total ?? 0)}
-        page={search.page}
-        pageSize={compact ? infinite.pageSize : (data?.page_size ?? search.page_size)}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(w) => w.id}
         scope={`${search.scope}-${search.q}`}
