@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { CardHead } from '@/components/CardHead'
 import { VideoCasts } from '@/components/video/VideoCasts'
+import { VideoSeasons } from '@/components/video/VideoSeasons'
 import { VideoMedias } from '@/components/video/VideoMedias'
 import { VideoSubtitles, type SubtitleRow } from '@/components/video/VideoSubtitles'
 import { MediaEditModal } from '@/components/video/MediaEditModal'
@@ -249,77 +249,20 @@ export function VideoDetailView({
       {video ? (
       <div className={isMovie ? 'detail-body detail-body--single' : 'detail-body'}>
         {isMovie ? null : (
-        <article className="card">
-          <CardHead title="季与集">
-            <span className="muted tnum-sm">
-              共 {seasons.data?.length ?? 0} 季 · 本季 {seasonEpisodes.length} 集
-            </span>
-          </CardHead>
-
-          {seasons.error ? <ErrorBlock bare error={seasons.error} onRetry={() => seasons.refetch()} /> : null}
-          {seasons.isLoading ? <div className="skeleton" style={{ height: 34, marginTop: 12 }} /> : null}
-          {seasons.data && seasons.data.length > 0 ? (
-            <select
-              className="input"
-              style={{ marginTop: 12 }}
-              value={season}
-              aria-label="选择季"
-              onChange={(event) => pick(Number(event.target.value), 1)}
-            >
-              {seasons.data.map((s) => (
-                <option key={s.season_id} value={s.season_number}>
-                  {s.season_title || `第 ${s.season_number} 季`}
-                  {s.episodes_count ? `（${s.episodes_count} 集）` : ''}
-                </option>
-              ))}
-            </select>
-          ) : null}
-
-          {episodes.error ? <ErrorBlock bare error={episodes.error} onRetry={() => episodes.refetch()} /> : null}
-          {episodes.isLoading ? <div className="skeleton" style={{ height: 160, marginTop: 12 }} /> : null}
-          {!episodes.error && episodes.data && seasonEpisodes.length === 0 ? <EmptyBlock bare title="这一季还没有集" /> : null}
-
-          {seasonEpisodes.length > 0 ? (
-            <>
-              <div className="ep-grid" role="listbox" aria-label="选择集">
-                {seasonEpisodes.map((ep) => {
-                  const active = currentEpisode?.episode_id === ep.episode_id
-                  return (
-                    <button type="button"
-                      key={ep.episode_id}
-                      role="option"
-                      aria-selected={active}
-                      className={`ep-chip${active ? ' is-active' : ''}`}
-                      title={ep.episode_title || `第 ${ep.episode_number} 集`}
-                      onClick={() => pick(ep.season_number, ep.episode_number)}
-                    >
-                      {String(ep.episode_number).padStart(2, '0')}
-                      {ep.seek ? <span className="ep-chip__dot ep-chip__dot--seek" aria-hidden="true" /> : null}
-                      {ep.medias_count > 0 ? <span className="ep-chip__dot" aria-hidden="true" /> : null}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {currentEpisode ? (
-                <div className="ep-current">
-                  <span className="ep-current__title">
-                    {currentEpisode.episode_title || `第 ${currentEpisode.episode_number} 集`}
-                  </span>
-                  <span className="meta-sm">
-                    {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
-                    {currentEpisode.runtime ? `${currentEpisode.runtime} 分钟` : '—'} ·{' '}
-                    {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
-                    {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 胡萝卜` : ''}
-                  </span>
-                  {currentEpisode.episode_description ? (
-                    <span className="ep-current__desc">{currentEpisode.episode_description}</span>
-                  ) : null}
-                </div>
-              ) : null}
-            </>
-          ) : null}
-        </article>
+        <VideoSeasons
+          seasons={seasons.data ?? []}
+          seasonsError={seasons.error}
+          seasonsLoading={seasons.isLoading}
+          onRetrySeasons={() => seasons.refetch()}
+          season={season}
+          onPickSeason={(next) => pick(next, 1)}
+          episodesError={episodes.error}
+          episodesLoading={episodes.isLoading}
+          onRetryEpisodes={() => episodes.refetch()}
+          seasonEpisodes={seasonEpisodes}
+          currentEpisode={currentEpisode}
+          onPickEpisode={(nextSeason, nextEpisode) => pick(nextSeason, nextEpisode)}
+        />
         )}
 
         <div className="detail-col">
