@@ -15,6 +15,8 @@ export interface RecordRowProps<T> {
   single?: boolean
   /** 左侧图片的比例：影片海报 2:3、用户头像方图 */
   posterShape?: 'poster' | 'square'
+  /** 标题允许两行（消息内容这类需要多行展示的） */
+  wrapTitle?: boolean
   onOpen?: (row: T) => void
   poster?: (row: T) => string | null | undefined
   title: (row: T) => ReactNode
@@ -36,6 +38,7 @@ export function RecordRow<T>({
   idKey,
   single = false,
   posterShape = 'poster',
+  wrapTitle = false,
   onOpen,
   poster,
   title,
@@ -82,7 +85,7 @@ export function RecordRow<T>({
               </div>
             ) : null}
             <div className="record-row__body">
-              <h3 className="record-row__title">{title(row)}</h3>
+              <h3 className={`record-row__title${wrapTitle ? ' record-row__title--wrap' : ''}`}>{title(row)}</h3>
               {metaNode ? <div className="record-row__meta">{metaNode}</div> : null}
               {factsNode ? <div className="record-row__facts">{factsNode}</div> : null}
             </div>

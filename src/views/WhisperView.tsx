@@ -5,7 +5,8 @@ import { Tabs } from '@/components/Tabs'
 import { ModalFooter } from '@/components/ModalFooter'
 import { qk } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
+import { ListSection } from '@/components/ListSection'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { whisperApi } from '@/api/endpoints'
@@ -18,7 +19,6 @@ type Row = Record<string, unknown>
  * 正文最多两行：`.table tbody td` 是 nowrap，一条长悄悄话会把整行撑到几千 px 并出现横向滚动，
  * 因此用内联样式收住。
  */
-const CLAMP_TWO_LINES: CSSProperties = {
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
@@ -101,86 +101,59 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
       ) : null}
 
       {rows.length > 0 ? (
-        <div className="table-card">
-          <RecordList
+        <ListSection
+          isLoading={list.isLoading}
+          error={list.error}
+          onRetry={() => list.refetch()}
+          items={rows}
+          total={rows.length}
+          idKey={(row) => String(row.whisper_id ?? '')}
+          bare
+          loadingKind="rows"
+          loadingRows={5}
+          emptyTitle={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'}
+        >
+          <RecordRow
             rows={rows}
-            idKey={(row, ) => String(row.whisper_id ?? '')}
-            className="table"
-            columns={[
-              {
-                key: 'content',
-                label: '内容',
-                mobile: 'primary',
-                render: (row) => {
-                  const body = row.sender_content
-                  const reply = row.receiver_content
-                  return (
-                    <>
-                      <span className="cell-title__name" style={CLAMP_TWO_LINES} title={String(body ?? '—')}>
-                        {String(body ?? '—')}
-                      </span>
-                      {reply && reply !== body ? (
-                        <span className="cell-title__code" style={CLAMP_TWO_LINES} title={String(reply)}>
-                          回复：{String(reply)}
-                        </span>
-                      ) : null}
-                    </>
+            idKey={(row) => String(row.whisper_id ?? '')}
+            wrapTitle
+            title={(row) => String(row.sender_content ?? '—')}
+            meta={(row) => {
+              const peerUser = (tab === 'receiver' ? row.sender_user : row.receiver_user) as
+                | { username?: string; id?: string }
+                | undefined
+              // 收件箱判匿名看 sender_user 是否为空（该端点没有 sender_is_anonymous）
+              const peer = tab === 'receiver' && !row.sender_user ? '匿名' : String(peerUser?.username ?? '—')
+              return (
+                <>
+                  <span>{tab === 'receiver' ? `来自 ${peer}` : `发给 ${peer}`}</span>
+                  <span>{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</span>
+                </>
+              )
+            }}
+            facts={(row) =>
+              row.receiver_content && row.receiver_content !== row.sender_content ? (
+                <span className="ellipsis">回复：{String(row.receiver_content)}</span>
+              ) : null
+            }
+            actions={
+              tab === 'receiver'
+                ? (row) => (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() => {
+                        setReplyTarget(row)
+                        setContent('')
+                      }}
+                    >
+                      回复
+                    </button>
                   )
-                },
-              },
-              {
-                key: 'peer',
-                label: tab === 'receiver' ? '来自' : '发给',
-                thWidth: '18%',
-                mobile: 'inline',
-                render: (row) => {
-                  const peerUser = (tab === 'receiver' ? row.sender_user : row.receiver_user) as
-                    | { username?: string; id?: string }
-                    | undefined
-                  // 收件箱判匿名看 sender_user 是否为空（该端点没有 sender_is_anonymous）；
-                  // 发件箱这一列是收件人，与匿名无关
-                  const value = tab === 'receiver' && !row.sender_user ? '匿名' : String(peerUser?.username ?? '—')
-                  return <span className="muted">{value}</span>
-                },
-              },
-              {
-                key: 'time',
-                label: '时间',
-                thWidth: '18%',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (row) => (
-                  <span className="muted tnum">
-                    {formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}
-                  </span>
-                ),
-              },
-              ...(tab === 'receiver'
-                ? [
-                    {
-                      key: 'action',
-                      label: '操作',
-                      thWidth: 120,
-                      mobile: 'block' as const,
-                      mobileAlign: 'end' as const,
-                      render: (row: (typeof rows)[number]) => (
-                        <button
-                          type="button"
-                          className="btn btn--quiet"
-                          onClick={() => {
-                            setReplyTarget(row)
-                            setContent('')
-                          }}
-                        >
-                          回复
-                        </button>
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
+                : undefined
+            }
           />
-        </div>
+        </ListSection>
       ) : null}
 
       {replyTarget ? (
