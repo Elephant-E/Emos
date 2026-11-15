@@ -15,7 +15,6 @@ export function Poster({
   shape = 'poster',
   className,
   style,
-  collapseOnEmpty = false,
 }: {
   src?: string | null
   /** 保留字段：调用方仍在传（原先用于首字兜底），现在不再渲染文字 */
@@ -23,8 +22,6 @@ export function Poster({
   shape?: 'poster' | 'wide' | 'square'
   className?: string
   style?: CSSProperties
-  /** 卡片等自由布局里，没有图就干脆不占位（表格里必须占位，否则标题起点会跳） */
-  collapseOnEmpty?: boolean
 }) {
   const [failed, setFailed] = useState(false)
   const url = src?.trim()
@@ -35,7 +32,6 @@ export function Poster({
   const fallbackClass = shape === 'poster' ? 'thumb' : `thumb thumb--${shape}`
 
   if (!url || failed) {
-    if (collapseOnEmpty) return null
     return <span className={[fallbackClass, className].filter(Boolean).join(' ')} style={style} aria-hidden="true" />
   }
   return (

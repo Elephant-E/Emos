@@ -2257,18 +2257,11 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-card__meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-1) var(--sp-2);
+  gap: var(--sp-1) var(--sp-3);
   font-size: var(--text-xs);
   color: var(--fg-3);
 }
 .record-card__meta-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
-/* 组与组之间用一个中点分隔，比单纯留白好读 */
-.record-card__meta-item + .record-card__meta-item::before {
-  content: '·';
-  margin-right: var(--sp-1);
-  color: var(--fg-5);
-}
 .record-card__row {
   display: flex;
   align-items: center;
@@ -2278,8 +2271,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-2);
 }
 .record-card__row--block { justify-content: flex-start; }
-/* 值靠右且无字段名的行（如上映日期）：不再两边顶开，日期自成一行右侧对齐 */
-.record-card__row:not(:has(.record-card__label)) { justify-content: flex-end; font-size: var(--text-xs); color: var(--fg-4); }
 .record-card__label {
   font-size: var(--text-xs);
   color: var(--fg-4);

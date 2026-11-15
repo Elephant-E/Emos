@@ -128,9 +128,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                 label: '片名',
                 thClass: 'th-thumb',
                 mobile: 'primary',
-                render: (video, { mobile }) => (
+                render: (video) => (
                   <div className="cell-title">
-                    {mobile ? null : video.video_image_poster ? (
+                    {video.video_image_poster ? (
                       <Poster src={video.video_image_poster} name={video.video_title} />
                     ) : (
                       <span className="thumb">{video.video_title.slice(0, 1)}</span>
@@ -152,7 +152,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               {
                 key: 'type',
                 label: '类型',
-                mobileLabel: null,
                 mobile: 'inline',
                 render: (video) => (
                   <span className="zone">
@@ -164,38 +163,32 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               {
                 key: 'medias',
                 label: '资源',
-                mobileLabel: null,
                 thClass: 'num',
                 mobile: 'inline',
-                render: (video, { mobile }) =>
-                  mobile ? (
-                    <>{video.medias_count} 个资源</>
-                  ) : (
-                    <>
-                      {video.medias_count} 个 · 字幕 {video.subtitles_count}
-                    </>
-                  ),
+                render: (video) => (
+                  <>
+                    {video.medias_count} 个 · 字幕 {video.subtitles_count}
+                  </>
+                ),
               },
               {
                 key: 'requests',
                 label: '求片',
-                mobileLabel: null,
                 thClass: 'num',
                 mobile: 'inline',
-                render: (video, { mobile }) =>
+                render: (video) =>
                   video.request_count > 0 ? (
                     <span className="badge badge--wait">
                       <i />
                       {video.request_count} 人求
                     </span>
-                  ) : mobile ? null : (
+                  ) : (
                     <span className="muted">—</span>
                   ),
               },
               {
                 key: 'air',
                 label: '上映',
-                mobileLabel: null,
                 thClass: 'num',
                 render: (video) => <span className="muted">{video.video_date_air ?? '—'}</span>,
               },

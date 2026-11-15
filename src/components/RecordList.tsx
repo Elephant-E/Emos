@@ -6,10 +6,7 @@ export interface RecordColumn<T> {
   key: string
   /** 桌面表头文字，也用作手机卡片上的字段名 */
   label: string
-  /** 手机卡片上的字段名；设成 null 表示不显示（值本身自解释时用） */
-  mobileLabel?: string | null
-  /** mobile 为 true 表示正在渲染手机卡片，可据此调整（如海报缺图时不占位） */
-  render: (row: T, ctx: { mobile: boolean }) => ReactNode
+  render: (row: T) => ReactNode
   /** 桌面表头附加类（如 num / th-thumb） */
   thClass?: string
   thWidth?: number | string
@@ -71,7 +68,7 @@ export function RecordList<T>({
             <tr key={idKey(row)} {...(onOpen ? rowLink(() => onOpen(row)) : {})}>
               {columns.map((column) => (
                 <td key={column.key} className={column.thClass === 'num' ? 'num' : undefined}>
-                  {column.render(row, { mobile: false })}
+                  {column.render(row)}
                 </td>
               ))}
             </tr>
@@ -101,36 +98,28 @@ export function RecordList<T>({
                 }
               : {})}
           >
-            <div className="record-card__head">{primary.render(row, { mobile: true })}</div>
+            <div className="record-card__head">{primary.render(row)}</div>
             {inline.length > 0 ? (
               <div className="record-card__meta">
-                {inline.map((column) => {
-                  const node = column.render(row, { mobile: true })
-                  if (node === null || node === undefined || node === false) return null
-                  return (
+                {inline.map((column) => (
                   <span key={column.key} className="record-card__meta-item">
-                    {column.mobileLabel === null ? null : (
-                      <span className="record-card__label">{column.mobileLabel ?? column.label}</span>
-                    )}
-                    {node}
+                    <span className="record-card__label">{column.label}</span>
+                    {column.render(row)}
                   </span>
-                  )
-                })}
+                ))}
               </div>
             ) : null}
             {columns
               .filter((c) => c.mobile !== 'inline' && c.mobile !== 'primary' && c.mobile !== 'hidden' && c !== primary && !block.includes(c))
               .map((column) => (
                 <div key={column.key} className="record-card__row">
-                  {column.mobileLabel === null ? null : (
-                    <span className="record-card__label">{column.mobileLabel ?? column.label}</span>
-                  )}
-                  <span className="record-card__value">{column.render(row, { mobile: true })}</span>
+                  <span className="record-card__label">{column.label}</span>
+                  <span className="record-card__value">{column.render(row)}</span>
                 </div>
               ))}
             {block.map((column) => (
               <div key={column.key} className="record-card__row record-card__row--block">
-                {column.render(row, { mobile: true })}
+                {column.render(row)}
               </div>
             ))}
           </div>
