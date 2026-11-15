@@ -2561,10 +2561,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 单列（管理型）行：小图在左、信息中间、动作靠右居中，横向铺满不浪费 */
 .record-rows--single .record-row {
   grid-template-columns: 72px minmax(0, 1fr) auto;
-  align-items: center;
+  /* 文字从顶部开始排；备注贴到底部与封面下沿对齐 */
+  align-items: stretch;
   padding: var(--sp-3) var(--sp-4);
   gap: var(--sp-4);
 }
+.record-rows--single .record-row__body { justify-content: flex-start; }
+.record-rows--single .record-row__facts { margin-top: auto; }
+.record-rows--single .record-row__actions { align-self: center; }
 .record-rows--single .record-row__media { width: 72px; }
 .record-rows--single .record-row__poster,
 .record-rows--single .record-row__poster.poster-img {
