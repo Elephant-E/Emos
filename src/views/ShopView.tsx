@@ -541,7 +541,7 @@ export function ShopView({
           footer={
             <ModalFooter
               onCancel={() => setEditing(null)}
-              onConfirm={() => saveProduct}
+              onConfirm={() => saveProduct()}
               confirmText="保存"
               pending={actions.saveProduct.isPending}
               disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id) || actions.saveProduct.isPending}

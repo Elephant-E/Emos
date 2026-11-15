@@ -149,7 +149,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           footer={
             <ModalFooter
               onCancel={() => setCreating(false)}
-              onConfirm={() => submitLine}
+              onConfirm={() => void submitLine()}
               confirmText="创建"
               disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
             />
