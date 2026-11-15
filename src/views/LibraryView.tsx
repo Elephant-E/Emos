@@ -145,9 +145,8 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                   {VIDEO_TYPE_LABEL[video.video_type]}
                 </span>
-                {/* 年份取上映日期前四位：位数固定，两列卡片的信息行对得齐 */}
+                {/* 只有类型与年份：都是定长，两列卡片的信息行永远对得齐 */}
                 {video.video_date_air ? <span> · {video.video_date_air.slice(0, 4)}</span> : null}
-                {video.request_count > 0 ? <span> · {video.request_count} 人求</span> : null}
               </>
             )}
           />
