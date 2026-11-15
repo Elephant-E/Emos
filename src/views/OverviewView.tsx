@@ -115,7 +115,6 @@ export function OverviewView() {
   return (
     <>
       <PageHeader
-        inlineTools
         crumb={['概览', `${year} 年`]}
         title={monthName}
         hint={year}

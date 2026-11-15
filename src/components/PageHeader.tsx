@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { IconGrid } from './icons'
 
@@ -7,8 +7,6 @@ interface PageHeaderProps {
   title: string
   hint?: ReactNode
   tools?: ReactNode
-  /** 手机上工具放在标题行的右侧（而不是另起一行） */
-  inlineTools?: boolean
 }
 
 /** 面包屑首段对应的列表页，点它能回到那一级 */
@@ -31,11 +29,26 @@ const SECTION_PATH: Record<string, string> = {
   回收站: '/recycle',
 }
 
-export function PageHeader({ crumb, title, hint, tools, inlineTools }: PageHeaderProps) {
+export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
   const root = crumb[0]
   const path = SECTION_PATH[root]
+  // 工具横向溢出时才加渐隐：没溢出还渐隐会把最后一个按钮右边缘裁掉
+  const toolsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = toolsRef.current
+    if (!el) return
+    const sync = () => el.classList.toggle('is-scrollable', el.scrollWidth > el.clientWidth + 1)
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(el)
+    window.addEventListener('resize', sync)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', sync)
+    }
+  }, [tools])
   return (
-    <div className={inlineTools ? 'page__head page__head--inline' : 'page__head'}>
+    <div className="page__head">
       <div>
         <nav className="crumb" aria-label="面包屑">
           <IconGrid />
@@ -58,7 +71,11 @@ export function PageHeader({ crumb, title, hint, tools, inlineTools }: PageHeade
           {hint ? <span className="page-title__hint">{hint}</span> : null}
         </div>
       </div>
-      {tools ? <div className="head-tools">{tools}</div> : null}
+      {tools ? (
+        <div className="head-tools" ref={toolsRef}>
+          {tools}
+        </div>
+      ) : null}
     </div>
   )
 }
