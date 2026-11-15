@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
+import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
+import { MaintainerModal } from '@/components/watchlist/MaintainerModal'
 import { SubscribersModal } from '@/components/watchlist/SubscribersModal'
 import { RemarkModal } from '@/components/watchlist/RemarkModal'
 import { DynamicFetchModal } from '@/components/watchlist/DynamicFetchModal'
@@ -12,14 +14,10 @@ import { InlineSortInput } from '@/components/InlineSortInput'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
-import { Modal } from '@/components/Modal'
-import { ModalFooter } from '@/components/ModalFooter'
 import { IconPlus } from '@/components/icons'
-import { PickList } from '@/components/PickList'
 import { WatchlistForm } from '@/components/WatchlistForm'
-import { TagInput } from '@/components/TagInput'
 import type {} from '@/api/types'
-import { qk, useWatch, useWatchMusic, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { qk, useWatch, useWatchMusic, useWatchMutations, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
@@ -45,7 +43,6 @@ export function WatchlistDetailView({
   const [editing, setEditing] = useState(false)
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
-  const [maintainerIds, setMaintainerIds] = useState<string[]>([])
   // 订阅用户与清空：都是片单主才有的操作
   const [subsOpen, setSubsOpen] = useState(false)
   // 上游这个接口固定 15 条/页（传 20 也回 15），页码按响应的 page_size 算
@@ -64,9 +61,7 @@ export function WatchlistDetailView({
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
   const videoRows = videos.data?.items ?? []
-  const [addTerm, setAddTerm] = useState('')
-  const candidates = useWatchSearch(id, addTerm)
-  const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers, clearVideos, clearMusic } = useWatchMutations(id)
+  const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
 
@@ -153,10 +148,7 @@ export function WatchlistDetailView({
                   </button>
                   <button type="button"
                     className="btn btn--ghost"
-                    onClick={() => {
-                      setMaintainerIds((item.maintainers ?? []).map((m) => m.user_id).filter(Boolean) as string[])
-                      setMaintainerOpen(true)
-                    }}
+                    onClick={() => setMaintainerOpen(true)}
                   >
                     维护者
                   </button>
@@ -229,7 +221,6 @@ export function WatchlistDetailView({
               if (isMusic) {
                 setAddingSong(true)
               } else {
-                setAddTerm('')
                 setAdding(true)
               }
             }}
@@ -362,45 +353,11 @@ export function WatchlistDetailView({
       )}
 
       {adding ? (
-        <Modal title="添加影片" onClose={() => setAdding(false)} width={460}>
-          <label className="field">
-            <span>按片名搜索</span>
-            <input
-              className="input"
-              autoFocus
-              value={addTerm}
-              placeholder="输入片名"
-              onChange={(e) => setAddTerm(e.target.value)}
-            />
-          </label>
-          <PickList loading={candidates.isFetching} query={addTerm} count={(candidates.data ?? []).length}>
-            {(candidates.data ?? []).map((c) => (
-              <div key={c.video_id} className="pick-row">
-                {c.video_image_poster ? <Poster src={c.video_image_poster} name={String(c.video_title ?? '?')} /> : null}
-                <span className="pick-row__text">
-                  <span style={{ fontSize: 13.5 }}>{c.video_title}</span>
-                  <span className="meta-sm">
-                    {VIDEO_TYPE_LABEL[c.video_type]} · {c.video_date_air ?? '—'}
-                  </span>
-                </span>
-                <button type="button"
-                  className="btn btn--ghost"
-                  style={{ marginLeft: 'auto' }}
-                  onClick={() => {
-                    const maxSort = Math.max(0, ...(videos.data?.items ?? []).map((v) => v.sort ?? 0))
-                    addVideo.mutate(
-                      { videoId: c.video_id, sort: maxSort + 10 },
-                      { onSuccess: () => toast(`已加入《${c.video_title}》`, 'success') },
-                    )
-                  }}
-                  disabled={addVideo.isPending}
-                >
-                  加入
-                </button>
-              </div>
-            ))}
-          </PickList>
-        </Modal>
+        <AddVideoModal
+          watchId={watchId}
+          maxSort={Math.max(0, ...(videos.data?.items ?? []).map((v) => v.sort ?? 0))}
+          onClose={() => setAdding(false)}
+        />
       ) : null}
 
       {dynamicOpen ? (
@@ -426,38 +383,11 @@ export function WatchlistDetailView({
       ) : null}
 
       {maintainerOpen && item ? (
-        <Modal
-          title="设置维护者"
+        <MaintainerModal
+          watchId={watchId}
+          current={(item.maintainers ?? []).map((m) => m.user_id).filter((id): id is string => Boolean(id))}
           onClose={() => setMaintainerOpen(false)}
-          footer={
-            <ModalFooter
-              onCancel={() => setMaintainerOpen(false)}
-              onConfirm={() =>
-                                  setMaintainers.mutate(
-                                    maintainerIds,
-                                    {
-                                      onSuccess: () => {
-                                          toast('已保存', 'success')
-                                          setMaintainerOpen(false)
-                                      },
-                                    },
-                                  )}
-              confirmText="保存"
-              pending={setMaintainers.isPending}
-              disabled={setMaintainers.isPending}
-            />
-          }
-        >
-          <div className="field">
-            <span>维护者用户 ID</span>
-            <TagInput
-              value={maintainerIds}
-              onChange={setMaintainerIds}
-              placeholder="输入用户 ID 后回车，全部清空即取消维护者"
-              autoFocus
-            />
-          </div>
-        </Modal>
+        />
       ) : null}
 
       {remarkFor ? (
