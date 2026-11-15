@@ -27,8 +27,8 @@ export function WatchlistHead({
           shape="wide"
           className="detail-head__poster"
         />
-        <div style={{ display: 'grid', gap: 'var(--sp-2)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
+        <div className="detail-head__text">
+          <div className="detail-head__chips">
             <span className={`badge ${item.is_public ? 'badge--ok' : 'badge--off'}`}>
               <i />
               {item.is_public ? '公开' : '私密'}

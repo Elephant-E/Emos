@@ -190,8 +190,8 @@ export function VideoDetailView({
             {video.video_image_poster ? (
               <Poster src={video.video_image_poster} name={video.video_title} className="poster-img detail-head__poster" />
             ) : null}
-            <div style={{ display: 'grid', gap: 'var(--sp-3)', minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
+            <div className="detail-head__text">
+              <div className="detail-head__chips">
                 <span className="zone">
                   <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                   {VIDEO_TYPE_LABEL[video.video_type]}

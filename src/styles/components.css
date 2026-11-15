@@ -765,7 +765,9 @@ input.input[type='number'] { min-width: 0; }
 
 /* 详情页头统一：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
-.detail-head__text { display: grid; gap: var(--sp-1); min-width: 0; }
+.detail-head__text { display: grid; gap: var(--sp-2); min-width: 0; }
+/* 用户详情头的三行更紧，单独给 4px */
+.detail-head__name + .detail-head__meta { margin-top: calc(var(--sp-1) * -1); }
 .detail-head__chips { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
 .detail-head__name {
   margin: 0;
