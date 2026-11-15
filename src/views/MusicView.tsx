@@ -6,6 +6,7 @@ import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
+import { Badge } from '@/components/Badge'
 import { EmptyBlock } from '@/components/StateBlock'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -178,10 +179,7 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
                     </td>
                     <td>
                       {isSong && row.has_media === false ? (
-                        <span className="badge badge--wait">
-                          <i />
-                          无资源
-                        </span>
+                        <Badge tone="wait">无资源</Badge>
                       ) : isAlbum && row.count_song ? (
                         <span className="muted">{String(row.count_song)} 首</span>
                       ) : search.tab === 'persons' ? (

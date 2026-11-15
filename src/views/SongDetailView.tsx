@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { musicApi } from '@/api/endpoints'
+import { Badge } from '@/components/Badge'
 import { PickList } from '@/components/PickList'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
@@ -121,10 +122,7 @@ export function SongDetailView({ songId }: { songId: number }) {
             <div style={{ display: 'grid', gap: 'var(--sp-2)', minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexWrap: 'wrap' }}>
                 {song.data.is_favorite ? (
-                  <span className="badge badge--ok">
-                    <i />
-                    已收藏
-                  </span>
+                  <Badge tone="ok">已收藏</Badge>
                 ) : null}
                 {(song.data.person_artists ?? []).length === 0 ? <span className="meta-sm">还没有填写艺人</span> : null}
               </div>
@@ -310,7 +308,11 @@ export function SongDetailView({ songId }: { songId: number }) {
                       <td>
                         <span className="cell-title__name">
               {String(row.name ?? '—')}
-              {row.is_primary ? <span className="badge badge--ok" style={{ marginLeft: 'var(--sp-2)' }}><i />主资源</span> : null}
+              {row.is_primary ? (
+                <span style={{ marginLeft: 'var(--sp-2)' }}>
+                  <Badge tone="ok">主资源</Badge>
+                </span>
+              ) : null}
                         </span>
                         <span className="cell-title__code">
               {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}

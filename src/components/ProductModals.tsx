@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Price, formatPrice } from '@/components/Price'
 import { Modal } from '@/components/Modal'
+import { Badge } from '@/components/Badge'
 import { Poster } from '@/components/Poster'
 import { LoadingBlock, ErrorBlock } from '@/components/StateBlock'
 import { useShopMutations, useShopProduct } from '@/api/queries'
@@ -77,8 +78,8 @@ export function ProductDetailModal({
                 <span>销量 {formatThousand(p.sales)}</span>
                 {p.category_name ? <span>{p.category_name}</span> : null}
               </div>
-              {offShelf ? <span className="badge badge--off"><i />已下架</span> : null}
-              {soldOut ? <span className="badge badge--warn"><i />已售罄</span> : null}
+              {offShelf ? <Badge tone="off">已下架</Badge> : null}
+              {soldOut ? <Badge tone="warn">已售罄</Badge> : null}
               {p.seller ? (
                 <Link
                   to="/shop/seller/$sellerId"
