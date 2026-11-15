@@ -2234,6 +2234,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
+/* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。
+   用 :has 统一兜住还没接 ListSection cardList 的页面 */
+.table-card:has(.record-cards) {
+  border: 0;
+  background: none;
+  padding: 0;
+}
 .record-section { display: grid; gap: var(--gap-card); }
 .record-cards {
   display: grid;

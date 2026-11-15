@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
@@ -14,7 +15,6 @@ import { watchApi } from '@/api/endpoints'
 import { qk, useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
 
@@ -135,6 +135,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         idKey={(w) => w.id}
         scope={`${search.scope}-${search.q}`}
+        cardList
         loadingRows={5}
         loadingCols={4}
         emptyTitle={emptyTitle(search.q, search.scope)}
@@ -148,96 +149,127 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           )
         }
       >
-          <table className="table table--auto table--thumb-wide">
-            <thead>
-              <tr>
-                <th className="th-thumb">片单</th>
-                <th>可见性</th>
-                <th className="num">影片</th>
-                <th className="num">订阅</th>
-                <th className="num">更新</th>
-                {search.scope === 'subscribed' ? <th className="num">排序</th> : null}
-                <th style={{ width: '1%' }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((watch) => (
-                <tr
-                  key={watch.id}
-                  {...rowLink(() =>
-                    navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } }),
-                  )}
-                >
-                  <td>
-                    <div className="cell-title">
-                      <Poster src={watch.image_poster_url} name={String(watch.name ?? "?")} shape="wide" />
-                      <span>
-                        <span className="cell-title__name">
-                          {watch.name}
-                          {watch.carrot > 0 ? (
-                            <span className="badge badge--wait" style={{ marginLeft: 'var(--sp-2)' }}>
-                              <i />
-                              {watch.carrot} 胡萝卜
-                            </span>
-                          ) : null}
-                          {watch.is_subscribe ? (
-                            <span className="badge badge--run" style={{ marginLeft: 'var(--sp-2)' }}>
-                              <i />
-                              已订阅
-                            </span>
-                          ) : null}
-                        </span>
-                        <span className="cell-title__code">
-                          {watch.is_self ? '我创建的' : watch.author?.username ?? '—'}
-                          {watch.tags?.length ? ` · ${watch.tags.join(' / ')}` : ''}
-                        </span>
+          <RecordList
+            rows={items}
+            idKey={(watch) => watch.id}
+            onOpen={(watch) =>
+              navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page: 1, page_size: 20, q: '' } })
+            }
+            className="table table--auto table--thumb-wide"
+            columns={[
+              {
+                key: 'name',
+                label: '片单',
+                thClass: 'th-thumb',
+                mobile: 'primary',
+                render: (watch) => (
+                  <div className="cell-title">
+                    <Poster src={watch.image_poster_url} name={String(watch.name ?? '?')} shape="wide" />
+                    <span>
+                      <span className="cell-title__name">
+                        {watch.name}
+                        {watch.carrot > 0 ? (
+                          <span className="badge badge--wait" style={{ marginLeft: 'var(--sp-2)' }}>
+                            <i />
+                            {watch.carrot} 胡萝卜
+                          </span>
+                        ) : null}
+                        {watch.is_subscribe ? (
+                          <span className="badge badge--run" style={{ marginLeft: 'var(--sp-2)' }}>
+                            <i />
+                            已订阅
+                          </span>
+                        ) : null}
                       </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`badge ${watch.is_public ? 'badge--ok' : 'badge--off'}`}>
-                      <i />
-                      {watch.is_public ? '公开' : '私密'}
+                      <span className="cell-title__code">
+                        {watch.is_self ? '我创建的' : watch.author?.username ?? '—'}
+                        {watch.tags?.length ? ` · ${watch.tags.join(' / ')}` : ''}
+                      </span>
                     </span>
-                  </td>
-                  <td className="num">{formatThousand(watch.video_count)}</td>
-                  <td className="num">{formatThousand(watch.subscribe_count)}</td>
-                  <td className="num muted">{formatRelative(watch.updated_at)}</td>
-                  {search.scope === 'subscribed' ? (
-                    <td className="num cell--input" onClick={(e) => e.stopPropagation()}>
-                      <InlineSortInput
-                        value={watch.user_sort}
-                        label={`${watch.name} 的排序`}
-                        stopRowClick
-                        onCommit={(sort) => sortWatch.mutate({ watchId: watch.id, sort })}
-                      />
-                    </td>
-                  ) : null}
-                  <td onClick={(e) => e.stopPropagation()}>
-                    {watch.is_self ? (
-                      <button type="button"
-                        className="btn btn--danger-text"
-                        disabled={remove.isPending}
-                        onClick={async () => {
-                          const ok = await confirmDialog({
-                            title: `删除片单「${watch.name}」？`,
-                            message: `${watch.video_count} 部影片会一起从片单移除，影片本身不受影响。`,
-                            hint: '片单删除后无法恢复，槽位会释放。',
-                            confirmText: '删除',
-                            danger: true,
-                          })
-                          if (!ok) return
-                          remove.mutate(watch.id)
-                        }}
-                      >
-                        删除
-                      </button>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                ),
+              },
+              {
+                key: 'public',
+                label: '可见性',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (watch) => (
+                  <span className={`badge ${watch.is_public ? 'badge--ok' : 'badge--off'}`}>
+                    <i />
+                    {watch.is_public ? '公开' : '私密'}
+                  </span>
+                ),
+              },
+              {
+                key: 'videos',
+                label: '影片',
+                thClass: 'num',
+                mobile: 'inline',
+                render: (watch) => <>{formatThousand(watch.video_count)} 部</>,
+              },
+              {
+                key: 'subs',
+                label: '订阅',
+                thClass: 'num',
+                mobile: 'inline',
+                render: (watch) => <>{formatThousand(watch.subscribe_count)} 人订阅</>,
+              },
+              {
+                key: 'updated',
+                label: '更新',
+                thClass: 'num',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (watch) => <span className="muted">{formatRelative(watch.updated_at)}</span>,
+              },
+              ...(search.scope === 'subscribed'
+                ? [
+                    {
+                      key: 'sort',
+                      label: '排序',
+                      thClass: 'num',
+                      mobile: 'block' as const,
+                      render: (watch: (typeof items)[number]) => (
+                        <InlineSortInput
+                          value={watch.user_sort}
+                          label={`${watch.name} 的排序`}
+                          onCommit={(sort) => sortWatch.mutate({ watchId: watch.id, sort })}
+                        />
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                key: 'action',
+                label: '操作',
+                thWidth: '1%',
+                mobile: 'block',
+                mobileAlign: 'end',
+                render: (watch) =>
+                  watch.is_self ? (
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      disabled={remove.isPending}
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `删除片单「${watch.name}」？`,
+                          message: `${watch.video_count} 部影片会一起从片单移除，影片本身不受影响。`,
+                          hint: '片单删除后无法恢复，槽位会释放。',
+                          confirmText: '删除',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        remove.mutate(watch.id)
+                      }}
+                    >
+                      删除
+                    </button>
+                  ) : null,
+              },
+            ]}
+          />
       </ListSection>
 
       {creating ? (

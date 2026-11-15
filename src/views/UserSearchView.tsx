@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { useAccountMutations, useBanList } from '@/api/queries'
@@ -70,44 +71,61 @@ export function UserSearchView() {
         loadingCols={3}
         emptyTitle="没有封禁中的用户"
       >
-          <table className="table table--auto">
-            <thead>
-              <tr>
-                <th className="th-thumb">用户</th>
-                <th>原因</th>
-                <th className="num">注册时间</th>
-                <th style={{ width: '96px' }}>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.user_id}>
-                  <td>
-                    <UserCell
-                      name={row.username ?? row.user_id}
-                      avatar={row.avatar}
-                      nameNode={
-                        <Link to="/users/$userId" params={{ userId: row.user_id }}>
-                          {row.username ?? row.user_id}
-                        </Link>
-                      }
-                    />
-                  </td>
-                  <td className="muted ellipsis">{row.disable_reason ?? '—'}</td>
-                  <td className="num muted">{formatRelative(row.created_at)}</td>
-                  <td>
-                    <button type="button"
-                      className="btn btn--quiet"
-                      disabled={actions.banChange.isPending}
-                      onClick={() => unban(row.user_id, row.username ?? row.user_id)}
-                    >
-                      解除
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <RecordList
+            rows={rows}
+            idKey={(row) => row.user_id}
+            className="table table--auto"
+            columns={[
+              {
+                key: 'user',
+                label: '用户',
+                thClass: 'th-thumb',
+                mobile: 'primary',
+                render: (row) => (
+                  <UserCell
+                    name={row.username ?? row.user_id}
+                    avatar={row.avatar}
+                    nameNode={
+                      <Link to="/users/$userId" params={{ userId: row.user_id }}>
+                        {row.username ?? row.user_id}
+                      </Link>
+                    }
+                  />
+                ),
+              },
+              {
+                key: 'reason',
+                label: '原因',
+                mobile: 'block',
+                render: (row) => <span className="muted ellipsis">{row.disable_reason ?? '—'}</span>,
+              },
+              {
+                key: 'created',
+                label: '注册时间',
+                thClass: 'num',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (row) => <span className="muted">{formatRelative(row.created_at)}</span>,
+              },
+              {
+                key: 'action',
+                label: '操作',
+                thWidth: 96,
+                mobile: 'block',
+                mobileAlign: 'end',
+                render: (row) => (
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    disabled={actions.banChange.isPending}
+                    onClick={() => unban(row.user_id, row.username ?? row.user_id)}
+                  >
+                    解除
+                  </button>
+                ),
+              },
+            ]}
+          />
       </ListSection>
     </>
   )

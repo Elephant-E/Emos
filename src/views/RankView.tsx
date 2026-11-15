@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { UserCell } from '@/components/UserCell'
+import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Poster } from '@/components/Poster'
@@ -60,76 +61,127 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
       {!current.error && (rows?.length ?? 0) > 0 ? (
         <div className="table-card">
           {tab === 'carrot' ? (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: 64 }} className="num">#</th>
-                  <th className="th-thumb">用户</th>
-                  <th className="num" style={{ width: '20%' }}>胡萝卜</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(carrot.data ?? []).map((row) => (
-                  <tr key={`${row.index}-${row.username}`}>
-                    <td className="num muted tnum">{row.index}</td>
-                    <td>
-                      <UserCell name={row.username} avatar={row.avatar} sub={row.level_name} />
-                    </td>
-                    <td className="num">{formatThousand(row.carrot)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <RecordList
+              rows={carrot.data ?? []}
+              idKey={(row) => `${row.index}-${row.username}`}
+              className="table"
+              columns={[
+                {
+                  key: 'user',
+                  label: '用户',
+                  thClass: 'th-thumb',
+                  mobile: 'primary',
+                  render: (row) => (
+                    <UserCell name={row.username} avatar={row.avatar} sub={row.level_name} />
+                  ),
+                },
+                {
+                  key: 'rank',
+                  label: '#',
+                  thClass: 'num',
+                  thWidth: 64,
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted tnum">#{row.index}</span>,
+                },
+                {
+                  key: 'carrot',
+                  label: '胡萝卜',
+                  thClass: 'num',
+                  thWidth: '20%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <>{formatThousand(row.carrot)}</>,
+                },
+              ]}
+            />
           ) : null}
 
           {tab === 'upload' ? (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: 64 }} className="num">#</th>
-                  <th className="th-thumb">用户</th>
-                  <th className="num" style={{ width: '20%' }}>上传量</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(upload.data ?? []).map((row) => (
-                  <tr key={`${row.index}-${row.username}`}>
-                    <td className="num muted tnum">{row.index}</td>
-                    <td>
-                      <UserCell name={row.username} avatar={row.avatar} />
-                    </td>
-                    <td className="num">{formatSize(row.size)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <RecordList
+              rows={upload.data ?? []}
+              idKey={(row) => `${row.index}-${row.username}`}
+              className="table"
+              columns={[
+                {
+                  key: 'user',
+                  label: '用户',
+                  thClass: 'th-thumb',
+                  mobile: 'primary',
+                  render: (row) => <UserCell name={row.username} avatar={row.avatar} />,
+                },
+                {
+                  key: 'rank',
+                  label: '#',
+                  thClass: 'num',
+                  thWidth: 64,
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted tnum">#{row.index}</span>,
+                },
+                {
+                  key: 'size',
+                  label: '上传量',
+                  thClass: 'num',
+                  thWidth: '20%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <>{formatSize(row.size)}</>,
+                },
+              ]}
+            />
           ) : null}
 
           {tab === 'sign' ? (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: 64 }} className="num">#</th>
-                  <th className="th-thumb">用户</th>
-                  <th style={{ width: '18%' }}>签到时间</th>
-                  <th className="num" style={{ width: '12%' }}>胡萝卜</th>
-                  <th className="num" style={{ width: '12%' }}>连续天数</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(sign.data ?? []).map((row) => (
-                  <tr key={`${row.sign_index}-${row.username}`}>
-                    <td className="num muted tnum">{row.sign_index}</td>
-                    <td>
-                      <UserCell name={row.username} avatar={row.avatar} />
-                    </td>
-                    <td className="muted">{formatDateTime(row.sign_at)}</td>
-                    <td className="num">+{formatThousand(row.earn_point)}</td>
-                    <td className="num muted">{formatThousand(row.continuous_days)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <RecordList
+              rows={sign.data ?? []}
+              idKey={(row) => `${row.sign_index}-${row.username}`}
+              className="table"
+              columns={[
+                {
+                  key: 'user',
+                  label: '用户',
+                  thClass: 'th-thumb',
+                  mobile: 'primary',
+                  render: (row) => <UserCell name={row.username} avatar={row.avatar} />,
+                },
+                {
+                  key: 'rank',
+                  label: '#',
+                  thClass: 'num',
+                  thWidth: 64,
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted tnum">#{row.sign_index}</span>,
+                },
+                {
+                  key: 'time',
+                  label: '签到时间',
+                  thWidth: '18%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{formatDateTime(row.sign_at)}</span>,
+                },
+                {
+                  key: 'point',
+                  label: '胡萝卜',
+                  thClass: 'num',
+                  thWidth: '12%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <>+{formatThousand(row.earn_point)}</>,
+                },
+                {
+                  key: 'days',
+                  label: '连续天数',
+                  thClass: 'num',
+                  thWidth: '12%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{formatThousand(row.continuous_days)}</span>,
+                },
+              ]}
+            />
           ) : null}
 
           {tab === 'playing' ? (
