@@ -39,6 +39,11 @@ export interface RecordGridProps<T> {
   sub?: (row: T) => ReactNode
   /** 封面右上角的角标（数量这类信息放图上，不占文字行） */
   badges?: (row: T) => ReactNode
+  /**
+   * 卡片底部操作。只有「详情页没有等价入口」的动作才放这里，
+   * 能在详情页做的事就不要在卡片上重复（片单的删除就是这样去掉的）。
+   */
+  actions?: (row: T) => ReactNode
 }
 
 export function RecordGrid<T>({
@@ -52,6 +57,7 @@ export function RecordGrid<T>({
   meta,
   sub,
   badges,
+  actions,
 }: RecordGridProps<T>) {
   return (
     <div className={`record-grid record-grid--${shape}`}>
@@ -99,6 +105,7 @@ export function RecordGrid<T>({
               </div>
               {meta ? <p className="record-tile__meta">{meta(row)}</p> : null}
               {subNode ? <p className="record-tile__sub">{subNode}</p> : null}
+              {actions ? <div className="record-tile__actions">{actions(row)}</div> : null}
             </div>
           </article>
         )

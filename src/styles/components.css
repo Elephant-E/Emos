@@ -2434,6 +2434,12 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-tile.is-clickable:hover .record-tile__media { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
 
+.record-tile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
 .record-tile__body {
   display: grid;
   gap: 2px;
@@ -2494,6 +2500,89 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   background: var(--fg-3);
   margin-inline: var(--sp-2);
   vertical-align: middle;
+}
+
+/* ── 信息量大的列表：一行一条（RecordRow）────────────────────── */
+.record-rows { display: grid; gap: var(--stack); }
+.record-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+}
+.record-row.is-clickable { cursor: pointer; }
+.record-row.is-clickable:hover { border-color: var(--line-hot); }
+.record-row__media { position: relative; width: 96px; }
+.record-row__poster,
+.record-row__poster.poster-img {
+  width: 96px;
+  height: 144px;
+  border-radius: var(--r-item);
+  object-fit: cover;
+}
+.record-row__overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-1) 0;
+  border-radius: 0 0 var(--r-item) var(--r-item);
+  background: rgba(12, 14, 17, 0.66);
+  backdrop-filter: blur(4px);
+  font-size: var(--text-2xs);
+  color: var(--fg-2);
+}
+.record-row__body { display: grid; gap: var(--sp-1); min-width: 0; }
+.record-row__title {
+  margin: 0;
+  font-size: var(--text-base, 15px);
+  font-weight: 500;
+  color: var(--fg);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.record-row__meta,
+.record-row__facts { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; font-size: var(--text-xs); color: var(--fg-3); }
+.record-row__meta > *,
+.record-row__facts > * { flex: none; }
+.record-row__meta > * + *::before,
+.record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
+.record-row__extra { grid-column: 1 / -1; }
+/* 「求片记录」：一行说明 + 一行数据 */
+.seek-records { display: grid; gap: var(--sp-1); margin-top: var(--sp-1); }
+.seek-records__head { margin: 0; font-size: var(--text-xs); color: var(--fg-3); }
+.seek-records__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-item);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: var(--text-xs);
+  color: var(--fg-2);
+}
+.record-row__actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-1); grid-column: 1 / -1; }
+/* 等分三键：详情 / 认领 / 催片 */
+.record-row__actions--full {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+.record-row__actions--full > * { width: 100%; }
+/* 宽屏上三个等分按钮别拉到整行：给一个上限，靠左对齐信息 */
+@media (min-width: 900px) {
+  .record-row__actions--full { max-width: 360px; }
+}
+/* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
+@media (min-width: 900px) {
+  .record-row { grid-template-columns: 96px minmax(0, 1fr); align-items: start; }
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
