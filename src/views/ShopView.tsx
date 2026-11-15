@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/components/Price'
 import { SellerFormModal } from '@/components/shop/SellerFormModal'
+import { ProductEditModal } from '@/components/shop/ProductEditModal'
 import { CategoryPanel } from '@/components/shop/CategoryPanel'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { ListSection } from '@/components/ListSection'
@@ -11,12 +12,10 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { ModalFooter } from '@/components/ModalFooter'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProducts, useShopProductsInfinite, useShopSeller } from '@/api/queries'
-import { ImagePicker } from '@/components/ImagePicker'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
@@ -454,87 +453,14 @@ export function ShopView({
       ) : null}
 
       {editing ? (
-        <Modal
-          title={editing.product_id ? '编辑商品' : '新增商品'}
-          width={460}
+        <ProductEditModal
+          draft={editing}
+          categories={categories.data ?? []}
+          pending={actions.saveProduct.isPending}
+          onChange={(patch) => setEditing((prev) => (prev ? { ...prev, ...patch } : prev))}
           onClose={() => setEditing(null)}
-          onSubmit={saveProduct}
-          footer={
-            <ModalFooter
-              onCancel={() => setEditing(null)}
-              onConfirm={() => saveProduct()}
-              confirmText="保存"
-              pending={actions.saveProduct.isPending}
-              disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id) || actions.saveProduct.isPending}
-            />
-          }
-        >
-          <label className="field">
-            <span>名称</span>
-            <input className="input" value={editing.name ?? ''} onChange={(e) => setEditing({ ...editing, name: e.target.value })} autoFocus />
-          </label>
-          <ImagePicker
-            label="封面"
-            value={editing.cover_url ?? null}
-            onChange={(url) => setEditing({ ...editing, cover_url: url })}
-          />
-          <label className="field">
-            <span>简介</span>
-            <textarea
-              className="input"
-              maxLength={200}
-              placeholder="200 字内"
-              value={editing.description ?? ''}
-              onChange={(e) => setEditing({ ...editing, description: e.target.value })}
-            />
-          </label>
-          <label className="field">
-            <span>兑换方式</span>
-            <textarea
-              className="input"
-              maxLength={1000}
-              placeholder="1000 字内"
-              value={editing.exchange_way ?? ''}
-              onChange={(e) => setEditing({ ...editing, exchange_way: e.target.value })}
-            />
-          </label>
-          <div className="field-row">
-            <label className="field">
-              <span>售价</span>
-              <input className="input" type="number" min={1} value={editing.price ?? 1} onChange={(e) => setEditing({ ...editing, price: e.target.value === '' ? 0 : Number(e.target.value) })} />
-            </label>
-            <label className="field">
-              <span>原价</span>
-              <input className="input" type="number" min={1} value={editing.price_origin ?? 1} onChange={(e) => setEditing({ ...editing, price_origin: Number(e.target.value) })} />
-            </label>
-            <label className="field">
-              <span>库存</span>
-              <input className="input" type="number" value={editing.stock ?? 0} onChange={(e) => setEditing({ ...editing, stock: Number(e.target.value) })} />
-            </label>
-            <label className="field">
-              <span>排序</span>
-              <input className="input" type="number" value={editing.sort ?? 80} onChange={(e) => setEditing({ ...editing, sort: Number(e.target.value) })} />
-            </label>
-          </div>
-          <label className="field">
-            <span>分类</span>
-            <select
-              className="input"
-              value={editing.category_id ?? categories.data?.[0]?.category_id ?? ''}
-              onChange={(e) => setEditing({ ...editing, category_id: Number(e.target.value) })}
-            >
-              {(categories.data ?? []).map((category) => (
-                <option key={category.category_id} value={category.category_id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="switch">
-            <input type="checkbox" checked={editing.is_up ?? false} onChange={(e) => setEditing({ ...editing, is_up: e.target.checked })} />
-            立即上架
-          </label>
-        </Modal>
+          onSave={saveProduct}
+        />
       ) : null}
 
       {sellerForm ? (
