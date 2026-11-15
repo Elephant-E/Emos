@@ -2636,8 +2636,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__extra { min-width: 0; grid-column: 1 / -1; }
 /* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
 .record-row .input--cell {
-  width: 72px;
-  height: 32px;
+  width: 56px;
+  height: 30px;
   padding: 0 var(--sp-2);
   border: 1px solid var(--line-soft);
   border-radius: var(--r-item);
@@ -2672,8 +2672,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__extra { min-width: 0; grid-column: 1 / -1; }
 /* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
 .record-row .input--cell {
-  width: 72px;
-  height: 32px;
+  width: 56px;
+  height: 30px;
   padding: 0 var(--sp-2);
   border: 1px solid var(--line-soft);
   border-radius: var(--r-item);

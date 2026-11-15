@@ -58,7 +58,8 @@ export function RecordRow<T>({
                   tabIndex: 0,
                   onClick: (event: React.MouseEvent) => {
                     // 卡片里的按钮自己处理点击，别把整卡跳转也触发
-                    if ((event.target as HTMLElement).closest('button, a')) return
+                    // 卡片内的控件（按钮、链接、输入框）自己处理交互，不要把整卡跳转也触发
+                    if ((event.target as HTMLElement).closest('button, a, input, textarea, select, label')) return
                     onOpen(row)
                   },
                   onKeyDown: (event: React.KeyboardEvent) => {
