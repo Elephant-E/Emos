@@ -146,7 +146,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         bare
         idKey={(v) => v.id}
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
-        loadingRows={5}
+        loadingRows={6}
+        loadingKind="rows"
         emptyTitle={emptyTitle(search.q, search.mine, search.type)}
         emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
       >

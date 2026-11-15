@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { EmptyBlock, ErrorBlock, LoadingBlock, LoadingGrid } from './StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, LoadingGrid, LoadingRows } from './StateBlock'
 import { ListCard } from './ListCard'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { InfiniteSentinel } from './InfiniteSentinel'
@@ -32,6 +32,7 @@ export function ListSection<T>({
   loadingRows = 8,
   loadingCols = 5,
   gridShape = 'poster',
+  loadingKind,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
   /** 手机端改为滚动加载：传了它就不再渲染分页器，滑到底部触发 onLoadMore */
@@ -54,6 +55,8 @@ export function ListSection<T>({
   loadingCols?: number
   /** 网格骨架的图片比例（bare 页用） */
   gridShape?: 'poster' | 'wide' | 'square'
+  /** 骨架形态：默认按 bare 推断（网格 / 表格），行卡片页显式指定 rows */
+  loadingKind?: 'table' | 'grid' | 'rows'
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   bare?: boolean
@@ -63,8 +66,11 @@ export function ListSection<T>({
 
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
   if (isLoading) {
-    // 骨架与真实内容同形：网格页给网格骨架，行式列表给行式骨架
-    if (bare) return <LoadingGrid count={loadingRows} shape={gridShape} />
+    // 骨架与真实内容同形：行卡片 / 网格 / 表格各给各的
+    if (loadingKind === 'rows') return <LoadingRows count={loadingRows} />
+    if (loadingKind === 'grid' || (bare && loadingKind !== 'table')) {
+      return <LoadingGrid count={loadingRows} shape={gridShape} />
+    }
     return <LoadingBlock rows={loadingRows} columns={loadingCols} />
   }
 

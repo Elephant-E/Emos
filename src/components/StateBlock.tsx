@@ -22,6 +22,34 @@ export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; 
   )
 }
 
+/** 行卡片骨架：与 RecordRow 同形（封面 + 标题/信息 + 字段行 + 三键） */
+export function LoadingRows({ count = 6 }: { count?: number }) {
+  return (
+    <div className="record-rows" aria-busy="true" aria-live="polite">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="record-row">
+          {/* 封面位按 2:3 撑开，与真实卡片同高，避免加载完高度跳一下 */}
+          <div className="record-row__media skeleton" style={{ height: 168 }} />
+          <div className="record-row__body">
+            <div className="skeleton" style={{ height: 14, width: '58%' }} />
+            <div className="skeleton" style={{ height: 20, width: 56, borderRadius: 999 }} />
+          </div>
+          <div className="record-row__extra">
+            {[0, 1, 2].map((r) => (
+              <div key={r} className="skeleton" style={{ height: 22, marginTop: r === 0 ? 0 : 2 }} />
+            ))}
+          </div>
+          <div className="record-row__actions record-row__actions--full">
+            {[0, 1, 2].map((b) => (
+              <div key={b} className="skeleton" style={{ height: 36, borderRadius: 'var(--r-item)' }} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: number; columns?: number; bare?: boolean }) {
   return (
     <div className={bare ? undefined : 'table-card'} aria-busy="true" aria-live="polite">
