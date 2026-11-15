@@ -9,6 +9,10 @@ import { useEffect, useState, type CSSProperties } from 'react'
  *
  * 没有图（或加载失败）时只留同尺寸的空白块：SPEC §2.6 明确不做首字方块假图，
  * 但表格行仍需要一个固定宽度的位置，否则标题起点会跳。
+ *
+ * 注意：**不要**做「加载完成前先隐藏」的处理——图片的尺寸已经由外层容器
+ * （.record-tile__media / .record-row__media 的 aspect-ratio）占住，
+ * 隐藏只会让懒加载没触发的图永远看不见。
  */
 export function Poster({
   src,
@@ -27,13 +31,9 @@ export function Poster({
   collapseOnEmpty?: boolean
 }) {
   const [failed, setFailed] = useState(false)
-  const [loaded, setLoaded] = useState(false)
   const url = src?.trim()
   // 同一个位置换了图片（切店铺、切分类、列表复用 DOM）要重新尝试加载
-  useEffect(() => {
-    setFailed(false)
-    setLoaded(false)
-  }, [url])
+  useEffect(() => setFailed(false), [url])
 
   const shapeClass = shape === 'poster' ? '' : ` poster-img--${shape}`
   const fallbackClass = shape === 'poster' ? 'thumb' : `thumb thumb--${shape}`
@@ -42,20 +42,6 @@ export function Poster({
     if (collapseOnEmpty) return null
     return <span className={[fallbackClass, className].filter(Boolean).join(' ')} style={style} aria-hidden="true" />
   }
-  // 卡片里：图没到之前不占位，避免先出现一块深色空框再被图片替换
-  if (collapseOnEmpty && !loaded) {
-    return (
-      <img
-        className={['poster-img', shapeClass, className].filter(Boolean).join(' ')}
-        src={url}
-        alt=""
-        loading="lazy"
-        style={{ ...style, visibility: 'hidden' }}
-        onLoad={() => setLoaded(true)}
-        onError={() => setFailed(true)}
-      />
-    )
-  }
   return (
     <img
       className={['poster-img', shapeClass, className].filter(Boolean).join(' ')}
@@ -63,7 +49,6 @@ export function Poster({
       alt=""
       loading="lazy"
       style={style}
-      onLoad={() => setLoaded(true)}
       onError={() => setFailed(true)}
     />
   )

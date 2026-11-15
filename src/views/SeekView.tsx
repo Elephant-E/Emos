@@ -186,18 +186,24 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               </>
             )}
             extra={(item) => (
-              <div className="seek-records">
-                <p className="seek-records__head">求片记录</p>
-                <div className="seek-records__row">
-                  <span>{item.count_request} 人求</span>
-                  <span>{item.seek_carrot ? `悬赏 ${formatThousand(item.seek_carrot)} 胡萝卜` : '无悬赏'}</span>
-                  <span>
-                    {item.status === 'upload' && item.upload_expired_at
-                      ? `${formatRelative(item.upload_expired_at)}到期`
-                      : `${formatRelative(item.updated_at)}更新`}
-                  </span>
+              <dl className="seek-records">
+                <div>
+                  <dt>求片人数</dt>
+                  <dd>{item.count_request} 人</dd>
                 </div>
-              </div>
+                <div>
+                  <dt>当前悬赏</dt>
+                  <dd>{item.seek_carrot ? `${formatThousand(item.seek_carrot)} 胡萝卜` : '无'}</dd>
+                </div>
+                <div>
+                  <dt>{item.status === 'upload' ? '认领到期' : '最近更新'}</dt>
+                  <dd>
+                    {item.status === 'upload' && item.upload_expired_at
+                      ? formatRelative(item.upload_expired_at)
+                      : formatRelative(item.updated_at)}
+                  </dd>
+                </div>
+              </dl>
             )}
             fullActions
             actions={(item) => {

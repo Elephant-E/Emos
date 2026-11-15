@@ -2591,23 +2591,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__meta > * + *::before,
 .record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
 /* 信息块贴到列底：封面比文字高，让块与封面底边对齐，右侧不留空洞 */
-.record-row__extra { min-width: 0; margin-top: auto; }
-/* 「求片记录」：一行说明 + 一行数据 */
-.seek-records { display: grid; gap: var(--sp-1); margin-top: var(--sp-1); }
-.seek-records__head { margin: 0; font-size: var(--text-xs); color: var(--fg-3); }
-.seek-records__row {
+.record-row__extra { min-width: 0; grid-column: 1 / -1; }
+/* 「求片记录」：标签左、值右的三行紧凑定义列表 */
+/* 底部动作：默认一行流式；--full 时等分成整行按钮 */
+.record-row__actions {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: var(--sp-2) var(--sp-3);
-  border-radius: var(--r-item);
-  background: var(--field);
-  font-size: var(--text-xs);
-  color: var(--fg-2);
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+  grid-column: 1 / -1;
 }
-.record-row__actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-1); grid-column: 1 / -1; }
-/* 等分三键：详情 / 认领 / 催片 */
 .record-row__actions--full {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2622,13 +2615,27 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
   font-size: var(--text-sm);
 }
-.record-row__actions--full svg { width: 14px; height: 14px; }
-/* 宽屏上三个等分按钮别拉到整行：给一个上限，靠左对齐信息 */
+.record-row__extra { min-width: 0; grid-column: 1 / -1; }
 
-/* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
-@media (min-width: 900px) {
-  /* 文字列要撑满行高，信息块才能贴到封面底边；封面列宽 112 与移动端一致 */
-  .record-row:not(.record-row--plain) { grid-template-columns: 112px minmax(0, 1fr); }
+.seek-records { display: grid; gap: 2px; margin: 0; min-width: 0; }
+.seek-records > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: 3px var(--sp-2);
+  border-radius: 6px;
+  background: var(--field);
+  font-size: var(--text-xs);
+}
+.seek-records dt { color: var(--fg-4); flex: none; }
+.seek-records dd {
+  margin: 0;
+  color: var(--fg-2);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
