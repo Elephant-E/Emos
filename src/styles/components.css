@@ -331,15 +331,19 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--gap-card);
-  margin-top: var(--gap-card);
   max-width: var(--page-max);
   margin-inline: auto;
 }
-/* 卡片组后面紧跟表格/工具条时补上下间距，否则两者贴在一起 */
-.cards + .table-card,
-.cards + .toolbar,
-.cards + .product-grid,
-.cards + section { margin-top: var(--gap-card); }
+/*
+ * 页面正文的垂直节奏由容器统一负责，组件不再各自带上边距。
+ * 以前是「谁挨着谁」逐条补：.cards 自带 margin-top，
+ * 再加 .cards + .table-card / + section 这种按兄弟类型兜底的规则——
+ * 结果手机端 ListSection 换了个根元素（section → div.record-section），
+ * 规则匹配不到，余额卡片和列表就贴在一起了。
+ * 现在只有一条：相邻块之间 18px（与 .page__head 的 margin-bottom 折叠，不会翻倍）。
+ */
+main.page > * + *,
+.content-in > * + * { margin-top: var(--gap-card); }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 /* 表单页：左边表单、右边附属信息，比三等分实用 */
@@ -396,7 +400,6 @@
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  margin: var(--gap-card) 0 var(--gap-card);
   max-width: var(--page-max);
   margin-inline: auto;
   flex-wrap: wrap;
@@ -2253,10 +2256,12 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .dropzone { cursor: pointer; }
 
   /* 统计卡片：手机上两列。单列时概览 7 张卡要滑四屏，且每张卡只有一行数字 */
-  .cards:has(.card--stat),
-  .cards--2:has(.card--stat),
-  .cards--4:has(.card--stat),
-  .cards--todos:has(.card--stat) {
+  /* 两列只给「多张小卡」的页面（概览、用户详情、商城）。.
+     .cards--2 通常只有一张带按钮和说明的大卡，缩成半屏会挤（资金·胡萝卜余额） */
+  /* 至少两张统计卡才分两列：单张（资金·胡萝卜余额）要占满整行 */
+  .cards:has(.card--stat + .card--stat),
+  .cards--4:has(.card--stat + .card--stat),
+  .cards--todos:has(.card--stat + .card--stat) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .card--stat { padding: var(--sp-3); }
