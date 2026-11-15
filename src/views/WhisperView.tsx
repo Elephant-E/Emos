@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Tabs } from '@/components/Tabs'
 import { ModalFooter } from '@/components/ModalFooter'
@@ -15,17 +14,6 @@ import { formatDateTime } from '@/lib/format'
 
 type Row = Record<string, unknown>
 
-/**
- * 正文最多两行：`.table tbody td` 是 nowrap，一条长悄悄话会把整行撑到几千 px 并出现横向滚动，
- * 因此用内联样式收住。
- */
-  display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-  overflow: 'hidden',
-  whiteSpace: 'normal',
-  overflowWrap: 'anywhere',
-}
 
 function useWhispers(tab: 'receiver' | 'sender') {
   return useQuery({
