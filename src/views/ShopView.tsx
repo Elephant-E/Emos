@@ -19,7 +19,7 @@ import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import {formatDateTime, formatThousand} from '@/lib/format'
 import type { ShopProduct } from '@/api/types'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
@@ -94,9 +94,7 @@ export function ShopView({
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<ShopProduct | null>(null)
-  const [term, setTerm] = useState(q)
-  useEffect(() => setTerm(q), [q])
-  useDebounced(term, (next) => onSearch({ q: next }), { current: q })
+  const [term, setTerm] = useSearchTerm(q, (next) => onSearch({ q: next }))
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string; cover_url: string | null } | null>(null)
 
   // createOrUpdate 是整体覆盖：payload 里少 description / exchange_way / time_start /

@@ -13,7 +13,7 @@ import { seekApi } from '@/api/endpoints'
 import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
@@ -57,9 +57,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const myNames = [session.data?.pseudonym, session.data?.username].filter(Boolean) as string[]
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
-  const [term, setTerm] = useState(search.q)
-  useEffect(() => setTerm(search.q), [search.q])
-  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
+  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const seekParams = {
     page_size: search.page_size,

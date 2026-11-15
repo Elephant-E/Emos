@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
@@ -12,7 +12,7 @@ import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { qk, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface WatchSearch {
@@ -39,10 +39,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
-  const [term, setTerm] = useState(search.q)
-  useEffect(() => setTerm(search.q), [search.q])
-
-  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
+  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
   const session = useSession()
   const watchParams = {
     page_size: search.page_size,
