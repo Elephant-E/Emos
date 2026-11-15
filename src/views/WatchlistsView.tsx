@@ -119,7 +119,8 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         idKey={(w) => w.id}
         scope={`${search.scope}-${search.q}`}
         bare
-        loadingRows={5}
+        loadingRows={8}
+        gridShape="wide"
         loadingCols={4}
         emptyTitle={emptyTitle(search.q, search.scope)}
         emptyAction={
@@ -147,7 +148,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
                 <span>{watch.is_self ? '我创建的' : (watch.author?.username ?? '—')}</span>
               </>
             )}
-            sub={(watch) => (watch.tags?.length ? watch.tags.join(' / ') : null)}
             badges={(watch) => (
               // 0 值不渲染（沿用全站规则），空片单不显示「0 部 0 订阅」
               <>

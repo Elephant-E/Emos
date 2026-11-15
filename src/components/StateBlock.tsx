@@ -6,10 +6,15 @@ export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; 
     <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="record-tile">
-          <div className={`record-tile__media record-tile__media--${shape} skeleton`} style={{ boxShadow: 'none' }} />
+          <div className={`record-tile__media record-tile__media--${shape} skeleton`} style={{ boxShadow: 'none' }}>
+            {/* 右上角标位置也留出来，加载完不要在视觉上跳一下 */}
+            <div className="record-tile__badges">
+              <span className="skeleton" style={{ width: 34, height: 20 }} />
+            </div>
+          </div>
           <div className="record-tile__body">
-            <div className="skeleton" style={{ height: 12, width: '68%' }} />
-            <div className="skeleton" style={{ height: 10, width: '42%' }} />
+            <div className="skeleton" style={{ height: 13, width: '62%' }} />
+            <div className="skeleton" style={{ height: 11, width: '38%' }} />
           </div>
         </div>
       ))}
