@@ -2232,6 +2232,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .seg button { height: 34px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
   .toolbar button { min-height: 34px; min-width: 34px; }
+  /* 页头工具区：手机上不换行，改成单行横向滚动。
+     否则片单详情那种 7 个按钮会堆成 3 行、把标题挤到 168px 高 */
+  .head-tools {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 100%;
+    padding-bottom: var(--sp-hair);
+  }
+  .head-tools::-webkit-scrollbar { display: none; }
+  .head-tools > * { flex: none; }
+
   /* 分页器的上一页/下一页 28×34，手机上偏小 */
   .pager button { min-height: 36px; min-width: 36px; }
   /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
