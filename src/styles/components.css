@@ -2233,6 +2233,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
+.record-section { display: grid; gap: var(--gap-card); }
 .record-cards {
   display: grid;
   gap: var(--sp-2);

@@ -101,6 +101,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         sizes={[20, 50]}
         idKey={(v) => v.video_id}
         scope={`${search.type}-${search.q}`}
+        cardList
         loadingRows={8}
         loadingCols={5}
         emptyTitle={

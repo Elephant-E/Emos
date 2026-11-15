@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from './StateBlock'
 import { ListCard } from './ListCard'
 import { Pager } from './Pager'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 /**
  * 列表页的「卡片 + 四态 + 分页器」外壳。
@@ -37,6 +38,8 @@ export function ListSection<T>({
   loadingCols = 5,
   paginated = true,
   outOfRange,
+  /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
+  cardList = false,
   children,
 }: {
   isLoading: boolean
@@ -64,8 +67,10 @@ export function ListSection<T>({
    * 「这页被筛掉了」，不能一律当成越界——那种页面自己算好传进来。
    */
   outOfRange?: boolean
+  cardList?: boolean
   children: ReactNode
 }) {
+  const compact = useMediaQuery('(max-width: 600px)')
   const pager = paginated ? (
     <Pager total={total} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} sizes={sizes} />
   ) : null
@@ -84,6 +89,16 @@ export function ListSection<T>({
       )
     }
     return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
+  }
+
+  // 手机端的卡片列表已经有自己的边框，外面再套 .table-card 就成了一层套一层
+  if (cardList && compact) {
+    return (
+      <div className="record-section">
+        {children}
+        {pager}
+      </div>
+    )
   }
 
   return (
