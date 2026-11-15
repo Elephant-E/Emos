@@ -1,11 +1,11 @@
 import { Fragment, useEffect, useState } from 'react'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -216,18 +216,21 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       {library.error ? (
         <p className="card-note">媒体库列表读取失败（分页与「全部」仍可用）：{library.error instanceof Error ? library.error.message : ''}</p>
       ) : null}
-      {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
-      {list.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-      {!list.error && list.data && list.data.items.length === 0 && search.page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-      ) : null}
-      {!list.error && list.data && list.data.items.length === 0 && search.page === 1 ? (
-        <EmptyBlock title="这个媒体库还没有频道" />
-      ) : null}
-
-      {list.data && list.data.items.length > 0 ? (
-        <>
-        <ListCard items={list.data.items} total={list.data.total} idKey={(v) => v.id}>
+      <ListSection
+        isLoading={list.isLoading}
+        error={list.error}
+        onRetry={() => list.refetch()}
+        items={list.data?.items ?? []}
+        total={list.data?.total ?? 0}
+        page={search.page}
+        pageSize={list.data?.page_size ?? 20}
+        onPage={(page) => onSearch({ page })}
+        idKey={(v) => v.id}
+        scope={`${search.library}-${search.channel}`}
+        loadingRows={6}
+        loadingCols={4}
+        emptyTitle="这个媒体库还没有频道"
+      >
           <table className="table">
             <thead>
               <tr>
@@ -242,7 +245,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               </tr>
             </thead>
             <tbody>
-              {list.data.items.map((item) => {
+              {(list.data?.items ?? []).map((item) => {
                 const selected = item.id === search.channel
                 return (
                   <Fragment key={item.id}>
@@ -330,10 +333,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               })}
             </tbody>
           </table>
-          <Pager total={list.data.total} page={search.page} pageSize={list.data.page_size} onPage={(page) => onSearch({ page })} />
-        </ListCard>
-        </>
-      ) : null}
+      </ListSection>
 
       {form ? (
         <Modal
