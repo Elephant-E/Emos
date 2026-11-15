@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/components/Price'
+import { SellerFormModal } from '@/components/shop/SellerFormModal'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { ListSection } from '@/components/ListSection'
 import { ProductToolbar } from '@/components/ProductToolbar'
@@ -616,63 +617,7 @@ export function ShopView({
       ) : null}
 
       {sellerForm ? (
-        <Modal
-          title={isSeller ? '编辑店铺' : '申请开店'}
-          hint={isSeller ? '修改后会重新进入审核。' : '提交后由管理员审核，通过后才能上架商品。'}
-          onClose={() => setSellerForm(null)}
-          footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setSellerForm(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!sellerForm.name.trim() || actions.applySeller.isPending}
-                onClick={async () => {
-                  // 开店申请（pay/apply）没有封面字段，只有已开店的更新才带
-                  const payload = isSeller
-                    ? { name: sellerForm.name.trim(), description: sellerForm.description.trim(), cover_url: sellerForm.cover_url }
-                    : { name: sellerForm.name.trim(), description: sellerForm.description.trim() }
-                  const onSuccess = () => {
-                    toast(isSeller ? '已保存' : '已提交申请', 'success')
-                    setSellerForm(null)
-                  }
-                  if (isSeller) {
-                    actions.saveSeller.mutate(payload, { onSuccess })
-                    return
-                  }
-                  const ok = await confirmDialog({
-                    title: '申请开店？',
-                    message: '扣除 3000 胡萝卜，不退还。',
-                    hint: '提交后由管理员审核，通过后才能上架商品。',
-                    confirmText: '确认申请',
-                    danger: true,
-                  })
-                  if (!ok) return
-                  actions.applySeller.mutate(payload, { onSuccess })
-                }}
-              >
-                {isSeller ? '保存' : '提交申请'}
-              </button>
-            </>
-          }
-        >
-          {isSeller ? (
-            <ImagePicker
-              label="店铺封面"
-              value={sellerForm.cover_url}
-              onChange={(url) => setSellerForm((prev) => (prev ? { ...prev, cover_url: url } : prev))}
-            />
-          ) : null}
-          <label className="field">
-            <span>店铺名称</span>
-            <input className="input" value={sellerForm.name} maxLength={30} onChange={(e) => setSellerForm({ ...sellerForm, name: e.target.value })} autoFocus />
-          </label>
-          <label className="field">
-            <span>简介</span>
-            <textarea className="input" value={sellerForm.description} maxLength={200} onChange={(e) => setSellerForm({ ...sellerForm, description: e.target.value })} />
-          </label>
-        </Modal>
+        <SellerFormModal current={sellerForm} isSeller={Boolean(isSeller)} onClose={() => setSellerForm(null)} />
       ) : null}
 
       {buyTarget ? (
