@@ -69,6 +69,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             {banned ? (
               <button type="button"
                 className="btn btn--ghost"
+                disabled={actions.banChange.isPending}
                 onClick={async () => {
                   const ok = await confirmDialog({
                     title: `解除 ${name || userId} 的封禁？`,
@@ -85,6 +86,7 @@ export function UserDetailView({ userId }: { userId: string }) {
             ) : (
               <button type="button"
                 className="btn btn--ghost"
+                disabled={actions.banChange.isPending}
                 onClick={async () => {
                   const reason = await promptDialog({
                     title: `封禁 ${name || userId}`,

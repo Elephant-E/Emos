@@ -110,6 +110,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
     }
   }
 
+  const [acting, setActing] = useState<'stop' | 'cancel' | null>(null)
   const act = async (kind: 'stop' | 'cancel') => {
     const ok = await confirmDialog({
       title: kind === 'stop' ? '现在开奖？' : '取消这次抽奖？',
@@ -118,6 +119,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       danger: kind === 'cancel',
     })
     if (!ok) return
+    setActing(kind)
     try {
       if (kind === 'stop') await lotteryApi.stop(search.id)
       else await lotteryApi.cancel(search.id)
@@ -125,6 +127,8 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       void winners.refetch()
     } catch (error) {
       toast(error instanceof Error ? error.message : '操作失败', 'error')
+    } finally {
+      setActing(null)
     }
   }
 
@@ -311,11 +315,21 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                 <article className="card">
                   <CardHead title={winners.data?.lottery_name ?? '抽奖'}>
                     <span className="row" style={{ gap: 'var(--sp-2)' }}>
-                      <button type="button" className="btn btn--quiet" onClick={() => void act('stop')}>
-                        手动开奖
+                      <button
+                        type="button"
+                        className="btn btn--quiet"
+                        disabled={acting !== null}
+                        onClick={() => void act('stop')}
+                      >
+                        {acting === 'stop' ? '开奖中…' : '手动开奖'}
                       </button>
-                      <button type="button" className="btn btn--danger-text" onClick={() => void act('cancel')}>
-                        取消抽奖
+                      <button
+                        type="button"
+                        className="btn btn--danger-text"
+                        disabled={acting !== null}
+                        onClick={() => void act('cancel')}
+                      >
+                        {acting === 'cancel' ? '取消中…' : '取消抽奖'}
                       </button>
                     </span>
                   </CardHead>
