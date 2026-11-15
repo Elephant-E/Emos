@@ -2703,8 +2703,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__facts { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; font-size: var(--text-xs); color: var(--fg-3); }
 .record-row__meta > *,
 .record-row__facts > * { flex: none; }
-.record-row__meta > * + *::before,
-.record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
+/* 分隔点生成在相邻元素之前；胶囊/徽标自带宽高与底色，不要在它们内部再多一颗点 */
+.record-row__meta > * + *:not(.chip):not(.badge)::before,
+.record-row__facts > * + *:not(.chip):not(.badge)::before {
+  content: '·';
+  margin-right: var(--sp-2);
+  color: var(--fg-5);
+}
 /* 信息块贴到列底：封面比文字高，让块与封面底边对齐，右侧不留空洞 */
 .record-row__extra { min-width: 0; grid-column: 1 / -1; }
 /* 行卡片里的排序输入：与卡片版一致，给出控件外观 */

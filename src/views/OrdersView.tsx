@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
@@ -147,227 +146,172 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           ) : undefined
         }
       >
-                    <RecordList
+          <RecordRow
             rows={visibleOrders}
             idKey={(order) => order.order_no}
-            className="table table--auto table--dense"
-            columns={[
-              {
-                key: 'order',
-                label: '订单',
-                thClass: 'th-thumb',
-                mobile: 'primary',
-                render: (order, { mobile }) => (
-                  <div className="cell-title">
-                    <Poster
-                      src={order.order_cover_url}
-                      name={order.order_title}
-                      shape="square"
-                      collapseOnEmpty={mobile}
-                    />
-                    <span>
-                      <span className="cell-title__name">{order.order_title}</span>
-                      <span className="cell-title__code">
-                        {order.order_no}
-                        {order.user?.user_id ? (
-                          <>
-                            {' · '}
-                            <Link
-                              to="/users/$userId"
-                              params={{ userId: order.user.user_id }}
-                              style={{ color: 'var(--fg-3)', textDecoration: 'underline', textUnderlineOffset: 2 }}
-                            >
-                              {order.user.username ?? order.user.user_id}
-                            </Link>
-                          </>
-                        ) : order.user?.username ? (
-                          ` · ${order.user.username}`
-                        ) : null}
-                        {order.remark_user ? ` · 买家备注：${order.remark_user}` : ''}
-                      </span>
-                    </span>
-                  </div>
-                ),
-              },
-              {
-                key: 'price',
-                label: '单价 × 数量',
-                thClass: 'num',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (order) => (
-                  <span className="tnum">
-                    {order.price_order} × {order.buy_number ?? 1}
-                  </span>
-                ),
-              },
-              ...(mineScope
-                ? []
-                : [
-                    {
-                      key: 'settle',
-                      label: '结算',
-                      thClass: 'num',
-                      // 对账要看结算胡萝卜：用带字段名的行，不能是裸数字
-                      mobile: 'row' as const,
-                      render: (order: (typeof visibleOrders)[number]) => (
-                        <span className="tnum muted">
-                          {order.price_settle == null ? '—' : order.price_settle}
-                        </span>
-                      ),
-                    },
-                  ]),
-              {
-                key: 'paid',
-                label: '支付',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (order) => {
-                  const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
-                  return (
-                    <span className={`badge ${paid ? 'badge--ok' : 'badge--wait'}`}>
-                      <i />
-                      {paid ? '已支付' : '待支付'}
-                    </span>
-                  )
-                },
-              },
-              {
-                key: 'delivered',
-                label: '发货',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (order) => {
-                  const sent = Boolean(order.time_delivery)
-                  return (
-                    <span
-                      className={`badge ${sent ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'}`}
+            posterShape="square"
+            poster={(order) => order.order_cover_url}
+            title={(order) => order.order_title}
+            meta={(order) => (
+              <>
+                <span>{order.order_no}</span>
+                {order.user?.user_id ? (
+                  <Link to="/users/$userId" params={{ userId: order.user.user_id }}>
+                    {order.user.username ?? order.user.user_id}
+                  </Link>
+                ) : order.user?.username ? (
+                  <span>{order.user.username}</span>
+                ) : null}
+                <span className={`badge ${order.status_pay === 'pay' || order.status_pay === 'paid' ? 'badge--ok' : 'badge--wait'}`}>
+                  <i />
+                  {order.status_pay === 'pay' || order.status_pay === 'paid' ? '已支付' : '待支付'}
+                </span>
+                <span
+                  className={`badge ${
+                    order.time_delivery ? 'badge--ok' : (order.urge_number ?? 0) > 0 ? 'badge--warn' : 'badge--off'
+                  }`}
+                >
+                  <i />
+                  {order.time_delivery
+                    ? '已发货'
+                    : (order.urge_number ?? 0) > 0
+                      ? `催发货 ${order.urge_number}`
+                      : '待发货'}
+                </span>
+              </>
+            )}
+            facts={(order) => (
+              <>
+                <span className="tnum">
+                  {order.price_order} × {order.buy_number ?? 1}
+                </span>
+                {mineScope ? null : (
+                  <span className="tnum">结算 {order.price_settle == null ? '—' : order.price_settle}</span>
+                )}
+                <span>{formatDateTime(order.created_at)}</span>
+                {order.remark_user ? <span className="ellipsis">买家备注：{order.remark_user}</span> : null}
+                {order.remark_shop ? <span className="ellipsis">我的备注：{order.remark_shop}</span> : null}
+              </>
+            )}
+            actions={(order) => {
+              const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+              const sent = Boolean(order.time_delivery)
+              return (
+                <>
+                  {mineScope && !paid ? (
+                    <button
+                      type="button"
+                      className="btn btn--primary"
+                      disabled={actions.payOrder.isPending}
+                      onClick={async () => {
+                        // price_order 是单价，实付 = 单价 × 数量
+                        const total = order.price_order * (order.buy_number ?? 1)
+                        const ok = await confirmDialog({
+                          title: '支付订单？',
+                          message: `「${order.order_title}」 ${order.order_no}`,
+                          hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
+                          confirmText: '支付',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
+                      }}
                     >
-                      <i />
-                      {sent ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
-                    </span>
-                  )
-                },
-              },
-              {
-                key: 'created',
-                label: '下单时间',
-                thClass: 'num',
-                mobile: 'hidden',
-                render: (order) => <span className="muted">{formatDateTime(order.created_at)}</span>,
-              },
-              {
-                key: 'actions',
-                label: '操作',
-                mobile: 'block',
-                mobileAlign: 'end',
-                render: (order) => {
-                  const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
-                  const sent = Boolean(order.time_delivery)
-                  return (
-                    <span className="action-group">
-                      {mineScope && !paid ? (
-              <button type="button"
-              className="btn btn--primary"
-              disabled={actions.payOrder.isPending}
-              onClick={async () => {
-              // price_order 是单价，实付 = 单价 × 数量
-              const total = order.price_order * (order.buy_number ?? 1)
-              const ok = await confirmDialog({
-              title: '支付订单？',
-              message: `「${order.order_title}」 ${order.order_no}`,
-              hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
-              confirmText: '支付',
-              danger: true,
-              })
-              if (!ok) return
-              actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
-              }}
-              >
-              付款
-              </button>
-                      ) : null}
-                      {!mineScope && !sent && paid ? (
-              <button type="button"
-              className="btn btn--quiet"
-              onClick={() =>
-              actions.deliver.mutate(
-              { orderNo: order.order_no, sent: true },
-              { onSuccess: () => toast('已标记发货', 'success') },
+                      付款
+                    </button>
+                  ) : null}
+                  {!mineScope && !sent && paid ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      disabled={actions.deliver.isPending}
+                      onClick={() =>
+                        actions.deliver.mutate(
+                          { orderNo: order.order_no, sent: true },
+                          { onSuccess: () => toast('已标记发货', 'success') },
+                        )
+                      }
+                    >
+                      发货
+                    </button>
+                  ) : null}
+                  {!mineScope && sent ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      disabled={actions.deliver.isPending}
+                      onClick={() =>
+                        actions.deliver.mutate(
+                          { orderNo: order.order_no, sent: false },
+                          { onSuccess: () => toast('已撤销发货', 'success') },
+                        )
+                      }
+                    >
+                      撤销发货
+                    </button>
+                  ) : null}
+                  {mineScope && paid && !sent ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      disabled={actions.urgeOrder.isPending}
+                      onClick={() =>
+                        actions.urgeOrder.mutate(order.order_no, {
+                          onSuccess: () => toast('已催发货', 'success'),
+                        })
+                      }
+                    >
+                      催发货
+                    </button>
+                  ) : null}
+                  {mineScope && !paid ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: '关闭这个订单？',
+                          message: '关闭后无法再付款，需要重新下单。',
+                          confirmText: '关闭',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.closeOrder.mutate(order.order_no, { onSuccess: () => toast('已关闭', 'success') })
+                      }}
+                    >
+                      关闭
+                    </button>
+                  ) : null}
+                  {!mineScope ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}
+                    >
+                      {order.remark_shop ? '改备注' : '加备注'}
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="btn btn--danger-text"
+                    disabled={remove.isPending}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: '删除这个订单？',
+                        message: `订单 ${order.order_no} 会从列表移除。`,
+                        hint: '此操作不可撤销。',
+                        confirmText: '删除',
+                        danger: true,
+                      })
+                      if (!ok) return
+                      remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+                    }}
+                  >
+                    删除
+                  </button>
+                </>
               )
-              }
-              >
-              发货
-              </button>
-                      ) : null}
-                      {!mineScope && sent ? (
-              <button type="button"
-              className="btn btn--quiet"
-              onClick={() =>
-              actions.deliver.mutate(
-              { orderNo: order.order_no, sent: false },
-              { onSuccess: () => toast('已撤销发货', 'success') },
-              )
-              }
-              >
-              撤销发货
-              </button>
-                      ) : null}
-                      {mineScope && paid && !sent ? (
-              <button type="button"
-              className="btn btn--quiet"
-              onClick={() =>
-              actions.urgeOrder.mutate(order.order_no, {
-              onSuccess: () => toast('已催发货', 'success'),
-              })
-              }
-              >
-              催发货
-              </button>
-                      ) : null}
-                      {mineScope && !paid ? (
-              <button type="button"
-              className="btn btn--quiet"
-              onClick={async () => {
-              const ok = await confirmDialog({
-              title: '关闭这个订单？',
-              message: '关闭后无法再付款，需要重新下单。',
-              confirmText: '关闭',
-              danger: true,
-              })
-              if (!ok) return
-              actions.closeOrder.mutate(order.order_no, { onSuccess: () => toast('已关闭', 'success') })
-              }}
-              >
-              关闭
-              </button>
-                      ) : null}
-                      {!mineScope ? (
-              <button type="button" className="btn btn--quiet" onClick={() => setRemarking({ orderNo: order.order_no, remark: order.remark_shop ?? '' })}>
-              备注
-              </button>
-                      ) : null}
-                      <button type="button"
-              className="btn btn--danger-text"
-              onClick={async () => {
-              const ok = await confirmDialog({
-              title: '删除这个订单？',
-              message: `订单 ${order.order_no} 会从列表移除。`,
-              hint: '此操作不可撤销。',
-              confirmText: '删除',
-              danger: true,
-              })
-              if (!ok) return
-              remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
-              }}
-                      >
-              删除
-                      </button>
-                    </span>
-                  )
-                },
-              },
-            ]}
+            }}
           />
       </ListSection>
 
