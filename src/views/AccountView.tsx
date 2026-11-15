@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardTable } from '@/components/CardTable'
+import { ClientLoginCard } from '@/components/account/ClientLoginCard'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
@@ -21,7 +22,6 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatSize, formatThousand } from '@/lib/format'
 import { buildInviteRows, pickMySubtree, type InviteHistoryRow } from '@/lib/invite-tree'
-import { copyText } from '@/lib/clipboard'
 import { getToken } from '@/api/client'
 
 type Tab = 'profile' | 'invite'
@@ -49,9 +49,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
   const actions = useAccountMutations()
   const caps = useCapabilities()
 
-  const [showPassword, setShowPassword] = useState(false)
   // 网页之外的项目（播放器、脚本、第三方客户端）要直接用这个令牌，所以要在界面上能拿到
-  const [showToken, setShowToken] = useState(false)
   const token = getToken() ?? ''
   const [pseudonym, setPseudonym] = useState('')
   const [password, setPassword] = useState<{ password: number | null; second: number } | null>(null)
@@ -163,98 +161,16 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
           </section>
 
           <section className="cards cards--wide">
-            <article className="card">
-              <CardHead title="客户端登录" />
-              <dl className="kv stack--top">
-                <div>
-                  <dt>访问令牌</dt>
-                  <dd>
-                    {!token ? (
-                      <span className="muted">未保存</span>
-                    ) : showToken ? (
-                      <button type="button"
-                        className="btn btn--quiet tnum"
-                        onClick={() => {
-                          void copyText(token, '令牌')
-                          toast('已复制令牌', 'success')
-                        }}
-                      >
-                        {token} · 复制
-                      </button>
-                    ) : (
-                      <span className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-                        <span className="muted tnum">
-                          {token.slice(0, 6)}…{token.slice(-4)}
-                        </span>
-                        <button type="button" className="btn btn--quiet" onClick={() => setShowToken(true)}>
-                          显示
-                        </button>
-                        <button type="button"
-                          className="btn btn--quiet"
-                          onClick={() => {
-                            void copyText(token, '令牌')
-                            toast('已复制令牌', 'success')
-                          }}
-                        >
-                          复制
-                        </button>
-                      </span>
-                    )}
-                  </dd>
-                </div>
-                {[
-                  ['视频服', user.server_video],
-                  ['直播服', user.server_live],
-                  ['音乐服', user.server_music],
-                ].map(([label, url]) =>
-                  url ? (
-                    <div key={String(label)}>
-                      <dt>{label}</dt>
-                      <dd>
-                        <button type="button"
-                          className="btn btn--quiet"
-                          onClick={() => {
-                            void copyText(String(url), '邀请链接')
-                            toast(`已复制${label}地址`, 'success')
-                          }}
-                        >
-                          {String(url).replace(/^https?:\/\//, '')} · 复制
-                        </button>
-                      </dd>
-                    </div>
-                  ) : null,
-                )}
-                <div>
-                  <dt>登录密码</dt>
-                  <dd>
-                    {otpMode ? (
-                      <span className="muted">动态密码，每次登录前获取</span>
-                    ) : !user.password ? (
-                      <span className="muted">未设置</span>
-                    ) : showPassword ? (
-                      <button type="button"
-                        className="btn btn--quiet tnum"
-                        onClick={() => {
-                          void copyText(user.password ?? '', '临时密码')
-                          toast('已复制密码', 'success')
-                        }}
-                      >
-                        {user.password} · 复制
-                      </button>
-                    ) : (
-                      <button type="button" className="btn btn--quiet" onClick={() => setShowPassword(true)}>
-                        显示
-                      </button>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-              {otpMode ? (
-                <p className="card-note stack--top">
-                  这个账号开的是动态密码登录，没有固定密码可设。
-                </p>
-              ) : null}
-            </article>
+            <ClientLoginCard
+              token={token}
+              passwordMode={otpMode}
+              password={user.password ?? null}
+              servers={[
+                ['视频服', user.server_video],
+                ['直播服', user.server_live],
+                ['音乐服', user.server_music],
+              ]}
+            />
           </section>
 
           <section className="cards cards--wide">
