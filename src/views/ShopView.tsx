@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react'
 import { formatPrice } from '@/components/Price'
 import { InlineSortInput } from '@/components/InlineSortInput'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { ProductToolbar } from '@/components/ProductToolbar'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
@@ -252,20 +251,6 @@ export function ShopView({
               }
             />
 
-          {mine && products.error ? (
-            <ErrorBlock error={products.error} onRetry={() => products.refetch()} />
-          ) : null}
-          {mine && products.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-          {mine && products.data && products.data.items.length === 0 && page > 1 ? (
-            <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-          ) : null}
-          {mine && products.data && products.data.items.length === 0 && page === 1 ? (
-            <EmptyBlock
-              title={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
-              action={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
-            />
-          ) : null}
-
           {/* 全站视图走 browse（滚动加载），加载与空态独立处理 */}
           {!mine && browse.error ? (
             <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
@@ -290,8 +275,24 @@ export function ShopView({
             />
           ) : null}
 
-          {products.data && products.data.items.length > 0 && mine ? (
-            <ListCard items={products.data.items} total={products.data.total} idKey={(p) => p.product_id}>
+          {mine ? (
+            <ListSection
+              isLoading={products.isLoading}
+              error={products.error}
+              onRetry={() => products.refetch()}
+              items={products.data?.items ?? []}
+              total={products.data?.total ?? 0}
+              page={page}
+              pageSize={products.data?.page_size ?? pageSize}
+              onPage={(next) => onSearch({ page: next })}
+              onPageSize={(next) => onSearch({ page_size: next, page: 1 })}
+              idKey={(p) => p.product_id}
+              scope={`${scope}-${q}-${categoryId}`}
+              loadingRows={6}
+              loadingCols={5}
+              emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
+              emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+            >
               <table className="table">
                 <thead>
                   <tr>
@@ -305,7 +306,7 @@ export function ShopView({
                   </tr>
                 </thead>
                 <tbody>
-                  {products.data.items.map((product) => (
+                  {(products.data?.items ?? []).map((product) => (
                     <tr key={product.product_id}>
                       <td>
                         <div className="cell-title">
@@ -386,14 +387,7 @@ export function ShopView({
                   ))}
                 </tbody>
               </table>
-              <Pager
-                total={products.data.total}
-                page={page}
-                pageSize={pageSize}
-                onPage={(next) => onSearch({ page: next })}
-                onPageSize={(next) => onSearch({ page_size: next, page: 1 })}
-              />
-            </ListCard>
+            </ListSection>
           ) : null}
       </>
 
