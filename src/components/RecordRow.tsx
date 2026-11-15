@@ -13,6 +13,8 @@ export interface RecordRowProps<T> {
   idKey: (row: T) => string | number
   /** 管理型列表（片单里的影片等）用单列：一行一条，便于逐个处理 */
   single?: boolean
+  /** 左侧图片的比例：影片海报 2:3、用户头像方图 */
+  posterShape?: 'poster' | 'square'
   onOpen?: (row: T) => void
   poster?: (row: T) => string | null | undefined
   title: (row: T) => ReactNode
@@ -33,6 +35,7 @@ export function RecordRow<T>({
   rows,
   idKey,
   single = false,
+  posterShape = 'poster',
   onOpen,
   poster,
   title,
@@ -73,8 +76,8 @@ export function RecordRow<T>({
               : {})}
           >
             {poster ? (
-              <div className="record-row__media">
-                <Poster src={poster(row)} shape="poster" className="record-row__poster" collapseOnEmpty />
+              <div className={`record-row__media record-row__media--${posterShape}`}>
+                <Poster src={poster(row)} shape={posterShape} className="record-row__poster" collapseOnEmpty />
                 {posterOverlay ? <div className="record-row__overlay">{posterOverlay(row)}</div> : null}
               </div>
             ) : null}

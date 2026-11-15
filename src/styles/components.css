@@ -2574,6 +2574,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-rows--single .record-row__facts { margin-top: auto; }
 .record-rows--single .record-row__actions { align-self: center; }
 .record-rows--single .record-row__media { width: 72px; }
+/* 方图（用户头像）：与图片本身同宽高，不按 2:3 拉长 */
+.record-row__media--square,
+.record-rows--single .record-row__media--square { width: 72px; }
+.record-row__media--square .record-row__poster,
+.record-row__media--square .record-row__poster.poster-img {
+  width: 72px;
+  height: 72px;
+}
 .record-rows--single .record-row__poster,
 .record-rows--single .record-row__poster.poster-img {
   width: 72px;
