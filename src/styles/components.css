@@ -2392,7 +2392,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   width: 100%;
   overflow: hidden;
   border-radius: var(--r-item);
-  background: var(--field);
+  background: rgba(255, 255, 255, 0.055);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), var(--shadow-card);
   transition: box-shadow var(--t-fast) var(--ease);
 }
@@ -2531,10 +2531,22 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   padding: var(--sp-2) 0;
 }
 .card .record-row + .record-row { border-top: 1px solid var(--line-soft); }
-.card .record-row__actions { margin-top: var(--sp-2); }
+/* 卡片内的行：⋯ 放到标题行右侧，不要单独占一行留下大片空白 */
+.card .record-row { padding-right: 36px; }
+.card .record-row__actions {
+  position: absolute;
+  top: var(--sp-2);
+  right: 0;
+  margin: 0;
+}
 .record-row.is-clickable { cursor: pointer; }
 .record-row.is-clickable:hover { border-color: var(--line-hot); }
-.record-row__media { position: relative; width: 112px; }
+.record-row__media {
+  position: relative;
+  width: 112px;
+  border-radius: var(--r-item);
+  background: rgba(255, 255, 255, 0.055);
+}
 .record-row__poster,
 .record-row__poster.poster-img {
   width: 112px;
@@ -2554,7 +2566,12 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-2);
   white-space: nowrap;
 }
-.record-row__body { display: grid; gap: var(--sp-1); min-width: 0; }
+.record-row__body {
+  display: grid;
+  gap: var(--sp-1);
+  align-content: start;
+  min-width: 0;
+}
 .record-row__title {
   margin: 0;
   padding-right: var(--sp-6);
