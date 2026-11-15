@@ -2370,50 +2370,52 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   to { height: 0; opacity: 0.5; }
 }
 
-/* ── 图片型列表：一套网格，两端只差列数 ────────────────────── */
+/* ── 图片型列表：图浮在画布上，不套卡片外框 ──────────────────── */
 .record-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--gap-card);
+  row-gap: var(--sp-5);
 }
-/* 列数按图片比例调：竖版海报窄、方图更窄，同样宽度能放更多 */
 .record-grid--poster { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .record-grid--square { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 
 @media (max-width: 1240px) {
   .record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .record-grid--poster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .record-grid--square { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
-  .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--stack); }
+  .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); row-gap: var(--sp-5); }
   .record-grid--poster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .record-grid--square { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-/* 手机上三列会让「电影 · 2 个资源」被截成「2 个…」，回到两列 */
 @media (max-width: 600px) {
   .record-grid--poster,
   .record-grid--square { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* 卡片：只有图与字，没有边框、没有底色——外框会把它变成"表格式卡片" */
 .record-tile {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
-  overflow: hidden;
-  transition: border-color var(--t-fast) var(--ease);
+  gap: var(--sp-2);
+  border: 0;
+  background: none;
+  padding: 0;
 }
 .record-tile.is-clickable { cursor: pointer; }
-.record-tile.is-clickable:hover { border-color: var(--line-hot); }
-/* 图片位：比例由容器决定，图片铺满。
-   表格里的缩略图尺寸（44×25 等）在这个作用域里要放开，否则封面会被压扁 */
+
+/* 图片位：比例由容器决定，图片铺满 */
 .record-tile__media {
   position: relative;
   width: 100%;
   overflow: hidden;
+  border-radius: var(--r-item);
   background: var(--field);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), var(--shadow-card);
+  transition: box-shadow var(--t-fast) var(--ease);
 }
 .record-tile__media--wide { aspect-ratio: 16 / 9; }
 .record-tile__media--poster { aspect-ratio: 2 / 3; }
@@ -2426,12 +2428,17 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   border-radius: 0;
   object-fit: cover;
   display: block;
+  transition: opacity var(--t-fast) var(--ease);
 }
+/* 悬停只提亮图片本身，不加边框、不位移 */
+.record-tile.is-clickable:hover .record-tile__poster { opacity: 0.86; }
+.record-tile.is-clickable:hover .record-tile__media { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
+
 .record-tile__body {
   display: grid;
-  gap: var(--sp-1);
-  padding: var(--sp-3);
+  gap: 2px;
   min-width: 0;
+  padding: 0;
 }
 .record-tile__title {
   margin: 0;
@@ -2442,6 +2449,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.record-tile.is-clickable:hover .record-tile__title { color: var(--fg); }
 .record-tile__meta,
 .record-tile__sub {
   margin: 0;
@@ -2451,7 +2459,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.record-tile__meta { color: var(--fg-3); }
 .record-tile__actions {
   display: flex;
   flex-wrap: wrap;

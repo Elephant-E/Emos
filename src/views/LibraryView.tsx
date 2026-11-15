@@ -114,7 +114,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         sizes={[20, 50]}
         idKey={(v) => v.video_id}
         scope={`${search.type}-${search.q}`}
-        cardList
+        bare
         loadingRows={8}
         loadingCols={5}
         emptyTitle={
@@ -145,13 +145,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
                   {VIDEO_TYPE_LABEL[video.video_type]}
                 </span>
-                {video.medias_count > 0 ? <span> · {video.medias_count} 个资源</span> : null}
-              </>
-            )}
-            sub={(video) => (
-              <>
-                {video.video_date_air ?? '—'}
-                {video.request_count > 0 ? ` · ${video.request_count} 人求` : ''}
+                {/* 只留判断依据：有没有资源、有没有人求；上映日期放 title 里 */}
+                <span> · {video.medias_count} 个资源</span>
+                {video.request_count > 0 ? <span> · {video.request_count} 人求</span> : null}
               </>
             )}
           />

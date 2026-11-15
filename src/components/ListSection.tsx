@@ -43,6 +43,8 @@ export function ListSection<T>({
   cardList = false,
   /** 手机端改为滚动加载：传了它就不再渲染分页器，滑到底部触发 onLoadMore */
   infinite,
+  /** 内容自带网格（RecordGrid）时连外层容器也不要：直接渲染，只留状态块与哨兵 */
+  bare = false,
   children,
 }: {
   isLoading: boolean
@@ -72,6 +74,7 @@ export function ListSection<T>({
   outOfRange?: boolean
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
+  bare?: boolean
   children: ReactNode
 }) {
   const compact = useMediaQuery('(max-width: 600px)')
@@ -93,6 +96,16 @@ export function ListSection<T>({
       )
     }
     return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
+  }
+
+  // 内容自带网格：不要再套任何容器，否则就是「一层套一层」
+  if (bare) {
+    return (
+      <>
+        {children}
+        {infinite ? <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} /> : pager}
+      </>
+    )
   }
 
   // 手机端的卡片列表已经有自己的边框，外面再套 .table-card 就成了一层套一层；
