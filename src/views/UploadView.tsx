@@ -110,6 +110,14 @@ export function UploadView() {
 
       <div
         className={`dropzone${over ? ' is-over' : ''}`}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            inputRef.current?.click()
+          }
+        }}
         onDragOver={(e) => {
           e.preventDefault()
           setOver(true)
@@ -123,9 +131,10 @@ export function UploadView() {
         onClick={() => inputRef.current?.click()}
       >
         <IconUpload size={20} />
-        <span>把视频、字幕或音乐拖到这里，或点击选择文件</span>
+        <span className="dropzone__title--desktop">把视频或字幕拖到这里，或点击选择文件</span>
+        <span className="dropzone__title--touch">点这里选择文件</span>
         <span className="muted text-xs">
-          视频 MP4/MKV · 字幕 SRT/ASS · 音乐 MP3/FLAC · 可多选
+          视频 MP4/MKV · 字幕 SRT/ASS · 可多选
         </span>
       </div>
 

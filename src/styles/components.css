@@ -912,6 +912,8 @@ input.input[type='number'] { min-width: 0; }
   transition: transform var(--t-base) linear;
 }
 
+.dropzone__title--desktop { display: inline; }
+.dropzone__title--touch { display: none; }
 .dropzone {
   display: grid;
   place-items: center;
@@ -2232,6 +2234,23 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .seg button { height: 34px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
   .toolbar button { min-height: 34px; min-width: 34px; }
+  .dropzone__title--desktop { display: none; }
+  .dropzone__title--touch { display: inline; }
+  .dropzone { cursor: pointer; }
+
+  /* 统计卡片：手机上两列。单列时概览 7 张卡要滑四屏，且每张卡只有一行数字 */
+  .cards:has(.card--stat),
+  .cards--2:has(.card--stat),
+  .cards--4:has(.card--stat),
+  .cards--todos:has(.card--stat) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .card--stat { padding: var(--sp-3); }
+  .card--stat .stat__delta { margin-top: var(--sp-2); }
+
+  /* 详情头：缺图时不要留一块空海报位 */
+  .thumb:empty { display: none; }
+
   /* 筛选工具栏：去掉「tabs 后强制换行」的撑杆，控件自然回流，压到 2 行以内 */
   .toolbar { gap: var(--sp-2); row-gap: var(--sp-2); }
   .toolbar .spacer { display: none; }
