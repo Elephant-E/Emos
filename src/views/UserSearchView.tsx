@@ -63,6 +63,7 @@ export function UserSearchView() {
         loadingRows={5}
         bare
         loadingKind="rows"
+        loadingPoster="square"
         emptyTitle="没有封禁中的用户"
       >
           <RecordRow

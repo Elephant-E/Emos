@@ -102,7 +102,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     if (!channel) return null
     return (
     <div className="sources">
-<article className="card">
             <CardHead
               title={
                 <>
@@ -162,7 +161,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 }
               />
             ) : null}
-          </article>
     </div>
     )
   }
@@ -216,6 +214,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         scope={`${search.library}-${search.channel}`}
         loadingRows={6}
         loadingKind="rows"
+        loadingPoster="square"
         emptyTitle="这个媒体库还没有频道"
       >
           <RecordRow

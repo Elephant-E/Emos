@@ -87,6 +87,7 @@ function CarrotSection({ pageSize }: { pageSize: number }) {
         scope="carrot"
         loadingRows={8}
         loadingKind="rows"
+        loadingPoster="none"
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordRow<Record<string, unknown>>

@@ -37,6 +37,21 @@ export function AdminLayout() {
     setNavOpen(false)
   }, [pathname])
 
+  // 抽屉：Esc 收起 + 打开时锁住背景滚动（与 Modal 的行为保持一致）
+  useEffect(() => {
+    if (!navOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNavOpen(false)
+    }
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previous
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [navOpen])
+
   return (
     <NavContext.Provider value={() => setNavOpen(true)}>
       <Collapsible.Root open={navOpen} onOpenChange={setNavOpen} asChild>

@@ -93,6 +93,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
           items={(rows ?? []) as unknown[]}
           bare
           loadingKind="rows"
+        loadingPoster="square"
           loadingRows={8}
           emptyTitle="还没有数据"
         >

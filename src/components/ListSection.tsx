@@ -31,6 +31,7 @@ export function ListSection<T>({
   loadingCols = 5,
   gridShape = 'poster',
   loadingKind,
+  loadingPoster = 'poster',
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
   /** 滚动加载：滑到底部触发 onLoadMore（不传就只渲染当前这批） */
@@ -53,6 +54,8 @@ export function ListSection<T>({
   gridShape?: 'poster' | 'wide' | 'square'
   /** 骨架形态：默认按 bare 推断（网格 / 表格），行卡片页显式指定 rows */
   loadingKind?: 'table' | 'grid' | 'rows' | 'single-rows'
+  /** 行骨架的封面形态：跟真实行一致，避免加载完高度塌一次 */
+  loadingPoster?: 'poster' | 'square' | 'none'
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   bare?: boolean
@@ -65,8 +68,8 @@ export function ListSection<T>({
   if (error) return <ErrorBlock bare={stateBare} error={error} onRetry={onRetry} />
   if (isLoading) {
     // 骨架与真实内容同形：行卡片 / 网格 / 表格各给各的
-    if (loadingKind === 'single-rows') return <LoadingRows count={loadingRows} single />
-    if (loadingKind === 'rows') return <LoadingRows count={loadingRows} />
+    if (loadingKind === 'single-rows') return <LoadingRows count={loadingRows} single poster={loadingPoster} />
+    if (loadingKind === 'rows') return <LoadingRows count={loadingRows} poster={loadingPoster} />
     if (loadingKind === 'grid' || (bare && loadingKind !== 'table')) {
       return <LoadingGrid count={loadingRows} shape={gridShape} />
     }
