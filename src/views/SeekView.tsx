@@ -403,7 +403,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             <span>悬赏胡萝卜（1 – 5000）</span>
             <input className="input" type="number" min={1} max={5000} value={carrot} onChange={(e) => setCarrot(Number(e.target.value))} />
           </label>
-          <p className="state__hint" style={{ textAlign: 'left' }}>
+          <p className="state__hint">
             提交后立即从余额扣除。
           </p>
         </Modal>

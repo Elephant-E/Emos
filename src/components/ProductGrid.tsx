@@ -56,17 +56,17 @@ export function ProductGrid({
       </div>
       <div ref={sentinel} />
       {loadingMore ? (
-        <p className="muted" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>加载中…</p>
+        <p className="grid-state muted">加载中…</p>
       ) : null}
       {!loadingMore && loadError ? (
-        <p style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>
+        <p className="grid-state">
           <button type="button" className="btn btn--quiet" onClick={onLoadMore}>
             没加载出来，重试
           </button>
         </p>
       ) : null}
       {!hasMore && products.length > 0 ? (
-        <p className="muted text-xs" style={{ textAlign: 'center', marginTop: 16, width: '100%' }}>到底了</p>
+        <p className="grid-state muted text-xs">到底了</p>
       ) : null}
     </>
   )

@@ -35,7 +35,7 @@ export function DynamicFetchModal({
         <span>抓取地址（留空关闭）</span>
         <input className="input" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" autoFocus />
       </label>
-      <p className="state__hint" style={{ textAlign: 'left' }}>
+      <p className="state__hint">
         填了地址后，片单会按该地址定期同步内容；清空即关闭。
       </p>
     </Modal>

@@ -1818,6 +1818,13 @@ input.input[type='number'] { min-width: 0; }
 .person-card__name { font-size: var(--text-xs); color: var(--fg-2); }
 .person-card__role { font-size: var(--text-2xs); color: var(--fg-4); }
 
+/* 网格尾部状态（加载中 / 重试 / 到底了）：占满一行、居中、与网格拉开一档 */
+.grid-state {
+  width: 100%;
+  margin-top: var(--sp-4);
+  text-align: center;
+}
+
 /* 添加影片/字幕的候选行 */
 /* 检索结果列表：行之间靠留白分区，不加分隔线——弹窗里已经有边框，
    再加线会显得重；gap 与行内边距一起决定密度 */

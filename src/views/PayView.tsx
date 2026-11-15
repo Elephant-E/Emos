@@ -156,7 +156,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
 
           {order.isFetching ? <LoadingBlock bare rows={2} columns={2} /> : null}
           {order.error ? (
-            <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 12 }}>
               没有查到这个订单，或订单号有误。
             </p>
           ) : null}
@@ -235,7 +235,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               {payActions.transfer.isPending ? '转账中…' : '转账'}
             </button>
           </div>
-          <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+          <p className="state__hint" style={{ marginTop: 12 }}>
             单次 1 – 50000，费率千六；与上面的胡萝卜转赠不是同一套账。
           </p>
         </article>
@@ -251,7 +251,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </button>
           </div>
           {created ? (
-            <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 12 }}>
               单号 {created.no}
               {created.pay_url ? (
                 <>
@@ -263,7 +263,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               ) : null}
             </p>
           ) : (
-            <p className="state__hint" style={{ textAlign: 'left', marginTop: 12 }}>
+            <p className="state__hint" style={{ marginTop: 12 }}>
               网页支付生成可分享的支付链接；TG 机器人支付走会话内跳转。
             </p>
           )}

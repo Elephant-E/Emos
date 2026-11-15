@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { CardHead } from '@/components/CardHead'
 import type { VideoPerson } from '@/api/types'
 
@@ -22,22 +23,25 @@ const JOB_LABEL: Record<string, string> = {
 
 /** 演职员卡：只展示前 8 位，岗位翻成中文 */
 export function VideoCasts({ persons, limit = 8 }: { persons: VideoPerson[]; limit?: number }) {
+  // 头像地址是拼出来的，缺图时切到「首字」状态；用 state 记录失败项，不再手改 DOM
+  const [broken, setBroken] = useState<Set<string>>(new Set())
+  const keyOf = (person: VideoPerson) => String(person.person_id_tmdb ?? person.name)
   return (
     <article className="card" style={{ marginTop: 18 }}>
       <CardHead title="演职员" />
       <div className="person-grid">
-        {persons.slice(0, limit).map((person) => (
-          <div key={person.person_id_tmdb ?? person.name} className="person-card">
-            <span className={`person-card__photo${person.image_profile ? '' : ' is-empty'}`}>
-              {person.image_profile ? (
+        {persons.slice(0, limit).map((person) => {
+          const key = keyOf(person)
+          const empty = !person.image_profile || broken.has(key)
+          return (
+          <div key={key} className="person-card">
+            <span className={`person-card__photo${empty ? ' is-empty' : ''}`}>
+              {!empty && person.image_profile ? (
                 <img
                   src={`https://image.theotherdb.org/original/${person.image_profile}`}
                   alt=""
                   loading="lazy"
-                  onError={(e) => {
-                    // 地址是拼出来的，缺图时把槽切到「首字」状态，而不是隐藏 img 后留个洞
-                    e.currentTarget.parentElement?.classList.add('is-empty')
-                  }}
+                  onError={() => setBroken((prev) => new Set(prev).add(key))}
                 />
               ) : null}
               <span className="person-card__initial" aria-hidden>
@@ -49,7 +53,8 @@ export function VideoCasts({ persons, limit = 8 }: { persons: VideoPerson[]; lim
               {JOB_LABEL[person.job ?? ''] ?? person.job ?? (person.title ? `饰 ${person.title}` : '')}
             </span>
           </div>
-        ))}
+          )
+        })}
       </div>
     </article>
   )
