@@ -7,6 +7,7 @@ import { InlineSortInput } from '@/components/InlineSortInput'
 import { shopApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
+import { Badge } from '@/components/Badge'
 import { ProductToolbar } from '@/components/ProductToolbar'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
@@ -284,10 +285,7 @@ export function ShopView({
                 title={(product) => product.name}
                 meta={(product) => (
                   <>
-                    <span className={`badge ${product.is_up ? 'badge--ok' : 'badge--off'}`}>
-                      <i />
-                      {product.is_up ? '已上架' : '已下架'}
-                    </span>
+                    <Badge tone={product.is_up ? 'ok' : 'off'}>{product.is_up ? '已上架' : '已下架'}</Badge>
                     <Price price={product.price} priceOrigin={product.price_origin} />
                     <span>{formatThousand(product.stock)} 件</span>
                     {(product.sales ?? 0) > 0 ? <span>{formatThousand(product.sales ?? 0)} 已售</span> : null}

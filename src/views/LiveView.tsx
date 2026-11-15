@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { liveApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
+import { Badge } from '@/components/Badge'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
@@ -129,10 +130,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 meta={(row) => (
                   <>
                     <span>{PATH_TYPE_LABEL[row.path_type] ?? row.path_type}</span>
-                    <span className={`badge ${row.status === 'normal' ? 'badge--ok' : 'badge--warn'}`}>
-                      <i />
+                    <Badge tone={row.status === 'normal' ? 'ok' : 'warn'}>
                       {row.status === 'normal' ? '正常' : row.status === 'error' ? '异常' : String(row.status ?? '—')}
-                    </span>
+                    </Badge>
                     <span>{row.pseudonym ?? '未知上传者'}</span>
                   </>
                 )}

@@ -5,6 +5,7 @@ import { qk, useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { RecordRow } from '@/components/RecordRow'
+import { Badge } from '@/components/Badge'
 import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
@@ -142,10 +143,7 @@ export function UploadView() {
             title={(item) => item.file.name}
             meta={(item) => (
               <>
-                <span className={`badge ${STATUS[item.status].cls}`}>
-                  <i />
-                  {STATUS[item.status].label}
-                </span>
+                <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
                 <span>{formatSize(item.file.size)}</span>
                 {item.status === 'uploading' ? <span>{Math.round(item.progress * 100)}%</span> : null}
               </>
@@ -286,13 +284,13 @@ export function UploadView() {
   )
 }
 
-const STATUS: Record<Status, { label: string; cls: string }> = {
-  recognizing: { label: '识别中', cls: 'badge--run' },
-  'need-target': { label: '待关联', cls: 'badge--wait' },
-  'need-song': { label: '待选歌', cls: 'badge--wait' },
-  ready: { label: '待上传', cls: 'badge--run' },
-  uploading: { label: '上传中', cls: 'badge--run' },
-  done: { label: '已入库', cls: 'badge--ok' },
-  failed: { label: '失败', cls: 'badge--warn' },
-  duplicate: { label: '重复', cls: 'badge--warn' },
+const STATUS: Record<Status, { label: string; tone: 'ok' | 'wait' | 'run' | 'warn' | 'off' }> = {
+  recognizing: { label: '识别中', tone: 'run' as const },
+  'need-target': { label: '待关联', tone: 'wait' as const },
+  'need-song': { label: '待选歌', tone: 'wait' as const },
+  ready: { label: '待上传', tone: 'run' as const },
+  uploading: { label: '上传中', tone: 'run' as const },
+  done: { label: '已入库', tone: 'ok' as const },
+  failed: { label: '失败', tone: 'warn' as const },
+  duplicate: { label: '重复', tone: 'warn' as const },
 }
