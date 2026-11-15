@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
+import { VideoCasts } from '@/components/video/VideoCasts'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -21,24 +22,6 @@ export interface DetailSearch {
 }
 
 /** TODB 的岗位字段是英文，界面统一用中文 */
-const JOB_LABEL: Record<string, string> = {
-  Director: '导演',
-  Actor: '演员',
-  Actress: '演员',
-  Writer: '编剧',
-  Screenplay: '编剧',
-  Producer: '制片',
-  'Executive Producer': '出品人',
-  Composer: '配乐',
-  'Director of Photography': '摄影',
-  Editor: '剪辑',
-  Casting: '选角',
-  'Production Design': '美术',
-  Costume: '服装',
-  Sound: '音效',
-  'Visual Effects': '视效',
-}
-
 export function VideoDetailView({
   videoId,
   search,
@@ -476,37 +459,7 @@ export function VideoDetailView({
 
       ) : null}
 
-      {video && persons.data && persons.data.items.length > 0 ? (
-        <article className="card" style={{ marginTop: 18 }}>
-          <CardHead title="演职员" />
-          <div className="person-grid">
-            {persons.data.items.slice(0, 8).map((person) => (
-              <div key={person.person_id_tmdb ?? person.name} className="person-card">
-                <span className={`person-card__photo${person.image_profile ? '' : ' is-empty'}`}>
-                  {person.image_profile ? (
-                    <img
-                      src={`https://image.theotherdb.org/original/${person.image_profile}`}
-                      alt=""
-                      loading="lazy"
-                      onError={(e) => {
-                        // 地址是拼出来的，缺图时把槽切到「首字」状态，而不是隐藏 img 后留个洞
-                        e.currentTarget.parentElement?.classList.add('is-empty')
-                      }}
-                    />
-                  ) : null}
-                  <span className="person-card__initial" aria-hidden>
-                    {person.name.slice(0, 1)}
-                  </span>
-                </span>
-                <span className="person-card__name">{person.name}</span>
-                <span className="person-card__role">
-                  {JOB_LABEL[person.job ?? ''] ?? person.job ?? (person.title ? `饰 ${person.title}` : '')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </article>
-      ) : null}
+      {video && (persons.data?.items.length ?? 0) > 0 ? <VideoCasts persons={persons.data?.items ?? []} /> : null}
 
       {renaming ? (
         <Modal
