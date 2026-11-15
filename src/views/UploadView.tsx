@@ -13,7 +13,6 @@ import { UPLOAD_STORAGES } from '@/lib/uploader'
 import { KIND_LABEL, useUploadQueue, type Status } from '@/lib/use-upload-queue'
 import { ConsentDialog } from '@/components/ConsentDialog'
 import { formatSize } from '@/lib/format'
-import { USE_MOCK } from '@/api/client'
 
 /** 从文件名猜一个歌名：去掉扩展名和开头的音轨号，「歌手 - 歌名」取歌名那段 */
 export function UploadView() {
@@ -54,10 +53,6 @@ export function UploadView() {
         hint={queue.length ? `${queue.length} 个文件` : undefined}
         tools={
           <>
-            <span className="stamp">
-              <i />
-              {USE_MOCK ? '假数据模式' : '直传后端'}
-            </span>
             {!caps.canUpload ? (
               <button type="button" className="btn btn--ghost" onClick={() => setConsent(true)}>
                 开通上传权限

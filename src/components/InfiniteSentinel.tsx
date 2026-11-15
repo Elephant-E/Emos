@@ -28,9 +28,5 @@ export function InfiniteSentinel({
     return () => observer.disconnect()
   }, [disabled, onLoadMore])
 
-  return (
-    <div ref={ref} className="infinite-sentinel" aria-hidden="true">
-      {loading ? <span className="infinite-sentinel__text">加载中…</span> : null}
-    </div>
-  )
+  return <div ref={ref} className="infinite-sentinel" aria-hidden="true" data-loading={loading || undefined} />
 }

@@ -1862,7 +1862,7 @@ input.input[type='number'] { min-width: 0; }
   max-width: 560px;
 }
 
-/* 网格尾部状态（加载中 / 重试 / 到底了）：占满一行、居中、与网格拉开一档 */
+/* 网格尾部状态（加载失败重试）：占满一行、居中、与网格拉开一档 */
 .grid-state {
   width: 100%;
   margin-top: var(--sp-4);
@@ -2380,7 +2380,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-4);
   font-size: var(--text-xs);
 }
-.infinite-sentinel__text { opacity: 0.8; }
+
 .record-cards {
   display: grid;
   gap: var(--sp-2);

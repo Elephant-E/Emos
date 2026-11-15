@@ -185,14 +185,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
       <PageHeader
         crumb={['直播', channel?.title ?? '频道']}
         title="直播"
-        tools={
-          list.isFetching ? (
-            <span className="stamp">
-              <i />
-              拉取中
-            </span>
-          ) : null
-        }
       />
 
       <div className="toolbar">
@@ -267,7 +259,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                       <span>
                         <span className="cell-title__row">
                           <span className="cell-title__name">{item.title}</span>
-                          {item.id === search.channel ? <span className="meta-sm">展开中</span> : null}
                           {item.code ? <span className="chip">官方</span> : null}
                         </span>
                         {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}

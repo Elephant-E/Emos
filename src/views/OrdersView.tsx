@@ -97,7 +97,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         title="订单"
         tools={
           <>
-            {orders.isFetching ? <span className="head-note">拉取中</span> : null}
             <div className="seg" role="group" aria-label="视角">
               <button type="button" aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop', page: 1 })}>
                 店铺订单

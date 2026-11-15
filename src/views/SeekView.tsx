@@ -105,7 +105,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
   }
-  const { data, isLoading, error, refetch, isFetching } = useSeekPage(
+  const { data, isLoading, error, refetch } = useSeekPage(
     { ...seekParams, page: search.page },
     { enabled: !compact },
   )
@@ -147,8 +147,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       <PageHeader
         crumb={['求片', TABS.find((t) => t.key === search.tab)?.label ?? '全部']}
         title="求片"
-        tools={isFetching ? <span className="head-note">拉取中</span> : null}
-      />
+              />
 
       <div className="toolbar">
         <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab, page: 1 })} label="状态" />

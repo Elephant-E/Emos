@@ -64,14 +64,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       <PageHeader
         crumb={['音乐', TABS.find((t) => t.key === search.tab)?.label ?? '歌曲']}
         title="音乐"
-        tools={
-          active.isFetching ? (
-            <span className="stamp">
-              <i />
-              拉取中
-            </span>
-          ) : null
-        }
       />
 
       <div className="toolbar">

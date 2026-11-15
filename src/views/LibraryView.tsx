@@ -65,7 +65,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const isLoading = compact ? infinite.loading : paged.isLoading
   const error = compact ? infinite.error : paged.error
   const refetch = compact ? infinite.retry : paged.refetch
-  const isFetching = compact ? infinite.loading : paged.isFetching
   const items = data?.items ?? []
 
 
@@ -75,17 +74,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         crumb={['媒体库', search.type ? VIDEO_TYPE_LABEL[search.type] : '全部']}
         title="媒体库"
         tools={
-          <>
-            {isFetching ? (
-              <span className="stamp">
-                <i />
-                拉取中
-              </span>
-            ) : null}
-            <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, page_size: 20, q: '', by: 'media_id' }}>
-              回收站
-            </Link>
-          </>
+          <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page: 1, page_size: 20, q: '', by: 'media_id' }}>
+            回收站
+          </Link>
         }
       />
 

@@ -55,18 +55,12 @@ export function ProductGrid({
         ))}
       </div>
       <div ref={sentinel} />
-      {loadingMore ? (
-        <p className="grid-state muted">加载中…</p>
-      ) : null}
       {!loadingMore && loadError ? (
         <p className="grid-state">
           <button type="button" className="btn btn--quiet" onClick={onLoadMore}>
             没加载出来，重试
           </button>
         </p>
-      ) : null}
-      {!hasMore && products.length > 0 ? (
-        <p className="grid-state muted text-xs">到底了</p>
       ) : null}
     </>
   )
