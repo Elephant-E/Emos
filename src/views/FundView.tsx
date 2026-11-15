@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { ImagePickerMulti } from '@/components/ImagePicker'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Tabs } from '@/components/Tabs'
-import { Pager } from '@/components/Pager'
 import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -74,16 +72,22 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
         </div>
       </section>
 
-      {history.error ? <ErrorBlock error={history.error} onRetry={() => history.refetch()} /> : null}
-      {history.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
-      {!history.isLoading && !history.error && rows.length === 0 && page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onPage(1)} />
-      ) : null}
-      {!history.isLoading && !history.error && rows.length === 0 && page === 1 ? (
-        <EmptyBlock title="还没有胡萝卜记录" />
-      ) : null}
-      {rows.length > 0 ? (
-        <ListCard items={rows} total={rows.length} idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`} scope={page}>
+      <ListSection
+        isLoading={history.isLoading}
+        error={history.error}
+        onRetry={() => history.refetch()}
+        items={rows}
+        total={history.data?.total ?? 0}
+        page={page}
+        pageSize={pageSize}
+        onPage={onPage}
+        onPageSize={onPageSize}
+        idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`}
+        scope={page}
+        loadingRows={8}
+        loadingCols={3}
+        emptyTitle="还没有胡萝卜记录"
+      >
           <table className="table">
             <thead>
               <tr>
@@ -108,9 +112,8 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
               })}
             </tbody>
           </table>
-          <Pager total={history.data?.total ?? 0} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} />
-        </ListCard>
-      ) : null}
+      </ListSection>
+
 
       {transferring ? (
         <Modal
@@ -246,15 +249,24 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
         {tab === 'carrot' ? <CarrotSection page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} /> : null}
       </div>
 
-      {tab === 'orders' && orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
-      {tab === 'orders' && orders.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-
-      {tab === 'orders' && !orders.isLoading && !orders.error && rows.length === 0 ? (
-        <EmptyBlock title="还没有基金订单" />
-      ) : null}
-
-      {tab === 'orders' && rows.length > 0 ? (
-        <div className="table-card">
+      {tab === 'orders' ? (
+        <ListSection
+          isLoading={orders.isLoading}
+          error={orders.error}
+          onRetry={() => orders.refetch()}
+          items={rows}
+          total={total}
+          page={page}
+          pageSize={orders.data?.page_size ?? Math.min(30, pageSize)}
+          onPage={onPage}
+          onPageSize={onPageSize}
+          sizes={[20, 30]}
+          idKey={(r) => String(r.order_no ?? r.created_at)}
+          scope={page}
+          loadingRows={8}
+          loadingCols={4}
+          emptyTitle="还没有基金订单"
+        >
           <table className="table table--auto table--dense">
             <thead>
               <tr>
@@ -305,16 +317,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
               })}
             </tbody>
           </table>
-          <Pager
-            total={total}
-            page={page}
-            // 接口上限 30，实际条数以响应为准；选择器也只给 20 / 30
-            pageSize={orders.data?.page_size ?? Math.min(30, pageSize)}
-            onPage={onPage}
-            onPageSize={onPageSize}
-            sizes={[20, 30]}
-          />
-        </div>
+        </ListSection>
       ) : null}
 
       {creating ? (
