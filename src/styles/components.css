@@ -2376,11 +2376,24 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--gap-card);
 }
+/* 列数按图片比例调：竖版海报窄、方图更窄，同样宽度能放更多 */
+.record-grid--poster { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.record-grid--square { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+
 @media (max-width: 1240px) {
   .record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .record-grid--poster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
   .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--stack); }
+  .record-grid--poster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .record-grid--square { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* 手机上三列会让「电影 · 2 个资源」被截成「2 个…」，回到两列 */
+@media (max-width: 600px) {
+  .record-grid--poster,
+  .record-grid--square { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .record-tile {
   min-width: 0;
@@ -2394,14 +2407,25 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-tile.is-clickable { cursor: pointer; }
 .record-tile.is-clickable:hover { border-color: var(--line-hot); }
-.record-tile__poster,
-.record-tile__poster.poster-img--wide {
-  /* 表格里的 44×25 缩略图尺寸在这里要放开：卡片顶部按 16:9 铺满 */
+/* 图片位：比例由容器决定，图片铺满。
+   表格里的缩略图尺寸（44×25 等）在这个作用域里要放开，否则封面会被压扁 */
+.record-tile__media {
+  position: relative;
   width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--field);
+}
+.record-tile__media--wide { aspect-ratio: 16 / 9; }
+.record-tile__media--poster { aspect-ratio: 2 / 3; }
+.record-tile__media--square { aspect-ratio: 1 / 1; }
+.record-tile__poster,
+.record-tile__poster.poster-img--wide,
+.record-tile__poster.poster-img--square {
+  width: 100%;
+  height: 100%;
   border-radius: 0;
   object-fit: cover;
+  display: block;
 }
 .record-tile__body {
   display: grid;

@@ -20,6 +20,13 @@ export interface RecordGridProps<T> {
   rows: readonly T[]
   idKey: (row: T) => string | number
   onOpen?: (row: T) => void
+  /**
+   * 封面比例按数据本身的形状来，不强行统一：
+   * - poster 2:3  影片、求片（TMDB w185 实际 185×278）
+   * - wide 16:9   片单封面
+   * - square 1:1  直播频道 logo、商品封面
+   */
+  shape?: 'poster' | 'wide' | 'square'
   /** 封面。没有可传空，卡片会自己收起来 */
   poster?: (row: T) => string | null | undefined
   /** 标题（一行，超长省略） */
@@ -32,9 +39,19 @@ export interface RecordGridProps<T> {
   actions?: (row: T) => ReactNode
 }
 
-export function RecordGrid<T>({ rows, idKey, onOpen, poster, title, meta, sub, actions }: RecordGridProps<T>) {
+export function RecordGrid<T>({
+  rows,
+  idKey,
+  onOpen,
+  shape = 'wide',
+  poster,
+  title,
+  meta,
+  sub,
+  actions,
+}: RecordGridProps<T>) {
   return (
-    <div className="record-grid">
+    <div className={`record-grid record-grid--${shape}`}>
       {rows.map((row) => {
         const clickable = Boolean(onOpen)
         return (
@@ -61,7 +78,9 @@ export function RecordGrid<T>({ rows, idKey, onOpen, poster, title, meta, sub, a
               : {})}
           >
             {poster ? (
-              <Poster src={poster(row)} shape="wide" className="record-tile__poster" collapseOnEmpty />
+              <div className={`record-tile__media record-tile__media--${shape}`}>
+                <Poster src={poster(row)} shape={shape} className="record-tile__poster" collapseOnEmpty />
+              </div>
             ) : null}
             <div className="record-tile__body">
               <h3 className="record-tile__title">{title(row)}</h3>

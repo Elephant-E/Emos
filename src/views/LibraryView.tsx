@@ -136,6 +136,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             rows={items}
             idKey={(video) => video.video_id}
             onOpen={(video) => openDetail(video.video_id)}
+            shape="poster"
             poster={(video) => video.video_image_poster}
             title={(video) => video.video_title}
             meta={(video) => (
@@ -145,10 +146,14 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   {VIDEO_TYPE_LABEL[video.video_type]}
                 </span>
                 {video.medias_count > 0 ? <span> · {video.medias_count} 个资源</span> : null}
-                {video.request_count > 0 ? <span> · {video.request_count} 人求</span> : null}
               </>
             )}
-            sub={(video) => <>{video.video_date_air ?? '—'} 上映</>}
+            sub={(video) => (
+              <>
+                {video.video_date_air ?? '—'}
+                {video.request_count > 0 ? ` · ${video.request_count} 人求` : ''}
+              </>
+            )}
           />
       </ListSection>
     </>
