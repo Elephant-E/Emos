@@ -5,7 +5,6 @@ import { qk } from '@/api/queries'
 import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { Pager } from '@/components/Pager'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -49,8 +48,6 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
   const [sending, setSending] = useState(false)
   const [created, setCreated] = useState<string | null>(null)
   const [idTerm, setIdTerm] = useState(search.id)
-  const [page, setPage] = useState(1)
-  const PAGE_SIZE = 20
 
   const winners = useQuery({
     queryKey: ['lottery', 'win', search.id] as const,
@@ -296,10 +293,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
             </label>
             <button type="button"
               className="btn btn--ghost"
-              onClick={() => {
-                setPage(1)
-                onSearch({ id: idTerm.trim() })
-              }}
+              onClick={() => onSearch({ id: idTerm.trim() })}
             >
               查询
             </button>
@@ -367,7 +361,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       </tr>
                     </thead>
                     <tbody>
-                      {(winners.data?.users ?? []).slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((row) => (
+                      {(winners.data?.users ?? []).map((row) => (
                         <tr key={`${row.user_id}-${row.prize_name}`}>
                           <td>
                             <UserCell name={String(row.user_username ?? '')} avatar={row.user_avatar} />
@@ -379,12 +373,6 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       ))}
                     </tbody>
                   </table>
-                  <Pager
-                    total={winners.data?.users.length ?? 0}
-                    page={page}
-                    pageSize={PAGE_SIZE}
-                    onPage={setPage}
-                  />
                 </div>
               )}
             </>

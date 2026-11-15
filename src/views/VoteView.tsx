@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { UserCell } from '@/components/UserCell'
-import { Pager } from '@/components/Pager'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -36,8 +35,6 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
   const [created, setCreated] = useState<{ id: number; timeEnd: string } | null>(null)
   const [idTerm, setIdTerm] = useState(search.id)
   // 结果接口一次返回全部投票人，几百条一屏铺不完，本页分页
-  const [page, setPage] = useState(1)
-  const PAGE_SIZE = 20
 
   const result = useQuery({
     queryKey: ['vote', 'result', search.id] as const,
@@ -82,7 +79,6 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
 
   const totalVotes = result.data?.users.length ?? 0
   const voters = result.data?.users ?? []
-  const pageVoters = voters.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <>
@@ -218,10 +214,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
             </label>
             <button type="button"
               className="btn btn--ghost"
-              onClick={() => {
-                setPage(1)
-                onSearch({ id: idTerm.trim() })
-              }}
+              onClick={() => onSearch({ id: idTerm.trim() })}
             >
               查询
             </button>
@@ -278,7 +271,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                       </tr>
                     </thead>
                     <tbody>
-                      {pageVoters.map((row) => (
+                      {voters.map((row) => (
                         <tr key={`${row.user_id}-${row.index}`}>
                           <td className="num muted tnum">{row.index}</td>
                           <td>
@@ -289,7 +282,6 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                       ))}
                     </tbody>
                   </table>
-                  <Pager total={totalVotes} page={page} pageSize={PAGE_SIZE} onPage={setPage} />
                 </div>
               )}
             </>

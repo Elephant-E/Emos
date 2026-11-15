@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { Pager } from '@/components/Pager'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { redPacketApi } from '@/api/endpoints'
@@ -363,13 +362,6 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                   ))}
                 </tbody>
               </table>
-              {/* 服务端把每页条数固定成 15（契约示例），总页数要用响应里的 page_size 算 */}
-              <Pager
-                total={records.data?.total ?? 0}
-                page={search.page}
-                pageSize={records.data?.page_size ?? search.page_size}
-                onPage={(page) => onSearch({ page })}
-              />
             </div>
           )}
         </>
