@@ -2232,6 +2232,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .seg button { height: 34px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
   .toolbar button { min-height: 34px; min-width: 34px; }
+  /* 分页器的上一页/下一页 28×34，手机上偏小 */
+  .pager button { min-height: 36px; min-width: 36px; }
+  /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
+     卡头高度也随之放宽，避免文字挤在一起 */
+  .card-head { min-height: 32px; height: auto; }
+  .card-head .btn--quiet { height: 32px; padding: 0 var(--sp-1); }
+  /* 登录页「显示令牌」24px 高 */
+  .login__reveal { min-height: 32px; }
   /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
   .product-tile__buy { width: 36px; height: 36px; }
   .detail-stat__link { min-height: 36px; }
