@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Outlet, useRouterState } from '@tanstack/react-router'
 import { GlobalSearch } from '@/components/GlobalSearch'
 import { Sidebar } from '@/components/Sidebar'
+import { MobileTopbar } from '@/components/MobileTopbar'
 import { useSession } from '@/api/queries'
 import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
@@ -34,6 +35,7 @@ export function AdminLayout() {
 
   return (
     <NavContext.Provider value={() => setNavOpen(true)}>
+      <MobileTopbar user={data} onOpenNav={() => setNavOpen(true)} />
       <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
         <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} open={navOpen} onClose={() => setNavOpen(false)} />
         {navOpen ? <button type="button" className="shell__scrim" aria-label="关闭导航" onClick={() => setNavOpen(false)} /> : null}

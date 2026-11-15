@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { forgetAccount, listAccounts, rememberAccount, switchAccount, type Account } from '@/lib/accounts'
-import { setToken } from '@/api/client'
+import { rememberAccount } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
+import { Avatar } from './Avatar'
+import { AccountMenu } from './AccountMenu'
 import { USE_MOCK } from '@/api/client'
 import {
   IconBag,
@@ -76,16 +77,6 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   },
 ]
 
-function Avatar({ url, name, size }: { url?: string | null; name: string; size?: number }) {
-  const [failed, setFailed] = useState(false)
-  const showImage = Boolean(url) && !failed
-  return (
-    <span className="avatar" style={size ? { width: size, height: size, fontSize: size * 0.46 } : undefined}>
-      {showImage ? <img src={url ?? ''} alt="" onError={() => setFailed(true)} /> : (name || '?').slice(0, 1)}
-    </span>
-  )
-}
-
 export function Sidebar({
   user,
   onOpenSearch,
@@ -99,7 +90,6 @@ export function Sidebar({
   onClose?: () => void
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
   const footRef = useRef<HTMLDivElement | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -127,11 +117,10 @@ export function Sidebar({
     active?.scrollIntoView({ block: 'nearest' })
   }, [pathname])
 
+  // 登录后把自己记进账号列表（AccountMenu 直接读这份本地记录）
   useEffect(() => {
     if (!user?.user_id) return
-    setAccounts(
-      rememberAccount({ user_id: user.user_id, username: user.username, pseudonym: user.pseudonym, avatar: user.avatar }),
-    )
+    rememberAccount({ user_id: user.user_id, username: user.username, pseudonym: user.pseudonym, avatar: user.avatar })
   }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
@@ -218,54 +207,7 @@ export function Sidebar({
 
         {menuOpen ? (
           <div className="rail__menu" role="menu">
-            {accounts.map((account) => {
-              const current = account.user_id === user?.user_id
-              return (
-                <div key={account.user_id} className="rail__menu-row">
-                  <button type="button"
-                    role="menuitem"
-                    className="rail__menu-item"
-                    onClick={() => {
-                      if (current) return
-                      if (switchAccount(account.user_id)) location.reload()
-                    }}
-                  >
-                    <Avatar url={account.avatar} name={account.pseudonym || account.username} size={22} />
-                    <span>{account.pseudonym || account.username}</span>
-                    {current ? <span className="rail__menu-flag">当前</span> : null}
-                  </button>
-                  {!current ? (
-                    <button type="button"
-                      className="rail__menu-remove"
-                      aria-label={`移除 ${account.pseudonym || account.username}`}
-                      onClick={() => setAccounts(forgetAccount(account.user_id))}
-                    >
-                      ✕
-                    </button>
-                  ) : null}
-                </div>
-              )
-            })}
-            <button type="button" className="rail__menu-add" role="menuitem" onClick={() => (location.href = '/login')}>
-              添加账号
-            </button>
-            <button
-              type="button"
-              className="rail__menu-add"
-              role="menuitem"
-              onClick={() => {
-                // 共享设备上要能主动结束会话：清令牌与本地头像缓存，回登录页
-                setToken(null)
-                try {
-                  localStorage.removeItem('emos_admin_profile')
-                } catch {
-                  /* 隐私模式下不可写，忽略 */
-                }
-                location.href = '/login'
-              }}
-            >
-              退出登录
-            </button>
+            <AccountMenu currentUserId={user?.user_id} onDone={() => setMenuOpen(false)} />
           </div>
         ) : null}
       </div>

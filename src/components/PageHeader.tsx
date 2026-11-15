@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { IconGrid, IconMenu } from './icons'
-import { useOpenNav } from '@/ui/nav'
+import { IconGrid } from './icons'
 
 interface PageHeaderProps {
   crumb: string[]
@@ -31,19 +30,12 @@ const SECTION_PATH: Record<string, string> = {
 }
 
 export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
-  const openNav = useOpenNav()
   const root = crumb[0]
   const path = SECTION_PATH[root]
   return (
     <div className="page__head">
       <div>
-        <div className="head-lead">
-          {openNav ? (
-            <button type="button" className="head-menu" onClick={openNav} aria-label="打开导航">
-              <IconMenu />
-            </button>
-          ) : null}
-          <nav className="crumb" aria-label="面包屑">
+        <nav className="crumb" aria-label="面包屑">
           <IconGrid />
           {path ? (
             <Link className="crumb__link" to={path}>
@@ -58,8 +50,7 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
               <span className="crumb__here">{crumb[1]}</span>
             </>
           ) : null}
-          </nav>
-        </div>
+        </nav>
         <div className="page-title__row">
           <h1 className="page-title">{title}</h1>
           {hint ? <span className="page-title__hint">{hint}</span> : null}

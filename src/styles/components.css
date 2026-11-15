@@ -2118,6 +2118,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .detail-body { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* 手机顶栏：桌面端不渲染，≤600px 才出现（样式在文件末尾的手机档里） */
+.topbar { display: none; }
+
 /* ── 手机档（≤600px）───────────────────────────────────────────
    导航收成抽屉：内容区拿到完整宽度；汉堡在页头左侧，点遮罩或选完入口自动收起 */
 @media (max-width: 600px) {
@@ -2154,7 +2157,47 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail__foot { justify-content: flex-start; }
   .rail__search { display: flex; }
 
-  .head-menu { display: grid; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    position: fixed;
+    inset: 0 0 auto;
+    height: 52px;
+    padding: 0 var(--sp-3);
+    background: rgba(10, 10, 11, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line-soft);
+    z-index: calc(var(--z-modal) - 2);
+  }
+  .topbar__btn {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: var(--r-item);
+    border: 0;
+    background: transparent;
+    color: var(--fg-2);
+    cursor: pointer;
+  }
+  .topbar__brand {
+    font-size: 15px;
+    font-weight: 550;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .topbar__brand em {
+    font-style: normal;
+    font-weight: 450;
+    margin-left: 4px;
+    color: var(--fg-4);
+  }
+  .topbar__account { margin-left: auto; }
+  /* 顶栏是 fixed，页面整体往下让 52px，抽屉则从顶栏下方开始 */
+  .shell { padding-top: 52px; }
+  .rail { top: 52px; }
   .page { padding: var(--sp-4) var(--sp-4) var(--sp-7); }
   .page-title { font-size: 26px; }
 }
