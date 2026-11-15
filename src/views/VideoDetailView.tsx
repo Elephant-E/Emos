@@ -2,20 +2,21 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
 import { VideoCasts } from '@/components/video/VideoCasts'
+import { VideoMedias } from '@/components/video/VideoMedias'
+import { VideoSubtitles, type SubtitleRow } from '@/components/video/VideoSubtitles'
 import { MediaEditModal } from '@/components/video/MediaEditModal'
 import { SubtitleEditModal } from '@/components/video/SubtitleEditModal'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { IconDots } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations, useVideoPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
-import { formatDateTime, formatSize, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface DetailSearch {
   season: number
@@ -84,7 +85,6 @@ export function VideoDetailView({
   const [moving, setMoving] = useState<{ mediaId: string; name: string } | null>(null)
   const [subProgress, setSubProgress] = useState(0)
   const [subBusy, setSubBusy] = useState(false)
-  const subInputRef = useRef<HTMLInputElement>(null)
   const [moveSeason, setMoveSeason] = useState<number>(season)
   // 移动目标不限于当前影片：先搜到目标影片，再选季/集（电影直接落到影片级）
   const [moveVideo, setMoveVideo] = useState<{ id: number; title: string; type: 'movie' | 'tv' } | null>(null)
@@ -323,138 +323,51 @@ export function VideoDetailView({
         )}
 
         <div className="detail-col">
-          <article className="card">
-            <CardHead title="资源">
-              {currentEpisode && !isMovie ? (
-                <span className="muted text-xs">
-                  {currentEpisode.episode_title}
-                </span>
-              ) : null}
-            </CardHead>
+          <VideoMedias
+            rows={(media.data ?? []) as unknown as Array<Record<string, unknown>>}
+            error={media.error}
+            loading={!episodeReady || media.isLoading}
+            onRetry={() => media.refetch()}
+            canEdit={caps.isAdmin}
+            onEdit={(target) => setRenaming(target)}
+            isMovie={isMovie}
+            episodeTitle={currentEpisode?.episode_title}
+          />
 
-            {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
-            {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
-            {!episodeReady ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-            {!media.error && media.data && media.data.length === 0 ? <EmptyBlock bare title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'} hint="去上传页把文件入库到这里。" /> : null}
-
-            {media.data && media.data.length > 0 ? (
-              <table className="table table--inset">
-                <thead>
-                  <tr>
-                    <th>资源名</th>
-                    <th className="num" style={{ width: 92 }}>大小</th>
-                    <th style={{ width: 96 }}>上传者</th>
-                    <th style={{ width: 48 }} />
-                  </tr>
-                </thead>
-                <tbody>
-                  {media.data.map((row) => {
-                    const mediaId = String(row.media_id ?? '')
-                    return (
-                      <tr key={mediaId}>
-                        <td>
-              <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
-                        </td>
-                        <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
-                        <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                        <td>
-              {row.is_self_upload || caps.isAdmin ? (
-              <button type="button"
-              className="row-menu"
-              aria-label="编辑资源"
-              onClick={() => setRenaming({ mediaId, name: String(row.media_name ?? ''), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}
-              >
-              <IconDots />
-              </button>
-              ) : null}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            ) : null}
-          </article>
-
-          <article className="card">
-            <CardHead title="字幕">
-              <button type="button" className="btn btn--quiet" disabled={subBusy} onClick={() => subInputRef.current?.click()}>
-                {subBusy ? `上传中 ${Math.round(subProgress * 100)}%` : '上传字幕'}
-              </button>
-              <input
-                ref={subInputRef}
-                type="file"
-                accept=".srt,.ass,.ssa,.vtt,text/plain"
-                hidden
-                disabled={subBusy}
-                onChange={async (event) => {
-                  const file = event.target.files?.[0]
-                  event.target.value = ''
-                  // 电影没有季集，字幕挂影片级（vl）；剧集挂当前这一集（ve）
-                  const target = isMovie
-                    ? { item_type: 'vl', item_id: videoId }
-                    : currentEpisode
-                      ? { item_type: 've', item_id: currentEpisode.episode_id }
-                      : null
-                  if (!file) return
-                  if (!target) {
-                    toast('还没选中具体某一集', 'error')
-                    return
-                  }
-                  setSubBusy(true)
-                  setSubProgress(0)
-                  try {
-                    await uploadSubtitle(file, target, setSubProgress)
-                    toast('字幕已上传', 'success')
-                    void subtitles.refetch()
-                  } catch (error) {
-                    toast(error instanceof Error ? error.message : '上传失败', 'error')
-                  } finally {
-                    setSubBusy(false)
-                    setSubProgress(0)
-                  }
-                }}
-              />
-            </CardHead>
-            {subtitles.error ? <ErrorBlock bare error={subtitles.error} onRetry={() => subtitles.refetch()} /> : null}
-            {!episodeReady ? <LoadingBlock bare rows={2} columns={3} /> : null}
-            {!subtitles.error && subtitles.data && subtitles.data.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
-            {subtitles.data && subtitles.data.length > 0 ? (
-              <table className="table table--inset">
-                <thead>
-                  <tr>
-                    <th>字幕</th>
-                    <th style={{ width: 70 }}>格式</th>
-                    <th style={{ width: 96 }}>上传者</th>
-                    <th style={{ width: 48 }} />
-                  </tr>
-                </thead>
-                <tbody>
-                  {subtitles.data.map((row) => {
-                    const id = String(row.subtitle_id)
-                    return (
-                      <tr key={id}>
-                        <td>
-              <span className="cell-title__name">{String(row.subtitle_title)}</span>
-              <span className="cell-title__code">{formatDateTime(String(row.created_at))}</span>
-                        </td>
-                        <td className="muted">{String(row.subtitle_codec)}</td>
-                        <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
-                        <td>
-              {row.is_self_upload || caps.isAdmin ? (
-              <button type="button" className="row-menu" aria-label="编辑字幕" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
-              <IconDots />
-              </button>
-              ) : null}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            ) : null}
-          </article>
+          <VideoSubtitles
+            rows={(subtitles.data ?? []) as unknown as SubtitleRow[]}
+            error={subtitles.error}
+            loading={!episodeReady || subtitles.isLoading}
+            onRetry={() => subtitles.refetch()}
+            canEdit={caps.isAdmin}
+            onEdit={(row) => setRenamingSub(row)}
+            uploading={subBusy}
+            progress={subProgress}
+            onUpload={async (file) => {
+              // 电影没有季集，字幕挂影片级（vl）；剧集挂当前这一集（ve）
+              const target = isMovie
+                ? { item_type: 'vl', item_id: videoId }
+                : currentEpisode
+                  ? { item_type: 've', item_id: currentEpisode.episode_id }
+                  : null
+              if (!target) {
+                toast('还没选中具体某一集', 'error')
+                return
+              }
+              setSubBusy(true)
+              setSubProgress(0)
+              try {
+                await uploadSubtitle(file, target, setSubProgress)
+                toast('字幕已上传', 'success')
+                void subtitles.refetch()
+              } catch (error) {
+                toast(error instanceof Error ? error.message : '上传失败', 'error')
+              } finally {
+                setSubBusy(false)
+                setSubProgress(0)
+              }
+            }}
+          />
         </div>
       </div>
 
