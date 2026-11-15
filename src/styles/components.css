@@ -2321,6 +2321,17 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
   /* 分页器的上一页/下一页 28×34，手机上偏小 */
   .pager button { min-height: 36px; min-width: 36px; }
+  /* 卡片里的排序输入：表格里是「隐形」的单元格输入，卡片里要看得出来能编辑 */
+  .record-card .input--cell {
+    width: 72px;
+    height: 30px;
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--r-chip, 8px);
+    text-align: right;
+  }
+  .record-card .remark-btn { height: 30px; }
+
   /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
      卡头高度也随之放宽，避免文字挤在一起 */
   .card-head { min-height: 32px; height: auto; }

@@ -263,10 +263,14 @@ export function WatchlistDetailView({
                 thClass: 'th-thumb',
                 thWidth: '44%',
                 mobile: 'primary',
-                render: (video) => (
+                render: (video, { mobile }) => (
                   <div className="cell-title">
                     {video.video_image_poster ? (
-                      <Poster src={video.video_image_poster} name={String(video.video_title ?? '?')} />
+                      <Poster
+                        src={video.video_image_poster}
+                        name={String(video.video_title ?? '?')}
+                        collapseOnEmpty={mobile}
+                      />
                     ) : (
                       <span className="thumb">{video.video_title.slice(0, 1)}</span>
                     )}
@@ -300,8 +304,8 @@ export function WatchlistDetailView({
                 label: '排序',
                 thClass: 'num',
                 thWidth: '12%',
-                // 排序是可编辑字段，手机上不能藏
-                mobile: 'block',
+                // 排序是可编辑字段：手机上用带字段名的一行，右侧是输入框
+                mobile: 'row',
                 render: (video) =>
                   item?.is_edit_video ? (
                     <InlineSortInput
@@ -322,12 +326,12 @@ export function WatchlistDetailView({
                 key: 'remark',
                 label: '备注',
                 thWidth: item?.is_edit_video ? '18%' : '32%',
-                mobile: 'block',
+                mobile: item?.is_edit_video ? 'row' : 'row',
                 render: (video) =>
                   item?.is_edit_video ? (
                     <button
                       type="button"
-                      className="btn btn--quiet"
+                      className="btn btn--ghost remark-btn"
                       onClick={() =>
                         setRemarkFor({
                           videoId: video.video_id,
@@ -336,7 +340,7 @@ export function WatchlistDetailView({
                         })
                       }
                     >
-                      {video.remark ? `备注：${video.remark}` : '添加备注'}
+                      {video.remark || '添加备注'}
                     </button>
                   ) : (
                     <span className="muted">{video.remark ?? '—'}</span>
