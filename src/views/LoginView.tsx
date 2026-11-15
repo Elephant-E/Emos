@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { sessionApi } from '@/api/endpoints'
+import { setToken as persistToken } from '@/api/client'
 import { LOGIN_POSTERS } from '@/views/login-posters'
 
 
@@ -41,7 +42,9 @@ export function LoginView({ onDone }: { onDone: () => void }) {
     setMessage('')
     try {
       await sessionApi.check(trimmed)
-      setToken(trimmed)
+      // 必须落到 localStorage：路由守卫读的是 getToken()，
+      // 只改组件内的输入值会在跳转时被判成「未登录」而弹回登录页。
+      persistToken(trimmed)
       onDone()
     } catch (error) {
       const status = (error as { status?: number }).status
