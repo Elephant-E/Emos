@@ -37,6 +37,8 @@ export interface RecordGridProps<T> {
   meta?: (row: T) => ReactNode
   /** 第三行：日期、作者等更弱的信息 */
   sub?: (row: T) => ReactNode
+  /** 封面右上角的角标（数量这类信息放图上，不占文字行） */
+  badges?: (row: T) => ReactNode
 }
 
 export function RecordGrid<T>({
@@ -49,6 +51,7 @@ export function RecordGrid<T>({
   time,
   meta,
   sub,
+  badges,
 }: RecordGridProps<T>) {
   return (
     <div className={`record-grid record-grid--${shape}`}>
@@ -85,6 +88,7 @@ export function RecordGrid<T>({
                */
               <div className={`record-tile__media record-tile__media--${shape}`}>
                 <Poster src={poster(row)} shape={shape} className="record-tile__poster" collapseOnEmpty />
+                {badges ? <div className="record-tile__badges">{badges(row)}</div> : null}
               </div>
             ) : null}
             <div className="record-tile__body">

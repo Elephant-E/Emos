@@ -2411,6 +2411,27 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 /* 悬停只提亮图片本身，不加边框、不位移 */
 .record-tile.is-clickable:hover .record-tile__poster { opacity: 0.86; }
+.record-tile__badges {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  display: flex;
+  gap: var(--sp-1);
+  pointer-events: none;
+}
+.record-tile__badges > * {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-chip, 6px);
+  background: rgba(12, 14, 17, 0.72);
+  backdrop-filter: blur(6px);
+  color: var(--fg-2);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .record-tile.is-clickable:hover .record-tile__media { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); }
 
 .record-tile__body {
