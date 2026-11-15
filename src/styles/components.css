@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: var(--rail-w) minmax(0, 1fr);
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 .rail {
@@ -710,6 +711,7 @@ input.input[type='number'] { min-width: 0; }
 .field textarea.input { height: 76px; padding: var(--sp-2); resize: vertical; line-height: 1.6; }
 
 .switch {
+  min-height: 36px;
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
@@ -878,7 +880,7 @@ input.input[type='number'] { min-width: 0; }
   max-height: calc(100vh - var(--pad-card) * 2);
   overflow: auto;
   animation: modal-in var(--t-enter) var(--ease);
-  width: 424px;
+  width: min(424px, calc(100vw - 32px));
   border-radius: var(--r-card);
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--raised), var(--card-bottom));
@@ -1240,6 +1242,7 @@ input.input[type='number'] { min-width: 0; }
 
 .stat__word--sm { font-size: 20px; }
 
+.stat__word.stat__word--sm,
 .stat__word {
   font-size: 24px;
   font-weight: 500;
@@ -1582,7 +1585,7 @@ input.input[type='number'] { min-width: 0; }
   display: grid;
   gap: var(--sp-4);
   justify-items: stretch;
-  width: 380px;
+  width: min(380px, 100%);
   align-self: center;
 }
 
@@ -2171,6 +2174,10 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail {
     position: fixed;
     inset: 52px 0 auto;
+    /* 面板高度=内容高度，但要封顶并留出底部 96px 遮罩可点区域：
+       否则 18 个入口里靠后的几个既滚不到、也点不到遮罩关闭 */
+    max-height: calc(100vh - 148px);
+    max-height: calc(100dvh - 148px);
     width: auto;
     z-index: calc(var(--z-modal) - 1);
     background: var(--panel);
@@ -2717,6 +2724,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__actions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: var(--sp-2);
   margin-top: var(--sp-1);
   grid-column: 1 / -1;
