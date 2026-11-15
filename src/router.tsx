@@ -27,7 +27,19 @@ import { RankView } from '@/views/RankView'
 import { LotteryView } from '@/views/LotteryView'
 import { VoteView } from '@/views/VoteView'
 import { USE_MOCK, getToken } from '@/api/client'
-import type { VideoType } from '@/api/types'
+import type { LibrarySearch } from '@/views/LibraryView'
+import type { DetailSearch } from '@/views/VideoDetailView'
+import type { OrdersSearch } from '@/views/OrdersView'
+import type { LiveSearch } from '@/views/LiveView'
+import type { RecycleSearch } from '@/views/RecycleView'
+import type { MusicSearch } from '@/views/MusicView'
+import type { RedPacketSearch } from '@/views/RedPacketView'
+import type { RankSearch } from '@/views/RankView'
+import type { LotterySearch } from '@/views/LotteryView'
+import type { VoteSearch } from '@/views/VoteView'
+import type { WhisperSearch } from '@/views/WhisperView'
+import type { SeekSearch } from '@/views/SeekView'
+import type { WatchSearch } from '@/views/WatchlistsView'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -74,7 +86,7 @@ const uploadRoute = createRoute({ getParentRoute: () => appLayout, path: '/uploa
 const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/library',
-  validateSearch: (s: Record<string, unknown>): { page: number; page_size: number; q: string; type: '' | VideoType } => ({
+  validateSearch: (s: Record<string, unknown>): LibrarySearch => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     q: asString(s.q),
@@ -92,7 +104,7 @@ function LibraryRoute() {
 const videoDetailRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/media/$videoId',
-  validateSearch: (s: Record<string, unknown>): { season: number; episode: number } => ({
+  validateSearch: (s: Record<string, unknown>): DetailSearch => ({
     season: asPage(s.season),
     episode: asPage(s.episode),
   }),
@@ -183,14 +195,7 @@ function ShopRoute() {
 const ordersRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/orders',
-  validateSearch: (s: Record<string, unknown>): {
-    page: number
-    page_size: number
-    pay: 'all' | 'paid' | 'unpaid'
-    delivery: 'all' | 'sent' | 'pending'
-    q: string
-    scope: 'mine' | 'shop'
-  } => ({
+  validateSearch: (s: Record<string, unknown>): OrdersSearch => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
@@ -210,7 +215,7 @@ function OrdersRoute() {
 const liveRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/live',
-  validateSearch: (s: Record<string, unknown>): { page: number; library: number; channel: number } => ({
+  validateSearch: (s: Record<string, unknown>): LiveSearch => ({
     page: asPage(s.page),
     library: Number(s.library) || 0,
     channel: Number(s.channel) || 0,
@@ -244,7 +249,7 @@ function LinesRoute() {
 const recycleRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/recycle',
-  validateSearch: (s: Record<string, unknown>): { tab: 'media' | 'video'; page: number; page_size: number; q: string; by: 'media_id' | 'user_id' } => ({
+  validateSearch: (s: Record<string, unknown>): RecycleSearch => ({
     tab: s.tab === 'video' ? 'video' : 'media',
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
@@ -275,14 +280,7 @@ function RecycleRoute() {
 const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
-  validateSearch: (s: Record<string, unknown>): {
-    page: number
-    page_size: number
-    tab: 'songs' | 'albums' | 'persons'
-    q: string
-    /** songs tab 的过滤：空 / 无资源 / 我收藏的 */
-    filter: '' | 'no_media' | 'favorite'
-  } => ({
+  validateSearch: (s: Record<string, unknown>): MusicSearch => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
@@ -346,7 +344,7 @@ function FundRoute() {
 const redPacketRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/redpacket',
-  validateSearch: (s: Record<string, unknown>): { tab: 'send' | 'records'; id: string; page: number; page_size: number } => ({
+  validateSearch: (s: Record<string, unknown>): RedPacketSearch => ({
     tab: s.tab === 'records' ? 'records' : 'send',
     id: asString(s.id),
     page: asPage(s.page),
@@ -364,7 +362,7 @@ function RedPacketRoute() {
 const rankRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/rank',
-  validateSearch: (s: Record<string, unknown>): { tab: 'carrot' | 'upload' | 'sign' | 'playing' | 'live' } => ({
+  validateSearch: (s: Record<string, unknown>): RankSearch => ({
     tab: s.tab === 'upload' || s.tab === 'sign' || s.tab === 'playing' || s.tab === 'live' ? s.tab : 'carrot',
   }),
   component: RankRoute,
@@ -379,7 +377,7 @@ function RankRoute() {
 const lotteryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/lottery',
-  validateSearch: (s: Record<string, unknown>): { tab: 'create' | 'winners'; id: string } => ({
+  validateSearch: (s: Record<string, unknown>): LotterySearch => ({
     tab: s.tab === 'winners' ? 'winners' : 'create',
     id: asString(s.id),
   }),
@@ -395,7 +393,7 @@ function LotteryRoute() {
 const voteRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/vote',
-  validateSearch: (s: Record<string, unknown>): { tab: 'create' | 'result'; id: string } => ({
+  validateSearch: (s: Record<string, unknown>): VoteSearch => ({
     tab: s.tab === 'result' ? 'result' : 'create',
     id: asString(s.id),
   }),
@@ -411,7 +409,7 @@ function VoteRoute() {
 const whisperRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/whisper',
-  validateSearch: (s: Record<string, unknown>): { tab: 'receiver' | 'sender' } => ({
+  validateSearch: (s: Record<string, unknown>): WhisperSearch => ({
     tab: s.tab === 'sender' ? 'sender' : 'receiver',
   }),
   component: WhisperRoute,
@@ -439,14 +437,7 @@ function UserRoute() {
 const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
-  validateSearch: (s: Record<string, unknown>): {
-    page: number
-    page_size: number
-    tab: 'all' | 'default' | 'upload' | 'complete'
-    q: string
-    type: '' | 'movie' | 'tv'
-    mine: boolean
-  } => ({
+  validateSearch: (s: Record<string, unknown>): SeekSearch => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
@@ -466,12 +457,7 @@ function SeekRoute() {
 const watchlistsRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists',
-  validateSearch: (s: Record<string, unknown>): {
-    page: number
-    page_size: number
-    scope: 'all' | 'self' | 'subscribed'
-    q: string
-  } => ({
+  validateSearch: (s: Record<string, unknown>): WatchSearch => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',

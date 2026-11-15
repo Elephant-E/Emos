@@ -16,7 +16,7 @@ const TABS = [
   { key: 'result' as const, label: '查看结果' },
 ]
 
-export type VoteTab = (typeof TABS)[number]['key']
+type VoteTab = (typeof TABS)[number]['key']
 
 export interface VoteSearch {
   tab: VoteTab

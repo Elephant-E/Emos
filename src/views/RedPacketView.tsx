@@ -20,7 +20,7 @@ const TABS = [
   { key: 'records' as const, label: '领取记录' },
 ]
 
-export type RedPacketTab = 'send' | 'records'
+type RedPacketTab = 'send' | 'records'
 
 export interface RedPacketSearch {
   tab: RedPacketTab

@@ -129,7 +129,7 @@ export function duration(seconds: number | null | undefined): string {
 }
 
 /** 两位补零：集号、季号在多处要用（S01E03 这种） */
-export function pad2(n: number): string {
+function pad2(n: number): string {
   return String(Math.max(0, Math.trunc(n))).padStart(2, '0')
 }
 

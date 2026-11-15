@@ -15,7 +15,7 @@ const TABS = [
   { key: 'live' as const, label: '直播' },
 ]
 
-export type RankTab = (typeof TABS)[number]['key']
+type RankTab = (typeof TABS)[number]['key']
 
 export interface RankSearch {
   tab: RankTab

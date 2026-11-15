@@ -12,6 +12,14 @@ import {formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE
 
 type Tab = 'media' | 'video'
 
+export interface RecycleSearch {
+  tab: 'media' | 'video'
+  page: number
+  page_size: number
+  q: string
+  by: 'media_id' | 'user_id'
+}
+
 const RECYCLE_TABS = [
   { key: 'media', label: '资源' },
   { key: 'video', label: '影片' },

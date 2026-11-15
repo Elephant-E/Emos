@@ -34,6 +34,10 @@ function useWhispers(tab: 'receiver' | 'sender') {
   })
 }
 
+export interface WhisperSearch {
+  tab: 'receiver' | 'sender'
+}
+
 const WHISPER_TABS = [
   { key: 'receiver', label: '收到的' },
   { key: 'sender', label: '发出的' },

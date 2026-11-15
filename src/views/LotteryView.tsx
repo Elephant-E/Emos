@@ -19,7 +19,7 @@ const TABS = [
   { key: 'winners' as const, label: '中奖名单' },
 ]
 
-export type LotteryTab = (typeof TABS)[number]['key']
+type LotteryTab = (typeof TABS)[number]['key']
 
 export interface LotterySearch {
   tab: LotteryTab
