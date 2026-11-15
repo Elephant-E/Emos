@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
+import { SubscribersModal } from '@/components/watchlist/SubscribersModal'
+import { RemarkModal } from '@/components/watchlist/RemarkModal'
 import { DynamicFetchModal } from '@/components/watchlist/DynamicFetchModal'
 import { WatchlistHead } from '@/components/watchlist/WatchlistHead'
 import { InlineSortInput } from '@/components/InlineSortInput'
-import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
-import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { PickList } from '@/components/PickList'
 import { WatchlistForm } from '@/components/WatchlistForm'
@@ -48,13 +48,7 @@ export function WatchlistDetailView({
   const [maintainerIds, setMaintainerIds] = useState<string[]>([])
   // 订阅用户与清空：都是片单主才有的操作
   const [subsOpen, setSubsOpen] = useState(false)
-  const [subsPage, setSubsPage] = useState(1)
   // 上游这个接口固定 15 条/页（传 20 也回 15），页码按响应的 page_size 算
-  const subs = useQuery({
-    queryKey: ['watch', 'subscribers', watchId, subsPage] as const,
-    queryFn: () => watchApi.subscribers(watchId, { page: subsPage, page_size: 15 }),
-    enabled: subsOpen,
-  })
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
@@ -212,10 +206,7 @@ export function WatchlistDetailView({
           countLabel={isMusic ? '首' : '影片'}
           onSubscribers={
             item.is_self
-              ? () => {
-                  setSubsPage(1)
-                  setSubsOpen(true)
-                }
+              ? () => setSubsOpen(true)
               : undefined
           }
         />
@@ -430,46 +421,8 @@ export function WatchlistDetailView({
 
 
 
-      {subsOpen ? (
-        <Modal
-          title={`订阅用户 · ${item?.name ?? ''}`}
-          width={520}
-          onClose={() => setSubsOpen(false)}
-          footer={
-            <button type="button" className="btn btn--ghost" onClick={() => setSubsOpen(false)}>
-              关闭
-            </button>
-          }
-        >
-          {subs.error ? <ErrorBlock bare error={subs.error} onRetry={() => subs.refetch()} /> : null}
-          {subs.isLoading ? <LoadingBlock bare rows={4} columns={4} /> : null}
-          {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? <EmptyBlock bare title="还没有人订阅" /> : null}
-          {(subs.data?.items.length ?? 0) > 0 ? (
-            <table className="table table--inset">
-              <thead>
-                <tr>
-                  <th className="th-thumb">用户</th>
-                  <th className="num" style={{ width: 90 }}>付费</th>
-                  <th style={{ width: 110 }}>到期</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(subs.data?.items ?? []).map((row, index) => (
-                  <tr key={`${row.username}-${index}`}>
-                    <td>
-                      <UserCell name={row.username} avatar={row.avatar} />
-                    </td>
-                    <td className="num muted">{row.carrot ? formatThousand(row.carrot) : '—'}</td>
-                    <td className="muted">{row.expiration_date ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-          {subs.data ? (
-            <Pager total={subs.data.total} page={subsPage} pageSize={subs.data.page_size} onPage={setSubsPage} />
-          ) : null}
-        </Modal>
+      {subsOpen && item ? (
+        <SubscribersModal watchId={watchId} watchName={String(item.name ?? '')} onClose={() => setSubsOpen(false)} />
       ) : null}
 
       {maintainerOpen && item ? (
@@ -508,44 +461,28 @@ export function WatchlistDetailView({
       ) : null}
 
       {remarkFor ? (
-        <Modal
-          title={`备注 · ${remarkFor.title}`}
+        <RemarkModal
+          title={remarkFor.title}
+          current={remarkFor.remark}
+          pending={updateVideoEntry.isPending}
           onClose={() => setRemarkFor(null)}
-          footer={
-            <ModalFooter
-              onCancel={() => setRemarkFor(null)}
-              onConfirm={() =>
-                                  updateVideoEntry.mutate(
-                                    {
-                                      videoId: remarkFor.videoId,
-                                      // sort 取当前列表的值，而不是弹窗打开那一刻的值
-                                      sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
-                                      remark: remarkFor.remark.trim() || null,
-                                    },
-                                    {
-                                      onSuccess: () => {
-                                          toast('已保存', 'success')
-                                          setRemarkFor(null)
-                                      },
-                                    },
-                                  )}
-              confirmText="保存"
-              pending={updateVideoEntry.isPending}
-              disabled={updateVideoEntry.isPending}
-            />
+          onSave={(remark) =>
+            updateVideoEntry.mutate(
+              {
+                videoId: remarkFor.videoId,
+                // sort 取当前列表的值，而不是弹窗打开那一刻的值
+                sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
+                remark: remark || null,
+              },
+              {
+                onSuccess: () => {
+                  toast('已保存', 'success')
+                  setRemarkFor(null)
+                },
+              },
+            )
           }
-        >
-          <label className="field">
-            <span>备注（只有自己看得到）</span>
-            <textarea
-              className="input"
-              style={{ minHeight: 90 }}
-              value={remarkFor.remark}
-              onChange={(e) => setRemarkFor({ ...remarkFor, remark: e.target.value })}
-              autoFocus
-            />
-          </label>
-        </Modal>
+        />
       ) : null}
 
       {editing && item ? (

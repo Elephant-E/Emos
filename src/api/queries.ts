@@ -28,6 +28,7 @@ export const qk = {
   watches: ['watches'] as const,
   watchesPage: (p: object) => ['watches', p] as const,
   watchVideos: (id: number, p: Record<string, unknown>) => ['watch', id, 'videos', p] as const,
+  watchSubscribers: (id: number, page: number) => ['watch', id, 'subscribers', page] as const,
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 
   music: ['music'] as const,
@@ -351,6 +352,15 @@ export function useWatchMusicSearch(watchId: number, title: string) {
     queryKey: ['watch', watchId, 'musicSearch', title] as const,
     queryFn: () => watchApi.searchMusic(watchId, { song_name: title, page_size: 8 }),
     enabled: title.trim().length > 0,
+  })
+}
+
+/** 片单订阅用户（片单主可见） */
+export function useWatchSubscribers(watchId: number, page: number, enabled: boolean) {
+  return useQuery({
+    queryKey: qk.watchSubscribers(watchId, page),
+    queryFn: () => watchApi.subscribers(watchId, { page, page_size: 15 }),
+    enabled,
   })
 }
 
