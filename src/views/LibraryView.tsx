@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordGrid } from '@/components/RecordGrid'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { fetchVideoPage, useVideoPage } from '@/api/queries'
@@ -133,91 +132,23 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           )
         }
       >
-          <RecordList
+          <RecordGrid
             rows={items}
-            idKey={(v) => v.video_id}
-            onOpen={(v) => openDetail(v.video_id)}
-            columns={[
-              {
-                key: 'title',
-                label: '片名',
-                thClass: 'th-thumb',
-                mobile: 'primary',
-                render: (video, { mobile }) => (
-                  <div className="cell-title">
-                    {mobile ? (
-                      // 卡片里缺图不占位（表格里必须占位，否则标题起点会跳）
-                      <Poster src={video.video_image_poster} name={video.video_title} collapseOnEmpty />
-                    ) : video.video_image_poster ? (
-                      <Poster src={video.video_image_poster} name={video.video_title} />
-                    ) : (
-                      <span className="thumb">{video.video_title.slice(0, 1)}</span>
-                    )}
-                    <span>
-                      <span className="cell-title__name">{video.video_title}</span>
-                      {(() => {
-                        const genres = video.genres ?? []
-                        const sub = [
-                          video.video_origin_title,
-                          genres.length ? genres.slice(0, 2).map((g) => g.name).join('/') : null,
-                        ].filter(Boolean)
-                        return sub.length ? <span className="cell-title__code">{sub.join(' · ')}</span> : null
-                      })()}
-                    </span>
-                  </div>
-                ),
-              },
-              {
-                key: 'type',
-                label: '类型',
-                mobileLabel: null,
-                mobile: 'inline',
-                render: (video) => (
-                  <span className="zone">
-                    <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                    {VIDEO_TYPE_LABEL[video.video_type]}
-                  </span>
-                ),
-              },
-              {
-                key: 'medias',
-                label: '资源',
-                mobileLabel: null,
-                thClass: 'num',
-                mobile: 'inline',
-                render: (video, { mobile }) =>
-                  mobile ? (
-                    <>{video.medias_count} 个资源</>
-                  ) : (
-                    <>
-                      {video.medias_count} 个 · 字幕 {video.subtitles_count}
-                    </>
-                  ),
-              },
-              {
-                key: 'requests',
-                label: '求片',
-                mobileLabel: null,
-                thClass: 'num',
-                mobile: 'inline',
-                render: (video, { mobile }) =>
-                  video.request_count > 0 ? (
-                    <span className="badge badge--wait">
-                      <i />
-                      {video.request_count} 人求
-                    </span>
-                  ) : mobile ? null : (
-                    <span className="muted">—</span>
-                  ),
-              },
-              {
-                key: 'air',
-                label: '上映',
-                mobileLabel: null,
-                thClass: 'num',
-                render: (video) => <span className="muted">{video.video_date_air ?? '—'}</span>,
-              },
-            ]}
+            idKey={(video) => video.video_id}
+            onOpen={(video) => openDetail(video.video_id)}
+            poster={(video) => video.video_image_poster}
+            title={(video) => video.video_title}
+            meta={(video) => (
+              <>
+                <span className="zone">
+                  <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
+                  {VIDEO_TYPE_LABEL[video.video_type]}
+                </span>
+                {video.medias_count > 0 ? <span> · {video.medias_count} 个资源</span> : null}
+                {video.request_count > 0 ? <span> · {video.request_count} 人求</span> : null}
+              </>
+            )}
+            sub={(video) => <>{video.video_date_air ?? '—'} 上映</>}
           />
       </ListSection>
     </>

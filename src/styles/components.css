@@ -2370,6 +2370,71 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   to { height: 0; opacity: 0.5; }
 }
 
+/* ── 图片型列表：一套网格，两端只差列数 ────────────────────── */
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-card);
+}
+@media (max-width: 1240px) {
+  .record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--stack); }
+}
+.record-tile {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  overflow: hidden;
+  transition: border-color var(--t-fast) var(--ease);
+}
+.record-tile.is-clickable { cursor: pointer; }
+.record-tile.is-clickable:hover { border-color: var(--line-hot); }
+.record-tile__poster,
+.record-tile__poster.poster-img--wide {
+  /* 表格里的 44×25 缩略图尺寸在这里要放开：卡片顶部按 16:9 铺满 */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+  object-fit: cover;
+}
+.record-tile__body {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-3);
+  min-width: 0;
+}
+.record-tile__title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.record-tile__meta,
+.record-tile__sub {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--fg-4);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.record-tile__meta { color: var(--fg-3); }
+.record-tile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
+}
+
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
 /* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。
    用 :has 统一兜住还没接 ListSection cardList 的页面 */
