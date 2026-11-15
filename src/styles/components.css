@@ -2125,36 +2125,45 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
    导航收成抽屉：内容区拿到完整宽度；汉堡在页头左侧，点遮罩或选完入口自动收起 */
 @media (max-width: 600px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
+  /* 展开的是顶栏本身：面板整宽从顶栏下沿展开，不是侧边抽屉 */
   .rail {
     position: fixed;
-    inset: 0 auto 0 0;
-    width: min(280px, 82vw);
-    z-index: var(--z-modal);
-    transform: translateX(-100%);
-    transition: transform var(--t-enter) var(--ease);
-    padding: var(--sp-4) var(--sp-4) var(--sp-5);
+    inset: 52px 0 auto;
+    width: auto;
+    max-height: calc(100vh - 52px);
+    z-index: calc(var(--z-modal) - 1);
+    background: var(--panel);
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    overflow-y: auto;
+    padding: var(--sp-3) var(--sp-4) var(--sp-4);
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+    transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
   }
-  .rail.is-open { transform: none; }
+  .rail.is-open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
   .shell__scrim {
     position: fixed;
-    inset: 0;
-    z-index: calc(var(--z-modal) - 1);
+    inset: 52px 0 0;
+    z-index: calc(var(--z-modal) - 2);
     border: 0;
     padding: 0;
-    background: rgba(0, 0, 0, 0.62);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
     cursor: pointer;
   }
-  /* 抽屉展开时宽度够用：品牌与文字恢复显示 */
-  .rail__brand { justify-content: flex-start; }
-  .rail__brand-name span,
-  .rail__brand-name em,
-  .rail__label,
-  .rail__account-name,
+  /* 品牌与账号都在顶栏上了，面板里不再重复 */
+  .rail__brand,
+  .rail__foot { display: none; }
+  /* 面板整宽展开，导航项要带文字（≤900 那档为了图标栏把文字藏了） */
   .rail__item > span:not(.rail__ico) { display: initial; }
   .rail__label { display: block; }
   .rail__item { justify-content: flex-start; height: 40px; }
-  .rail__foot { justify-content: flex-start; }
   .rail__search { display: flex; }
 
   .topbar {
