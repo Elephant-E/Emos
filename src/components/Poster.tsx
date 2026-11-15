@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react'
+import { sizedImage, type ImageSize } from '@/lib/image'
 
 /**
  * 图片位。三种比例按数据本身的形状来，不强行统一成长方形：
@@ -16,6 +17,7 @@ export function Poster({
   className,
   style,
   collapseOnEmpty = false,
+  size = 'thumb',
 }: {
   src?: string | null
   /** 保留字段：调用方仍在传（原先用于首字兜底），现在不再渲染文字 */
@@ -25,10 +27,15 @@ export function Poster({
   style?: CSSProperties
   /** 卡片等自由布局：没有图就完全不占位（表格里必须占位，否则标题会跳） */
   collapseOnEmpty?: boolean
+  /**
+   * 需要多大：thumb 给表格缩略图（w185）、card 给网格卡片（w500）、
+   * hero 给详情页大图（original）。只影响 TMDB 图床，其它地址原样用。
+   */
+  size?: ImageSize
 }) {
   const [failed, setFailed] = useState(false)
   const [loaded, setLoaded] = useState(false)
-  const url = src?.trim()
+  const url = sizedImage(src?.trim(), size)
   // 同一个位置换了图片（切店铺、切分类、列表复用 DOM）要重新尝试加载
   useEffect(() => {
     setFailed(false)

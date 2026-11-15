@@ -87,7 +87,7 @@ export function RecordGrid<T>({
                * 视觉上就是「右侧的年份没对齐」。
                */
               <div className={`record-tile__media record-tile__media--${shape}`}>
-                <Poster src={poster(row)} shape={shape} className="record-tile__poster" collapseOnEmpty />
+                <Poster src={poster(row)} shape={shape} className="record-tile__poster" size="card" collapseOnEmpty />
               </div>
             ) : null}
             <div className="record-tile__body">
