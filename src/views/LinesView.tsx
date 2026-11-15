@@ -1,9 +1,9 @@
 import { useState } from 'react'
+import { ListSection } from '@/components/ListSection'
 import { PageHeader } from '@/components/PageHeader'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
-import { Pager } from '@/components/Pager'
 import { useLineList, useLineMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -65,27 +65,26 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         </button>
       </div>
 
-      {lines.error ? <ErrorBlock error={lines.error} onRetry={() => lines.refetch()} /> : null}
-      {lines.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
-      {lines.data && lines.data.length === 0 ? <EmptyBlock title="还没有线路" /> : null}
-      {lines.data && lines.data.length > 0 && rows.length === 0 ? (
-        <EmptyBlock
-          title={`没有匹配「${search.q}」的线路`}
-          action={<ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />}
-        />
-      ) : null}
-      {/* 页码越界：有数据但这一页是空的，仍要渲染空态与回第一页入口 */}
-      {lines.data && rows.length > 0 && paged.length === 0 ? (
-        <EmptyBlock
-          title="这一页没有内容"
-          hint={`共 ${rows.length} 条，当前在第 ${search.page} 页`}
-          action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
-        />
-      ) : null}
-
-      {paged.length > 0 ? (
-        <div className="table-card">
-          <table className="table table--auto">
+      <ListSection
+        isLoading={lines.isLoading}
+        error={lines.error}
+        onRetry={() => lines.refetch()}
+        items={paged}
+        total={rows.length}
+        page={search.page}
+        pageSize={search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        sizes={[20, 50]}
+        idKey={(line) => line.id}
+        loadingRows={4}
+        loadingCols={4}
+        emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
+        emptyAction={
+          (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
+        }
+      >
+        <table className="table table--auto">
             <thead>
               <tr>
                 <th>名称</th>
@@ -138,20 +137,8 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
               ))}
             </tbody>
           </table>
-        </div>
-      ) : null}
+      </ListSection>
 
-      {/* 页码区独立于表格：越界时表格不渲染，但翻页与回第一页的入口要还在 */}
-      {rows.length > 0 ? (
-        <Pager
-          total={rows.length}
-          page={search.page}
-          pageSize={search.page_size}
-          sizes={[20, 50]}
-          onPage={(page) => onSearch({ page })}
-          onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-        />
-      ) : null}
 
       {creating ? (
         <Modal

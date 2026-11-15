@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { useAccountMutations, useBanList } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -56,12 +55,21 @@ export function UserSearchView() {
         </button>
       </div>
 
-      {bans.error ? <ErrorBlock error={bans.error} onRetry={() => bans.refetch()} /> : null}
-      {bans.isLoading ? <LoadingBlock rows={4} columns={3} /> : null}
-      {!bans.isLoading && !bans.error && rows.length === 0 ? <EmptyBlock title="没有封禁中的用户" /> : null}
-
-      {rows.length > 0 ? (
-        <ListCard items={rows} total={rows.length} idKey={(r) => r.user_id}>
+      <ListSection
+        isLoading={bans.isLoading}
+        error={bans.error}
+        onRetry={() => bans.refetch()}
+        items={rows}
+        total={rows.length}
+        page={1}
+        pageSize={rows.length || 20}
+        onPage={() => {}}
+        paginated={false}
+        idKey={(r) => r.user_id}
+        loadingRows={4}
+        loadingCols={3}
+        emptyTitle="没有封禁中的用户"
+      >
           <table className="table table--auto">
             <thead>
               <tr>
@@ -100,8 +108,7 @@ export function UserSearchView() {
               ))}
             </tbody>
           </table>
-        </ListCard>
-      ) : null}
+      </ListSection>
     </>
   )
 }

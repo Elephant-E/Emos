@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
 import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
-import { formatThousand } from '@/lib/format'
-import { Pager } from '@/components/Pager'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
@@ -47,15 +44,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
     title: numeric ? undefined : search.q || undefined,
     type: (search.type || undefined) as VideoType | undefined,
   })
-
-  // 分页器 props 只写一份：正常分支和「页码越界」分支共用，否则后者会漏掉每页条数
-  const pagerProps = {
-    total: data?.total ?? 0,
-    page: search.page,
-    pageSize: search.page_size,
-    onPage: (page: number) => onSearch({ page }),
-    onPageSize: (page_size: number) => onSearch({ page: 1, page_size }),
-  }
+  const items = data?.items ?? []
 
 
   return (
@@ -99,42 +88,36 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         </button>
       </div>
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
-      {!error && isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
-
-      {!error && !isLoading && data && data.items.length === 0 ? (
-        // 区分「真没有数据」和「页码越界」：后者总条数是有值的
-        data.total > 0 ? (
-          // 空态与分页器同属一张卡，两者都在卡内渲染
-          <div className="table-card">
-            <EmptyBlock
-              bare
-              title="这一页没有内容"
-              hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
-              action={<button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>回到第一页</button>}
-            />
-            <Pager {...pagerProps} />
-          </div>
-        ) : (
-          <EmptyBlock
-            title={search.q || search.type ? `没有找到匹配的影片` : '片库还是空的'}
-            action={
-              search.q || search.type ? (
-                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>
-                  清空筛选
-                </button>
-              ) : (
-                <Link to="/upload" className="btn btn--primary">
-                  上传
-                </Link>
-              )
-            }
-          />
-        )
-      ) : null}
-
-      {!error && !isLoading && data && data.items.length > 0 ? (
-        <ListCard items={data.items} total={data.total} idKey={(v) => v.video_id}>
+      <ListSection
+        isLoading={isLoading}
+        error={error}
+        onRetry={() => refetch()}
+        items={data?.items ?? []}
+        total={data?.total ?? 0}
+        page={search.page}
+        pageSize={data?.page_size ?? search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page: 1, page_size })}
+        sizes={[20, 50]}
+        idKey={(v) => v.video_id}
+        scope={`${search.type}-${search.q}`}
+        loadingRows={8}
+        loadingCols={5}
+        emptyTitle={
+          search.q || search.type ? '没有找到匹配的影片' : '片库还是空的'
+        }
+        emptyAction={
+          search.q || search.type ? (
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', type: '', page: 1 })}>
+              清空筛选
+            </button>
+          ) : (
+            <Link to="/upload" className="btn btn--primary">
+              上传
+            </Link>
+          )
+        }
+      >
           <table className="table table--auto">
             <thead>
               <tr>
@@ -146,7 +129,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               </tr>
             </thead>
             <tbody>
-              {data.items.map((video) => (
+              {items.map((video) => (
                 <tr key={video.video_id} {...rowLink(() => openDetail(video.video_id))}>
                   <td>
                     <div className="cell-title">
@@ -192,9 +175,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
               ))}
             </tbody>
           </table>
-          <Pager {...pagerProps} />
-        </ListCard>
-      ) : null}
+      </ListSection>
     </>
   )
 }
