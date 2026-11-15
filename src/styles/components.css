@@ -2370,6 +2370,12 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 600px) {
+  /* 详情头的统计块在手机上放不下四列：改成两列换行，不要溢出到卡片外 */
+  .detail-stats {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: var(--sp-3) var(--sp-5);
+  }
   .record-grid--poster,
   .record-grid--square { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -2593,6 +2599,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
 /* 信息块贴到列底：封面比文字高，让块与封面底边对齐，右侧不留空洞 */
 .record-row__extra { min-width: 0; grid-column: 1 / -1; }
+/* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
+.record-row .input--cell {
+  width: 72px;
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-item);
+  text-align: right;
+}
+/* 排序行：标签 + 输入框，独占一行放记录块下方 */
+.detail-sort { display: flex; align-items: center; gap: var(--sp-2); }
+.detail-sort__label { font-size: var(--text-xs); color: var(--fg-4); }
 /* 「求片记录」：标签左、值右的三行紧凑定义列表 */
 /* 底部动作：默认一行流式；--full 时等分成整行按钮 */
 .record-row__actions {
@@ -2617,6 +2635,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   font-size: var(--text-sm);
 }
 .record-row__extra { min-width: 0; grid-column: 1 / -1; }
+/* 行卡片里的排序输入：与卡片版一致，给出控件外观 */
+.record-row .input--cell {
+  width: 72px;
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-item);
+  text-align: right;
+}
+/* 排序行：标签 + 输入框，独占一行放记录块下方 */
+.detail-sort { display: flex; align-items: center; gap: var(--sp-2); }
+.detail-sort__label { font-size: var(--text-xs); color: var(--fg-4); }
 
 .seek-records { display: grid; gap: 2px; margin: 0; min-width: 0; }
 .seek-records > div {

@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
 import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
 import { MaintainerModal } from '@/components/watchlist/MaintainerModal'
@@ -13,7 +13,6 @@ import { DynamicFetchModal } from '@/components/watchlist/DynamicFetchModal'
 import { WatchlistHead } from '@/components/watchlist/WatchlistHead'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { WatchlistForm } from '@/components/WatchlistForm'
@@ -22,7 +21,7 @@ import { qk, useWatch, useWatchMusic, useWatchMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
-import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export function WatchlistDetailView({
@@ -254,71 +253,48 @@ export function WatchlistDetailView({
         onRetry={() => infinite.retry()}
         items={videoRows}
         total={infinite.total}
-        cardList
+        bare
+        loadingKind="rows"
+        loadingRows={6}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(v) => v.video_id}
         scope={search.q}
-        loadingRows={6}
-        loadingCols={4}
         emptyTitle="片单里还没有影片"
       >
-          <RecordList
-            rows={videoRows}
-            idKey={(video) => video.video_id}
-            className="table"
-            onOpen={(video) => openVideo(video.video_id)}
-            columns={[
-              {
-                key: 'video',
-                label: '影片',
-                thClass: 'th-thumb',
-                thWidth: '44%',
-                mobile: 'primary',
-                render: (video, { mobile }) => (
-                  <div className="cell-title">
-                    {video.video_image_poster ? (
-                      <Poster
-                        src={video.video_image_poster}
-                        name={String(video.video_title ?? '?')}
-                        collapseOnEmpty={mobile}
-                      />
-                    ) : (
-                      <span className="thumb">{video.video_title.slice(0, 1)}</span>
-                    )}
-                    <span>
-                      <span className="cell-title__name">{video.video_title}</span>
-                      <span className="cell-title__code">
-                        {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
-                      </span>
-                    </span>
-                  </div>
-                ),
-              },
-              {
-                key: 'type',
-                label: '类型',
-                thWidth: '12%',
-                mobile: 'inline',
-                mobileLabel: null,
-                render: (video) => (
-                  <span className="zone">
-                    <span
-                      className="rail__dot"
-                      style={{ color: VIDEO_TYPE_COLOR[video.video_type] }}
-                    />
-                    {VIDEO_TYPE_LABEL[video.video_type]}
-                  </span>
-                ),
-              },
-              {
-                key: 'sort',
-                label: '排序',
-                thClass: 'num',
-                thWidth: '12%',
-                // 排序是可编辑字段：手机上用带字段名的一行，右侧是输入框
-                mobile: 'row',
-                render: (video) =>
-                  item?.is_edit_video ? (
+        <RecordRow
+          rows={videoRows}
+          idKey={(video) => video.video_id}
+          onOpen={(video) => openVideo(video.video_id)}
+          poster={(video) => video.video_image_poster}
+          title={(video) => video.video_title}
+          meta={(video) => (
+            <>
+              <span className="chip">{VIDEO_TYPE_LABEL[video.video_type]}</span>
+              {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
+            </>
+          )}
+          facts={(video) =>
+            video.remark ? (
+              <span>备注：{video.remark}</span>
+            ) : item?.is_edit_video ? (
+              <button
+                type="button"
+                className="btn btn--quiet"
+                onClick={() =>
+                  setRemarkFor({ videoId: video.video_id, title: video.video_title, remark: video.remark ?? '' })
+                }
+              >
+                添加备注
+              </button>
+            ) : (
+              <span>无备注</span>
+            )
+          }
+          extra={
+            item?.is_edit_video
+              ? (video) => (
+                  <div className="detail-sort">
+                    <span className="detail-sort__label">排序</span>
                     <InlineSortInput
                       value={video.sort}
                       label={`${video.video_title} 的排序`}
@@ -329,45 +305,33 @@ export function WatchlistDetailView({
                         )
                       }
                     />
-                  ) : (
-                    <>{video.sort}</>
-                  ),
-              },
-              {
-                key: 'remark',
-                label: '备注',
-                thWidth: item?.is_edit_video ? '18%' : '32%',
-                mobile: item?.is_edit_video ? 'row' : 'row',
-                render: (video) =>
-                  item?.is_edit_video ? (
-                    <button
-                      type="button"
-                      className="btn btn--ghost remark-btn"
-                      onClick={() =>
-                        setRemarkFor({
-                          videoId: video.video_id,
-                          title: video.video_title,
-                          remark: video.remark ?? '',
-                        })
-                      }
-                    >
-                      {video.remark || '添加备注'}
-                    </button>
-                  ) : (
-                    <span className="muted">{video.remark ?? '—'}</span>
-                  ),
-              },
-              {
-                key: 'actions',
-                label: '操作',
-                thWidth: '1%',
-                mobile: 'block',
-                mobileAlign: 'end',
-                render: (video) =>
-                  item?.is_edit_video ? (
+                  </div>
+                )
+              : undefined
+          }
+          actions={
+            item?.is_edit_video
+              ? (video) => (
+                  <>
+                    {video.remark ? (
+                      <button
+                        type="button"
+                        className="btn btn--quiet"
+                        onClick={() =>
+                          setRemarkFor({
+                            videoId: video.video_id,
+                            title: video.video_title,
+                            remark: video.remark ?? '',
+                          })
+                        }
+                      >
+                        改备注
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       className="btn btn--danger-text"
+                      disabled={removeVideo.isPending}
                       onClick={async () => {
                         const ok = await confirmDialog({
                           title: '移出这个影片？',
@@ -379,14 +343,14 @@ export function WatchlistDetailView({
                         if (!ok) return
                         removeVideo.mutate(video.video_id, { onSuccess: () => toast('已移出', 'success') })
                       }}
-                      disabled={removeVideo.isPending}
                     >
                       移出
                     </button>
-                  ) : null,
-              },
-            ]}
-          />
+                  </>
+                )
+              : undefined
+          }
+        />
       </ListSection>
         </>
       )}
