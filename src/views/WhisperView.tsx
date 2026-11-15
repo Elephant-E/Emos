@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Tabs } from '@/components/Tabs'
+import { ModalFooter } from '@/components/ModalFooter'
 import { qk } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -166,18 +167,13 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
             if (content.trim() && !reply.isPending) reply.mutate({ id: Number(replyTarget.whisper_id), content: content.trim() })
           }}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setReplyTarget(null)}>
-                取消
-              </button>
-              <button
-                className="btn btn--primary"
-                type="submit"
-                disabled={!content.trim() || reply.isPending}
-              >
-                {reply.isPending ? '发送中…' : '发送'}
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setReplyTarget(null)}
+              submit
+              confirmText="发送"
+              pending={reply.isPending}
+              disabled={!content.trim()}
+            />
           }
         >
           <div className="stack">
@@ -198,18 +194,13 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           title="发起悄悄话"
           onClose={() => setComposing(false)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setComposing(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!composeTo.trim() || !composeBody.trim() || create.isPending}
-                onClick={() => create.mutate({ receiver_user_id: composeTo.trim(), content: composeBody.trim() })}
-              >
-                发送
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setComposing(false)}
+              onConfirm={() => create.mutate({ receiver_user_id: composeTo.trim(), content: composeBody.trim() })}
+              confirmText="发送"
+              pending={create.isPending}
+              disabled={!composeTo.trim() || !composeBody.trim()}
+            />
           }
         >
           <label className="field">

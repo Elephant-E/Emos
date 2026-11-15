@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react'
 import { ListSection } from '@/components/ListSection'
+import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
@@ -341,18 +342,13 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           onClose={() => setForm(null)}
           onSubmit={submitChannel}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setForm(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!form.title.trim() || actions.saveChannel.isPending}
-                onClick={submitChannel}
-              >
-                {form.id ? '保存' : '创建'}
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setForm(null)}
+              onConfirm={submitChannel}
+              confirmText={form.id ? '保存' : '创建'}
+              pending={actions.saveChannel.isPending}
+              disabled={!form.title.trim()}
+            />
           }
         >
           {form.lockedCover ? (
@@ -398,18 +394,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           onClose={() => setAddingSource(false)}
           onSubmit={submitSource}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setAddingSource(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!source.name.trim() || !source.path_url.trim()}
-                onClick={submitSource}
-              >
-                添加
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setAddingSource(false)}
+              onConfirm={submitSource}
+              confirmText="添加"
+              disabled={!source.name.trim() || !source.path_url.trim()}
+            />
           }
         >
           <label className="field">
