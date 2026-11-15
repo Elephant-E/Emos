@@ -2491,10 +2491,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 分隔点由样式生成，避免各页自己拼「· 」的空格差异 */
 .record-tile__meta > * + *::before,
 .record-tile__sub > * + *::before {
-  content: '·';
-  /* 两侧都要留白，否则点会贴住前面的字 */
+  /* 用真实的小圆点而不是「·」字符：字符点的大小取决于字体的中点，
+     12.5px 下只有 1px 多，看不清；这里固定 3px，跨字体一致 */
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--fg-3);
   margin-inline: var(--sp-2);
-  color: var(--fg-5);
+  vertical-align: middle;
 }
 .record-tile__actions {
   display: flex;
