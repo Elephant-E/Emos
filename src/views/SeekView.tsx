@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
-import { IconAlert, IconInbox } from '@/components/icons'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -209,13 +208,12 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               return (
                 <>
                   <button type="button" className="btn btn--quiet" onClick={() => setDetailFor(item)}>
-                    <IconInbox size={15} strokeWidth={1.8} />
                     详情
                   </button>
                   {canClaim ? (
                     <button
                       type="button"
-                      className="btn btn--primary"
+                      className="btn btn--ghost"
                       disabled={claim.isPending && claim.variables === item.id}
                       onClick={() => claim.mutate(item.id)}
                     >
@@ -242,12 +240,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                     </button>
                   ) : null}
                   {item.status === 'upload' || item.status === 'default' ? (
-                    <button
-                      type="button"
-                      className="btn btn--quiet"
-                      onClick={() => openUrge(item)}
-                    >
-                      <IconAlert size={15} strokeWidth={1.8} />
+                    <button type="button" className="btn btn--quiet" onClick={() => openUrge(item)}>
                       催片
                     </button>
                   ) : null}
