@@ -335,19 +335,24 @@
   color: var(--fg-2);
   font-size: var(--text-sm);
 }
+/*
+ * 主数字 36px：44px 是按 4 位数挑的，余额到 5 位（38,773）时数字 + 单位
+ * 已顶到卡片内边距（实测内容宽 162px、内容 164px）。统一降到 36px，
+ * 与次级 30px 只差一档，不再抢焦点，也不会因数据长短而变大小。
+ */
 .stat__value {
   margin: 0;
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
-  font-size: 44px;
+  font-size: 36px;
   line-height: 1;
   font-weight: 500;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 .stat__value small {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 450;
   color: var(--fg-3);
   letter-spacing: 0;
