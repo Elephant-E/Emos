@@ -129,6 +129,7 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
         <div className="rail__brand-name">
           <IconLogo />
           <span>EMOS</span>
+          <em>Club</em>
           {USE_MOCK ? <span className="rail__badge">MOCK</span> : null}
         </div>
 

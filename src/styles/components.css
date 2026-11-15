@@ -48,6 +48,12 @@
   letter-spacing: -0.01em;
 }
 .rail__brand-name svg { color: var(--fg); }
+/* 品牌后缀：与主名同排，字重与颜色各降一档；窄屏收起时随 span 一起隐藏 */
+.rail__brand-name em {
+  font-style: normal;
+  font-weight: 450;
+  color: var(--fg-4);
+}
 .rail__search {
   display: flex;
   align-items: center;
