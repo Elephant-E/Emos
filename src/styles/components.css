@@ -1299,7 +1299,7 @@ input.input[type='number'] { min-width: 0; }
 /* 行内可编辑的数字：平时就是一行文字，指上去/聚焦时才露出输入框。
    整行摆六个带边框的输入框，视觉重心会全跑到这些框上，把片名压下去。 */
 .input--cell {
-  width: 72px;
+  width: 56px;
   height: 26px;
   padding: 0 var(--sp-2);
   font-size: var(--text-xs);
@@ -2033,6 +2033,17 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .toolbar-field .input { min-width: 150px; }
 /* 页头工具区里的下拉（评分）：和旁边按钮同高，宽度按内容走 */
 .head-tools .input { width: auto; min-width: 96px; height: 32px; }
+/* 页头里的「标签 + 输入」，让孤零零的数字有上下文 */
+.head-tools__field { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.head-tools__label { font-size: var(--text-xs); color: var(--fg-4); }
+/* 页头里的排序输入：不走搜索框的宽度规则，与行内排序保持同一尺寸 */
+.head-tools .input--cell {
+  width: 56px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 var(--sp-2);
+  font-size: var(--text-xs);
+}
 
 /* 全局搜索面板（⌘K）：分组的命中列表，键盘上下选择 */
 .rail__search-text {

@@ -144,13 +144,16 @@ export function WatchlistDetailView({
               </button>
               {/* 订阅的片单在列表里的排序：从卡片搬到这里，功能不丢 */}
               {item.is_subscribe ? (
-                <InlineSortInput
-                  value={item.user_sort}
-                  label="片单排序"
-                  onCommit={(sort) =>
-                    watchApi.sort(id, sort).then(() => qc.invalidateQueries({ queryKey: qk.watches }))
-                  }
-                />
+                <span className="head-tools__field">
+                  <span className="head-tools__label">排序</span>
+                  <InlineSortInput
+                    value={item.user_sort}
+                    label="片单排序"
+                    onCommit={(sort) =>
+                      watchApi.sort(id, sort).then(() => qc.invalidateQueries({ queryKey: qk.watches }))
+                    }
+                  />
+                </span>
               ) : null}
               {item.is_self ? (
                 <>
