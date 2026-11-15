@@ -133,9 +133,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={visibleOrders}
-        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        idKey={(o) => o.order_no}
         cardList
         scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
         loadingRows={6}

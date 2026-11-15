@@ -82,10 +82,8 @@ function CarrotSection({ pageSize }: { pageSize: number }) {
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={infinite.items}
-        total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`}
         scope="carrot"
         loadingRows={8}
         loadingCols={3}
@@ -238,7 +236,6 @@ export function FundView({ tab, onTab, pageSize }: {
     { enabled: tab === 'orders', resetKey: `${pageSize}` },
   )
   const rows = infinite.items
-  const total = infinite.total
 
   return (
     <>
@@ -269,10 +266,8 @@ export function FundView({ tab, onTab, pageSize }: {
           error={infinite.error}
           onRetry={() => infinite.retry()}
           items={rows}
-          total={total}
           cardList
           infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-          idKey={(r) => String(r.order_no ?? r.created_at)}
           scope="orders"
           loadingRows={8}
           loadingCols={4}

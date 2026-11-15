@@ -255,12 +255,10 @@ export function WatchlistDetailView({
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={videoRows}
-        total={infinite.total}
         bare
         loadingKind="single-rows"
         loadingRows={6}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        idKey={(v) => v.video_id}
         scope={search.q}
         emptyTitle="片单里还没有影片"
       >

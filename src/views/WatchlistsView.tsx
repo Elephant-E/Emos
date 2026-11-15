@@ -114,9 +114,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={items}
-        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        idKey={(w) => w.id}
         scope={`${search.scope}-${search.q}`}
         bare
         loadingRows={8}

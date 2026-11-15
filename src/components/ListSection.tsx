@@ -23,8 +23,6 @@ export function ListSection<T>({
   error,
   onRetry,
   items,
-  total,
-  idKey,
   scope,
   emptyTitle,
   emptyAction,
@@ -45,8 +43,6 @@ export function ListSection<T>({
   error: unknown
   onRetry: () => void
   items: readonly T[]
-  total: number
-  idKey: (item: T) => string | number | undefined | null
   scope?: string | number
   emptyTitle: string
   emptyAction?: ReactNode
@@ -102,9 +98,11 @@ export function ListSection<T>({
     )
   }
 
+  // 兜底分支（表格/列表卡）：桌面也必须有哨兵，否则分页器删掉后只能看到第一页
   return (
-    <ListCard items={items} total={total} idKey={idKey} scope={scope}>
+    <ListCard scope={scope}>
       {children}
+      {infinite ? <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} /> : null}
     </ListCard>
   )
 }

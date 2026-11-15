@@ -211,10 +211,8 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={liveItems}
-        total={infinite.total}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        idKey={(v) => v.id}
         scope={`${search.library}-${search.channel}`}
         loadingRows={6}
         loadingCols={4}

@@ -273,10 +273,8 @@ export function ShopView({
               error={infinite.error}
               onRetry={() => infinite.retry()}
               items={infinite.items}
-              total={infinite.total}
               cardList
               infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-              idKey={(p) => p.product_id}
               scope={`${scope}-${q}-${categoryId}`}
               loadingRows={6}
               loadingCols={5}

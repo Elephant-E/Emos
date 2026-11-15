@@ -60,8 +60,6 @@ export function UserSearchView() {
         error={bans.error}
         onRetry={() => bans.refetch()}
         items={rows}
-        total={rows.length}
-        idKey={(r) => r.user_id}
         loadingRows={5}
         loadingKind="rows"
         emptyTitle="没有封禁中的用户"

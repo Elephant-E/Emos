@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -71,82 +71,54 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         error={lines.error}
         onRetry={() => lines.refetch()}
         items={rows}
-        total={rows.length}
         cardList
         // 线路一次取全，直接列出
         infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
-        idKey={(line) => line.id}
-        loadingRows={4}
-        loadingCols={4}
+        loadingRows={5}
+        loadingKind="rows"
         emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
         emptyAction={
           (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined
         }
       >
-        <RecordList<LineItem>
+        <RecordRow<LineItem>
             rows={rows}
             idKey={(line) => line.id}
-            className="table table--auto"
-            columns={[
-              {
-                key: 'name',
-                label: '名称',
-                mobile: 'primary',
-                render: (line) => (
-                  <div className="cell-title">
-                    <span>
-                      <span className="cell-title__name">{line.name}</span>
-                      {line.is_self ? <span className="cell-title__code">我的</span> : null}
-                    </span>
-                  </div>
-                ),
-              },
-              {
-                key: 'url',
-                label: '地址',
-                mobile: 'row',
-                render: (line) => <span className="muted ellipsis">{line.url}</span>,
-              },
-              {
-                key: 'tagline',
-                label: '简介',
-                mobile: 'row',
-                render: (line) => <span className="muted">{line.tagline ?? '—'}</span>,
-              },
-              {
-                key: 'created',
-                label: '创建时间',
-                mobile: 'hidden',
-                render: (line) => <span className="muted">{formatDateTime(line.created_at)}</span>,
-              },
-              {
-                key: 'actions',
-                label: '操作',
-                mobile: 'block',
-                mobileAlign: 'end',
-                render: (line) =>
-                  line.is_self ? (
-                    <button
-                      type="button"
-                      className="btn btn--danger-text"
-                      disabled={actions.remove.isPending}
-                      onClick={async () => {
-                        const ok = await confirmDialog({
-                          title: `删除线路「${line.name}」？`,
-                          message: '使用这条线路的客户端会立刻失效。',
-                          hint: '建议先在客户端切到其它线路。',
-                          confirmText: '删除',
-                          danger: true,
-                        })
-                        if (!ok) return
-                        actions.remove.mutate(line.id, { onSuccess: () => toast('已删除', 'success') })
-                      }}
-                    >
-                      删除
-                    </button>
-                  ) : null,
-              },
-            ]}
+            title={(line) => line.name}
+            meta={(line) => (
+              <>
+                <span className="ellipsis">{line.url}</span>
+                {line.is_self ? <span className="chip">我的</span> : null}
+              </>
+            )}
+            facts={(line) => (
+              <>
+                <span>{line.tagline ?? '无简介'}</span>
+                <span>{formatDateTime(line.created_at)} 创建</span>
+              </>
+            )}
+            actions={(line) =>
+              line.is_self ? (
+                <button
+                  type="button"
+                  className="btn btn--danger-text"
+                  disabled={actions.remove.isPending}
+                  onClick={async () => {
+                    const ok = await confirmDialog({
+                      title: `删除线路「${line.name}」？`,
+                      message: '使用这条线路的客户端会立刻失效。',
+                      hint: '建议先在客户端切到其它线路。',
+                      confirmText: '删除',
+                      danger: true,
+                    })
+                    if (!ok) return
+                    actions.remove.mutate(line.id, { onSuccess: () => toast('已删除', 'success') })
+                  }}
+                >
+                  删除
+                </button>
+              ) : null
+            }
           />
       </ListSection>
 

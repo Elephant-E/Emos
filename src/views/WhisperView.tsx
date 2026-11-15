@@ -94,8 +94,6 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           error={list.error}
           onRetry={() => list.refetch()}
           items={rows}
-          total={rows.length}
-          idKey={(row) => String(row.whisper_id ?? '')}
           bare
           loadingKind="rows"
           loadingRows={5}

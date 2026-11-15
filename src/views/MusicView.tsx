@@ -101,11 +101,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         error={active.error}
         onRetry={() => active.refetch()}
         items={activeRows}
-        total={active.data?.total ?? 0}
-        idKey={(v) => {
-          const row = v as Record<string, number | undefined>
-          return row.song_id ?? row.album_id ?? row.person_id ?? ''
-        }}
         scope={`${search.tab}-${search.q}-${search.filter}`}
         loadingRows={8}
         loadingCols={4}

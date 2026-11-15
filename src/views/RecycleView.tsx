@@ -57,7 +57,6 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
   useDebounced(term, (next) => onQuery(next, by), { current: q })
 
-  const total = infinite.total
   const rows = infinite.items as Array<Record<string, unknown>>
   // 恢复口径按契约：只有 is_can_restore 为 true 的资源可恢复。
   // 实测现在全为 false（含本人上传），所以这一列当前不显示——
@@ -151,8 +150,6 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={rows}
-        total={total}
-        idKey={(r) => String(r.media_id ?? r.video_id ?? '')}
         scope={tab}
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}

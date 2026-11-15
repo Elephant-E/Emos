@@ -141,10 +141,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={items}
-        total={infinite.total}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         bare
-        idKey={(v) => v.id}
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={6}
         loadingKind="rows"

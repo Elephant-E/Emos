@@ -89,9 +89,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         error={list.error}
         onRetry={() => list.retry()}
         items={items}
-        total={list.total}
         infinite={{ hasMore: list.hasMore, loading: list.loadingMore, onLoadMore: list.loadMore }}
-        idKey={(v) => v.video_id}
         scope={`${search.type}-${search.q}`}
         bare
         loadingRows={8}

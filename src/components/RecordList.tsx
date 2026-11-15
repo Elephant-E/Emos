@@ -92,7 +92,7 @@ export function RecordList<T>({
               ))}
             </tr>
             {expandable?.isExpanded(row) ? (
-              <tr className="is-expand-row">
+              <tr className="table__expand">
                 <td colSpan={columns.length}>{expandable.render(row)}</td>
               </tr>
             ) : null}
