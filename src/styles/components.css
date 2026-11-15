@@ -642,16 +642,20 @@ input.input[type='number'] { min-width: 0; }
   .rail__item { justify-content: center; height: 38px; }
   .rail__foot { justify-content: center; }
   .page { padding: var(--sp-4) var(--sp-4) var(--sp-7); }
-  .page__head { flex-direction: column; gap: var(--sp-3); }
-  /* 概览这类页头：工具跟标题同一行，右侧对齐（省掉一整行高度） */
-  .page__head--inline {
+  /* 页头：工具跟标题同一行、右侧对齐，省掉一整行高度 */
+  .page__head {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
-    gap: var(--sp-2);
+    gap: var(--sp-3);
   }
-  .page__head--inline .head-tools { flex-wrap: nowrap; overflow: visible; }
-  .page__head--inline .page-title { font-size: 26px; }
+  /* 左侧标题块优先拿到空间，工具最多占一半并横向滚动——
+     否则片单详情那种 7 个按钮会把标题挤成一列竖排 */
+  .page__head > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .head-tools { justify-content: flex-start; }
   .page-title { font-size: 30px; }
   .toolbar .spacer { flex-basis: 100%; height: 0; }
@@ -2233,14 +2237,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
   /* 触控目标：手机上没有 hover，32px 的按钮按起来发飘，统一抬到 40px。
      行内小图标按钮（⋯）给 34px 见方，避免把表格/卡片行撑高。 */
-  .btn { height: 40px; }
+  .btn { height: 36px; }
   .btn--quiet,
   .btn--ghost,
-  .btn--danger-text { height: 38px; min-width: 44px; }
+  .btn--danger-text { height: 34px; min-width: 40px; }
   .row-menu { width: 34px; height: 34px; }
   /* 分段筛选器（全部商品/销量/价格…）本来 24px，手机上点不准 */
   .seg { height: 40px; align-items: center; }
-  .seg button { height: 34px; }
+  .seg button { height: 32px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
   .toolbar button { min-height: 34px; min-width: 34px; }
   .dropzone__title--desktop { display: none; }
@@ -2279,20 +2283,40 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 分页脚：手机上收紧内边距，两行更紧凑 */
   .table-foot { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
 
+  /* 页头工具：这是页面级次要入口，不该跟主操作抢注意力——
+     比正文按钮矮一档、字号小一号、去掉多余的描边感 */
+  .head-tools .btn,
+  .head-tools .btn--ghost,
+  .head-tools .btn--quiet {
+    height: 32px;
+    min-width: 0;
+    padding: 0 var(--sp-3);
+    font-size: var(--text-sm);
+    color: var(--fg-3);
+  }
+  /* 描边退一档：这是次要入口，不该比正文内容更抢眼 */
+  .head-tools .btn--ghost { border-color: var(--line-soft); }
+  .head-tools .btn--ghost:hover { border-color: var(--line); color: var(--fg-2); }
+  .head-tools .seg { height: 34px; }
+  .head-tools .seg button { height: 32px; }
+
   /* 页头工具区：手机上不换行，改成单行横向滚动。
      否则片单详情那种 7 个按钮会堆成 3 行、把标题挤到 168px 高 */
   .head-tools {
+    flex: 0 1 auto;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
-    max-width: 100%;
+    /* 最多占 46%：再宽就把标题挤成竖排（片单详情 7 个按钮时最明显） */
+    min-width: 0;
+    max-width: 46%;
     padding-bottom: var(--sp-hair);
   }
   .head-tools::-webkit-scrollbar { display: none; }
   .head-tools > * { flex: none; }
   /* 右侧渐隐：提示还有按钮没露出来 */
   .head-tools {
-    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 32px), transparent 100%);
   }
 
   /* 分页器的上一页/下一页 28×34，手机上偏小 */
