@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { useVideoPage } from '@/api/queries'
-import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
@@ -118,63 +118,82 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
           )
         }
       >
-          <table className="table table--auto">
-            <thead>
-              <tr>
-                <th className="th-thumb">片名</th>
-                <th>类型</th>
-                <th className="num">资源</th>
-                <th className="num">求片</th>
-                <th className="num">上映</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((video) => (
-                <tr key={video.video_id} {...rowLink(() => openDetail(video.video_id))}>
-                  <td>
-                    <div className="cell-title">
-                      {video.video_image_poster ? (
-                        <Poster src={video.video_image_poster} name={video.video_title} />
-                      ) : (
-                        <span className="thumb">{video.video_title.slice(0, 1)}</span>
-                      )}
-                      <span>
-                        <span className="cell-title__name">{video.video_title}</span>
-                        {(() => {
-                          const genres = video.genres ?? []
-                          const sub = [
-                            video.video_origin_title,
-                            genres.length ? genres.slice(0, 2).map((g) => g.name).join('/') : null,
-                          ].filter(Boolean)
-                          return sub.length ? <span className="cell-title__code">{sub.join(' · ')}</span> : null
-                        })()}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="zone">
-                      <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                      {VIDEO_TYPE_LABEL[video.video_type]}
-                    </span>
-                  </td>
-                  <td className="num">
-                    {video.medias_count} 个 · 字幕 {video.subtitles_count}
-                  </td>
-                  <td className="num">
-                    {video.request_count > 0 ? (
-                      <span className="badge badge--wait">
-                        <i />
-                        {video.request_count} 人求
-                      </span>
+          <RecordList
+            rows={items}
+            idKey={(v) => v.video_id}
+            onOpen={(v) => openDetail(v.video_id)}
+            columns={[
+              {
+                key: 'title',
+                label: '片名',
+                thClass: 'th-thumb',
+                mobile: 'primary',
+                render: (video) => (
+                  <div className="cell-title">
+                    {video.video_image_poster ? (
+                      <Poster src={video.video_image_poster} name={video.video_title} />
                     ) : (
-                      <span className="muted">—</span>
+                      <span className="thumb">{video.video_title.slice(0, 1)}</span>
                     )}
-                  </td>
-                  <td className="num muted">{video.video_date_air ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span>
+                      <span className="cell-title__name">{video.video_title}</span>
+                      {(() => {
+                        const genres = video.genres ?? []
+                        const sub = [
+                          video.video_origin_title,
+                          genres.length ? genres.slice(0, 2).map((g) => g.name).join('/') : null,
+                        ].filter(Boolean)
+                        return sub.length ? <span className="cell-title__code">{sub.join(' · ')}</span> : null
+                      })()}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                key: 'type',
+                label: '类型',
+                mobile: 'inline',
+                render: (video) => (
+                  <span className="zone">
+                    <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
+                    {VIDEO_TYPE_LABEL[video.video_type]}
+                  </span>
+                ),
+              },
+              {
+                key: 'medias',
+                label: '资源',
+                thClass: 'num',
+                mobile: 'inline',
+                render: (video) => (
+                  <>
+                    {video.medias_count} 个 · 字幕 {video.subtitles_count}
+                  </>
+                ),
+              },
+              {
+                key: 'requests',
+                label: '求片',
+                thClass: 'num',
+                mobile: 'inline',
+                render: (video) =>
+                  video.request_count > 0 ? (
+                    <span className="badge badge--wait">
+                      <i />
+                      {video.request_count} 人求
+                    </span>
+                  ) : (
+                    <span className="muted">—</span>
+                  ),
+              },
+              {
+                key: 'air',
+                label: '上映',
+                thClass: 'num',
+                render: (video) => <span className="muted">{video.video_date_air ?? '—'}</span>,
+              },
+            ]}
+          />
       </ListSection>
     </>
   )

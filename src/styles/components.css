@@ -2231,3 +2231,49 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   from { height: var(--radix-collapsible-content-height); opacity: 1; }
   to { height: 0; opacity: 0.5; }
 }
+
+/* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
+.record-cards {
+  display: grid;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.record-card {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-card);
+  background: var(--raised);
+}
+.record-card__body {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+}
+.record-card__body.is-tappable { cursor: pointer; }
+.record-card__head { display: grid; gap: 2px; min-width: 0; }
+/* 卡片头沿用列表里的缩略图 + 两行标题排版，不另做一套 */
+.record-card__head .cell-title { gap: var(--sp-3); }
+.record-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  font-size: var(--text-xs);
+  color: var(--fg-3);
+}
+.record-card__meta-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.record-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--text-sm);
+  color: var(--fg-2);
+}
+.record-card__row--block { justify-content: flex-start; }
+.record-card__label {
+  font-size: var(--text-xs);
+  color: var(--fg-4);
+  flex: none;
+}
+.record-card__value { min-width: 0; color: var(--fg-2); }
