@@ -6,12 +6,10 @@ import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { seekApi } from '@/api/endpoints'
-import { useQuery } from '@tanstack/react-query'
-import { formatDateTime } from '@/lib/format'
 import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -47,18 +45,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const qc = useQueryClient()
   const navigate = useNavigate()
   const [urgeTarget, setUrgeTarget] = useState<SeekItem | null>(null)
-  // 列表只有汇总，谁给过胡萝卜要看详情接口
-  const [detailFor, setDetailFor] = useState<SeekItem | null>(null)
-  const detail = useQuery({
-    queryKey: ['seek', 'query', detailFor?.id ?? 0] as const,
-    queryFn: () => seekApi.query(detailFor?.id ?? 0),
-    enabled: Boolean(detailFor),
-  })
-  const history = useQuery({
-    queryKey: ['seek', 'history', detailFor?.id ?? 0] as const,
-    queryFn: () => seekApi.history(detailFor?.id ?? 0),
-    enabled: Boolean(detailFor),
-  })
 
   /** 「详情」在任何状态下都能点开 */
 
@@ -167,14 +153,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           <RecordRow
             rows={items}
             idKey={(item) => item.id}
-            onOpen={(item) => {
-              if (!item.video_list_id) return
-              navigate({
-                to: '/media/$videoId',
-                params: { videoId: String(item.video_list_id) },
-                search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
-              })
-            }}
             poster={(item) => item.video_image_poster}
             posterOverlay={(item) => (SEEK_STATUS[item.status] ?? SEEK_STATUS.default).label}
 
@@ -213,7 +191,18 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               const canClaim = item.status === 'default' && item.is_can_claim
               return (
                 <>
-                  <button type="button" className="btn btn--quiet" onClick={() => setDetailFor(item)}>
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    onClick={() => {
+                      if (!item.video_list_id) return
+                      navigate({
+                        to: '/media/$videoId',
+                        params: { videoId: String(item.video_list_id) },
+                        search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+                      })
+                    }}
+                  >
                     详情
                   </button>
                   {canClaim ? (
@@ -256,81 +245,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           />
       </ListSection>
 
-
-      {detailFor ? (
-        <Modal
-          title={`求片详情 · ${detailFor.video_title_display}`}
-          width={520}
-          onClose={() => setDetailFor(null)}
-          footer={
-            <button type="button" className="btn btn--ghost" onClick={() => setDetailFor(null)}>
-              关闭
-            </button>
-          }
-        >
-          {detail.error ? <ErrorBlock bare error={detail.error} onRetry={() => detail.refetch()} /> : null}
-          {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
-          {detail.data ? (
-            <dl className="kv">
-              <div>
-                <dt>状态</dt>
-                <dd>{SEEK_STATUS[String(detail.data.status ?? '')]?.label ?? String(detail.data.status ?? '—')}</dd>
-              </div>
-              <div>
-                <dt>悬赏</dt>
-                <dd>{formatThousand(Number(detail.data.seek_carrot ?? 0))} 胡萝卜</dd>
-              </div>
-              <div>
-                <dt>求片人数</dt>
-                <dd>{formatThousand(Number(detail.data.request_count ?? 0))}</dd>
-              </div>
-              <div>
-                <dt>可认领</dt>
-                <dd className="muted">{detail.data.is_can_claim ? '可以' : '不可以'}</dd>
-              </div>
-              <div>
-                <dt>认领人</dt>
-                <dd className="muted">{String(detail.data.upload_username ?? '—')}</dd>
-              </div>
-              <div>
-                <dt>认领到期</dt>
-                <dd className="muted">{detail.data.upload_expired_at ? formatDateTime(String(detail.data.upload_expired_at)) : '—'}</dd>
-              </div>
-              <div>
-                <dt>更新</dt>
-                <dd className="muted">{formatDateTime(String(detail.data.updated_at ?? ''))}</dd>
-              </div>
-            </dl>
-          ) : null}
-
-          <p className="stat__label" style={{ marginTop: 'var(--sp-4)' }}>悬赏记录</p>
-          {history.error ? <ErrorBlock bare error={history.error} onRetry={() => history.refetch()} /> : null}
-          {history.isLoading ? <LoadingBlock bare rows={2} columns={3} /> : null}
-          {(history.data?.length ?? 0) === 0 && !history.isLoading && !history.error ? (
-            <EmptyBlock bare title="还没有人加过胡萝卜" />
-          ) : null}
-          {(history.data?.length ?? 0) > 0 ? (
-            <table className="table table--inset" style={{ marginTop: 'var(--sp-2)' }}>
-              <thead>
-                <tr>
-                  <th>用户</th>
-                  <th className="num" style={{ width: 100 }}>胡萝卜</th>
-                  <th style={{ width: 130 }}>时间</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(history.data ?? []).map((row, index) => (
-                  <tr key={`${row.username}-${index}`}>
-                    <td className="cell-title__name">{row.username}</td>
-                    <td className="num muted">{row.carrot ? `+${formatThousand(row.carrot)}` : '—'}</td>
-                    <td className="muted">{formatDateTime(row.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
-        </Modal>
-      ) : null}
 
       {urgeTarget ? (
         <Modal
