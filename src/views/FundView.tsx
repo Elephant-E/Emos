@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { ImagePickerMulti } from '@/components/ImagePicker'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
@@ -83,36 +84,56 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
         pageSize={pageSize}
         onPage={onPage}
         onPageSize={onPageSize}
+        cardList
         idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`}
         scope={page}
         loadingRows={8}
         loadingCols={3}
         emptyTitle="还没有胡萝卜记录"
       >
-          <table className="table">
-            <thead>
-              <tr>
-                <th>来源</th>
-                <th className="num">变动</th>
-                <th>时间</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => {
-                // point 恒为正数（金额大小），收支方向在 type：earn / cost
-                const signed = row.type === 'cost' ? -Number(row.point) : Number(row.point)
-                return (
-                <tr key={index}>
-                  <td className="text-body">{String(row.trigger_type_string ?? row.trigger_type ?? '—')}</td>
-                  <td className={signed >= 0 ? 'num mark-up' : 'num mark-down'}>
-                    {signed > 0 ? '+' : ''}{formatThousand(signed)}
-                  </td>
-                  <td className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</td>
-                </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <RecordList
+            rows={rows}
+            idKey={(row) => `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${String(row.point ?? '')}`}
+            className="table"
+            columns={[
+              {
+                key: 'source',
+                label: '来源',
+                mobile: 'primary',
+                render: (row) => (
+                  <span className="cell-title__name">
+                    {String(row.trigger_type_string ?? row.trigger_type ?? '—')}
+                  </span>
+                ),
+              },
+              {
+                key: 'delta',
+                label: '变动',
+                thClass: 'num',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (row) => {
+                  // point 恒为正数（金额大小），收支方向在 type：earn / cost
+                  const signed = row.type === 'cost' ? -Number(row.point) : Number(row.point)
+                  return (
+                    <span className={signed >= 0 ? 'mark-up' : 'mark-down'}>
+                      {signed > 0 ? '+' : ''}
+                      {formatThousand(signed)}
+                    </span>
+                  )
+                },
+              },
+              {
+                key: 'time',
+                label: '时间',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (row) => (
+                  <span className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</span>
+                ),
+              },
+            ]}
+          />
       </ListSection>
 
 
@@ -257,62 +278,105 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           onPage={onPage}
           onPageSize={onPageSize}
           sizes={[20, 30]}
+          cardList
           idKey={(r) => String(r.order_no ?? r.created_at)}
           scope={page}
           loadingRows={8}
           loadingCols={4}
           emptyTitle="还没有基金订单"
         >
-          <table className="table table--auto table--dense">
-            <thead>
-              <tr>
-                <th>订单</th>
-                <th className="num">胡萝卜</th>
-                <th className="num">承诺补贴</th>
-                <th className="num" title="实际打款的金额">实际打款</th>
-                <th>状态</th>
-                <th>时间</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => {
-                const orderNo = String(row.order_no ?? '')
-                return (
-                  <tr key={orderNo}>
-                    <td>
-                      <span className="cell-title__name">{String(row.order_title ?? orderNo)}</span>
-                      <span className="cell-title__code">
-                        {orderNo}
-                        {row.tier_name ? ` · ${String(row.tier_name)}` : ''}
-                        {row.activity_name ? ` · ${String(row.activity_name)}` : ''}
-                      </span>
-                    </td>
-                    <td className="num">{row.tier_carrot == null ? '—' : formatThousand(Number(row.tier_carrot))}</td>
-                    <td className="num">{row.tier_price == null ? '—' : `¥${String(row.tier_price)}`}</td>
-                    {/* 承诺的补贴与实际打款可能不同（payout_price 打款后才有值） */}
-                    <td className="num">{row.payout_price == null ? '—' : `¥${String(row.payout_price)}`}</td>
-                    <td className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</td>
-                    <td className="muted tnum">
-                      {row.payout_at ? formatDateTime(String(row.payout_at)) : row.payed_at ? formatDateTime(String(row.payed_at)) : '—'}
-                    </td>
-                    <td>
-                      <button type="button"
-                        className="btn btn--quiet"
-                        onClick={() => {
-                          setEvidenceFor(row)
-                          setRemark('')
-                          setImages([])
-                        }}
-                      >
-                        提交凭证
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <RecordList
+              rows={rows}
+              idKey={(row) => String(row.order_no ?? '')}
+              className="table table--auto table--dense"
+              columns={[
+                {
+                  key: 'order',
+                  label: '订单',
+                  mobile: 'primary',
+                  render: (row) => {
+                    const orderNo = String(row.order_no ?? '')
+                    return (
+                      <>
+                        <span className="cell-title__name">{String(row.order_title ?? orderNo)}</span>
+                        <span className="cell-title__code">
+                          {orderNo}
+                          {row.tier_name ? ` · ${String(row.tier_name)}` : ''}
+                          {row.activity_name ? ` · ${String(row.activity_name)}` : ''}
+                        </span>
+                      </>
+                    )
+                  },
+                },
+                {
+                  key: 'carrot',
+                  label: '胡萝卜',
+                  thClass: 'num',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => (
+                    <>{row.tier_carrot == null ? '—' : `${formatThousand(Number(row.tier_carrot))} 胡萝卜`}</>
+                  ),
+                },
+                {
+                  key: 'price',
+                  label: '承诺补贴',
+                  thClass: 'num',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <>{row.tier_price == null ? '—' : `¥${String(row.tier_price)}`}</>,
+                },
+                {
+                  key: 'payout',
+                  label: '实际打款',
+                  thClass: 'num',
+                  mobile: 'hidden',
+                  render: (row) => <>{row.payout_price == null ? '—' : `¥${String(row.payout_price)}`}</>,
+                },
+                {
+                  key: 'status',
+                  label: '状态',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => (
+                    <span className="muted">{String(row.payout_status_string ?? row.payout_status ?? '—')}</span>
+                  ),
+                },
+                {
+                  key: 'time',
+                  label: '时间',
+                  mobile: 'hidden',
+                  render: (row) => (
+                    <span className="muted tnum">
+                      {row.payout_at
+                        ? formatDateTime(String(row.payout_at))
+                        : row.payed_at
+                          ? formatDateTime(String(row.payed_at))
+                          : '—'}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'action',
+                  label: '操作',
+                  mobile: 'block',
+                  mobileAlign: 'end',
+                  render: (row) => (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() => {
+                        setEvidenceFor(row)
+                        setRemark('')
+                        setImages([])
+                      }}
+                    >
+                      提交凭证
+                    </button>
+                  ),
+                },
+              ]}
+            />
         </ListSection>
       ) : null}
 

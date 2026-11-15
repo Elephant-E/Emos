@@ -5,6 +5,7 @@ import { Tabs } from '@/components/Tabs'
 import { ModalFooter } from '@/components/ModalFooter'
 import { qk } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
+import { RecordList } from '@/components/RecordList'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { whisperApi } from '@/api/endpoints'
@@ -101,31 +102,20 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
 
       {rows.length > 0 ? (
         <div className="table-card">
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: '42%' }}>内容</th>
-                <th style={{ width: '18%' }}>{tab === 'receiver' ? '来自' : '发给'}</th>
-                <th style={{ width: '18%' }}>时间</th>
-                {/* 整表不可操作（发出的页只能看）就连这一列一起不渲染 */}
-                {tab === 'receiver' ? <th style={{ width: '120px' }}>操作</th> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => {
-                const id = Number(row.whisper_id ?? index)
-                // 收到的看「谁发的」，发出的看「发给谁」
-                const peerUser = (
-                  tab === 'receiver' ? row.sender_user : row.receiver_user
-                ) as { username?: string; id?: string } | undefined
-                const peer = peerUser?.username ?? '—'
-                // 字段按角色命名，不随视角变：sender_content 永远是发起方写的，
-                // receiver_content 永远是接收方写的
-                const body = row.sender_content
-                const reply = row.receiver_content
-                return (
-                  <tr key={id}>
-                    <td style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>
+          <RecordList
+            rows={rows}
+            idKey={(row, ) => String(row.whisper_id ?? '')}
+            className="table"
+            columns={[
+              {
+                key: 'content',
+                label: '内容',
+                mobile: 'primary',
+                render: (row) => {
+                  const body = row.sender_content
+                  const reply = row.receiver_content
+                  return (
+                    <>
                       <span className="cell-title__name" style={CLAMP_TWO_LINES} title={String(body ?? '—')}>
                         {String(body ?? '—')}
                       </span>
@@ -134,16 +124,48 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                           回复：{String(reply)}
                         </span>
                       ) : null}
-                    </td>
-                    <td className="muted">
-                      {/* 收件箱判匿名看 sender_user 是否为空（该端点没有 sender_is_anonymous）；
-                          发件箱这一列是收件人，与匿名无关 */}
-                      {tab === 'receiver' && !row.sender_user ? '匿名' : String(peer)}
-                    </td>
-                    <td className="muted tnum">{formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}</td>
-                    {tab === 'receiver' ? (
-                      <td>
-                        <button type="button"
+                    </>
+                  )
+                },
+              },
+              {
+                key: 'peer',
+                label: tab === 'receiver' ? '来自' : '发给',
+                thWidth: '18%',
+                mobile: 'inline',
+                render: (row) => {
+                  const peerUser = (tab === 'receiver' ? row.sender_user : row.receiver_user) as
+                    | { username?: string; id?: string }
+                    | undefined
+                  // 收件箱判匿名看 sender_user 是否为空（该端点没有 sender_is_anonymous）；
+                  // 发件箱这一列是收件人，与匿名无关
+                  const value = tab === 'receiver' && !row.sender_user ? '匿名' : String(peerUser?.username ?? '—')
+                  return <span className="muted">{value}</span>
+                },
+              },
+              {
+                key: 'time',
+                label: '时间',
+                thWidth: '18%',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (row) => (
+                  <span className="muted tnum">
+                    {formatDateTime(String(row.sender_at ?? row.created_at ?? ''))}
+                  </span>
+                ),
+              },
+              ...(tab === 'receiver'
+                ? [
+                    {
+                      key: 'action',
+                      label: '操作',
+                      thWidth: 120,
+                      mobile: 'block' as const,
+                      mobileAlign: 'end' as const,
+                      render: (row: (typeof rows)[number]) => (
+                        <button
+                          type="button"
                           className="btn btn--quiet"
                           onClick={() => {
                             setReplyTarget(row)
@@ -152,13 +174,12 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                         >
                           回复
                         </button>
-                      </td>
-                    ) : null}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </div>
       ) : null}
 

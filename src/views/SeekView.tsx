@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
@@ -14,7 +15,6 @@ import { formatDateTime } from '@/lib/format'
 import { qk, useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
@@ -177,6 +177,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         pageSize={data?.page_size ?? search.page_size}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        cardList
         idKey={(v) => v.id}
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={6}
@@ -184,59 +185,61 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         emptyTitle={emptyTitle(search.q, search.mine, search.type)}
         emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
       >
-          <table className="table table--auto table--dense">
-            <thead>
-              <tr>
-                <th className="th-thumb">求片</th>
-                <th>类型</th>
-                <th>状态</th>
-                <th className="num">求片数</th>
-                <th className="num">悬赏</th>
-                <th className="num">更新</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => {
-                const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
-                // 认领人名字对上当前账号才显示「撤回」
-                const isMine =
-                  Boolean(item.upload_username) && myNames.includes(String(item.upload_username))
-                return (
-                  <tr
-                    key={item.id}
-                    {...rowLink(
-                      () =>
-                        navigate({
-                          to: '/media/$videoId',
-                          params: { videoId: String(item.video_list_id) },
-                          search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
-                        }),
-                      Boolean(item.video_list_id),
+          <RecordList
+            rows={items}
+            idKey={(item) => item.id}
+            className="table table--auto table--dense"
+            onOpen={(item) => {
+              if (!item.video_list_id) return
+              navigate({
+                to: '/media/$videoId',
+                params: { videoId: String(item.video_list_id) },
+                search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
+              })
+            }}
+            columns={[
+              {
+                key: 'title',
+                label: '求片',
+                thClass: 'th-thumb',
+                mobile: 'primary',
+                render: (item) => (
+                  <div className="cell-title">
+                    {item.video_image_poster ? (
+                      <Poster src={item.video_image_poster} name={String(item.video_title ?? '?')} />
+                    ) : (
+                      <span className="thumb">{item.video_title_display.slice(0, 1)}</span>
                     )}
-                  >
-                    <td>
-                      <div className="cell-title">
-                        {item.video_image_poster ? (
-                          <Poster src={item.video_image_poster} name={String(item.video_title ?? "?")} />
-                        ) : (
-                          <span className="thumb">{item.video_title_display.slice(0, 1)}</span>
-                        )}
-                        <span>
-                          <span className="cell-title__name">{item.video_title_display}</span>
-                          {item.upload_username ? (
-                            <span className="cell-title__code">认领 {item.upload_username}</span>
-                          ) : null}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="zone">
-                        <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[item.video_type] }} />
-                        {VIDEO_TYPE_LABEL[item.video_type]}
-                      </span>
-                    </td>
-                    <td>
+                    <span>
+                      <span className="cell-title__name">{item.video_title_display}</span>
+                      {item.upload_username ? (
+                        <span className="cell-title__code">认领 {item.upload_username}</span>
+                      ) : null}
+                    </span>
+                  </div>
+                ),
+              },
+              {
+                key: 'type',
+                label: '类型',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (item) => (
+                  <span className="zone">
+                    <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[item.video_type] }} />
+                    {VIDEO_TYPE_LABEL[item.video_type]}
+                  </span>
+                ),
+              },
+              {
+                key: 'status',
+                label: '状态',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (item) => {
+                  const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
+                  return (
+                    <>
                       <span className={`badge ${st.cls}`}>
                         <i />
                         {st.label}
@@ -244,65 +247,95 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                       {item.status === 'upload' && item.upload_expired_at ? (
                         <span className="cell-title__code">{formatRelative(item.upload_expired_at)}到期</span>
                       ) : null}
-                    </td>
-                    <td className="num">{item.count_request}</td>
-                    <td className="num">{item.seek_carrot == null ? '—' : `${formatThousand(item.seek_carrot)} 胡萝卜`}</td>
-                    <td className="num muted">{formatRelative(item.updated_at)}</td>
-                    <td>
-                      <span className="action-group">
-                        {item.status === 'upload' ? (
-                          <>
-                            <Link className="btn btn--quiet" to="/upload" onClick={(e) => e.stopPropagation()}>
-                              去上传
-                            </Link>
-                            {isMine ? (
-                              <button type="button"
-                                className="btn btn--quiet"
-                                disabled={cancelClaim.isPending}
-                                onClick={async (e) => {
-                                  e.stopPropagation()
-                                  const ok = await confirmDialog({
-                                    title: '撤回这个认领？',
-                                    message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
-                                    confirmText: '撤回',
-                                    danger: true,
-                                  })
-                                  if (!ok) return
-                                  cancelClaim.mutate(item.id)
-                                }}
-                              >
-                                撤回
-                              </button>
-                            ) : null}
-                            {urgeButton(item)}
-                            {detailButton(item)}
-                          </>
-                        ) : item.status === 'default' ? (
-                          <>
-                            {item.is_can_claim ? (
-                              <button type="button"
-                                className="btn btn--ghost"
-                                aria-busy={claim.isPending && claim.variables === item.id}
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  claim.mutate(item.id)
-                                }}
-                                disabled={claim.isPending && claim.variables === item.id}
-                              >
-                                认领
-                              </button>
-                            ) : null}
-                            {urgeButton(item)}
-                            {detailButton(item)}
-                          </>
-                        ) : null}
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    </>
+                  )
+                },
+              },
+              {
+                key: 'count',
+                label: '求片数',
+                thClass: 'num',
+                mobile: 'inline',
+                render: (item) => <>{item.count_request} 人</>,
+              },
+              {
+                key: 'carrot',
+                label: '悬赏',
+                thClass: 'num',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (item) => (
+                  <span className="muted">
+                    {item.seek_carrot == null ? '无悬赏' : `${formatThousand(item.seek_carrot)} 胡萝卜`}
+                  </span>
+                ),
+              },
+              {
+                key: 'updated',
+                label: '更新',
+                thClass: 'num',
+                mobile: 'hidden',
+                render: (item) => <span className="muted">{formatRelative(item.updated_at)}</span>,
+              },
+              {
+                key: 'actions',
+                label: '操作',
+                mobile: 'block',
+                render: (item) => {
+                  const isMine =
+                    Boolean(item.upload_username) && myNames.includes(String(item.upload_username))
+                  return (
+                    <span className="action-group">
+                      {item.status === 'upload' ? (
+                        <>
+                          <Link className="btn btn--quiet" to="/upload">
+                            去上传
+                          </Link>
+                          {isMine ? (
+                            <button
+                              type="button"
+                              className="btn btn--quiet"
+                              disabled={cancelClaim.isPending}
+                              onClick={async () => {
+                                const ok = await confirmDialog({
+                                  title: '撤回这个认领？',
+                                  message: '撤回后这一集重新变成待认领，已上传的资源会留在影片里。',
+                                  confirmText: '撤回',
+                                  danger: true,
+                                })
+                                if (!ok) return
+                                cancelClaim.mutate(item.id)
+                              }}
+                            >
+                              撤回
+                            </button>
+                          ) : null}
+                          {urgeButton(item)}
+                          {detailButton(item)}
+                        </>
+                      ) : item.status === 'default' ? (
+                        <>
+                          {item.is_can_claim ? (
+                            <button
+                              type="button"
+                              className="btn btn--ghost"
+                              aria-busy={claim.isPending && claim.variables === item.id}
+                              onClick={() => claim.mutate(item.id)}
+                              disabled={claim.isPending && claim.variables === item.id}
+                            >
+                              认领
+                            </button>
+                          ) : null}
+                          {urgeButton(item)}
+                          {detailButton(item)}
+                        </>
+                      ) : null}
+                    </span>
+                  )
+                },
+              },
+            ]}
+          />
       </ListSection>
 
 
