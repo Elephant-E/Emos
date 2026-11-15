@@ -262,6 +262,7 @@ export function WatchlistDetailView({
         emptyTitle="片单里还没有影片"
       >
         <RecordRow
+          single
           rows={videoRows}
           idKey={(video) => video.video_id}
           onOpen={(video) => openVideo(video.video_id)}

@@ -11,6 +11,8 @@ import { Poster } from './Poster'
 export interface RecordRowProps<T> {
   rows: readonly T[]
   idKey: (row: T) => string | number
+  /** 管理型列表（片单里的影片等）用单列：一行一条，便于逐个处理 */
+  single?: boolean
   onOpen?: (row: T) => void
   poster?: (row: T) => string | null | undefined
   title: (row: T) => ReactNode
@@ -30,6 +32,7 @@ export interface RecordRowProps<T> {
 export function RecordRow<T>({
   rows,
   idKey,
+  single = false,
   onOpen,
   poster,
   title,
@@ -41,7 +44,7 @@ export function RecordRow<T>({
   fullActions = false,
 }: RecordRowProps<T>) {
   return (
-    <div className="record-rows">
+    <div className={`record-rows${single ? ' record-rows--single' : ''}`}>
       {rows.map((row) => {
         const metaNode = meta?.(row)
         const factsNode = facts?.(row)

@@ -2516,9 +2516,44 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
      带侧栏的 1280 屏可用宽度 900，正好三张 */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
+/* 管理型列表固定单列 */
+.record-rows--single { grid-template-columns: minmax(0, 1fr); }
+/* 单列（管理型）行：小图在左、信息中间、动作靠右居中，横向铺满不浪费 */
+.record-rows--single .record-row {
+  grid-template-columns: 72px minmax(0, 1fr) auto;
+  align-items: center;
+  padding: var(--sp-3) var(--sp-4);
+  gap: var(--sp-4);
+}
+.record-rows--single .record-row__media { width: 72px; }
+.record-rows--single .record-row__poster,
+.record-rows--single .record-row__poster.poster-img {
+  width: 72px;
+  height: 108px;
+}
+.record-rows--single .record-row__extra { grid-column: 2; }
+.record-rows--single .record-row__actions {
+  grid-column: 3;
+  margin: 0;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
 @media (max-width: 900px) {
   /* 手机上文字比图片重要，一张占满整行 */
   .record-rows { grid-template-columns: minmax(0, 1fr); }
+  /* 单列行在手机上回到「图左文右 + 动作整行」的堆叠，避免中间列被压到 90px */
+  .record-rows--single .record-row {
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: start;
+    padding: var(--sp-3);
+    gap: var(--sp-3);
+  }
+  .record-rows--single .record-row__extra { grid-column: 1 / -1; }
+  .record-rows--single .record-row__actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin-top: var(--sp-2);
+  }
 }
 .record-row {
   position: relative;
