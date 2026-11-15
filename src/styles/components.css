@@ -2426,3 +2426,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   flex: none;
 }
 .record-card__value { min-width: 0; color: var(--fg-2); }
+/* 行里的值必须能收缩并省略：长片名/长路径否则会把卡片顶宽（手机上没有横向滚动兜底） */
+.record-card__row:not(.record-card__row--block) > :not(.record-card__label) {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* 卡片头：有海报时标题必须能收缩。flex 子项默认 min-width:auto，
+   长片名会把整张卡顶宽（手机上没有横向滚动兜底），这里逐层放开 */
+.record-card__head { min-width: 0; }
+.record-card .cell-title { min-width: 0; }
+.record-card .cell-title > span { min-width: 0; overflow: hidden; }
+.record-card .cell-title__name,
+.record-card .cell-title__code { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.record-card .cell-title__row { min-width: 0; }
