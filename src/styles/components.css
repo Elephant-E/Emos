@@ -343,6 +343,9 @@
  * 现在只有一条：相邻块之间 18px（与 .page__head 的 margin-bottom 折叠，不会翻倍）。
  */
 main.page > * + *,
+/* 页面正文真正的容器是 .page-body（各页把内容都包在它里面），
+   只写 main.page 的子元素等于没生效——块间距全是 0 就是这么来的 */
+.page-body > * + *,
 .content-in > * + * { margin-top: var(--gap-card); }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
