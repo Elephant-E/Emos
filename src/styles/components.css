@@ -2474,12 +2474,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   margin-inline: var(--sp-2);
   vertical-align: middle;
 }
-.record-tile__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin-top: var(--sp-1);
-}
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
 /* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。

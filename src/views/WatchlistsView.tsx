@@ -3,7 +3,6 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { RecordGrid } from '@/components/RecordGrid'
-import { InlineSortInput } from '@/components/InlineSortInput'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
@@ -13,7 +12,6 @@ import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { qk, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -60,21 +58,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   )
   const items = infinite.items
 
-  const remove = useMutation({
-    mutationFn: (watchId: number) => watchApi.remove(watchId),
-    onSuccess: () => {
-      toast('片单已删除', 'success')
-      // 删除会返还槽位
-      qc.invalidateQueries({ queryKey: qk.watches })
-      qc.invalidateQueries({ queryKey: qk.session })
-    },
-  })
 
-  // 排序值只影响「我的片单」在列表里的位置，改完刷新列表即可
-  const sortWatch = useMutation({
-    mutationFn: ({ watchId, sort }: { watchId: number; sort: number }) => watchApi.sort(watchId, sort),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.watches }),
-  })
 
   const create = useMutation({
     mutationFn: (values: WatchlistFormValues) =>
@@ -158,43 +142,9 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             poster={(watch) => watch.image_poster_url}
             title={(watch) => watch.name}
             meta={(watch) => (
-              <>
-                <span>{watch.is_public ? '公开' : '私密'}</span>
-                {watch.updated_at ? <span>{watch.updated_at.slice(0, 4)}</span> : null}
-              </>
+              <>{watch.updated_at ? <span>{watch.updated_at.slice(0, 4)}</span> : null}</>
             )}
-            actions={(watch) => (
-              <>
-                {/* 订阅的片单要能调顺序：卡片底部给一个行内输入 */}
-                {search.scope === 'subscribed' ? (
-                  <InlineSortInput
-                    value={watch.user_sort}
-                    label={`${watch.name} 的排序`}
-                    onCommit={(sort) => sortWatch.mutate({ watchId: watch.id, sort })}
-                  />
-                ) : null}
-                {watch.is_self ? (
-                <button
-                  type="button"
-                  className="btn btn--danger-text"
-                  disabled={remove.isPending}
-                  onClick={async () => {
-                    const ok = await confirmDialog({
-                      title: `删除片单「${watch.name}」？`,
-                      message: `${watch.video_count} 部影片会一起从片单移除，影片本身不受影响。`,
-                      hint: '片单删除后无法恢复，槽位会释放。',
-                      confirmText: '删除',
-                      danger: true,
-                    })
-                    if (!ok) return
-                    remove.mutate(watch.id)
-                  }}
-                >
-                    删除
-                  </button>
-                ) : null}
-              </>
-            )}
+
           />
       </ListSection>
 

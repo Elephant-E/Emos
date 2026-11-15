@@ -143,6 +143,16 @@ export function WatchlistDetailView({
               <button type="button" className={`btn ${item.is_subscribe ? 'btn--ghost' : 'btn--primary'}`} onClick={() => subscribe.mutate(undefined, { onSuccess: () => toast(item.is_subscribe ? '已取消订阅' : '已订阅', 'success') })} disabled={subscribe.isPending}>
                 {item.is_subscribe ? '取消订阅' : '订阅'}
               </button>
+              {/* 订阅的片单在列表里的排序：从卡片搬到这里，功能不丢 */}
+              {item.is_subscribe ? (
+                <InlineSortInput
+                  value={item.user_sort}
+                  label="片单排序"
+                  onCommit={(sort) =>
+                    watchApi.sort(id, sort).then(() => qc.invalidateQueries({ queryKey: qk.watches }))
+                  }
+                />
+              ) : null}
               {item.is_self ? (
                 <>
                   <button type="button" className="btn btn--ghost" onClick={() => setEditing(true)}>

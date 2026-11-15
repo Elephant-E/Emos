@@ -37,8 +37,6 @@ export interface RecordGridProps<T> {
   meta?: (row: T) => ReactNode
   /** 第三行：日期、作者等更弱的信息 */
   sub?: (row: T) => ReactNode
-  /** 卡片底部操作 */
-  actions?: (row: T) => ReactNode
 }
 
 export function RecordGrid<T>({
@@ -51,7 +49,6 @@ export function RecordGrid<T>({
   time,
   meta,
   sub,
-  actions,
 }: RecordGridProps<T>) {
   return (
     <div className={`record-grid record-grid--${shape}`}>
@@ -97,7 +94,6 @@ export function RecordGrid<T>({
               </div>
               {meta ? <p className="record-tile__meta">{meta(row)}</p> : null}
               {sub ? <p className="record-tile__sub">{sub(row)}</p> : null}
-              {actions ? <div className="record-tile__actions">{actions(row)}</div> : null}
             </div>
           </article>
         )
