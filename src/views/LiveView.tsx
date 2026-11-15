@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { liveApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
@@ -215,135 +214,77 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         scope={`${search.library}-${search.channel}`}
         loadingRows={6}
-        loadingCols={4}
+        loadingKind="rows"
         emptyTitle="这个媒体库还没有频道"
       >
-                      <RecordList
-              rows={liveItems}
-              idKey={(item) => item.id}
-              className="table"
-              onOpen={(item) => onSearch({ channel: item.id === search.channel ? 0 : item.id })}
-              expandable={{
-                isExpanded: (item) => item.id === search.channel,
-                render: () => renderSources(),
-              }}
-              columns={[
-                {
-                  key: 'channel',
-                  label: '频道',
-                  thClass: 'th-thumb',
-                  thWidth: '34%',
-                  mobile: 'primary',
-                  render: (item) => (
-                    <div className="cell-title">
-                      {item.image_poster_url ? (
-                        <Poster src={item.image_poster_url} name={item.title} shape="square" />
-                      ) : null}
-                      <span>
-                        <span className="cell-title__row">
-                          <span className="cell-title__name">{item.title}</span>
-                          {item.code ? <span className="chip">官方</span> : null}
-                        </span>
-                        {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
-                      </span>
-                    </div>
-                  ),
-                },
-                {
-                  key: 'library',
-                  label: '媒体库',
-                  thWidth: '12%',
-                  mobile: 'inline',
-                  render: (item) => (
-                    <span className="muted">
-                      {library.data?.find((l) => l.id === item.live_library_id)?.title ??
-                        `#${item.live_library_id}`}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'count',
-                  label: '源',
-                  thClass: 'num',
-                  thWidth: '10%',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (item) => <>{item.media_count} 个源</>,
-                },
-                {
-                  key: 'sort',
-                  label: '排序',
-                  thClass: 'num',
-                  thWidth: '12%',
-                  mobile: 'hidden',
-                  render: (item) => <>{item.sort}</>,
-                },
-                {
-                  key: 'updated',
-                  label: '更新',
-                  thClass: 'num',
-                  thWidth: '16%',
-                  mobile: 'hidden',
-                  render: (item) => <span className="muted">{formatRelative(item.updated_at)}</span>,
-                },
-                {
-                  key: 'actions',
-                  label: '操作',
-                  thWidth: '16%',
-                  mobile: 'block',
-                  mobileAlign: 'end',
-                  render: (item) =>
-                    item.is_can_edit ? (
-                      <span className="action-group">
-                          <button type="button"
-                            className="btn btn--quiet"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setForm({
-                                id: item.id,
-                                title: item.title,
-                                library: item.live_library_id ?? search.library ?? 100,
-                                description: item.description ?? '',
-                                tagline: item.tagline ?? '',
-                                image_poster: null,
-                                image_url: item.image_poster_url,
-                                lockedCover: Boolean(item.code),
-                              })
-                            }}
-                          >
-                            编辑
-                          </button>
-                          {item.code ? (
-                            <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
-                              删除
-                            </button>
-                          ) : (
-                            <button type="button"
-                              className="btn btn--danger-text"
-                              disabled={actions.removeChannel.isPending}
-                              onClick={async (e) => {
-                                e.stopPropagation()
-                                const ok = await confirmDialog({
-                                  title: `删除频道「${item.title}」？`,
-                                  message: '该频道下的所有直播源会一并删除。',
-                                  hint: '观看端会立即不可用。',
-                                  confirmText: '删除',
-                                  danger: true,
-                                })
-                                if (!ok) return
-                                actions.removeChannel.mutate(item.id, { onSuccess: () => toast('频道已删除', 'success') })
-                              }}
-                            >
-                              删除
-                            </button>
-                          )}
-                      </span>
-                    ) : (
-                      <span className="muted">—</span>
-                    ),
-                },
-              ]}
-            />
+          <RecordRow
+            rows={liveItems}
+            idKey={(item) => item.id}
+            onOpen={(item) => onSearch({ channel: item.id === search.channel ? 0 : item.id })}
+            posterShape="square"
+            poster={(item) => item.image_poster_url}
+            title={(item) => item.title}
+            meta={(item) => (
+              <>
+                {item.code ? <span className="chip">官方</span> : null}
+                <span>{item.tagline ?? '无宣传词'}</span>
+                <span>{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</span>
+                <span>{item.media_count} 个源</span>
+                <span>{formatRelative(item.updated_at)}</span>
+              </>
+            )}
+            extra={(item) => (item.id === search.channel ? renderSources() : null)}
+            actions={(item) =>
+              item.is_can_edit ? (
+                <>
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setForm({
+                        id: item.id,
+                        title: item.title,
+                        library: item.live_library_id ?? search.library ?? 100,
+                        description: item.description ?? '',
+                        tagline: item.tagline ?? '',
+                        image_poster: null,
+                        image_url: item.image_poster_url,
+                        lockedCover: Boolean(item.code),
+                      })
+                    }}
+                  >
+                    编辑
+                  </button>
+                  {item.code ? (
+                    <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
+                      删除
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      disabled={actions.removeChannel.isPending}
+                      onClick={async (e) => {
+                        e.stopPropagation()
+                        const ok = await confirmDialog({
+                          title: `删除频道「${item.title}」？`,
+                          message: '该频道下的所有直播源会一并删除。',
+                          hint: '观看端会立即不可用。',
+                          confirmText: '删除',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        actions.removeChannel.mutate(item.id, { onSuccess: () => toast('频道已删除', 'success') })
+                      }}
+                    >
+                      删除
+                    </button>
+                  )}
+                </>
+              ) : null
+            }
+          />
       </ListSection>
 
       {form ? (
