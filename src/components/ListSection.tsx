@@ -36,6 +36,7 @@ export function ListSection<T>({
   loadingRows = 8,
   loadingCols = 5,
   paginated = true,
+  outOfRange,
   children,
 }: {
   isLoading: boolean
@@ -57,6 +58,12 @@ export function ListSection<T>({
   loadingCols?: number
   /** 一次取全的列表（封禁列表等）关掉分页器 */
   paginated?: boolean
+  /**
+   * 显式声明「空是因为页码越界」。
+   * 有些页面在客户端二次筛选（订单的支付/发货/关键词），此时 `total > 0` 也可能只是
+   * 「这页被筛掉了」，不能一律当成越界——那种页面自己算好传进来。
+   */
+  outOfRange?: boolean
   children: ReactNode
 }) {
   const pager = paginated ? (
@@ -67,8 +74,8 @@ export function ListSection<T>({
   if (isLoading) return <LoadingBlock rows={loadingRows} columns={loadingCols} />
 
   if (items.length === 0) {
-    // 总条数不为 0 说明是页码越界，不是「本来就没有」
-    if (paginated && total > 0) {
+    // 总条数不为 0 说明是页码越界，不是「本来就没有」（调用方也可显式指定）
+    if (outOfRange ?? (paginated && total > 0)) {
       return (
         <div className="table-card">
           <OutOfRangeBlock onFirstPage={() => onPage(1)} />

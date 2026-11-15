@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type { WatchlistFormValues } from '@/components/WatchlistForm'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
+import { ClearSearchButton } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { qk, useSession, useWatchPage } from '@/api/queries'
@@ -17,7 +17,6 @@ import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
-import { Pager } from '@/components/Pager'
 
 export interface WatchSearch {
   page: number
@@ -57,6 +56,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
   })
+  const items = data?.items ?? []
 
   const remove = useMutation({
     mutationFn: (watchId: number) => watchApi.remove(watchId),
@@ -123,30 +123,31 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         </button>
       </div>
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
-      {!error && isLoading ? <LoadingBlock rows={5} columns={4} /> : null}
-
-      {!error && !isLoading && data && data.items.length === 0 && search.page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-      ) : null}
-
-      {!error && !isLoading && data && data.items.length === 0 && search.page === 1 ? (
-        <EmptyBlock
-          action={
-            search.q ? (
-              <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />
-            ) : (
-              <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
-                新建片单
-              </button>
-            )
-          }
-          title={emptyTitle(search.q, search.scope)}
-        />
-      ) : null}
-
-      {!error && !isLoading && data && data.items.length > 0 ? (
-        <ListCard items={data.items} total={data.total} idKey={(v) => v.id}>
+      <ListSection
+        isLoading={isLoading}
+        error={error}
+        onRetry={() => refetch()}
+        items={data?.items ?? []}
+        total={data?.total ?? 0}
+        page={search.page}
+        pageSize={data?.page_size ?? search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        idKey={(w) => w.id}
+        scope={`${search.scope}-${search.q}`}
+        loadingRows={5}
+        loadingCols={4}
+        emptyTitle={emptyTitle(search.q, search.scope)}
+        emptyAction={
+          search.q ? (
+            <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} />
+          ) : (
+            <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
+              新建片单
+            </button>
+          )
+        }
+      >
           <table className="table table--auto table--thumb-wide">
             <thead>
               <tr>
@@ -160,7 +161,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               </tr>
             </thead>
             <tbody>
-              {data.items.map((watch) => (
+              {items.map((watch) => (
                 <tr
                   key={watch.id}
                   {...rowLink(() =>
@@ -237,15 +238,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
               ))}
             </tbody>
           </table>
-          <Pager
-            total={data.total}
-            page={search.page}
-            pageSize={search.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-          />
-        </ListCard>
-      ) : null}
+      </ListSection>
 
       {creating ? (
         <WatchlistForm

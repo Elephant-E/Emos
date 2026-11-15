@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
+
 import { Modal } from '@/components/Modal'
-import { Pager } from '@/components/Pager'
 import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -123,26 +122,30 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         </p>
       ) : null}
 
-      {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
-      {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
-      {orders.data && visibleOrders.length === 0 && search.page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-      ) : null}
-      {orders.data && visibleOrders.length === 0 && search.page === 1 ? (
-        <EmptyBlock
-          title={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
-          action={
-            filtered ? (
-              <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
-                清空筛选
-              </button>
-            ) : undefined
-          }
-        />
-      ) : null}
-
-      {orders.data && visibleOrders.length > 0 ? (
-        <ListCard items={visibleOrders} total={orders.data.total} idKey={(o) => o.order_no}>
+      <ListSection
+        isLoading={orders.isLoading}
+        error={orders.error}
+        onRetry={() => orders.refetch()}
+        items={visibleOrders}
+        total={orders.data?.total ?? 0}
+        page={search.page}
+        pageSize={orders.data?.page_size ?? search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        idKey={(o) => o.order_no}
+        scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
+        loadingRows={6}
+        loadingCols={5}
+        outOfRange={!filtered && search.page > 1}
+        emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
+        emptyAction={
+          filtered ? (
+            <button type="button" className="btn btn--ghost" onClick={() => onSearch({ q: '', pay: 'all', delivery: 'all', page: 1 })}>
+              清空筛选
+            </button>
+          ) : undefined
+        }
+      >
           <table className="table table--auto table--dense">
             <thead>
               <tr>
@@ -161,7 +164,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               </tr>
             </thead>
             <tbody>
-              {orders.data.items.map((order) => {
+              {visibleOrders.map((order) => {
                 const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
                 const sent = Boolean(order.time_delivery)
                 return (
@@ -316,17 +319,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               })}
             </tbody>
           </table>
-          {/* 接口会忽略 is_pay / order_title / order_no，所以本地只筛当前页；
-              总数与页码仍用后端返回值——否则筛选一开就没法翻页，越界页也找不到 */}
-          <Pager
-            total={orders.data.total}
-            page={search.page}
-            pageSize={orders.data.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-          />
-        </ListCard>
-      ) : null}
+      </ListSection>
 
       {remarking ? (
         <Modal
