@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
+import { ListSection } from '@/components/ListSection'
 import { InlineSortInput } from '@/components/InlineSortInput'
 import { UserCell } from '@/components/UserCell'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
@@ -141,6 +142,7 @@ export function WatchlistDetailView({
 
   const watch = useWatch(id)
   const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
+  const videoRows = videos.data?.items ?? []
   const [addTerm, setAddTerm] = useState('')
   const candidates = useWatchSearch(id, addTerm)
   const { addVideo, removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, setMaintainers, clearVideos, clearMusic } = useWatchMutations(id)
@@ -325,20 +327,21 @@ export function WatchlistDetailView({
       ) : (
         <>
 
-      {videos.error ? <ErrorBlock error={videos.error} onRetry={() => videos.refetch()} /> : null}
-      {/* 加载 / 空态 / 表格三者同一个外壳：表格在 .table-card 里，骨架和空态也包卡，
-          音乐分支（WatchMusicRows）同样包卡，三态保持一致 */}
-      {videos.isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-
-      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 && search.page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onSearch({ page: 1 })} />
-      ) : null}
-      {!videos.error && !videos.isLoading && videos.data && videos.data.items.length === 0 && search.page === 1 ? (
-        <EmptyBlock title="片单里还没有影片" />
-      ) : null}
-
-      {!videos.isLoading && videos.data && videos.data.items.length > 0 ? (
-        <div className="table-card">
+      <ListSection
+        isLoading={videos.isLoading}
+        error={videos.error}
+        onRetry={() => videos.refetch()}
+        items={videos.data?.items ?? []}
+        total={videos.data?.total ?? 0}
+        page={search.page}
+        pageSize={videos.data?.page_size ?? search.page_size}
+        onPage={(page) => go({ page })}
+        idKey={(v) => v.video_id}
+        scope={`${search.q}-${search.page}`}
+        loadingRows={6}
+        loadingCols={4}
+        emptyTitle="片单里还没有影片"
+      >
           <table className="table">
             <thead>
               <tr>
@@ -350,7 +353,7 @@ export function WatchlistDetailView({
               </tr>
             </thead>
             <tbody>
-              {videos.data.items.map((video) => (
+              {videoRows.map((video) => (
                 <tr key={video.video_id} {...rowLink(() => openVideo(video.video_id))}>
                   <td>
                     <div className="cell-title">
@@ -436,10 +439,7 @@ export function WatchlistDetailView({
               ))}
             </tbody>
           </table>
-          {/* 该接口把 page_size 固定成 15，必须用返回的值，否则总页数算少、尾部影片翻不到 */}
-          <Pager total={videos.data.total} page={search.page} pageSize={videos.data.page_size} onPage={(page) => go({ page })} />
-        </div>
-      ) : null}
+      </ListSection>
         </>
       )}
 
