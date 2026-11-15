@@ -311,9 +311,9 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                 {
                   key: 'carrot',
                   label: '胡萝卜',
+                  mobileLabel: null,
                   thClass: 'num',
                   mobile: 'inline',
-                  mobileLabel: null,
                   render: (row) => (
                     <>{row.tier_carrot == null ? '—' : `${formatThousand(Number(row.tier_carrot))} 胡萝卜`}</>
                   ),
@@ -330,7 +330,8 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
                   key: 'payout',
                   label: '实际打款',
                   thClass: 'num',
-                  mobile: 'hidden',
+                  // 打款金额是核心信息：用带字段名的行
+                  mobile: 'row',
                   render: (row) => <>{row.payout_price == null ? '—' : `¥${String(row.payout_price)}`}</>,
                 },
                 {

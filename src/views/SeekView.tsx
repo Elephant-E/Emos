@@ -254,9 +254,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               {
                 key: 'count',
                 label: '求片数',
+                mobileLabel: null,
                 thClass: 'num',
                 mobile: 'inline',
-                render: (item) => <>{item.count_request} 人</>,
+                render: (item) => <>{item.count_request} 人求</>,
               },
               {
                 key: 'carrot',

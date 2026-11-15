@@ -159,9 +159,14 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 label: '订单',
                 thClass: 'th-thumb',
                 mobile: 'primary',
-                render: (order) => (
+                render: (order, { mobile }) => (
                   <div className="cell-title">
-                    <Poster src={order.order_cover_url} name={order.order_title} shape="square" />
+                    <Poster
+                      src={order.order_cover_url}
+                      name={order.order_title}
+                      shape="square"
+                      collapseOnEmpty={mobile}
+                    />
                     <span>
                       <span className="cell-title__name">{order.order_title}</span>
                       <span className="cell-title__code">
@@ -205,7 +210,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                       key: 'settle',
                       label: '结算',
                       thClass: 'num',
-                      mobile: 'hidden' as const,
+                      // 对账要看结算胡萝卜：用带字段名的行，不能是裸数字
+                      mobile: 'row' as const,
                       render: (order: (typeof visibleOrders)[number]) => (
                         <span className="tnum muted">
                           {order.price_settle == null ? '—' : order.price_settle}

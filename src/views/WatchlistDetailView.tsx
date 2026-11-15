@@ -300,7 +300,8 @@ export function WatchlistDetailView({
                 label: '排序',
                 thClass: 'num',
                 thWidth: '12%',
-                mobile: 'hidden',
+                // 排序是可编辑字段，手机上不能藏
+                mobile: 'block',
                 render: (video) =>
                   item?.is_edit_video ? (
                     <InlineSortInput
@@ -335,7 +336,7 @@ export function WatchlistDetailView({
                         })
                       }
                     >
-                      {video.remark || '添加备注'}
+                      {video.remark ? `备注：${video.remark}` : '添加备注'}
                     </button>
                   ) : (
                     <span className="muted">{video.remark ?? '—'}</span>

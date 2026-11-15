@@ -20,9 +20,10 @@ export interface RecordColumn<T> {
    * - primary：卡片标题区（通常整行第一列，含缩略图）
    * - inline：跟在标题下方的次要信息，排成一行
    * - block：独占一行（徽标、按钮这类）
+   * - row：独占一行且带字段名（金额、状态这类需要说明的）
    * - hidden：手机上不显示（桌面仍显示）
    */
-  mobile?: 'primary' | 'inline' | 'block' | 'hidden'
+  mobile?: 'primary' | 'inline' | 'block' | 'row' | 'hidden'
 }
 
 /**
@@ -142,7 +143,7 @@ export function RecordList<T>({
               </div>
             ) : null}
             {columns
-              .filter((c) => c.mobile !== 'inline' && c.mobile !== 'primary' && c.mobile !== 'hidden' && c !== primary && !block.includes(c))
+              .filter((c) => c !== primary && !block.includes(c) && c.mobile !== 'inline' && c.mobile !== 'primary' && c.mobile !== 'hidden')
               .map((column) => (
                 <div key={column.key} className="record-card__row">
                   {column.mobileLabel === null ? null : (
