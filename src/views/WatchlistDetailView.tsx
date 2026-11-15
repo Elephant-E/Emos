@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
 import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
 import { MaintainerModal } from '@/components/watchlist/MaintainerModal'
@@ -20,7 +21,6 @@ import type {} from '@/api/types'
 import { qk, useWatch, useWatchMusic, useWatchMutations, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { rowLink } from '@/lib/rowLink'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 
@@ -251,103 +251,126 @@ export function WatchlistDetailView({
         loadingCols={4}
         emptyTitle="片单里还没有影片"
       >
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: '44%' }} className="th-thumb">影片</th>
-                <th style={{ width: '12%' }}>类型</th>
-                <th className="num" style={{ width: '12%' }}>排序</th>
-                <th style={{ width: item?.is_edit_video ? '18%' : '32%' }}>备注</th>
-                {item?.is_edit_video ? <th style={{ width: '1%' }}>操作</th> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {videoRows.map((video) => (
-                <tr key={video.video_id} {...rowLink(() => openVideo(video.video_id))}>
-                  <td>
-                    <div className="cell-title">
-                      {video.video_image_poster ? (
-                        <Poster src={video.video_image_poster} name={String(video.video_title ?? "?")} />
-                      ) : (
-                        <span className="thumb">{video.video_title.slice(0, 1)}</span>
-                      )}
-                      <span>
-                        <span className="cell-title__name">{video.video_title}</span>
-                        <span className="cell-title__code">
-              {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
-                        </span>
+          <RecordList
+            rows={videoRows}
+            idKey={(video) => video.video_id}
+            className="table"
+            onOpen={(video) => openVideo(video.video_id)}
+            columns={[
+              {
+                key: 'video',
+                label: '影片',
+                thClass: 'th-thumb',
+                thWidth: '44%',
+                mobile: 'primary',
+                render: (video) => (
+                  <div className="cell-title">
+                    {video.video_image_poster ? (
+                      <Poster src={video.video_image_poster} name={String(video.video_title ?? '?')} />
+                    ) : (
+                      <span className="thumb">{video.video_title.slice(0, 1)}</span>
+                    )}
+                    <span>
+                      <span className="cell-title__name">{video.video_title}</span>
+                      <span className="cell-title__code">
+                        {video.video_origin_title ?? '—'} · {video.video_date_air ?? '—'}
                       </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className="zone">
-                      <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                      {VIDEO_TYPE_LABEL[video.video_type]}
                     </span>
-                  </td>
-                  <td className="num">
-                    {item?.is_edit_video ? (
-                      <InlineSortInput
-                        value={video.sort}
-                        label={`${video.video_title} 的排序`}
-                        stopRowClick
-                        onCommit={(sort) =>
-              updateVideoEntry.mutate(
-              { videoId: video.video_id, sort, remark: video.remark ?? null },
-              { onSuccess: () => toast('已调整排序', 'success') },
-              )
-                        }
-                      />
-                    ) : (
-                      video.sort
-                    )}
-                  </td>
-                  <td className="muted">
-                    {item?.is_edit_video ? (
-                      <button type="button"
-                        className="btn btn--quiet"
-                        onClick={(e) => {
-              e.stopPropagation()
-              setRemarkFor({
-              videoId: video.video_id,
-              title: video.video_title,
-              remark: video.remark ?? '',
-              })
-                        }}
-                      >
-                        {video.remark || '添加备注'}
-                      </button>
-                    ) : (
-                      video.remark ?? '—'
-                    )}
-                  </td>
-                  {item?.is_edit_video ? (
-                  <td onClick={(e) => e.stopPropagation()}>
-                    <button type="button"
-                        className="btn btn--danger-text"
-                        onClick={async () => {
-              const ok = await confirmDialog({
-              title: '移出这个影片？',
-              message: `《${video.video_title}》会从本片单移除。`,
-              hint: '影片本身不会被删除，其它片单不受影响。',
-              confirmText: '移出',
-              danger: true,
-              })
-              if (!ok) return
-              removeVideo.mutate(video.video_id, {
-              onSuccess: () => toast('已移出', 'success'),
-              })
-                        }}
-                        disabled={removeVideo.isPending}
-                      >
-                        移出
+                  </div>
+                ),
+              },
+              {
+                key: 'type',
+                label: '类型',
+                thWidth: '12%',
+                mobile: 'inline',
+                mobileLabel: null,
+                render: (video) => (
+                  <span className="zone">
+                    <span
+                      className="rail__dot"
+                      style={{ color: VIDEO_TYPE_COLOR[video.video_type] }}
+                    />
+                    {VIDEO_TYPE_LABEL[video.video_type]}
+                  </span>
+                ),
+              },
+              {
+                key: 'sort',
+                label: '排序',
+                thClass: 'num',
+                thWidth: '12%',
+                mobile: 'hidden',
+                render: (video) =>
+                  item?.is_edit_video ? (
+                    <InlineSortInput
+                      value={video.sort}
+                      label={`${video.video_title} 的排序`}
+                      onCommit={(sort) =>
+                        updateVideoEntry.mutate(
+                          { videoId: video.video_id, sort, remark: video.remark ?? null },
+                          { onSuccess: () => toast('已调整排序', 'success') },
+                        )
+                      }
+                    />
+                  ) : (
+                    <>{video.sort}</>
+                  ),
+              },
+              {
+                key: 'remark',
+                label: '备注',
+                thWidth: item?.is_edit_video ? '18%' : '32%',
+                mobile: 'block',
+                render: (video) =>
+                  item?.is_edit_video ? (
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() =>
+                        setRemarkFor({
+                          videoId: video.video_id,
+                          title: video.video_title,
+                          remark: video.remark ?? '',
+                        })
+                      }
+                    >
+                      {video.remark || '添加备注'}
                     </button>
-                  </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  ) : (
+                    <span className="muted">{video.remark ?? '—'}</span>
+                  ),
+              },
+              {
+                key: 'actions',
+                label: '操作',
+                thWidth: '1%',
+                mobile: 'block',
+                mobileAlign: 'end',
+                render: (video) =>
+                  item?.is_edit_video ? (
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: '移出这个影片？',
+                          message: `《${video.video_title}》会从本片单移除。`,
+                          hint: '影片本身不会被删除，其它片单不受影响。',
+                          confirmText: '移出',
+                          danger: true,
+                        })
+                        if (!ok) return
+                        removeVideo.mutate(video.video_id, { onSuccess: () => toast('已移出', 'success') })
+                      }}
+                      disabled={removeVideo.isPending}
+                    >
+                      移出
+                    </button>
+                  ) : null,
+              },
+            ]}
+          />
       </ListSection>
         </>
       )}

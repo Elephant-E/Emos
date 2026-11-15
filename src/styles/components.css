@@ -2192,8 +2192,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .topbar__btn {
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     flex: none;
     border-radius: var(--r-item);
     border: 0;
@@ -2219,6 +2219,27 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail { top: 52px; }
   .page { padding: var(--sp-4) var(--sp-4) var(--sp-7); }
   .page-title { font-size: 26px; }
+
+  /* 触控目标：手机上没有 hover，32px 的按钮按起来发飘，统一抬到 40px。
+     行内小图标按钮（⋯）给 34px 见方，避免把表格/卡片行撑高。 */
+  .btn { height: 40px; }
+  .btn--quiet,
+  .btn--ghost,
+  .btn--danger-text { height: 38px; min-width: 44px; }
+  .row-menu { width: 34px; height: 34px; }
+  /* 分段筛选器（全部商品/销量/价格…）本来 24px，手机上点不准 */
+  .seg { height: 40px; align-items: center; }
+  .seg button { height: 34px; }
+  /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
+  .toolbar button { min-height: 34px; min-width: 34px; }
+  /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
+  .product-tile__buy { width: 36px; height: 36px; }
+  .detail-stat__link { min-height: 36px; }
+  .tab { min-height: 40px; }
+
+  /* 商品网格：一行一件太浪费，两列更接近手机购物的阅读习惯 */
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  .product-tile__buy { min-height: 36px; }
 }
 
 /* 顶栏面板展开：0 → 实际内容高度（Radix Collapsible 提供变量） */
