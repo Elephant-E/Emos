@@ -4,11 +4,14 @@ export function asPage(value: unknown, fallback = 1): number {
 }
 
 /** 全站允许的每页条数。30 是基金订单的上限，100 是商品列表的上限 */
-export const PAGE_SIZES = [20, 30, 50, 100] as const
+export const PAGE_SIZE = 20
 
-export function asPageSize(value: unknown, fallback = 20): number {
-  const n = Number(value)
-  return (PAGE_SIZES as readonly number[]).includes(n) ? n : fallback
+/**
+ * 每页条数现在是固定值：分页器已全站移除，列表靠滚动加载续页，
+ * 界面上没有任何地方能改这个数。保留函数是为了 URL 里旧的 page_size 不至于报错。
+ */
+export function asPageSize(_value: unknown): number {
+  return PAGE_SIZE
 }
 
 export function asString(value: unknown, fallback = ''): string {

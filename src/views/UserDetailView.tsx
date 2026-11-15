@@ -6,6 +6,7 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
 import { Avatar } from '@/components/Avatar'
+import { DetailHead } from '@/components/DetailHead'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
 import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
@@ -132,26 +133,25 @@ export function UserDetailView({ userId }: { userId: string }) {
 
       {/* 详情页头统一形态：左侧头像（图片）、右侧文本与状态 */}
       {known ? (
-        <section className="detail-head">
-          <div className="detail-head__row">
-            <Avatar url={info?.avatar ?? null} name={name} size={72} />
-            <div className="detail-head__text">
-              <div className="detail-head__chips">
-                <span className={`badge ${banned ? 'badge--warn' : 'badge--ok'}`}>
-                  <i />
-                  {banned ? '已封禁' : '正常'}
-                </span>
-                {self ? <span className="chip">我自己</span> : null}
-                {info?.is_viewing ? <span className="chip">在线</span> : null}
-              </div>
-              <p className="detail-head__name">{name}</p>
-              <p className="detail-head__meta">
-                #{userId}
-                {info?.created_at ? ` · ${formatDateTime(info.created_at)} 注册` : ''}
-              </p>
-            </div>
-          </div>
-        </section>
+        <DetailHead
+          media={<Avatar url={info?.avatar ?? null} name={name} size={72} />}
+          chips={
+            <>
+              <span className={`badge ${banned ? 'badge--warn' : 'badge--ok'}`}>
+                <i />
+                {banned ? '已封禁' : '正常'}
+              </span>
+              {self ? <span className="chip">我自己</span> : null}
+              {info?.is_viewing ? <span className="chip">在线</span> : null}
+            </>
+          }
+        >
+          <p className="detail-head__name">{name}</p>
+          <p className="detail-head__meta">
+            #{userId}
+            {info?.created_at ? ` · ${formatDateTime(info.created_at)} 注册` : ''}
+          </p>
+        </DetailHead>
       ) : null}
 
       {/* 无服务商权限时 pay 取不到，多数指标显示「—」；封禁状态、邀请关系来自其它接口，
