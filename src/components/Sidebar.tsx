@@ -86,7 +86,18 @@ function Avatar({ url, name, size }: { url?: string | null; name: string; size?:
   )
 }
 
-export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch: () => void }) {
+export function Sidebar({
+  user,
+  onOpenSearch,
+  open = false,
+  onClose,
+}: {
+  user?: UserInfo
+  onOpenSearch: () => void
+  /** 手机端抽屉是否展开（桌面端忽略） */
+  open?: boolean
+  onClose?: () => void
+}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const [accounts, setAccounts] = useState<Account[]>(() => listAccounts())
   const [menuOpen, setMenuOpen] = useState(false)
@@ -124,7 +135,7 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
   }, [user?.user_id, user?.username, user?.pseudonym, user?.avatar])
 
   return (
-    <aside className="rail">
+    <aside className={open ? 'rail is-open' : 'rail'}>
       <div className="rail__brand">
         <div className="rail__brand-name">
           <IconLogo />
@@ -144,7 +155,16 @@ export function Sidebar({ user, onOpenSearch }: { user?: UserInfo; onOpenSearch:
         </span>
       </button>
 
-      <div className="rail__scroll" ref={scrollRef}>
+      <div
+        className="rail__scroll"
+        ref={scrollRef}
+        onClickCapture={(event) => {
+          // 手机端：点任意导航项后收起抽屉（桌面端 open 恒为 false，不受影响）
+          if (!open) return
+          const target = event.target as HTMLElement
+          if (target.closest('a[data-nav], .rail__item')) onClose?.()
+        }}
+      >
       <nav className="rail__nav" style={{ marginTop: 'var(--stack)' }}>
         {PINNED.map((item) => {
           const Icon = item.icon

@@ -70,6 +70,12 @@ export const IconRight = (p: IconProps) => (
     <path d="M6 3.5 10.5 8 6 12.5" />
   </Svg>
 )
+export const IconMenu = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
+  </Svg>
+)
+
 export const IconDots = (p: IconProps) => (
   <svg width={14} height={14} viewBox="0 0 14 14" fill="currentColor" aria-hidden="true" {...p}>
     <circle cx="3" cy="7" r="1.1" />

@@ -6,12 +6,14 @@ import { useSession } from '@/api/queries'
 import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
 import { PromptHost } from '@/ui/prompt'
+import { NavContext } from '@/ui/nav'
 
 export function AdminLayout() {
   const { data } = useSession()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const pageRef = useRef<HTMLElement>(null)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [navOpen, setNavOpen] = useState(false)
 
   // ⌘K / Ctrl+K 在任意页面打开搜索面板，与侧栏的键帽提示一致
   useEffect(() => {
@@ -26,20 +28,25 @@ export function AdminLayout() {
 
   useEffect(() => {
     pageRef.current?.scrollTo({ top: 0 })
+    // 换页就收起抽屉，否则手机上新页面会被导航盖住
+    setNavOpen(false)
   }, [pathname])
 
   return (
-    <div className="shell">
-      <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} />
-      <main className="page" ref={pageRef}>
-        <div className="page-body" key={pathname}>
-          <Outlet />
-        </div>
-      </main>
+    <NavContext.Provider value={() => setNavOpen(true)}>
+      <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
+        <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} open={navOpen} onClose={() => setNavOpen(false)} />
+        {navOpen ? <button type="button" className="shell__scrim" aria-label="关闭导航" onClick={() => setNavOpen(false)} /> : null}
+        <main className="page" ref={pageRef}>
+          <div className="page-body" key={pathname}>
+            <Outlet />
+          </div>
+        </main>
+      </div>
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <ToastHost />
       <ConfirmHost />
       <PromptHost />
-    </div>
+    </NavContext.Provider>
   )
 }
