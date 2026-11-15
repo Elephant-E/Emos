@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
 import { RecordGrid } from '@/components/RecordGrid'
@@ -8,7 +7,7 @@ import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { fetchVideoPage } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
@@ -26,10 +25,7 @@ const TABS: Array<{ key: '' | VideoType; label: string }> = [
 
 export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSearch: (patch: Partial<LibrarySearch>) => void }) {
   const navigate = useNavigate()
-  const [query, setQuery] = useState(search.q)
-  useEffect(() => setQuery(search.q), [search.q])
-
-  useDebounced(query, (next) => onSearch({ q: next }), { current: search.q })
+  const [query, setQuery] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })

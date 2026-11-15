@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
@@ -11,7 +11,7 @@ import { shopApi } from '@/api/endpoints'
 import { useShopMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useDebounced } from '@/lib/useDebounced'
+import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -38,9 +38,7 @@ const DELIVERY_TABS: Array<{ key: OrdersSearch['delivery']; label: string; filte
 export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearch: (patch: Partial<OrdersSearch>) => void }) {
   const pay = PAY_TABS.find((t) => t.key === search.pay) ?? PAY_TABS[0]
   const delivery = DELIVERY_TABS.find((t) => t.key === search.delivery) ?? DELIVERY_TABS[0]
-  const [term, setTerm] = useState(search.q)
-  useEffect(() => setTerm(search.q), [search.q])
-  useDebounced(term, (next) => onSearch({ q: next }), { current: search.q })
+  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const mineScope = search.scope === 'mine'
   // 两个视角共用同一份筛选：分开写会出现「店铺订单能搜到、我的订单搜不到」
