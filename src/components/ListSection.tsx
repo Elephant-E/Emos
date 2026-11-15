@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from './StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingBlock, LoadingGrid, OutOfRangeBlock } from './StateBlock'
 import { ListCard } from './ListCard'
 import { Pager } from './Pager'
 import { useMediaQuery } from '@/lib/useMediaQuery'
@@ -37,6 +37,7 @@ export function ListSection<T>({
   emptyHint,
   loadingRows = 8,
   loadingCols = 5,
+  gridShape = 'poster',
   paginated = true,
   outOfRange,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
@@ -64,6 +65,8 @@ export function ListSection<T>({
   emptyHint?: string
   loadingRows?: number
   loadingCols?: number
+  /** 网格骨架的图片比例（bare 页用） */
+  gridShape?: 'poster' | 'wide' | 'square'
   /** 一次取全的列表（封禁列表等）关掉分页器 */
   paginated?: boolean
   /**
@@ -83,7 +86,11 @@ export function ListSection<T>({
   ) : null
 
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
-  if (isLoading) return <LoadingBlock rows={loadingRows} columns={loadingCols} />
+  if (isLoading) {
+    // 骨架与真实内容同形：网格页给网格骨架，行式列表给行式骨架
+    if (bare) return <LoadingGrid count={loadingRows} shape={gridShape} />
+    return <LoadingBlock rows={loadingRows} columns={loadingCols} />
+  }
 
   if (items.length === 0) {
     // 总条数不为 0 说明是页码越界，不是「本来就没有」（调用方也可显式指定）

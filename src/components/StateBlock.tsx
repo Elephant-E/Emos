@@ -1,5 +1,22 @@
 import type { ReactNode } from 'react'
 import { IconAlert, IconEmpty } from './icons'
+/** 网格列表的骨架：与 RecordGrid 的卡片同形（图片位 + 两行文字），换页不跳 */
+export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; shape?: 'poster' | 'wide' | 'square' }) {
+  return (
+    <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="record-tile">
+          <div className={`record-tile__media record-tile__media--${shape} skeleton`} style={{ boxShadow: 'none' }} />
+          <div className="record-tile__body">
+            <div className="skeleton" style={{ height: 12, width: '68%' }} />
+            <div className="skeleton" style={{ height: 10, width: '42%' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: number; columns?: number; bare?: boolean }) {
   return (
     <div className={bare ? undefined : 'table-card'} aria-busy="true" aria-live="polite">
