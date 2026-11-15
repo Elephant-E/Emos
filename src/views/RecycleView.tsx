@@ -224,7 +224,10 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
               actions={(row) => {
                 const videoId = Number(row.video_id ?? 0)
                 const title = String(row.video_title ?? '—')
-                return canRestoreRow(row) ? (
+                // 影片接口目前不返回 is_can_restore：给明确状态，不要留空白格
+                return row.is_can_restore === undefined ? (
+                  <span className="meta-sm">暂不支持自助恢复</span>
+                ) : canRestoreRow(row) ? (
                   <button
                     type="button"
                     className="btn btn--quiet"
