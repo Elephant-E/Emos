@@ -39,6 +39,8 @@ export interface UserInfo extends UserBase {
   telegram_user_id: string | null
   pseudonym: string | null
   is_show_empty: boolean
+  /** 是否显示成人内容；PUT /api/user/showAdult 是 toggle */
+  is_show_adult: boolean
   is_can_upload: boolean
   is_can_down: boolean
   is_original_image: boolean

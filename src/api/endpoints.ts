@@ -27,6 +27,8 @@ export const userApi = {
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),
   // originalImage 是 toggle：请求体参数被忽略，返回翻转后的值。
   originalImage: () => request<{ is_original_image: boolean }>('/api/user/originalImage', { method: 'PUT', body: {} }),
+  /** 同样是 toggle：真机实测请求体被忽略、返回翻转后的值（2026-11-15 双向验证并还原） */
+  showAdult: () => request<{ is_show_adult: boolean }>('/api/user/showAdult', { method: 'PUT', body: {} }),
   unbindTelegram: () => request<unknown>('/api/user/telegram', { method: 'DELETE' }),
   statsVideoHistory: (dates: string[]) => request<Array<Record<string, unknown>>>('/api/user/stats/video/history', { query: { dates } }),
 }

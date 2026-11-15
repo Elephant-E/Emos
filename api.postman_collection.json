@@ -532,7 +532,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n    \"server_video\": \"https://video.emos.best\",\n    \"server_live\": null,\n    \"server_music\": null,\n    \"telegram_group_url\": \"https://t.me/emospg\",\n    \"telegram_bind_url\": \"https://t.me/emos_test_bot?start=bind_4L95jopXJv\",\n    \"telegram_user_id\": null,\n    \"user_id\": \"eXD3VD3Y1s\",\n    \"username\": \"sorakand\",\n    \"avatar\": null,\n    \"pseudonym\": null,\n    \"password\": null,\n    \"is_show_empty\": true,\n    \"is_can_upload\": false,\n    \"is_can_down\": false,\n    \"is_original_image\": false,\n    \"roles\": [],\n    \"must_otp\": true,\n    \"is_viewing\": false,\n    \"invite_remaining\": 0,\n    \"is_have_emps\": false,\n    \"slot_remaining\": 2,\n    \"size_upload\": 0,\n    \"carrot\": 0,\n    \"sign\": null\n}"
+              "body": "{\n    \"server_video\": \"https://video.emos.best\",\n    \"server_live\": null,\n    \"server_music\": null,\n    \"server_abs\": null,\n    \"telegram_group_url\": \"https://t.me/emospg\",\n    \"telegram_bind_url\": \"https://t.me/emos_test_bot?start=bind_4L95jopXJv\",\n    \"telegram_user_id\": null,\n    \"user_id\": \"eXD3VD3Y1s\",\n    \"username\": \"sorakand\",\n    \"avatar\": null,\n    \"pseudonym\": null,\n    \"password\": null,\n    \"is_show_empty\": true,\n    \"is_can_upload\": false,\n    \"is_can_down\": false,\n    \"is_original_image\": false,\n    \"roles\": [],\n    \"must_otp\": true,\n    \"is_viewing\": false,\n    \"invite_remaining\": 0,\n    \"is_have_emps\": false,\n    \"slot_remaining\": 2,\n    \"size_upload\": 0,\n    \"carrot\": 0,\n    \"sign\": null\n}"
             }
           ]
         },
@@ -608,6 +608,25 @@
               "body": "{\n    \"is_show_empty\": false\n}"
             }
           ]
+        },
+        {
+          "name": "更改是否显示成人内容",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/user/showAdult",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "showAdult"
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "更改是否显示片单默认",
@@ -15806,7 +15825,7 @@
       "description": "此处接口为 `admin` 权限组可用"
     },
     {
-      "name": "音乐相关",
+      "name": "音乐相关(于261114停用)",
       "item": [
         {
           "name": "其他",

@@ -69,6 +69,20 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                 <label className="switch">
                   <input
                     type="checkbox"
+                    checked={user.is_show_adult}
+                    disabled={actions.toggleShowAdult.isPending}
+                    onChange={() =>
+                      actions.toggleShowAdult.mutate(undefined, {
+                        onSuccess: (res) => toast(res.is_show_adult ? '已显示成人内容' : '已隐藏成人内容', 'success'),
+                      })
+                    }
+                  />
+                  显示成人内容
+                </label>
+
+                <label className="switch">
+                  <input
+                    type="checkbox"
                     checked={user.is_original_image}
                     disabled={actions.toggleOriginalImage.isPending}
                     onChange={() =>

@@ -1,9 +1,9 @@
 # API 覆盖对照
 
-文档（`api.postman_collection.json`）：**190** 个接口；
-代码（`src/api/endpoints.ts`）：**168** 个封装。
+文档（`api.postman_collection.json`）：**191** 个接口；
+代码（`src/api/endpoints.ts`）：**169** 个封装。
 
-- 已接且有界面调用：**165**
+- 已接且有界面调用：**166**
 - 已接但无调用：**0**
 - 未接：**23**
 - 代码有、文档没有：**3**
@@ -31,7 +31,7 @@
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
 | 商城相关 / 商品 | 修改分类 | `PUT /api/shop/product/category` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |
-| 音乐相关 / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
+| 音乐相关(于261114停用) / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
 | 影院相关 | 随机影片 | `GET /api/reel/rand` |
 | 影院相关 | 影片信息 | `GET /api/reel/info/{var}` |
 | 影院相关 | 添加影片 | `POST /api/reel/create` |
@@ -44,7 +44,7 @@
 | 分组 | 接口 |
 |---|---|
 | 用户相关 | 更改是否显示片单默认 |
-| 音乐相关 / 歌手 | 歌手详情 |
+| 音乐相关(于261114停用) / 歌手 | 歌手详情 |
 
 ## 已接但无调用（封装在、没人调）
 

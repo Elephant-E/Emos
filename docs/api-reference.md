@@ -81,6 +81,7 @@
     "server_video": "https://video.emos.best",
     "server_live": null,
     "server_music": null,
+    "server_abs": null,
     "telegram_group_url": "https://t.me/emospg",
     "telegram_bind_url": "https://t.me/emos_test_bot?start=bind_4L95jopXJv",
     "telegram_user_id": null,
@@ -116,6 +117,10 @@
     "is_show_empty": false
 }
 ```
+
+### 更改是否显示成人内容
+
+`PUT /api/user/showAdult`
 
 ### 更改是否显示片单默认
 
@@ -13686,7 +13691,7 @@ https://core.telegram.org/bots/api#rich-html-style
 }
 ```
 
-## 音乐相关
+## 音乐相关(于261114停用)
 
 ### 其他
 

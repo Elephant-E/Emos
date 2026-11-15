@@ -15,6 +15,7 @@ async function loadFixtures(): Promise<Fixture[]> {
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 const user: UserInfo = {
+  is_show_adult: false,
   user_id: 'eXD3VD3Y1s',
   username: 'sorakand',
   avatar: null,
@@ -489,6 +490,11 @@ export async function mockRequest<T>(
   if (clean === '/api/seek/claim') return { seek_id: 1 } as T
   if (clean === '/api/invite/remark') return {} as T
   if (clean === '/api/pay/query') return { pay_status: 'pay', price_order: 68, pay_way: 'alipay', order_name: '限量海报 A3' } as T
+  if (clean === '/api/user/showAdult') {
+    // 真机是 toggle：忽略请求体，返回翻转值；这里同步改 fixture，方便验「失效 → 重取」
+    user.is_show_adult = !user.is_show_adult
+    return { is_show_adult: user.is_show_adult } as T
+  }
   if (clean === '/api/pay/getUserInfo') {
     const id = String(query.user_id ?? 'e7E6K6OE4s')
     return { user_id: id, username: id === 'e7E6K6OE4s' ? 'elephant' : 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
