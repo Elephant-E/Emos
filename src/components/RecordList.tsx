@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { rowLink } from '@/lib/rowLink'
 
@@ -37,6 +37,7 @@ export function RecordList<T>({
   columns,
   idKey,
   onOpen,
+  expandable,
   className,
 }: {
   rows: readonly T[]
@@ -44,6 +45,14 @@ export function RecordList<T>({
   idKey: (row: T) => string | number
   /** 手机端整张卡片可点（桌面不接管行点击，沿用调用方的 rowLink） */
   onOpen?: (row: T) => void
+  /**
+   * 可展开的行（如直播频道点开看源列表）。
+   * 展开状态由调用方持有，这里只负责把内容渲染在行/卡片下面。
+   */
+  expandable?: {
+    isExpanded: (row: T) => boolean
+    render: (row: T) => ReactNode
+  }
   /** 桌面表格的附加类名 */
   className?: string
 }) {
@@ -70,13 +79,23 @@ export function RecordList<T>({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={idKey(row)} {...(onOpen ? rowLink(() => onOpen(row)) : {})}>
+            <Fragment key={idKey(row)}>
+            <tr
+              {...(onOpen ? rowLink(() => onOpen(row), true, expandable ? 'button' : 'link') : {})}
+              className={expandable?.isExpanded(row) ? 'is-expanded' : undefined}
+            >
               {columns.map((column) => (
                 <td key={column.key} className={column.thClass === 'num' ? 'num' : undefined}>
                   {column.render(row, { mobile: false })}
                 </td>
               ))}
             </tr>
+            {expandable?.isExpanded(row) ? (
+              <tr className="is-expand-row">
+                <td colSpan={columns.length}>{expandable.render(row)}</td>
+              </tr>
+            ) : null}
+            </Fragment>
           ))}
         </tbody>
       </table>
@@ -126,6 +145,7 @@ export function RecordList<T>({
                   <span className="record-card__value">{column.render(row, { mobile: true })}</span>
                 </div>
               ))}
+            {expandable?.isExpanded(row) ? <div className="record-card__expand">{expandable.render(row)}</div> : null}
             {block.map((column) => (
               <div
                 key={column.key}

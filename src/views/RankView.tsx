@@ -185,20 +185,18 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
           ) : null}
 
           {tab === 'playing' ? (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th className="th-thumb" style={{ width: '36%' }}>在看</th>
-                  <th style={{ width: '16%' }}>季集</th>
-                  <th>用户</th>
-                  <th className="num" style={{ width: '12%' }}>倍速</th>
-                  <th style={{ width: '18%' }}>客户端</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(playing.data ?? []).map((row, index) => (
-                  <tr key={`${row.username}-${row.video_title}-${index}`}>
-                    <td>
+            <RecordList
+                rows={playing.data ?? []}
+                idKey={(row) => `${row.username}-${row.video_title}`}
+                className="table"
+                columns={[
+                  {
+                    key: 'video',
+                    label: '在看',
+                    thClass: 'th-thumb',
+                    thWidth: '36%',
+                    mobile: 'primary',
+                    render: (row) => (
                       <div className="cell-title">
                         {row.video_image_poster ? (
                           <Poster src={row.video_image_poster} name={row.video_title} />
@@ -209,44 +207,87 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                           <span className="cell-title__name">{row.video_title}</span>
                         </span>
                       </div>
-                    </td>
-                    <td className="muted">
-                      {row.season_number != null
-                        ? episodeCode(row.season_number, row.episode_number)
-                        : '—'}
-                    </td>
-                    <td className="muted">{row.username}</td>
-                    <td className="num muted">{row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—'}</td>
-                    <td className="muted text-xs">{row.ua ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    ),
+                  },
+                  {
+                    key: 'episode',
+                    label: '季集',
+                    thWidth: '16%',
+                    mobile: 'inline',
+                    mobileLabel: null,
+                    render: (row) => (
+                      <span className="muted">
+                        {row.season_number != null ? episodeCode(row.season_number, row.episode_number) : '—'}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'user',
+                    label: '用户',
+                    mobile: 'inline',
+                    render: (row) => <span className="muted">{row.username}</span>,
+                  },
+                  {
+                    key: 'speed',
+                    label: '倍速',
+                    thClass: 'num',
+                    thWidth: '12%',
+                    mobile: 'inline',
+                    mobileLabel: null,
+                    render: (row) => (
+                      <span className="muted">{row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—'}</span>
+                    ),
+                  },
+                  {
+                    key: 'ua',
+                    label: '客户端',
+                    thWidth: '18%',
+                    mobile: 'hidden',
+                    render: (row) => <span className="muted text-xs">{row.ua ?? '—'}</span>,
+                  },
+                ]}
+              />
           ) : null}
 
           {tab === 'live' ? (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th style={{ width: '34%' }}>频道</th>
-                  <th>用户</th>
-                  <th style={{ width: '18%' }}>已看</th>
-                  <th style={{ width: '22%' }}>客户端</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(live.data ?? []).map((row, index) => (
-                  <tr key={`${row.username}-${row.live_title}-${index}`}>
-                    <td>
-                      <span className="cell-title__name">{row.live_title}</span>
-                    </td>
-                    <td className="muted">{row.username}</td>
-                    <td className="num muted">{Math.max(0, Math.round(row.play_durations / 60))} 分钟</td>
-                    <td className="muted text-xs">{row.ua ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <RecordList
+                rows={live.data ?? []}
+                idKey={(row) => `${row.username}-${row.live_title}`}
+                className="table"
+                columns={[
+                  {
+                    key: 'channel',
+                    label: '频道',
+                    thWidth: '34%',
+                    mobile: 'primary',
+                    render: (row) => <span className="cell-title__name">{row.live_title}</span>,
+                  },
+                  {
+                    key: 'user',
+                    label: '用户',
+                    mobile: 'inline',
+                    render: (row) => <span className="muted">{row.username}</span>,
+                  },
+                  {
+                    key: 'watched',
+                    label: '已看',
+                    thClass: 'num',
+                    thWidth: '18%',
+                    mobile: 'inline',
+                    mobileLabel: null,
+                    render: (row) => (
+                      <span className="muted">{Math.max(0, Math.round(row.play_durations / 60))} 分钟</span>
+                    ),
+                  },
+                  {
+                    key: 'ua',
+                    label: '客户端',
+                    thWidth: '22%',
+                    mobile: 'hidden',
+                    render: (row) => <span className="muted text-xs">{row.ua ?? '—'}</span>,
+                  },
+                ]}
+              />
           ) : null}
         </div>
       ) : null}

@@ -1,5 +1,6 @@
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ListSection } from '@/components/ListSection'
+import { RecordList } from '@/components/RecordList'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
@@ -13,7 +14,6 @@ import { IconPlus } from '@/components/icons'
 import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { rowLink } from '@/lib/rowLink'
 import { formatRelative } from '@/lib/format'
 
 export interface LiveSearch {
@@ -232,50 +232,84 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         loadingCols={4}
         emptyTitle="这个媒体库还没有频道"
       >
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: '34%' }} className="th-thumb">频道</th>
-                <th style={{ width: '12%' }}>媒体库</th>
-                <th className="num" style={{ width: '10%' }}>源</th>
-                <th className="num" style={{ width: '12%' }}>排序</th>
-                <th className="num" style={{ width: '16%' }}>更新</th>
-                <th style={{ width: '16%' }}>
-                  操作
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {(list.data?.items ?? []).map((item) => {
-                const selected = item.id === search.channel
-                return (
-                  <Fragment key={item.id}>
-                  <tr
-                    {...rowLink(() => onSearch({ channel: selected ? 0 : item.id }), true, 'button')}
-                    className={selected ? 'is-expanded' : undefined}
-                  >
-                    <td>
-                      <div className="cell-title">
-                        {item.image_poster_url ? <Poster src={item.image_poster_url} name={item.title} shape="square" /> : null}
-                        <span>
-                          {/* 官方标记要跟标题同一行，独立成块会把行撑高 */}
-                          <span className="cell-title__row">
-                            <span className="cell-title__name">{item.title}</span>
-                            {selected ? <span className="meta-sm">展开中</span> : null}
-                            {/* code 非空表示官方频道（CCTV1 这类），不可删除 */}
-                            {item.code ? <span className="chip">官方</span> : null}
-                          </span>
-                          {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
+                      <RecordList
+              rows={list.data?.items ?? []}
+              idKey={(item) => item.id}
+              className="table"
+              onOpen={(item) => onSearch({ channel: item.id === search.channel ? 0 : item.id })}
+              expandable={{
+                isExpanded: (item) => item.id === search.channel,
+                render: () => renderSources(),
+              }}
+              columns={[
+                {
+                  key: 'channel',
+                  label: '频道',
+                  thClass: 'th-thumb',
+                  thWidth: '34%',
+                  mobile: 'primary',
+                  render: (item) => (
+                    <div className="cell-title">
+                      {item.image_poster_url ? (
+                        <Poster src={item.image_poster_url} name={item.title} shape="square" />
+                      ) : null}
+                      <span>
+                        <span className="cell-title__row">
+                          <span className="cell-title__name">{item.title}</span>
+                          {item.id === search.channel ? <span className="meta-sm">展开中</span> : null}
+                          {item.code ? <span className="chip">官方</span> : null}
                         </span>
-                      </div>
-                    </td>
-                    <td className="muted">{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</td>
-                    <td className="num">{item.media_count}</td>
-                    <td className="num">{item.sort}</td>
-                    <td className="num muted">{formatRelative(item.updated_at)}</td>
-                    <td>
-                      {item.is_can_edit ? (
-                        <span className="action-group">
+                        {item.tagline ? <span className="cell-title__code">{item.tagline}</span> : null}
+                      </span>
+                    </div>
+                  ),
+                },
+                {
+                  key: 'library',
+                  label: '媒体库',
+                  thWidth: '12%',
+                  mobile: 'inline',
+                  render: (item) => (
+                    <span className="muted">
+                      {library.data?.find((l) => l.id === item.live_library_id)?.title ??
+                        `#${item.live_library_id}`}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'count',
+                  label: '源',
+                  thClass: 'num',
+                  thWidth: '10%',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (item) => <>{item.media_count} 个源</>,
+                },
+                {
+                  key: 'sort',
+                  label: '排序',
+                  thClass: 'num',
+                  thWidth: '12%',
+                  mobile: 'hidden',
+                  render: (item) => <>{item.sort}</>,
+                },
+                {
+                  key: 'updated',
+                  label: '更新',
+                  thClass: 'num',
+                  thWidth: '16%',
+                  mobile: 'hidden',
+                  render: (item) => <span className="muted">{formatRelative(item.updated_at)}</span>,
+                },
+                {
+                  key: 'actions',
+                  label: '操作',
+                  thWidth: '16%',
+                  mobile: 'block',
+                  mobileAlign: 'end',
+                  render: (item) =>
+                    item.is_can_edit ? (
+                      <span className="action-group">
                           <button type="button"
                             className="btn btn--quiet"
                             onClick={(e) => {
@@ -318,22 +352,13 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                               删除
                             </button>
                           )}
-                        </span>
-                      ) : (
-                        <span className="muted">—</span>
-                      )}
-                    </td>
-                  </tr>
-                  {selected ? (
-                    <tr className="table__expand">
-                      <td colSpan={6}>{renderSources()}</td>
-                    </tr>
-                  ) : null}
-                  </Fragment>
-                )
-              })}
-            </tbody>
-          </table>
+                      </span>
+                    ) : (
+                      <span className="muted">—</span>
+                    ),
+                },
+              ]}
+            />
       </ListSection>
 
       {form ? (
