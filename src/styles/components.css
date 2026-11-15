@@ -2506,11 +2506,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-rows {
   display: grid;
   gap: var(--gap-card);
-  grid-template-columns: minmax(0, 1fr);
+  /* 自适应列数：行卡最少 280px（封面 112 + 文字列 + 内边距），
+     带侧栏的 1280 屏可用宽度 900，正好三张 */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
-/* 信息行卡片比图片网格宽，但也没必要一张占满整屏：宽屏两列 */
-@media (min-width: 1100px) {
-  .record-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  /* 手机上文字比图片重要，一张占满整行 */
+  .record-rows { grid-template-columns: minmax(0, 1fr); }
 }
 .record-row {
   position: relative;
