@@ -112,8 +112,14 @@ export function RecordList<T>({
               ? {
                   role: 'button' as const,
                   tabIndex: 0,
-                  onClick: () => onOpen(row),
+                  onClick: (event: React.MouseEvent) => {
+                    // 卡片里的按钮/链接自己处理点击，否则「删除」这类动作会连带跳页
+                    if ((event.target as HTMLElement).closest('button, a')) return
+                    onOpen(row)
+                  },
                   onKeyDown: (event: React.KeyboardEvent) => {
+                    // 只响应卡片本身的回车/空格，内部控件的不抢
+                    if (event.target !== event.currentTarget) return
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault()
                       onOpen(row)
