@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
@@ -537,18 +538,13 @@ export function ShopView({
           onClose={() => setEditing(null)}
           onSubmit={saveProduct}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id) || actions.saveProduct.isPending}
-                onClick={saveProduct}
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setEditing(null)}
+              onConfirm={() => saveProduct}
+              confirmText="保存"
+              pending={actions.saveProduct.isPending}
+              disabled={!editing.name?.trim() || !(editing.category_id ?? categories.data?.[0]?.category_id) || actions.saveProduct.isPending}
+            />
           }
         >
           <label className="field">

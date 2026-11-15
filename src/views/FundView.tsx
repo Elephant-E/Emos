@@ -5,6 +5,7 @@ import { ImagePickerMulti } from '@/components/ImagePicker'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { Tabs } from '@/components/Tabs'
 import { fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -122,18 +123,13 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
           onClose={() => setTransferring(false)}
           onSubmit={() => void submitTransfer()}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setTransferring(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending}
-                onClick={() => void submitTransfer()}
-              >
-                转赠
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setTransferring(false)}
+              onConfirm={() => void submitTransfer()}
+              confirmText="转赠"
+              pending={actions.transfer.isPending}
+              disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending}
+            />
           }
         >
           <label className="field">

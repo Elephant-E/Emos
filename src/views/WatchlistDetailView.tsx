@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { Pager } from '@/components/Pager'
 import { IconPlus } from '@/components/icons'
 import { PickList } from '@/components/PickList'
@@ -490,22 +491,16 @@ export function WatchlistDetailView({
           title="动态抓取"
           onClose={() => setDynamicOpen(false)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setDynamicOpen(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                onClick={() => {
-                  setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
-                    onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
-                  })
-                  setDynamicOpen(false)
-                }}
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setDynamicOpen(false)}
+              onConfirm={() => {
+                                                                                                                              setDynamic.mutate(dynamicUrl.trim() ? dynamicUrl.trim() : null, {
+                                                                                                                                            onSuccess: () => toast(dynamicUrl.trim() ? '已开启动态抓取' : '已关闭动态抓取', 'success'),
+                                                                                                                              })
+                                                                                                                              setDynamicOpen(false)
+                                                                                                                }}
+              confirmText="保存"
+            />
           }
         >
           <label className="field">
@@ -567,28 +562,22 @@ export function WatchlistDetailView({
           title="设置维护者"
           onClose={() => setMaintainerOpen(false)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setMaintainerOpen(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={setMaintainers.isPending}
-                onClick={() =>
-                  setMaintainers.mutate(
-                    maintainerIds,
-                    {
-                      onSuccess: () => {
-                        toast('已保存', 'success')
-                        setMaintainerOpen(false)
-                      },
-                    },
-                  )
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setMaintainerOpen(false)}
+              onConfirm={() => () =>
+                                                                                                                              setMaintainers.mutate(
+                                                                                                                                            maintainerIds,
+                                                                                                                                            {
+                                                                                                                                                          onSuccess: () => {
+                                                                                                                                                                        toast('已保存', 'success')
+                                                                                                                                                                        setMaintainerOpen(false)
+                                                                                                                                                          },
+                                                                                                                                            },
+                                                                                                                              )}
+              confirmText="保存"
+              pending={setMaintainers.isPending}
+              disabled={setMaintainers.isPending}
+            />
           }
         >
           <div className="field">
@@ -608,33 +597,27 @@ export function WatchlistDetailView({
           title={`备注 · ${remarkFor.title}`}
           onClose={() => setRemarkFor(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setRemarkFor(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={updateVideoEntry.isPending}
-                onClick={() =>
-                  updateVideoEntry.mutate(
-                    {
-                      videoId: remarkFor.videoId,
-                      // sort 取当前列表的值，而不是弹窗打开那一刻的值
-                      sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
-                      remark: remarkFor.remark.trim() || null,
-                    },
-                    {
-                      onSuccess: () => {
-                        toast('已保存', 'success')
-                        setRemarkFor(null)
-                      },
-                    },
-                  )
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setRemarkFor(null)}
+              onConfirm={() => () =>
+                                                                                                                              updateVideoEntry.mutate(
+                                                                                                                                            {
+                                                                                                                                                          videoId: remarkFor.videoId,
+                                                                                                                                                          // sort 取当前列表的值，而不是弹窗打开那一刻的值
+                                                                                                                                                          sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
+                                                                                                                                                          remark: remarkFor.remark.trim() || null,
+                                                                                                                                            },
+                                                                                                                                            {
+                                                                                                                                                          onSuccess: () => {
+                                                                                                                                                                        toast('已保存', 'success')
+                                                                                                                                                                        setRemarkFor(null)
+                                                                                                                                                          },
+                                                                                                                                            },
+                                                                                                                              )}
+              confirmText="保存"
+              pending={updateVideoEntry.isPending}
+              disabled={updateVideoEntry.isPending}
+            />
           }
         >
           <label className="field">

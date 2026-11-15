@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { IconDots } from '@/components/icons'
 import { mediaApi } from '@/api/endpoints'
 import { uploadSubtitle } from '@/lib/uploader'
@@ -512,24 +513,17 @@ export function VideoDetailView({
           title="编辑资源"
           onClose={() => setRenaming(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setRenaming(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                onClick={() =>
-                  actions.renameMedia.mutate(renaming, {
-                    onSuccess: () => {
-                      toast('已重命名', 'success')
-                      setRenaming(null)
-                    },
-                  })
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setRenaming(null)}
+              onConfirm={() => () =>
+                                                                                                                              actions.renameMedia.mutate(renaming, {
+                                                                                                                                            onSuccess: () => {
+                                                                                                                                                          toast('已重命名', 'success')
+                                                                                                                                                          setRenaming(null)
+                                                                                                                                            },
+                                                                                                                              })}
+              confirmText="保存"
+            />
           }
         >
           <label className="field">
@@ -729,24 +723,17 @@ export function VideoDetailView({
           title="编辑字幕"
           onClose={() => setRenamingSub(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setRenamingSub(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                onClick={() =>
-                  actions.renameSubtitle.mutate(renamingSub, {
-                    onSuccess: () => {
-                      toast('已重命名', 'success')
-                      setRenamingSub(null)
-                    },
-                  })
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setRenamingSub(null)}
+              onConfirm={() => () =>
+                                                                                                                              actions.renameSubtitle.mutate(renamingSub, {
+                                                                                                                                            onSuccess: () => {
+                                                                                                                                                          toast('已重命名', 'success')
+                                                                                                                                                          setRenamingSub(null)
+                                                                                                                                            },
+                                                                                                                              })}
+              confirmText="保存"
+            />
           }
         >
           <label className="field">

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { seekApi } from '@/api/endpoints'
 import { useQuery } from '@tanstack/react-query'
 import { formatDateTime } from '@/lib/format'
@@ -386,21 +387,16 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           onClose={() => setUrgeTarget(null)}
           width={400}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setUrgeTarget(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={urge.isPending || !carrotValid}
-                onClick={() => {
-                  urge.mutate({ id: urgeTarget.id, carrot: Math.min(5000, Math.max(1, carrot)) })
-                  setUrgeTarget(null)
-                }}
-              >
-                催片
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setUrgeTarget(null)}
+              onConfirm={() => {
+                                                                                                                              urge.mutate({ id: urgeTarget.id, carrot: Math.min(5000, Math.max(1, carrot)) })
+                                                                                                                              setUrgeTarget(null)
+                                                                                                                }}
+              confirmText="催片"
+              pending={urge.isPending}
+              disabled={urge.isPending || !carrotValid}
+            />
           }
         >
           <label className="field">

@@ -3,6 +3,7 @@ import { ListSection } from '@/components/ListSection'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { IconPlus } from '@/components/icons'
 import { useLineList, useLineMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -146,18 +147,12 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           onClose={() => setCreating(false)}
           onSubmit={submitLine}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
-                onClick={submitLine}
-              >
-                创建
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setCreating(false)}
+              onConfirm={() => submitLine}
+              confirmText="创建"
+              disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
+            />
           }
         >
           <label className="field">

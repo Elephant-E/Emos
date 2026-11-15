@@ -14,6 +14,7 @@ import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
 import { formatDateTime, formatSize, duration } from '@/lib/format'
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { VideoPicker } from '@/components/VideoPicker'
 
 const SONG_TABS = [
@@ -417,26 +418,20 @@ export function SongDetailView({ songId }: { songId: number }) {
           width={560}
           onClose={() => setAdding(false)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setAdding(false)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={!lyricForm.content.trim() || actions.createLyric.isPending}
-                onClick={() =>
-                  actions.createLyric.mutate(lyricForm, {
-                    onSuccess: (res) => {
-                      toast(`已添加歌词${res.carrot ? `，+${res.carrot} 胡萝卜` : ''}`, 'success')
-                      setAdding(false)
-                      setLyricForm({ type: 'text', language: 'zh-CN', content: '' })
-                    },
-                  })
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setAdding(false)}
+              onConfirm={() => () =>
+                                                                                                                              actions.createLyric.mutate(lyricForm, {
+                                                                                                                                            onSuccess: (res) => {
+                                                                                                                                                          toast(`已添加歌词${res.carrot ? `，+${res.carrot} 胡萝卜` : ''}`, 'success')
+                                                                                                                                                          setAdding(false)
+                                                                                                                                                          setLyricForm({ type: 'text', language: 'zh-CN', content: '' })
+                                                                                                                                            },
+                                                                                                                              })}
+              confirmText="保存"
+              pending={actions.createLyric.isPending}
+              disabled={!lyricForm.content.trim() || actions.createLyric.isPending}
+            />
           }
         >
           <label className="field">

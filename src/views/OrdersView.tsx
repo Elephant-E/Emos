@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 
 import { Modal } from '@/components/Modal'
+import { ModalFooter } from '@/components/ModalFooter'
 import { useShopMineOrders, useShopMutations, useShopOrders } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -326,27 +327,20 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           title="订单备注"
           onClose={() => setRemarking(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setRemarking(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                onClick={() =>
-                  actions.remark.mutate(
-                    { orderNo: remarking.orderNo, remark: remarking.remark },
-                    {
-                      onSuccess: () => {
-                        toast('备注已保存', 'success')
-                        setRemarking(null)
-                      },
-                    },
-                  )
-                }
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setRemarking(null)}
+              onConfirm={() => () =>
+                                                                                                                              actions.remark.mutate(
+                                                                                                                                            { orderNo: remarking.orderNo, remark: remarking.remark },
+                                                                                                                                            {
+                                                                                                                                                          onSuccess: () => {
+                                                                                                                                                                        toast('备注已保存', 'success')
+                                                                                                                                                                        setRemarking(null)
+                                                                                                                                                          },
+                                                                                                                                            },
+                                                                                                                              )}
+              confirmText="保存"
+            />
           }
         >
           <label className="field">
