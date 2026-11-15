@@ -2589,17 +2589,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__facts > * { flex: none; }
 .record-row__meta > * + *::before,
 .record-row__facts > * + *::before { content: '·'; margin-right: var(--sp-2); color: var(--fg-5); }
-.record-row__corner { position: absolute; top: var(--sp-3); right: var(--sp-3); }
-.record-row__corner .row-menu {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--fg-2);
-  opacity: 1;
-}
-.record-row__corner .row-menu:hover { border-color: var(--line-hot); color: var(--fg); }
 /* 信息块贴到列底：封面比文字高，让块与封面底边对齐，右侧不留空洞 */
 .record-row__extra { min-width: 0; margin-top: auto; }
 /* 「求片记录」：一行说明 + 一行数据 */

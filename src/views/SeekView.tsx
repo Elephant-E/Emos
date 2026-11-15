@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
-import { IconAlert, IconInbox, IconRight } from '@/components/icons'
+import { IconAlert, IconInbox } from '@/components/icons'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
@@ -178,24 +178,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             }}
             poster={(item) => item.video_image_poster}
             posterOverlay={(item) => (SEEK_STATUS[item.status] ?? SEEK_STATUS.default).label}
-            corner={(item) =>
-              item.video_list_id ? (
-                <button
-                  type="button"
-                  className="row-menu"
-                  aria-label="打开影片详情"
-                  onClick={() =>
-                    navigate({
-                      to: '/media/$videoId',
-                      params: { videoId: String(item.video_list_id) },
-                      search: { season: item.video_season_number ?? 0, episode: item.video_episode_number ?? 1 },
-                    })
-                  }
-                >
-                  <IconRight size={16} strokeWidth={1.9} />
-                </button>
-              ) : null
-            }
+
             title={(item) => item.video_title_display}
             meta={(item) => (
               <>
