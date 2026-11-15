@@ -31,6 +31,8 @@ export interface RecordGridProps<T> {
   poster?: (row: T) => string | null | undefined
   /** 标题（一行，超长省略） */
   title: (row: T) => ReactNode
+  /** 时间：与标题同一行、靠右（上映日期、更新时间、创建时间） */
+  time?: (row: T) => ReactNode
   /** 徽标/类型这类次要信息，会排成一行 */
   meta?: (row: T) => ReactNode
   /** 第三行：日期、作者等更弱的信息 */
@@ -46,6 +48,7 @@ export function RecordGrid<T>({
   shape = 'wide',
   poster,
   title,
+  time,
   meta,
   sub,
   actions,
@@ -83,7 +86,10 @@ export function RecordGrid<T>({
               </div>
             ) : null}
             <div className="record-tile__body">
-              <h3 className="record-tile__title">{title(row)}</h3>
+              <div className="record-tile__head">
+                <h3 className="record-tile__title">{title(row)}</h3>
+                {time ? <span className="record-tile__time">{time(row)}</span> : null}
+              </div>
               {meta ? <p className="record-tile__meta">{meta(row)}</p> : null}
               {sub ? <p className="record-tile__sub">{sub(row)}</p> : null}
               {actions ? <div className="record-tile__actions">{actions(row)}</div> : null}

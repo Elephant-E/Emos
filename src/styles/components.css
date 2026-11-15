@@ -794,8 +794,15 @@ input.input[type='number'] { min-width: 0; }
 
 .detail-desc { color: var(--fg-3); font-size: var(--text-sm); line-height: 1.75; max-width: 74ch; }
 
-.detail-stats { display: flex; flex-wrap: wrap; gap: var(--sp-5); }
-.detail-stat { display: grid; gap: var(--sp-1); }
+/* 列宽按内容算、间距恒定：数字位数不同（1001 vs 3）时，
+   每个标签仍紧贴在自己的数字下面，列与列之间保持一致的 32px */
+.detail-stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: var(--sp-5);
+}
+.detail-stat { display: grid; gap: var(--sp-1); min-width: 0; }
 .detail-stat__link {
   /* 与 .detail-stat b 完全同字号同字重：这个数字可以点（看订阅用户），
      但视觉上不能和旁边的统计值不一致——原来它是 inherit 字号 + 600 字重 + 一条虚线下划线 */
@@ -2440,7 +2447,21 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   min-width: 0;
   padding: 0;
 }
+.record-tile__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.record-tile__time {
+  flex: none;
+  font-size: var(--text-2xs);
+  color: var(--fg-5);
+  font-variant-numeric: tabular-nums;
+}
 .record-tile__title {
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   font-size: var(--text-sm);
   font-weight: 500;

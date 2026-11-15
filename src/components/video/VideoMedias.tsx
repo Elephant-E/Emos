@@ -2,7 +2,7 @@ import { CardHead } from '@/components/CardHead'
 import { RecordList } from '@/components/RecordList'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
-import { formatSize } from '@/lib/format'
+import { formatDateTime, formatSize } from '@/lib/format'
 import type { MediaTarget } from './MediaEditModal'
 
 /**
@@ -56,7 +56,16 @@ export function VideoMedias({
               key: 'name',
               label: '资源名',
               mobile: 'primary',
-              render: (row) => <span className="cell-title__name">{String(row.media_name ?? '—')}</span>,
+              // 标题下挂入库时间：与字幕卡同构（标题 + 时间 / 大小 · 上传者），
+              // 否则两张卡的信息行对不上，右边也显得参差
+              render: (row) => (
+                <span className="cell-title">
+                  <span>
+                    <span className="cell-title__name">{String(row.media_name ?? '—')}</span>
+                    <span className="cell-title__code">{formatDateTime(String(row.created_at ?? ''))}</span>
+                  </span>
+                </span>
+              ),
             },
             {
               key: 'size',

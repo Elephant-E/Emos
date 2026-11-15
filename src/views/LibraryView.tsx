@@ -139,6 +139,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             shape="poster"
             poster={(video) => video.video_image_poster}
             title={(video) => video.video_title}
+            time={(video) => video.video_date_air ?? '—'}
             meta={(video) => (
               <>
                 <span className="zone">
