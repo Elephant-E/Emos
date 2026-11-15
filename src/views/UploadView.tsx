@@ -7,7 +7,7 @@ import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
-import { musicApi, uploadApi, userApi, videoApi } from '@/api/endpoints'
+import { musicApi, uploadApi, userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import {
   DEFAULT_UPLOAD_STORAGE,
@@ -17,8 +17,8 @@ import {
   uploadSubtitle,
   type UploadTarget,
 } from '@/lib/uploader'
-import { detectUploadKind, formatSize, type UploadKind, episodeCode } from '@/lib/format'
-import { parseFilename } from '@/lib/filename'
+import { detectUploadKind, formatSize, type UploadKind } from '@/lib/format'
+import { findDuplicateMusic, musicTermFromName, resolveTargetByFilename } from '@/lib/upload-resolve'
 import { USE_MOCK } from '@/api/client'
 
 type Status =
@@ -56,12 +56,6 @@ interface QueueItem {
 const KIND_LABEL: Record<UploadKind, string> = { video: '视频', subtitle: '字幕', music: '音乐' }
 
 /** 从文件名猜一个歌名：去掉扩展名和开头的音轨号，「歌手 - 歌名」取歌名那段 */
-function musicTermFromName(name: string): string {
-  const base = name.replace(/\.[^.]+$/, '').replace(/^\d+[\s._-]+/, '')
-  const parts = base.split(/\s+-\s+/)
-  return (parts.length > 1 ? parts[parts.length - 1] : base).trim()
-}
-
 export function UploadView() {
   const qc = useQueryClient()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -221,62 +215,13 @@ export function UploadView() {
 
   /** 音乐文件上传前按 sha256 查重：同一份音频已经在库里就没必要再传一遍 */
   const checkMusicHash = async (item: QueueItem) => {
-    try {
-      const digest = await crypto.subtle.digest('SHA-256', await item.file.arrayBuffer())
-      const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
-      const hits = await musicApi.batchHashExist([hash])
-      const hit = hits.find((row) => row.file_hash.toLowerCase() === hash)
-      if (hit) {
-        patch(item.id, { status: 'duplicate', message: `库里已有同一份音频 · 歌曲 #${hit.music_song_id}` })
-        return true
-      }
-    } catch {
-      /* 查重失败不拦上传 */
-    }
-    return false
+    const hit = await findDuplicateMusic(item.file)
+    if (!hit) return false
+    patch(item.id, { status: 'duplicate', message: `库里已有同一份音频 · 歌曲 #${hit.music_song_id}` })
+    return true
   }
 
-  /**
-   * 文件名 → 上传落点：
-   * 1. 本地解析片名与季集
-   * 2. 按片名查影片（video/list），取同名那条
-   * 3. 有集号就查这一季的集列表，按集号换 episode_id（剧集必须挂在集上）
-   * 任何一步拿不到就返回 null，交给上游 recognize 兜底
-   */
-  const resolveByFilename = async (fileName: string): Promise<UploadTarget | 'need-target' | null> => {
-    const parsed = parseFilename(fileName)
-    if (!parsed.title) return null
-    try {
-      const found = await videoApi.list({ title: parsed.title, page: 1, page_size: 10 })
-      const exact = found.items.find((v) => v.video_title === parsed.title)
-      const video = exact ?? found.items[0]
-      if (!video) return null
-
-      if (parsed.episode != null) {
-        const seasonNo = parsed.season ?? 1
-        const episodes = await videoApi.episodes(video.video_id, seasonNo)
-        const episode = episodes.find((ep) => ep.episode_number === parsed.episode)
-        if (!episode) return null
-        return {
-          item_type: 've',
-          item_id: episode.episode_id,
-          title: `${video.video_title} · ${episodeCode(seasonNo, parsed.episode)}`,
-          video_id: video.video_id,
-          season: seasonNo,
-          episode: parsed.episode,
-        }
-      }
-
-      // 没有集号：电影挂影片级；剧集**不要**回落到上游识别（它会把 S02 判成 S00E02），
-      // 直接让人手选是哪一集
-      if (video.video_type === 'movie') {
-        return { item_type: 'vl', item_id: video.video_id, title: video.video_title, video_id: video.video_id }
-      }
-      return 'need-target'
-    } catch {
-      return null
-    }
-  }
+  const resolveByFilename = (fileName: string) => resolveTargetByFilename(fileName)
 
   const startUpload = async (item: QueueItem) => {
     if (item.kind === 'music' ? !item.song : !item.target) {
