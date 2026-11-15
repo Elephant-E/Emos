@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
+import { qk, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand, realmOf } from '@/lib/format'
@@ -64,9 +64,9 @@ export function OverviewView() {
   const [signNote, setSignNote] = useState('')
 
   const refreshCarrot = () => {
-    void qc.invalidateQueries({ queryKey: ['session'] })
-    void qc.invalidateQueries({ queryKey: ['carrot'] })
-    void qc.invalidateQueries({ queryKey: ['todos'] })
+    void qc.invalidateQueries({ queryKey: qk.session })
+    void qc.invalidateQueries({ queryKey: qk.carrot })
+    void qc.invalidateQueries({ queryKey: qk.todos })
   }
 
   const sign = useMutation({

@@ -11,7 +11,7 @@ import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
 import { useQuery } from '@tanstack/react-query'
 import { formatDateTime } from '@/lib/format'
-import { useSeekPage, useSeekPoll, useSession } from '@/api/queries'
+import { qk, useSeekPage, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
@@ -110,10 +110,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const poll = useSeekPoll(lastId)
   useEffect(() => {
     // 有新求片才让列表重查：否则每 30 秒重查一次 2.4 万条的列表
-    if (poll.data && poll.data.length > 0) qc.invalidateQueries({ queryKey: ['seeks'] })
+    if (poll.data && poll.data.length > 0) qc.invalidateQueries({ queryKey: qk.seeks })
   }, [poll.data])
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['seeks'] })
+  const invalidate = () => qc.invalidateQueries({ queryKey: qk.seeks })
   const claim = useMutation({ mutationFn: (id: number) => seekApi.claim(id, 'confirm'), onSuccess: () => { invalidate(); toast('已认领', 'success') } })
   const cancelClaim = useMutation({
     mutationFn: (id: number) => seekApi.claim(id, 'cancel'),

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Tabs } from '@/components/Tabs'
+import { qk } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
@@ -49,7 +50,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
   const reply = useMutation({
     mutationFn: (payload: { id: number; content: string }) => whisperApi.reply(payload.id, payload.content),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['whisper'] })
+      qc.invalidateQueries({ queryKey: qk.whisper })
       toast('已回复', 'success')
       setReplyTarget(null)
       setContent('')
@@ -59,7 +60,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
   const create = useMutation({
     mutationFn: (payload: { receiver_user_id: string; content: string }) => whisperApi.create(payload),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['whisper'] })
+      qc.invalidateQueries({ queryKey: qk.whisper })
       toast('已发起', 'success')
       setComposing(false)
       setComposeTo('')

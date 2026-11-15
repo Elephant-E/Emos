@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCapabilities } from '@/api/queries'
+import { qk, useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
@@ -292,24 +292,24 @@ export function UploadView() {
       if (item.kind === 'subtitle' && item.target) {
         await uploadSubtitle(item.file, { item_type: item.target.item_type, item_id: item.target.item_id }, onProgress, fileStorage)
         patch(item.id, { status: 'done', progress: 1 })
-        void qc.invalidateQueries({ queryKey: ['subtitles'] })
-        void qc.invalidateQueries({ queryKey: ['video', item.target.video_id ?? item.target.item_id] })
+        void qc.invalidateQueries({ queryKey: qk.subtitles })
+        void qc.invalidateQueries({ queryKey: qk.videoOne(item.target.video_id ?? item.target.item_id) })
         toast(`字幕已入库：${item.target.title}`, 'success')
       } else if (item.kind === 'music' && item.song) {
         const result = await uploadSong(item.file, item.song.song_id, onProgress, fileStorage)
         patch(item.id, { status: 'done', progress: 1 })
-        void qc.invalidateQueries({ queryKey: ['music'] })
-        void qc.invalidateQueries({ queryKey: ['session'] })
+        void qc.invalidateQueries({ queryKey: qk.music })
+        void qc.invalidateQueries({ queryKey: qk.session })
         toast(`《${item.song.name}》入库完成，+${result.carrot} 胡萝卜`, 'success')
       } else if (item.target) {
         const result = await uploadAndSave(item.file, item.target, onProgress, fileStorage)
         patch(item.id, { status: 'done', progress: 1 })
         // 入库会改媒体列表、该影片的资源数与胡萝卜余额
         // 剧集的 item_id 是 episode_id，缓存键要用所属影片
-        void qc.invalidateQueries({ queryKey: ['video', item.target.video_id ?? item.target.item_id] })
-        void qc.invalidateQueries({ queryKey: ['videos'] })
-        void qc.invalidateQueries({ queryKey: ['media'] })
-        void qc.invalidateQueries({ queryKey: ['session'] })
+        void qc.invalidateQueries({ queryKey: qk.videoOne(item.target.video_id ?? item.target.item_id) })
+        void qc.invalidateQueries({ queryKey: qk.videos })
+        void qc.invalidateQueries({ queryKey: qk.media })
+        void qc.invalidateQueries({ queryKey: qk.session })
         toast(`《${item.target.title}》入库完成，+${result.carrot} 胡萝卜`, 'success')
       }
     } catch (err) {
@@ -358,7 +358,7 @@ export function UploadView() {
                 onClick={() =>
                   userApi.agreeUpload().then(() => {
                     toast('已同意上传协议', 'success')
-                    void qc.invalidateQueries({ queryKey: ['session'] })
+                    void qc.invalidateQueries({ queryKey: qk.session })
                   })
                 }
               >

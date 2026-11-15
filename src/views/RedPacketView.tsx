@@ -8,7 +8,7 @@ import { Pager } from '@/components/Pager'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { redPacketApi } from '@/api/endpoints'
-import { useSession } from '@/api/queries'
+import { qk, useSession } from '@/api/queries'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { copyText } from '@/lib/clipboard'
@@ -136,7 +136,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
       setCoverUrl('')
       setCoverKind(null)
       setExclusive(false)
-      void qc.invalidateQueries({ queryKey: ['session'] })
+      void qc.invalidateQueries({ queryKey: qk.session })
     } catch (error) {
       toast(error instanceof Error ? error.message : '发送失败', 'error')
     } finally {

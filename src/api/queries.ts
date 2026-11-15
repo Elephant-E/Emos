@@ -3,14 +3,64 @@ import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, pay
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
 
+/**
+ * queryKey 工厂。
+ *
+ * 失效一律用**域前缀**（`['video']` 会匹配 `['video', id, …]` 全部），
+ * 不要在各处手写数组字面量——键拼错不会报错，只会静默不刷新。
+ */
 export const qk = {
   session: ['session'] as const,
-  carrot: ['carrot', 'current'] as const,
-  videos: (p: object) => ['videos', p] as const,
-  seeks: (p: object) => ['seeks', p] as const,
-  watches: (p: object) => ['watches', p] as const,
+  carrot: ['carrot'] as const,
+  carrotCurrent: ['carrot', 'current'] as const,
+  carrotHistory: (page: number, pageSize: number) => ['carrot', 'history', page, pageSize] as const,
+  todos: ['todos'] as const,
+
+  video: ['video'] as const,
+  videoOne: (id: number) => ['video', id] as const,
+  videos: ['videos'] as const,
+  videosPage: (p: object) => ['videos', p] as const,
+  subtitles: ['subtitles'] as const,
+  media: ['media'] as const,
+
+  watch: ['watch'] as const,
+  watchOne: (id: number) => ['watch', id] as const,
+  watches: ['watches'] as const,
+  watchesPage: (p: object) => ['watches', p] as const,
   watchVideos: (id: number, p: Record<string, unknown>) => ['watch', id, 'videos', p] as const,
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
+
+  music: ['music'] as const,
+  seeks: ['seeks'] as const,
+  seeksPage: (p: object) => ['seeks', p] as const,
+  whisper: ['whisper'] as const,
+  upload: ['upload'] as const,
+  uploadImages: ['upload', 'images'] as const,
+
+  user: ['user'] as const,
+  userDevices: ['user', 'devices'] as const,
+  invite: ['invite'] as const,
+  ban: ['ban'] as const,
+
+  shop: ['shop'] as const,
+  shopCount: ['shop', 'count'] as const,
+  shopProducts: ['shop', 'products'] as const,
+  shopProductsInfinite: ['shop', 'productsInfinite'] as const,
+  shopProduct: ['shop', 'product'] as const,
+  shopMineOrders: ['shop', 'mineOrders'] as const,
+  shopOrders: ['shop', 'orders'] as const,
+  shopCategories: ['shop', 'categories'] as const,
+  shopSeller: ['shop', 'seller'] as const,
+
+  live: ['live'] as const,
+  line: ['line'] as const,
+  pay: ['pay'] as const,
+  fund: ['fund'] as const,
+  recycle: ['recycle'] as const,
+  rank: ['rank'] as const,
+  lottery: ['lottery'] as const,
+  vote: ['vote'] as const,
+  redpacket: ['redpacket'] as const,
 }
 
 
@@ -143,12 +193,12 @@ export function useContinueWatching() {
 }
 
 export function useCarrot() {
-  return useQuery({ queryKey: qk.carrot, queryFn: () => carrotApi.current(), staleTime: 60_000 })
+  return useQuery({ queryKey: qk.carrotCurrent, queryFn: () => carrotApi.current(), staleTime: 60_000 })
 }
 
 export function useTodos() {
   return useQuery({
-    queryKey: ['todos'] as const,
+    queryKey: qk.todos,
     staleTime: 60_000,
     queryFn: async () => {
       const safe = async (run: () => Promise<number>) => {
@@ -187,7 +237,7 @@ export function useVideoPage(params: {
   enabled?: boolean
 }) {
   return useQuery({
-    queryKey: qk.videos(params),
+    queryKey: qk.videosPage(params),
     queryFn: async () => {
       if (params.numericId) {
         const byVideoId = await videoApi.list({ ...params, video_id: params.numericId, tmdb_id: undefined })
@@ -202,7 +252,7 @@ export function useVideoPage(params: {
 
 export function useSeekPage(params: SeekQuery) {
   return useQuery({
-    queryKey: qk.seeks(params),
+    queryKey: qk.seeksPage(params),
     queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
   })
 }
@@ -219,7 +269,7 @@ export function useSeekApply() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (p: { item_type: string; item_id: number }) => seekApi.apply(p.item_type, p.item_id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['seeks'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.seeks }),
   })
 }
 
@@ -245,7 +295,7 @@ export function useWatchPage(
   enabled = true,
 ) {
   return useQuery({
-    queryKey: qk.watches(params),
+    queryKey: qk.watchesPage(params),
     queryFn: () => watchApi.list(params),
     enabled,
   })
@@ -281,8 +331,8 @@ export function useWatchMusic(
 export function useWatchMusicMutations(watchId: number) {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['watch', watchId, 'music'] })
-    qc.invalidateQueries({ queryKey: ['watch', watchId] })
+    qc.invalidateQueries({ queryKey: [...qk.watchOne(watchId), 'music'] })
+    qc.invalidateQueries({ queryKey: qk.watchOne(watchId) })
   }
   return {
     addSong: useMutation({
@@ -370,12 +420,12 @@ export function usePersons(videoId: number) {
 export function useVideoMutations(videoId: number) {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['video', videoId] })
-    qc.invalidateQueries({ queryKey: ['videos'] })      // 媒体库列表（删除影片后要消失）
-    qc.invalidateQueries({ queryKey: ['media'] })
-    qc.invalidateQueries({ queryKey: ['subtitles'] })
-    qc.invalidateQueries({ queryKey: ['session'] })     // 删除会扣胡萝卜
-    qc.invalidateQueries({ queryKey: ['carrot'] })
+    qc.invalidateQueries({ queryKey: qk.videoOne(videoId) })
+    qc.invalidateQueries({ queryKey: qk.videos })      // 媒体库列表（删除影片后要消失）
+    qc.invalidateQueries({ queryKey: qk.media })
+    qc.invalidateQueries({ queryKey: qk.subtitles })
+    qc.invalidateQueries({ queryKey: qk.session })     // 删除会扣胡萝卜
+    qc.invalidateQueries({ queryKey: qk.carrot })
   }
 
   return {
@@ -416,9 +466,9 @@ export function useInviteTree() {
 export function usePayMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['carrot'] })
-    qc.invalidateQueries({ queryKey: ['session'] })
-    qc.invalidateQueries({ queryKey: ['pay'] })
+    qc.invalidateQueries({ queryKey: qk.carrot })
+    qc.invalidateQueries({ queryKey: qk.session })
+    qc.invalidateQueries({ queryKey: qk.pay })
   }
   return {
     transfer: useMutation({ mutationFn: (p: { user_id: string; carrot: number }) => payApi.transfer(p), onSuccess: invalidate }),
@@ -443,10 +493,10 @@ export function useBanList() {
 export function useAccountMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['session'] })
-    qc.invalidateQueries({ queryKey: ['invite'] })
-    qc.invalidateQueries({ queryKey: ['carrot'] })
-    qc.invalidateQueries({ queryKey: ['ban'] })
+    qc.invalidateQueries({ queryKey: qk.session })
+    qc.invalidateQueries({ queryKey: qk.invite })
+    qc.invalidateQueries({ queryKey: qk.carrot })
+    qc.invalidateQueries({ queryKey: qk.ban })
   }
 
   return {
@@ -463,13 +513,13 @@ export function useAccountMutations() {
     remarkInvite: useMutation({
       mutationFn: (p: { userId: string; remark: string }) => inviteApi.remark(p.userId, p.remark),
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: ['invite'] })
+        qc.invalidateQueries({ queryKey: qk.invite })
       },
     }),
     // 传 null 表示把该账号在所有设备上踢下线
     logoutDevice: useMutation({
       mutationFn: (deviceId: string | null) => userApi.videoLogout(deviceId),
-      onSuccess: () => qc.invalidateQueries({ queryKey: ['user', 'devices'] }),
+      onSuccess: () => qc.invalidateQueries({ queryKey: qk.userDevices }),
     }),
     invite: useMutation({ mutationFn: (payload: { id: string; remark: string }) => inviteApi.create(payload.id, payload.remark || null), onSuccess: invalidate }),
     revoke: useMutation({ mutationFn: (userId: string) => inviteApi.revoke(userId), onSuccess: invalidate }),
@@ -479,8 +529,8 @@ export function useAccountMutations() {
     notifyEmail: useMutation({
       mutationFn: (payload: { user_id: string; subject: string; body: string }) => payApi.sendNotifyEmail(payload),
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: ['user'] })
-        qc.invalidateQueries({ queryKey: ['carrot'] })
+        qc.invalidateQueries({ queryKey: qk.user })
+        qc.invalidateQueries({ queryKey: qk.carrot })
       },
     }),
     banChange: useMutation({ mutationFn: (payload: { type: 'disable' | 'unblock'; userId: string; reason?: string }) => banApi.change(payload.type, payload.userId, payload.reason), onSuccess: invalidate }),
@@ -663,14 +713,14 @@ export function useShopMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
     // 只失效商品与统计：['shop'] 前缀会连带 seller/categories/orders 等 12 个 query
-    qc.invalidateQueries({ queryKey: ['shop', 'products'] })
-    qc.invalidateQueries({ queryKey: ['shop', 'productsInfinite'] })
-    qc.invalidateQueries({ queryKey: ['shop', 'count'] })
-    qc.invalidateQueries({ queryKey: ['shop', 'product'] })
-    qc.invalidateQueries({ queryKey: ['shop', 'mineOrders'] })
-    qc.invalidateQueries({ queryKey: ['shop', 'orders'] })
-    qc.invalidateQueries({ queryKey: ['session'] })
-    qc.invalidateQueries({ queryKey: ['carrot'] })   // 下单/退款都会动余额
+    qc.invalidateQueries({ queryKey: qk.shopProducts })
+    qc.invalidateQueries({ queryKey: qk.shopProductsInfinite })
+    qc.invalidateQueries({ queryKey: qk.shopCount })
+    qc.invalidateQueries({ queryKey: qk.shopProduct })
+    qc.invalidateQueries({ queryKey: qk.shopMineOrders })
+    qc.invalidateQueries({ queryKey: qk.shopOrders })
+    qc.invalidateQueries({ queryKey: qk.session })
+    qc.invalidateQueries({ queryKey: qk.carrot })   // 下单/退款都会动余额
   }
   return {
     toggleUp: useMutation({ mutationFn: (productId: number) => shopApi.productUp(productId), onSuccess: invalidate }),
@@ -740,8 +790,8 @@ export function useAlbumMutations() {
     updateAlbumVideoId: useMutation({
       mutationFn: (p: { albumId: number; videoId: number }) => musicApi.updateAlbumVideoId(p.albumId, p.videoId),
       onSuccess: () => {
-        qc.invalidateQueries({ queryKey: ['music'] })
-        qc.invalidateQueries({ queryKey: ['carrot'] })
+        qc.invalidateQueries({ queryKey: qk.music })
+        qc.invalidateQueries({ queryKey: qk.carrot })
       },
     }),
   }
@@ -753,7 +803,7 @@ export function useLineList() {
 
 export function useLiveMutations() {
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['live'] })
+  const invalidate = () => qc.invalidateQueries({ queryKey: qk.live })
   return {
     saveChannel: useMutation({ mutationFn: (payload: Record<string, unknown>) => liveApi.save(payload), onSuccess: invalidate }),
     removeChannel: useMutation({ mutationFn: (id: number) => liveApi.remove(id), onSuccess: invalidate }),
@@ -765,7 +815,7 @@ export function useLiveMutations() {
 
 export function useLineMutations() {
   const qc = useQueryClient()
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['line'] })
+  const invalidate = () => qc.invalidateQueries({ queryKey: qk.line })
   return {
     create: useMutation({ mutationFn: (payload: { name: string; url: string; tagline?: string }) => lineApi.create(payload), onSuccess: invalidate }),
     remove: useMutation({ mutationFn: (id: number) => lineApi.remove(id), onSuccess: invalidate }),
@@ -839,9 +889,9 @@ export function useSongMedia(songId: number) {
 export function useMusicMutations(songId = 0) {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['music'] })
-    qc.invalidateQueries({ queryKey: ['session'] })  // 删资源会扣胡萝卜
-    qc.invalidateQueries({ queryKey: ['carrot'] })
+    qc.invalidateQueries({ queryKey: qk.music })
+    qc.invalidateQueries({ queryKey: qk.session })  // 删资源会扣胡萝卜
+    qc.invalidateQueries({ queryKey: qk.carrot })
   }
   return {
     favorite: useMutation({ mutationFn: (p: { type: string; value: number }) => musicApi.favorite(p.type, p.value), onSuccess: invalidate }),
@@ -900,11 +950,11 @@ export function useDeletedVideos(page: number, pageSize = 20, q?: string, enable
 export function useRecycleMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['recycle'] })
-    qc.invalidateQueries({ queryKey: ['videos'] })
-    qc.invalidateQueries({ queryKey: ['video'] })
-    qc.invalidateQueries({ queryKey: ['session'] })  // 恢复会扣胡萝卜
-    qc.invalidateQueries({ queryKey: ['carrot'] })
+    qc.invalidateQueries({ queryKey: qk.recycle })
+    qc.invalidateQueries({ queryKey: qk.videos })
+    qc.invalidateQueries({ queryKey: qk.video })
+    qc.invalidateQueries({ queryKey: qk.session })  // 恢复会扣胡萝卜
+    qc.invalidateQueries({ queryKey: qk.carrot })
   }
   return {
     restoreMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.restore(mediaId), onSuccess: invalidate }),
@@ -964,7 +1014,7 @@ export function useUserPayInfo(userId: string) {
 
 export function useVideoDevices() {
   return useQuery({
-    queryKey: ['user', 'devices'] as const,
+    queryKey: qk.userDevices,
     queryFn: () => userApi.videoHistory(),
     staleTime: 60_000,
   })
@@ -998,8 +1048,8 @@ export function usePayOrder(no: string) {
 export function useWatchMutations(watchId: number) {
   const qc = useQueryClient()
   const invalidate = () => {
-    qc.invalidateQueries({ queryKey: ['watch', watchId] })
-    qc.invalidateQueries({ queryKey: ['watches'] })
+    qc.invalidateQueries({ queryKey: qk.watchOne(watchId) })
+    qc.invalidateQueries({ queryKey: qk.watches })
   }
 
   const addVideo = useMutation({

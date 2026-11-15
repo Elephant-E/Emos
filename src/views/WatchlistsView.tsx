@@ -11,7 +11,7 @@ import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
-import { useSession, useWatchPage } from '@/api/queries'
+import { qk, useSession, useWatchPage } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
@@ -63,15 +63,15 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     onSuccess: () => {
       toast('片单已删除', 'success')
       // 删除会返还槽位
-      qc.invalidateQueries({ queryKey: ['watches'] })
-      qc.invalidateQueries({ queryKey: ['session'] })
+      qc.invalidateQueries({ queryKey: qk.watches })
+      qc.invalidateQueries({ queryKey: qk.session })
     },
   })
 
   // 排序值只影响「我的片单」在列表里的位置，改完刷新列表即可
   const sortWatch = useMutation({
     mutationFn: ({ watchId, sort }: { watchId: number; sort: number }) => watchApi.sort(watchId, sort),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['watches'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.watches }),
   })
 
   const create = useMutation({
@@ -90,8 +90,8 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     onSuccess: () => {
       toast('片单已创建', 'success')
       setCreating(false)
-      qc.invalidateQueries({ queryKey: ['watches'] })
-      qc.invalidateQueries({ queryKey: ['session'] })
+      qc.invalidateQueries({ queryKey: qk.watches })
+      qc.invalidateQueries({ queryKey: qk.session })
     },
   })
 

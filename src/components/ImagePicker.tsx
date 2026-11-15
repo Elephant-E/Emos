@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
+import { qk } from '@/api/queries'
 import { uploadApi } from '@/api/endpoints'
 import { uploadImage } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
@@ -187,7 +188,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
     onSuccess: () => {
       setUploading(0)
       toast('图片已上传', 'success')
-      qc.invalidateQueries({ queryKey: ['upload', 'images'] })
+      qc.invalidateQueries({ queryKey: qk.uploadImages })
     },
     onError: (error) => {
       setUploading(0)
@@ -200,7 +201,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
     onSuccess: () => {
       setRemoving(null)
       toast('图片已删除', 'success')
-      qc.invalidateQueries({ queryKey: ['upload', 'images'] })
+      qc.invalidateQueries({ queryKey: qk.uploadImages })
     },
     onError: (error) => {
       setRemoving(null)

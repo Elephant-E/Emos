@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
+import { qk } from '@/api/queries'
 import { UserCell } from '@/components/UserCell'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
@@ -104,7 +105,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       const res = await lotteryApi.create(body)
       setCreated(res.lottery_id)
       toast('抽奖已创建', 'success')
-      void qc.invalidateQueries({ queryKey: ['session'] })
+      void qc.invalidateQueries({ queryKey: qk.session })
     } catch (error) {
       toast(error instanceof Error ? error.message : '创建失败', 'error')
     } finally {

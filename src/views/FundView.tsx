@@ -13,7 +13,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
-import { useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
+import { qk, useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
 
 const FUND_TABS = [
   { key: 'orders', label: '基金订单' },
@@ -200,7 +200,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
     onSuccess: (res) => {
       toast(`已创建订单 ${res.no}`, 'success')
       setCreating(false)
-      qc.invalidateQueries({ queryKey: ['fund'] })
+      qc.invalidateQueries({ queryKey: qk.fund })
     },
   })
 
@@ -216,7 +216,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
       setEvidenceFor(null)
       setRemark('')
       setImages([])
-      qc.invalidateQueries({ queryKey: ['fund'] })
+      qc.invalidateQueries({ queryKey: qk.fund })
     },
   })
 

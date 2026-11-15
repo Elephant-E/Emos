@@ -14,7 +14,7 @@ import { PickList } from '@/components/PickList'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import { TagInput } from '@/components/TagInput'
 import type { WatchItem } from '@/api/types'
-import { useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
+import { qk, useWatch, useWatchMusic, useWatchMusicMutations, useWatchMusicSearch, useWatchMutations, useWatchSearch, useWatchVideos } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { rowLink } from '@/lib/rowLink'
@@ -134,8 +134,8 @@ export function WatchlistDetailView({
     mutationFn: (watchId: number) => watchApi.remove(watchId),
     onSuccess: () => {
       toast('片单已删除', 'success')
-      void qc.invalidateQueries({ queryKey: ['watches'] })
-      void qc.invalidateQueries({ queryKey: ['session'] })
+      void qc.invalidateQueries({ queryKey: qk.watches })
+      void qc.invalidateQueries({ queryKey: qk.session })
     },
   })
 
