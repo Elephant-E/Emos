@@ -78,8 +78,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         title: form.title.trim(),
         description: form.description.trim() || null,
         tagline: form.tagline.trim() || null,
-        // 官方频道的封面只读，不提交这个字段
-        ...(form.lockedCover ? {} : { image_poster: form.image_poster }),
+        // 官方频道的封面只读；编辑时 list 响应不返回 image_poster（只有 url），
+        // 拿不到原值就整字段不提交，避免整体覆盖把封面清空
+        ...(form.lockedCover || form.image_poster == null ? {} : { image_poster: form.image_poster }),
       },
       {
         onSuccess: () => {
@@ -243,7 +244,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                   >
                     <td>
                       <div className="cell-title">
-                        <Poster src={item.image_poster_url} name={item.title} shape="square" />
+                        {item.image_poster_url ? <Poster src={item.image_poster_url} name={item.title} shape="square" /> : null}
                         <span>
                           {/* 官方标记要跟标题同一行，独立成块会把行撑高 */}
                           <span className="cell-title__row">

@@ -48,7 +48,7 @@ export function forgetAccount(userId: string): Account[] {
   const next = listAccounts().filter((item) => item.user_id !== userId)
   write(next)
   if (!next.some((item) => item.token === localStorage.getItem(TOKEN_KEY))) {
-    localStorage.removeItem(TOKEN_KEY)
+    setToken(null)
   }
   return next
 }

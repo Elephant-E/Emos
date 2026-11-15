@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { sessionApi } from '@/api/endpoints'
 import { LOGIN_POSTERS } from '@/views/login-posters'
 
-const TOKEN_KEY = 'emos_admin_token'
 
 type Phase = 'idle' | 'checking' | 'error'
 
@@ -42,7 +41,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
     setMessage('')
     try {
       await sessionApi.check(trimmed)
-      localStorage.setItem(TOKEN_KEY, trimmed)
+      setToken(trimmed)
       onDone()
     } catch (error) {
       const status = (error as { status?: number }).status
@@ -149,7 +148,7 @@ export function LoginView({ onDone }: { onDone: () => void }) {
                   {message}
                 </p>
               ) : null}
-              <button type="button" className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
+              <button type="submit" className="btn btn--primary login__submit" disabled={!token.trim() || phase === 'checking'}>
                 {phase === 'checking' ? '正在验证…' : '用令牌进入'}
               </button>
           </form>

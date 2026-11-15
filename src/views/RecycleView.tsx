@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Pager } from '@/components/Pager'
-import { useCapabilities, useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
+import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
@@ -39,14 +39,13 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
   useDebounced(term, (next) => onQuery(next, by), { current: q })
 
-  const caps = useCapabilities()
   const active = tab === 'media' ? media : videos
   const total = active.data?.total ?? 0
   const rows = (active.data?.items ?? []) as Array<Record<string, unknown>>
-  // 恢复权限只有一个口径：本人上传，或管理员。
-  // 契约里的 is_can_restore 在真机上恒为 false（本人上传的资源也是 false），
-  // 拿它当门槛会导致整页都没有恢复入口，所以不参与判断。
-  const canRestoreRow = (row: Record<string, unknown>) => Boolean(row.is_self_upload) || Boolean(caps.isAdmin)
+  // 恢复口径按契约：只有 is_can_restore 为 true 的资源可恢复。
+  // 实测现在全为 false（含本人上传），所以这一列当前不显示——
+  // 与其给一排点了必然 422 的按钮，不如不显示，等上游放开后自然出现。
+  const canRestoreRow = (row: Record<string, unknown>) => row.is_can_restore === true
   const restorable = rows.some(canRestoreRow)
 
   const restoreMedia = async (mediaId: string, label: string) => {
@@ -55,6 +54,7 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
       message: `「${label}」会回到原来的影片下，播放端立即可见。`,
       hint: '恢复会扣除胡萝卜，金额见恢复后的提示。',
       confirmText: '恢复',
+      danger: true,
     })
     if (!ok) return
     setBusy(mediaId)

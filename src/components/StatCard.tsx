@@ -35,7 +35,8 @@ export function StatCard({
       {action ? <CardHead title={label}>{action}</CardHead> : <p className="stat__label">{label}</p>}
       <p className="stat__value" style={tone === 'danger' ? { color: 'var(--c-red)' } : undefined}>
         {word ? <span className="stat__word stat__word--sm">{value}</span> : value}
-        {unit ? <small>{unit}</small> : null}
+        {/* 值是破折号时不拼单位，否则会渲染成「— 个」并在窄列里被拆开 */}
+        {unit && value !== '—' ? <small>{unit}</small> : null}
       </p>
       {note ? <p className={loud ? 'stat__delta' : 'stat__delta stat__delta--quiet'}>{note}</p> : null}
     </article>

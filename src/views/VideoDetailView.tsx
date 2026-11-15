@@ -54,9 +54,11 @@ export function VideoDetailView({
 
   useEffect(() => {
     if (seasons.data?.length && !seasons.data.some((s) => s.season_number === season)) {
-      setSeason(seasons.data[0].season_number)
+      const next = seasons.data[0].season_number
+      setSeason(next)
+      onSearch({ season: next, episode: 1 })
     }
-  }, [seasons.data, season])
+  }, [seasons.data, season, onSearch])
 
   const episodes = useEpisodes(videoId, season)
   const currentSeason = seasons.data?.find((s) => s.season_number === season)
@@ -65,9 +67,11 @@ export function VideoDetailView({
 
   useEffect(() => {
     if (episodes.data?.length && !episodes.data.some((e) => e.episode_number === episode)) {
-      setEpisode(episodes.data[0].episode_number)
+      const next = episodes.data[0].episode_number
+      setEpisode(next)
+      onSearch({ episode: next })
     }
-  }, [seasonEpisodes.length, episode])
+  }, [episodes.data, episode, onSearch])
 
   const caps = useCapabilities()
   const seekApply = useSeekApply()
@@ -131,6 +135,7 @@ export function VideoDetailView({
             {video ? (
               <button type="button"
                 className="btn btn--ghost"
+                disabled={actions.syncVideo.isPending}
                 onClick={() => {
                   // 接口要的是 TODB 的 id，不是站内的 video_id
                   if (!video?.todb_id) {
@@ -157,7 +162,7 @@ export function VideoDetailView({
                   }
                   const ok = await confirmDialog({
                     title: '代为发起求片？',
-                    message: isMovie ? `为《${video.video_title}》发起求片。` : `为第 ${episode} 集发起求片。`,
+                    message: isMovie ? `为《${video.video_title}》发起求片。` : `为第 ${currentEpisode?.episode_number ?? episode} 集发起求片。`,
                     hint: '会出现在求片列表，其他用户可以认领上传。',
                     confirmText: '发起',
                   })
@@ -453,7 +458,7 @@ export function VideoDetailView({
                         <td className="muted">{String(row.user_pseudonym ?? '—')}</td>
                         <td>
                           {row.is_self_upload || caps.isAdmin ? (
-                            <button type="button" className="row-menu" aria-label="编辑资源" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
+                            <button type="button" className="row-menu" aria-label="编辑字幕" onClick={() => setRenamingSub({ id, title: String(row.subtitle_title), isSelf: Boolean(row.is_self_upload), owner: row.user_pseudonym ? String(row.user_pseudonym) : null })}>
                               <IconDots />
                             </button>
                           ) : null}

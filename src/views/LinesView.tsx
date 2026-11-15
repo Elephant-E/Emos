@@ -88,7 +88,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           <table className="table table--fixed">
             <thead>
               <tr>
-                <th className="th-thumb" style={{ width: '24%' }}>名称</th>
+                <th style={{ width: '24%' }}>名称</th>
                 <th>地址</th>
                 <th style={{ width: '18%' }}>简介</th>
                 <th style={{ width: '18%' }}>创建时间</th>
@@ -102,7 +102,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                 <tr key={line.id}>
                   <td>
                     <div className="cell-title">
-                      <span className="thumb">{line.name.slice(0, 1)}</span>
                       <span>
                         <span className="cell-title__name">{line.name}</span>
                         {line.is_self ? <span className="cell-title__code">我的</span> : null}

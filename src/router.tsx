@@ -14,7 +14,7 @@ import { ShopView } from '@/views/ShopView'
 import { SellerView } from '@/views/SellerView'
 import { OrdersView } from '@/views/OrdersView'
 import { LiveView } from '@/views/LiveView'
-import { LinesView } from '@/views/LinesView'
+import { LinesView, type LinesSearch } from '@/views/LinesView'
 import { MusicView } from '@/views/MusicView'
 import { SongDetailView } from '@/views/SongDetailView'
 import { UserDetailView } from '@/views/UserDetailView'
@@ -222,12 +222,6 @@ function LiveRoute() {
   const search = liveRoute.useSearch()
   const navigate = liveRoute.useNavigate()
   return <LiveView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
-}
-
-export interface LinesSearch {
-  page: number
-  page_size: number
-  q: string
 }
 
 const linesRoute = createRoute({
@@ -476,13 +470,11 @@ const watchlistsRoute = createRoute({
     page: number
     page_size: number
     scope: 'all' | 'self' | 'subscribed'
-    type: 'video' | 'music'
     q: string
   } => ({
     page: asPage(s.page),
     page_size: asPageSize(s.page_size),
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
-    type: s.type === 'music' ? 'music' : 'video',
     q: typeof s.q === 'string' ? s.q : '',
   }),
   component: WatchlistsRoute,

@@ -23,7 +23,7 @@ export interface SignCheck {
   user_id: string
 }
 
-export interface UserBase {
+interface UserBase {
   user_id: string
   username: string
   avatar: string | null
@@ -56,7 +56,7 @@ export interface UserInfo extends UserBase {
 
 export type VideoType = 'movie' | 'tv'
 
-export interface Genre {
+interface Genre {
   id: number
   name: string
 }
@@ -160,7 +160,7 @@ export interface VideoMedia {
   created_at?: string
 }
 
-export interface WatchAuthor {
+interface WatchAuthor {
   user_id?: string
   username?: string
   avatar?: string | null

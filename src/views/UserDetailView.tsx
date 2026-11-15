@@ -5,14 +5,15 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
-import { ErrorBlock } from '@/components/StateBlock'
-import { useAccountMutations, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
+import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
+import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
 
 export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
+  const session = useSession()
   const carrot = useUserCarrot(userId)
   const sign = useUserSign(userId)
   const [notify, setNotify] = useState<{ subject: string; body: string } | null>(null)
@@ -21,11 +22,27 @@ export function UserDetailView({ userId }: { userId: string }) {
   const records = useUserRecords(userId)
   const actions = useAccountMutations()
 
-  const info = pay.data ?? null
+  const rawInfo = pay.data ?? null
+  // 上游对不存在的 user_id 会静默返回「某个人」的资料（实测传 zzzzzzzz 回来的是别人），
+  // 这里必须比对返回对象的 user_id，否则会在错误对象上执行封禁这类管理动作
+  const mismatch = Boolean(rawInfo?.user_id && rawInfo.user_id !== userId)
+  const info = mismatch ? null : rawInfo
   const invited = invite.data ?? null
   const banned = (bans.data ?? []).find((row) => row.user_id === userId) ?? null
-  const limited = pay.isSuccess && !info
-  const name = info?.username ?? banned?.username ?? String(invited?.username ?? '') ?? ''
+  // 只有「上游返回的 user_id 与请求不一致」才算这个 id 不存在。
+  // invite/history 是「我邀请过的人」，查不到不代表用户不存在，不能拿它做判据。
+  const notFound = mismatch
+  const limited = pay.isSuccess && !info && !mismatch
+  // 只信「属于这个 id」的数据：info 有 user_id 校验，banned 按 id 过滤，invited 由 hook 精确匹配
+  const self = session.data?.user_id === userId
+  const name =
+    info?.username ??
+    (banned?.user_id === userId ? banned.username : undefined) ??
+    (invited?.username as string | undefined) ??
+    (self ? session.data?.username : undefined) ??
+    ''
+  // 拿不到任何属于这个 id 的资料（非服务商时 pay 一律 403）→ 不给管理动作
+  const known = Boolean(name) && !mismatch
 
   return (
     <>
@@ -34,6 +51,7 @@ export function UserDetailView({ userId }: { userId: string }) {
         title={name || '用户详情'}
         hint={`#${userId}`}
         tools={
+          notFound || !known ? null : (
           <>
             <button
               type="button"
@@ -83,10 +101,23 @@ export function UserDetailView({ userId }: { userId: string }) {
               </button>
             )}
           </>
+          )
         }
       />
 
       {pay.error ? <ErrorBlock error={pay.error} onRetry={() => pay.refetch()} /> : null}
+
+      {notFound ? (
+        <EmptyBlock
+          title="没有这个用户"
+          hint={`上游对不存在的 ID（#${userId}）会返回别人的资料，所以这里不做任何展示与操作。`}
+          action={
+            <Link className="btn btn--ghost" to="/users">
+              回用户列表
+            </Link>
+          }
+        />
+      ) : null}
 
       {limited ? (
         <p className="card-note" style={{ marginTop: 4 }}>

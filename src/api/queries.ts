@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
 import type { VideoType } from './types'
+import { SESSION_CACHE_KEY } from './client'
 
 export const qk = {
   session: ['session'] as const,
@@ -12,7 +13,6 @@ export const qk = {
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 }
 
-const SESSION_CACHE_KEY = 'emos_admin_profile'
 
 export function useSession() {
   return useQuery({
@@ -38,7 +38,7 @@ export function useSession() {
   })
 }
 
-export interface Capabilities {
+interface Capabilities {
   isAdmin: boolean
   canView: boolean
   canUpload: boolean
@@ -70,7 +70,7 @@ export function useCapabilities(): Capabilities {
   }
 }
 
-export interface WatchStats {
+interface WatchStats {
   byDate: Record<string, number>
   totalSeconds: number
   activeDays: number
@@ -101,7 +101,7 @@ export function useWatchStats(weeks = 4) {
 
       const responses = await Promise.all(
         chunks.map((chunk) =>
-          userApi.statsVideoHistory(chunk).then((rows) => (rows as unknown as Array<Record<string, unknown>>) ?? []),
+          userApi.statsVideoHistory(chunk),
         ),
       )
 
@@ -160,7 +160,15 @@ export function useTodos() {
       }
       const [seeks, orders, bans] = await Promise.all([
         safe(() => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total)),
-        safe(() => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: true, is_delivery: false }).then((r) => r.total)),
+        // 上游忽略 is_pay（实测把未付款单也吐出来），所以自己按 status_pay 数：
+        // 取一页回来逐条判断，宁可口径准，也不要一个偏大的数字
+        safe(() =>
+          shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((r) => {
+            const paid = r.items.filter((o) => o.status_pay === 'pay' || o.status_pay === 'paid')
+            // 发货状态没有独立字段，用 time_delivery 是否为空表示
+            return paid.filter((o) => !o.time_delivery).length
+          }),
+        ),
         safe(() => banApi.list().then((r) => r.length)),
       ])
       return { seeks, orders, bans }
@@ -968,7 +976,8 @@ export function useUserInvite(userId: string) {
     enabled: Boolean(userId),
     staleTime: 5 * 60_000,
     queryFn: () => inviteApi.history({ user_id: userId, page: 1, page_size: 5 })
-        .then((res) => (res?.items?.[0] ?? null) as Record<string, unknown> | null)
+        // 上游忽略无效的 user_id 时会返回「我的邀请记录第一行」，必须自己按 id 匹配
+        .then((res) => (res?.items ?? []).find((row) => row.user_id === userId) ?? null)
         .catch(() => null),
   })
 }

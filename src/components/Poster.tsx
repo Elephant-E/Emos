@@ -7,17 +7,18 @@ import { useEffect, useState, type CSSProperties } from 'react'
  * - `wide` 16:9 横版：片单封面（实测 600×495 / 1280×720 / 1920×1080）
  * - `square` 1:1：直播频道 logo、商品封面
  *
- * 取不到图时退化为同尺寸的首字块，避免行高跳动。
+ * 没有图（或加载失败）时只留同尺寸的空白块：SPEC §2.6 明确不做首字方块假图，
+ * 但表格行仍需要一个固定宽度的位置，否则标题起点会跳。
  */
 export function Poster({
   src,
-  name,
   shape = 'poster',
   className,
   style,
 }: {
   src?: string | null
-  name: string
+  /** 保留字段：调用方仍在传（原先用于首字兜底），现在不再渲染文字 */
+  name?: string
   shape?: 'poster' | 'wide' | 'square'
   className?: string
   style?: CSSProperties
@@ -31,11 +32,7 @@ export function Poster({
   const fallbackClass = shape === 'poster' ? 'thumb' : `thumb thumb--${shape}`
 
   if (!url || failed) {
-    return (
-      <span className={[fallbackClass, className].filter(Boolean).join(' ')} style={style}>
-        {(name || '?').slice(0, 1)}
-      </span>
-    )
+    return <span className={[fallbackClass, className].filter(Boolean).join(' ')} style={style} aria-hidden="true" />
   }
   return (
     <img

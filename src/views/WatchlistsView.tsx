@@ -23,7 +23,6 @@ export interface WatchSearch {
   page: number
   page_size: number
   scope: 'all' | 'self' | 'subscribed'
-  type: 'video' | 'music'
   q: string
 }
 
@@ -53,7 +52,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const { data, isLoading, error, refetch } = useWatchPage({
     page: search.page,
     page_size: search.page_size,
-    type: search.type,
+    // 不传 type：上游只认 video，传 music 直接 422
     name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
@@ -118,14 +117,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
-        <div className="seg" role="group" aria-label="片单类型">
-          <button type="button" aria-pressed={search.type === 'video'} onClick={() => onSearch({ type: 'video', page: 1 })}>
-            影视
-          </button>
-          <button type="button" aria-pressed={search.type === 'music'} onClick={() => onSearch({ type: 'music', page: 1 })}>
-            音乐
-          </button>
-        </div>
         <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />
           新建片单
@@ -254,7 +245,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {creating ? (
         <WatchlistForm
-          defaultType={search.type}
+          defaultType="video"
           submitLabel="创建"
           pending={create.isPending}
           onClose={() => setCreating(false)}

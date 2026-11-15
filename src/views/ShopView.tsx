@@ -150,7 +150,9 @@ export function ShopView({
         is_up: editing.is_up ?? false,
         time_start: editing.time_start ?? null,
         time_end: editing.time_end ?? null,
-        user_buy_max: editing.user_buy_max ?? null,
+        // user_buy_max 只有 product/list 会给，product/info 没有；
+        // 也就是说编辑时拿不到原值，传 null 反倒可能清掉限购，所以这里不提交该字段
+        ...(editing.user_buy_max == null ? {} : { user_buy_max: editing.user_buy_max }),
       },
       {
         onSuccess: () => {

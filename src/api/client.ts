@@ -1,10 +1,12 @@
 import type { ApiError } from './types'
 import { mockRequest } from './mock'
-export const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 const MOCK_MODE = import.meta.env.VITE_MOCK ?? ''
 export const USE_FIXTURES = MOCK_MODE === 'fixtures'
 export const USE_MOCK = MOCK_MODE === '1' || USE_FIXTURES
 export const TOKEN_KEY = 'emos_admin_token'
+/** 会话快照缓存（侧栏与登录前预渲染用），与 uploader 共用同一个键 */
+export const SESSION_CACHE_KEY = 'emos_admin_profile'
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY)
@@ -26,7 +28,7 @@ function fail(status: number, message: string, payload?: unknown): ApiError {
   err.payload = payload
   return err
 }
-export interface RequestOptions {
+interface RequestOptions {
   /** 覆盖本地令牌，仅用于登录校验 */
   token?: string
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'

@@ -117,6 +117,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         </div>
       </div>
 
+      {filtered ? (
+        <p className="card-note">
+          支付/发货/关键词筛选只在当前页生效（接口忽略这几个条件），翻页会重新按后端结果展示。
+        </p>
+      ) : null}
+
       {orders.error ? <ErrorBlock error={orders.error} onRetry={() => orders.refetch()} /> : null}
       {orders.isLoading ? <LoadingBlock rows={6} columns={5} /> : null}
       {orders.data && visibleOrders.length === 0 ? (
@@ -215,6 +221,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                                 message: `「${order.order_title}」 ${order.order_no}`,
                                 hint: `扣除 ${formatThousand(total)} 胡萝卜。`,
                                 confirmText: '支付',
+                                danger: true,
                               })
                               if (!ok) return
                               actions.payOrder.mutate(order.order_no, { onSuccess: () => toast('已支付', 'success') })
@@ -306,12 +313,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               })}
             </tbody>
           </table>
-          {/* 接口会忽略 is_pay / order_title / order_no，本地再筛一遍；
-              这时总条数只能用当前页筛出来的数，否则会出现「本页 0 条但还有 N 页」 */}
+          {/* 接口会忽略 is_pay / order_title / order_no，所以本地只筛当前页；
+              总数与页码仍用后端返回值——否则筛选一开就没法翻页，越界页也找不到 */}
           <Pager
-            total={filtered ? visibleOrders.length : orders.data.total}
-            page={filtered ? 1 : search.page}
-            pageSize={search.page_size}
+            total={orders.data.total}
+            page={search.page}
+            pageSize={orders.data.page_size}
             onPage={(page) => onSearch({ page })}
             onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
           />

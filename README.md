@@ -9,7 +9,7 @@ npm install
 npm run dev          # http://localhost:5273
 ```
 
-`.env.development` 里 `VITE_MOCK=1` 使用内置假数据；接真实后端改成 `0`，`/api` 由 vite proxy 转发到 `VITE_API_ORIGIN`。
+`.env.development` 里 `VITE_MOCK=1` 使用内置假数据（该文件不入库，先 `cp .env.example .env.development`）；接真实后端改成 `0`，`/api` 由 vite proxy 转发到 `VITE_API_ORIGIN`。
 
 ## 部署
 
@@ -39,5 +39,5 @@ worker/         API 反代
 上报进度），后台没有对应动作，见 `docs/api-coverage.md`；Telegram 频道内的红包投放由 bot 侧
 入口完成。
 
-API 覆盖：`src/api/endpoints.ts` 按域组织类型化封装；文档 190 个接口 / 代码 172 个封装的
+API 覆盖：`src/api/endpoints.ts` 按域组织类型化封装；文档 190 个接口 / 代码 169 个封装的
 逐条对照见 `docs/api-coverage.md`，字段形状见 `docs/api-inventory.md` 与 `docs/api-shapes.md`。

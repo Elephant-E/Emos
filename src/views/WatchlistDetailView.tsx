@@ -262,7 +262,7 @@ export function WatchlistDetailView({
                         danger: true,
                       })
                       if (!ok) return
-                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q: '', scope: 'self', type: 'video' } }) })
+                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q: '', scope: 'self' } }) })
                     }}
                   >
                     删除

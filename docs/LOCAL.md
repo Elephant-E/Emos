@@ -13,7 +13,6 @@ npm run dev            # http://localhost:5273
 
 ```
 VITE_MOCK=0
-VITE_API_ORIGIN=https://test.emos.best
 ```
 
 改完需重启 dev（vite 只在启动时读 env）。`/api` 由 vite proxy 转发，浏览器侧同域，不会有 CORS。

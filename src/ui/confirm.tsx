@@ -56,8 +56,9 @@ export function ConfirmHost() {
       cancelText={pending.cancelText}
       confirmText={pending.confirmText}
       dangerConfirm={pending.danger}
-      cancelAutoFocus={pending.danger}
-      confirmAutoFocus={!pending.danger}
+      // 焦点一律先给「取消」：付款、恢复这类会扣胡萝卜的动作，回车不该直接执行
+      cancelAutoFocus
+      confirmAutoFocus={false}
       onCancel={() => settle(false)}
       onConfirm={() => settle(true)}
     />

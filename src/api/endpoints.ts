@@ -97,8 +97,6 @@ export const uploadApi = {
 }
 
 export const videoApi = {
-  getVideoId: (params: { video_id_type: string; video_id_value: string; season_number?: number; episode_number?: number; tmdb_type?: string }) =>
-    request<Record<string, unknown>>('/api/video/getVideoId', { query: params }),
   list: (params: { page?: number; page_size?: number; title?: string; type?: VideoType; tmdb_id?: number; todb_id?: number; video_id?: number; only_delete?: boolean; with_media?: boolean }) =>
     request<ListResult<VideoItem>>('/api/video/list', { query: params }),
   search: (params: { title?: string; page?: number; page_size?: number; sort_by?: string; type?: VideoType }) =>

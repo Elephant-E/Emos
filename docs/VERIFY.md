@@ -68,7 +68,6 @@ proxy: { '/api': { target: 'https://emos.best', changeOrigin: true, secure: fals
 
 **生产（旧 worker.js）**
 ```ts
-headers.set('Host', 'emos.best')
 headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
 headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
 ```

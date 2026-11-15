@@ -166,7 +166,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           })),
           all: () => {
             close()
-            void navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q, scope: 'all', type: 'video' } })
+            void navigate({ to: '/watchlists', search: { page: 1, page_size: 20, q, scope: 'all' } })
           },
         },
         {

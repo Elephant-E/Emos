@@ -203,6 +203,8 @@ export async function mockRequest<T>(
     const list = await loadFixtures()
     const hit = list.find((item) => item.method === (opts.method ?? 'GET') && item.re.test(rawPath))
     if (hit) return hit.body as T
+    // 未录制的请求会落到下面的手写 mock：混用两种来源时结论不可信，所以显式喊一声
+    console.warn(`[fixtures] 未录制该请求，回落到手写 mock：${opts.method ?? 'GET'} ${rawPath}`)
   }
 
   const [clean] = path.split('?')

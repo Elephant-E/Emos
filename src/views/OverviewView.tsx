@@ -202,7 +202,7 @@ export function OverviewView() {
           })()}
         />
 
-        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video', q: '' }}>
+        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self',  q: '' }}>
           <p className="stat__label">片单槽位</p>
           <p className="stat__value">
             {ready ? caps.slotRemaining : '—'}
@@ -361,7 +361,7 @@ export function OverviewView() {
         <section className="cards cards--wide">
           <article className="card">
             <CardHead title="我的片单">
-              <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self', type: 'video', q: '' }}>
+              <Link className="btn btn--quiet" to="/watchlists" search={{ page: 1, page_size: 20, scope: 'self',  q: '' }}>
                 全部
               </Link>
             </CardHead>
