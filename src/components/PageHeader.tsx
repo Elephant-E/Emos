@@ -31,6 +31,8 @@ const SECTION_PATH: Record<string, string> = {
 
 export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
   const root = crumb[0]
+  // 传了 fragment 但里面全是 null 时不要渲染空容器（会留一块空白）
+  const hasTools = Boolean(tools) && !(Array.isArray(tools) && tools.every((t) => t == null))
   const path = SECTION_PATH[root]
   // 工具横向溢出时才加渐隐：没溢出还渐隐会把最后一个按钮右边缘裁掉
   const toolsRef = useRef<HTMLDivElement>(null)
@@ -71,7 +73,7 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
           {hint ? <span className="page-title__hint">{hint}</span> : null}
         </div>
       </div>
-      {tools ? (
+      {tools && hasTools ? (
         <div className="head-tools" ref={toolsRef}>
           {tools}
         </div>

@@ -61,6 +61,7 @@ export function UserSearchView() {
         onRetry={() => bans.refetch()}
         items={rows}
         loadingRows={5}
+        bare
         loadingKind="rows"
         emptyTitle="没有封禁中的用户"
       >

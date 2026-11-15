@@ -75,6 +75,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         // 线路一次取全，直接列出
         infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
         loadingRows={5}
+        bare
         loadingKind="rows"
         emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
         emptyAction={

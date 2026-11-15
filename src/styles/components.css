@@ -214,11 +214,12 @@
   min-width: 0;
 }
 .page-title__hint {
+  font-size: var(--text-xs);
   color: var(--fg-3);
   margin-left: var(--sp-2);
   font-weight: 450;
   letter-spacing: 0;
-  font-size: 0.62em;
+  font-size: var(--text-xs);
   vertical-align: 0.28em;
   white-space: nowrap;
 }
@@ -1334,7 +1335,7 @@ input.input[type='number'] { min-width: 0; }
   font-weight: 550;
 }
 .table .btn--primary:hover { background: transparent; color: var(--fg); }
-.table .btn--danger-text { color: var(--fg-3); }
+.table .btn--danger-text { color: color-mix(in srgb, var(--c-red) 62%, var(--fg-3)); }
 .table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 .table .action-group { display: inline-flex; gap: var(--sp-3); }
 .table .row-menu { margin-right: -6px; }
@@ -1355,7 +1356,7 @@ input.input[type='number'] { min-width: 0; }
 .kv dt { margin: 0; font-size: var(--text-xs); color: var(--fg-3); }
 .kv dd { margin: 0; font-size: var(--text-sm); color: var(--fg-2); text-align: right; }
 
-.btn--danger-text { color: var(--fg-3); }
+.btn--danger-text { color: color-mix(in srgb, var(--c-red) 62%, var(--fg-3)); }
 .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 
 /* 详情页头部的封面：列表缩略图 30×40 拿到这里比旁边的字还矮 */
@@ -2722,7 +2723,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .record-row__actions--full {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: var(--sp-2);
 }
 .record-row__actions--full > * {
@@ -2782,7 +2784,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .infinite-sentinel {
   display: grid;
   place-items: center;
-  min-height: 24px;
+  min-height: 8px;
   padding: var(--sp-2) 0 var(--sp-4);
   color: var(--fg-4);
   font-size: var(--text-xs);
