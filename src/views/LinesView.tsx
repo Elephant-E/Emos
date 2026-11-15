@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ListSection } from '@/components/ListSection'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { RecordList } from '@/components/RecordList'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
@@ -19,6 +20,7 @@ export interface LinesSearch {
 
 export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch: (patch: Partial<LinesSearch>) => void }) {
   const lines = useLineList()
+  const compact = useMediaQuery('(max-width: 600px)')
   const actions = useLineMutations()
   const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({ name: '', url: '', tagline: '' })
@@ -71,13 +73,15 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         isLoading={lines.isLoading}
         error={lines.error}
         onRetry={() => lines.refetch()}
-        items={paged}
+        items={compact ? rows : paged}
         total={rows.length}
         page={search.page}
         pageSize={search.page_size}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
         cardList
+        // 线路是「一次取全 + 前端分页」，手机端不需要分页器，直接滑
+        infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
         sizes={[20, 50]}
         idKey={(line) => line.id}
         loadingRows={4}

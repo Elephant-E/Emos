@@ -8,12 +8,14 @@ import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { Tabs } from '@/components/Tabs'
-import { fundApi } from '@/api/endpoints'
+import { carrotApi, fundApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { PayView } from '@/views/PayView'
 import { qk, useAccountMutations, useCarrot, useCarrotHistory } from '@/api/queries'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 const FUND_TABS = [
   { key: 'orders', label: '基金订单' },
@@ -23,7 +25,12 @@ const FUND_TABS = [
 
 function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; pageSize: number; onPage: (page: number) => void; onPageSize: (size: number) => void }) {
   const carrot = useCarrot()
+  const compact = useMediaQuery('(max-width: 600px)')
   const history = useCarrotHistory(page, pageSize)
+  const infinite = usePagedInfinite<Record<string, unknown>>(
+    (next) => carrotApi.history({ page: next, page_size: pageSize }) as unknown as Promise<{ items: Array<Record<string, unknown>>; total: number; page_size: number }>,
+    { enabled: compact, resetKey: `${pageSize}` },
+  )
   const actions = useAccountMutations()
   const [transferring, setTransferring] = useState(false)
   const [transferTo, setTransferTo] = useState('')
@@ -78,21 +85,22 @@ function CarrotSection({ page, pageSize, onPage, onPageSize }: { page: number; p
         isLoading={history.isLoading}
         error={history.error}
         onRetry={() => history.refetch()}
-        items={rows}
-        total={history.data?.total ?? 0}
+        items={(compact ? infinite.items : rows) as typeof rows}
+        total={compact ? infinite.total : (history.data?.total ?? 0)}
         page={page}
         pageSize={pageSize}
         onPage={onPage}
         onPageSize={onPageSize}
         cardList
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(r) => `${r.created_at}-${r.trigger_type}-${r.point}`}
         scope={page}
         loadingRows={8}
         loadingCols={3}
         emptyTitle="还没有胡萝卜记录"
       >
-          <RecordList
-            rows={rows}
+          <RecordList<Record<string, unknown>>
+            rows={(compact ? infinite.items : rows) as Array<Record<string, unknown>>}
             idKey={(row) => `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${String(row.point ?? '')}`}
             className="table"
             columns={[
@@ -240,8 +248,16 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
     },
   })
 
-  const rows = (orders.data?.items ?? []) as Row[]
-  const total = orders.data?.total ?? 0
+  const compact = useMediaQuery('(max-width: 600px)')
+  const infinite = usePagedInfinite<Row>(
+    (next) =>
+      fundApi
+        .orders({ page: next, page_size: Math.min(30, pageSize) })
+        .then((r) => ({ items: r.items as unknown as Row[], total: r.total, page_size: r.page_size })),
+    { enabled: compact && tab === 'orders', resetKey: `${pageSize}` },
+  )
+  const rows = (compact ? infinite.items : ((orders.data?.items ?? []) as Row[]))
+  const total = compact ? infinite.total : (orders.data?.total ?? 0)
 
   return (
     <>
@@ -279,6 +295,7 @@ export function FundView({ tab, onTab, page, pageSize, onPage, onPageSize }: {
           onPageSize={onPageSize}
           sizes={[20, 30]}
           cardList
+          infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
           idKey={(r) => String(r.order_no ?? r.created_at)}
           scope={page}
           loadingRows={8}

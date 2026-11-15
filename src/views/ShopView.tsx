@@ -4,6 +4,7 @@ import { SellerFormModal } from '@/components/shop/SellerFormModal'
 import { ProductEditModal } from '@/components/shop/ProductEditModal'
 import { CategoryPanel } from '@/components/shop/CategoryPanel'
 import { InlineSortInput } from '@/components/InlineSortInput'
+import { shopApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { RecordList } from '@/components/RecordList'
 import { ProductToolbar } from '@/components/ProductToolbar'
@@ -22,6 +23,8 @@ import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import {formatDateTime, formatThousand} from '@/lib/format'
 import type { ShopProduct } from '@/api/types'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 type Tab = 'products' | 'categories' | 'seller'
 
@@ -74,6 +77,7 @@ export function ShopView({
   const mine = scope === 'mine'
   // 逛全站时只显示上架商品：下架商品对买家不存在
   // 表格只在「我的店铺」用；全站是卡片网格，走 browse
+  const compact = useMediaQuery('(max-width: 600px)')
   const products = useShopProducts({
     page,
     sellerId: mine ? (seller.data?.seller_id ?? 0) : 0,
@@ -89,6 +93,19 @@ export function ShopView({
   const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true, enabled: !mine })
   const browseItems = browse.data?.pages.flatMap((p) => p.items) ?? []
   const counts = useShopCounts(seller.data?.seller_id ?? 0)
+  // 手机端滚动加载（我的商品；逛商城本来就是无限网格）
+  const infinite = usePagedInfinite<ShopProduct>(
+    (next) =>
+      shopApi.products({
+        page: next,
+        page_size: pageSize,
+        seller_id: seller.data?.seller_id ?? 0,
+        category_id: categoryId || undefined,
+        name: q || undefined,
+        sort_by: sort || undefined,
+      }),
+    { enabled: compact && mine, resetKey: `${q}|${categoryId}|${pageSize}` },
+  )
   const actions = useShopMutations()
 
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
@@ -271,12 +288,14 @@ export function ShopView({
               isLoading={products.isLoading}
               error={products.error}
               onRetry={() => products.refetch()}
-              items={products.data?.items ?? []}
-              total={products.data?.total ?? 0}
+              items={compact ? infinite.items : (products.data?.items ?? [])}
+              total={compact ? infinite.total : (products.data?.total ?? 0)}
               page={page}
               pageSize={products.data?.page_size ?? pageSize}
               onPage={(next) => onSearch({ page: next })}
               onPageSize={(next) => onSearch({ page_size: next, page: 1 })}
+              cardList
+              infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
               idKey={(p) => p.product_id}
               scope={`${scope}-${q}-${categoryId}`}
               loadingRows={6}
@@ -285,7 +304,7 @@ export function ShopView({
               emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
             >
               <RecordList
-                  rows={products.data?.items ?? []}
+                  rows={compact ? infinite.items : (products.data?.items ?? [])}
                   idKey={(product) => product.product_id}
                   className="table"
                   columns={[
