@@ -1824,12 +1824,23 @@ input.input[type='number'] { min-width: 0; }
 /* 电影没有季集，去掉左栏后资源与字幕占满整行 */
 .detail-body--single { grid-template-columns: minmax(0, 1fr); }
 /* 演职员 */
-.person-grid { display: flex; gap: var(--gap-card); flex-wrap: wrap; margin-top: var(--sp-3); }
-.person-card { display: grid; gap: var(--sp-2); width: 84px; }
+/* 演职员：自适应列数，头像按 3:4 铺满列宽，不再固定 84px 留下参差的右侧空隙 */
+.person-grid {
+  display: grid;
+  /* 手机三列铺满；宽屏固定 96px 卡片、左对齐，不再被 1fr 拉成十几列 */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.person-card { display: grid; gap: var(--sp-1); min-width: 0; }
+@media (min-width: 900px) {
+  .person-grid { grid-template-columns: repeat(auto-fill, 96px); justify-content: start; }
+}
 .person-card__photo {
   position: relative;
-  width: 84px;
-  height: 112px;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  height: auto;
   border-radius: 8px;
   overflow: hidden;
   background: var(--raised);
