@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { liveApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { RecordList } from '@/components/RecordList'
 import { ModalFooter } from '@/components/ModalFooter'
@@ -15,6 +16,8 @@ import { useLiveLibrary, useLiveList, useLiveMedia, useLiveMutations } from '@/a
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative } from '@/lib/format'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export interface LiveSearch {
   page: number
@@ -30,7 +33,12 @@ const PATH_TYPE_LABEL: Record<string, string> = {
 
 export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
   const library = useLiveLibrary()
-  const list = useLiveList(search.page, search.library)
+  const compact = useMediaQuery('(max-width: 600px)')
+  const list = useLiveList(search.page, search.library, 15, !compact)
+  const infinite = usePagedInfinite(
+    (page) => liveApi.list({ page, page_size: 15, library_id: search.library || undefined }),
+    { enabled: compact, resetKey: `${search.library}` },
+  )
   const [mediaPage, setMediaPage] = useState(1)
   // 换频道时源列表回到第一页，不然会停在上一个频道的页码上
   useEffect(() => setMediaPage(1), [search.channel])
@@ -92,7 +100,8 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     )
   }
 
-  const channel = list.data?.items.find((item) => item.id === search.channel)
+  const liveItems = compact ? infinite.items : (list.data?.items ?? [])
+  const channel = liveItems.find((item) => item.id === search.channel)
 
   const renderSources = () => {
     if (!channel) return null
@@ -221,10 +230,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         isLoading={list.isLoading}
         error={list.error}
         onRetry={() => list.refetch()}
-        items={list.data?.items ?? []}
-        total={list.data?.total ?? 0}
+        items={liveItems}
+        total={compact ? infinite.total : (list.data?.total ?? 0)}
         page={search.page}
-        pageSize={list.data?.page_size ?? 20}
+        pageSize={compact ? infinite.pageSize : (list.data?.page_size ?? 20)}
+        cardList
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         onPage={(page) => onSearch({ page })}
         idKey={(v) => v.id}
         scope={`${search.library}-${search.channel}`}
@@ -233,7 +244,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         emptyTitle="这个媒体库还没有频道"
       >
                       <RecordList
-              rows={list.data?.items ?? []}
+              rows={liveItems}
               idKey={(item) => item.id}
               className="table"
               onOpen={(item) => onSearch({ channel: item.id === search.channel ? 0 : item.id })}

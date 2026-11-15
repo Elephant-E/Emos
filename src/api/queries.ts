@@ -317,10 +317,15 @@ export function useWatch(watchId: number) {
   })
 }
 
-export function useWatchVideos(watchId: number, params: { page: number; page_size: number; video_title?: string }) {
+export function useWatchVideos(
+  watchId: number,
+  params: { page: number; page_size: number; video_title?: string },
+  enabled = true,
+) {
   return useQuery({
     queryKey: qk.watchVideos(watchId, params),
     queryFn: () => watchApi.videos(watchId, params),
+    enabled,
   })
 }
 
@@ -781,10 +786,11 @@ export function useShopMutations() {
   }
 }
 
-export function useLiveList(page: number, libraryId: number, pageSize = 15) {
+export function useLiveList(page: number, libraryId: number, pageSize = 15, enabled = true) {
   return useQuery({
     queryKey: ['live', 'list', page, libraryId] as const,
     queryFn: () => liveApi.list({ page, page_size: pageSize, library_id: libraryId || undefined }),
+    enabled,
   })
 }
 

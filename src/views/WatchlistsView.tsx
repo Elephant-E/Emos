@@ -17,6 +17,8 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatRelative, formatThousand } from '@/lib/format'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export interface WatchSearch {
   page: number
@@ -48,15 +50,20 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
   const session = useSession()
-  const { data, isLoading, error, refetch } = useWatchPage({
-    page: search.page,
+  const compact = useMediaQuery('(max-width: 600px)')
+  const watchParams = {
     page_size: search.page_size,
     // 不传 type：上游只认 video，传 music 直接 422
     name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
-  })
-  const items = data?.items ?? []
+  }
+  const { data, isLoading, error, refetch } = useWatchPage({ ...watchParams, page: search.page }, !compact)
+  const infinite = usePagedInfinite(
+    (page) => watchApi.list({ ...watchParams, page }),
+    { enabled: compact, resetKey: `${search.scope}|${search.q}|${search.page_size}` },
+  )
+  const items = compact ? infinite.items : (data?.items ?? [])
 
   const remove = useMutation({
     mutationFn: (watchId: number) => watchApi.remove(watchId),
@@ -127,12 +134,13 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         isLoading={isLoading}
         error={error}
         onRetry={() => refetch()}
-        items={data?.items ?? []}
-        total={data?.total ?? 0}
+        items={items}
+        total={compact ? infinite.total : (data?.total ?? 0)}
         page={search.page}
-        pageSize={data?.page_size ?? search.page_size}
+        pageSize={compact ? infinite.pageSize : (data?.page_size ?? search.page_size)}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(w) => w.id}
         scope={`${search.scope}-${search.q}`}
         cardList

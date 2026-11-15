@@ -23,6 +23,8 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useDebounced } from '@/lib/useDebounced'
 import { formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export function WatchlistDetailView({
   watchId,
@@ -59,8 +61,18 @@ export function WatchlistDetailView({
   })
 
   const watch = useWatch(id)
-  const videos = useWatchVideos(id, { page: search.page, page_size: search.page_size, video_title: search.q || undefined })
-  const videoRows = videos.data?.items ?? []
+  const compact = useMediaQuery('(max-width: 600px)')
+  const videos = useWatchVideos(
+    id,
+    { page: search.page, page_size: search.page_size, video_title: search.q || undefined },
+    !compact,
+  )
+  // 手机端滚动加载
+  const infinite = usePagedInfinite(
+    (page) => watchApi.videos(id, { page, page_size: search.page_size, video_title: search.q || undefined }),
+    { enabled: compact, resetKey: `${id}|${search.q}|${search.page_size}` },
+  )
+  const videoRows = compact ? infinite.items : (videos.data?.items ?? [])
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
 
   useDebounced(term, (next) => onSearch({ q: next, page: 1 }), { current: search.q })
@@ -240,11 +252,13 @@ export function WatchlistDetailView({
         isLoading={videos.isLoading}
         error={videos.error}
         onRetry={() => videos.refetch()}
-        items={videos.data?.items ?? []}
-        total={videos.data?.total ?? 0}
+        items={videoRows}
+        total={compact ? infinite.total : (videos.data?.total ?? 0)}
         page={search.page}
         pageSize={videos.data?.page_size ?? search.page_size}
         onPage={(page) => go({ page })}
+        cardList
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         idKey={(v) => v.video_id}
         scope={`${search.q}-${search.page}`}
         loadingRows={6}
@@ -383,7 +397,7 @@ export function WatchlistDetailView({
       {adding ? (
         <AddVideoModal
           watchId={watchId}
-          maxSort={Math.max(0, ...(videos.data?.items ?? []).map((v) => v.sort ?? 0))}
+          maxSort={Math.max(0, ...videoRows.map((v) => v.sort ?? 0))}
           onClose={() => setAdding(false)}
         />
       ) : null}
@@ -429,7 +443,7 @@ export function WatchlistDetailView({
               {
                 videoId: remarkFor.videoId,
                 // sort 取当前列表的值，而不是弹窗打开那一刻的值
-                sort: videos.data?.items.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
+                sort: videoRows.find((v) => v.video_id === remarkFor.videoId)?.sort ?? 0,
                 remark: remark || null,
               },
               {
