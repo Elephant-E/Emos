@@ -3,6 +3,7 @@ import { EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from './StateBl
 import { ListCard } from './ListCard'
 import { Pager } from './Pager'
 import { useMediaQuery } from '@/lib/useMediaQuery'
+import { InfiniteSentinel } from './InfiniteSentinel'
 
 /**
  * 列表页的「卡片 + 四态 + 分页器」外壳。
@@ -40,6 +41,8 @@ export function ListSection<T>({
   outOfRange,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
+  /** 手机端改为滚动加载：传了它就不再渲染分页器，滑到底部触发 onLoadMore */
+  infinite,
   children,
 }: {
   isLoading: boolean
@@ -68,6 +71,7 @@ export function ListSection<T>({
    */
   outOfRange?: boolean
   cardList?: boolean
+  infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   children: ReactNode
 }) {
   const compact = useMediaQuery('(max-width: 600px)')
@@ -91,12 +95,17 @@ export function ListSection<T>({
     return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
   }
 
-  // 手机端的卡片列表已经有自己的边框，外面再套 .table-card 就成了一层套一层
+  // 手机端的卡片列表已经有自己的边框，外面再套 .table-card 就成了一层套一层；
+  // 同时手机不需要页码控件——滑到底部自动续下一页
   if (cardList && compact) {
     return (
       <div className="record-section">
         {children}
-        {pager}
+        {infinite ? (
+          <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} />
+        ) : (
+          pager
+        )}
       </div>
     )
   }

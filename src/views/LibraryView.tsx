@@ -7,7 +7,9 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
-import { useVideoPage } from '@/api/queries'
+import { fetchVideoPage, useVideoPage } from '@/api/queries'
+import { usePagedInfinite } from '@/lib/usePagedInfinite'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { useDebounced } from '@/lib/useDebounced'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
@@ -37,13 +39,33 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
 
   // 纯数字：先当站内 ID 查，查不到再当 TMDB ID（见 useVideoPage）；其余按片名
   const numeric = /^\d{1,12}$/.test(search.q.trim())
-  const { data, isLoading, error, refetch, isFetching } = useVideoPage({
+  const compact = useMediaQuery('(max-width: 600px)')
+  // 桌面：分页查询（URL 里的 page 有意义）
+  const paged = useVideoPage({
     page: search.page,
     page_size: search.page_size,
     numericId: numeric ? Number(search.q) : undefined,
     title: numeric ? undefined : search.q || undefined,
     type: (search.type || undefined) as VideoType | undefined,
+    enabled: !compact,
   })
+  // 手机：滚动加载，首屏取第 1 页，滑到底续下一页
+  const infinite = usePagedInfinite(
+    (page) =>
+      fetchVideoPage({
+        page,
+        page_size: search.page_size,
+        numericId: numeric ? Number(search.q) : undefined,
+        title: numeric ? undefined : search.q || undefined,
+        type: (search.type || undefined) as VideoType | undefined,
+      }),
+    { enabled: compact, resetKey: `${search.q}|${search.type}|${search.page_size}` },
+  )
+  const data = compact ? { items: infinite.items, total: infinite.total, page_size: infinite.pageSize } : paged.data
+  const isLoading = compact ? infinite.loading : paged.isLoading
+  const error = compact ? infinite.error : paged.error
+  const refetch = compact ? infinite.retry : paged.refetch
+  const isFetching = compact ? infinite.loading : paged.isFetching
   const items = data?.items ?? []
 
 
@@ -98,6 +120,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         pageSize={data?.page_size ?? search.page_size}
         onPage={(page) => onSearch({ page })}
         onPageSize={(page_size) => onSearch({ page: 1, page_size })}
+        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         sizes={[20, 50]}
         idKey={(v) => v.video_id}
         scope={`${search.type}-${search.q}`}

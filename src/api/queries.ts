@@ -229,7 +229,7 @@ export function useTodos() {
   })
 }
 
-export function useVideoPage(params: {
+export interface VideoPageParams {
   page: number
   page_size: number
   title?: string
@@ -237,18 +237,22 @@ export function useVideoPage(params: {
   tmdb_id?: number
   /** 纯数字搜索：先当站内 video_id，查不到再当 tmdb_id（两个 id 空间不重叠） */
   numericId?: number
-  enabled?: boolean
-}) {
+}
+
+/** 单页取数的纯函数：分页 hook 与手机端滚动加载共用同一套兜底逻辑 */
+export async function fetchVideoPage(params: VideoPageParams) {
+  if (params.numericId) {
+    const byVideoId = await videoApi.list({ ...params, video_id: params.numericId, tmdb_id: undefined })
+    if ((byVideoId.total ?? 0) > 0) return byVideoId
+    return videoApi.list({ ...params, video_id: undefined, tmdb_id: params.numericId })
+  }
+  return videoApi.list(params)
+}
+
+export function useVideoPage(params: VideoPageParams & { enabled?: boolean }) {
   return useQuery({
     queryKey: qk.videosPage(params),
-    queryFn: async () => {
-      if (params.numericId) {
-        const byVideoId = await videoApi.list({ ...params, video_id: params.numericId, tmdb_id: undefined })
-        if ((byVideoId.total ?? 0) > 0) return byVideoId
-        return videoApi.list({ ...params, video_id: undefined, tmdb_id: params.numericId })
-      }
-      return videoApi.list(params)
-    },
+    queryFn: () => fetchVideoPage(params),
     enabled: params.enabled ?? true,
   })
 }

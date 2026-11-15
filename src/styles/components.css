@@ -2325,6 +2325,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   padding: 0;
 }
 .record-section { display: grid; gap: var(--gap-card); }
+/* 滚动加载哨兵：占位很小，只是在进入视口时触发下一次请求 */
+.infinite-sentinel {
+  display: grid;
+  place-items: center;
+  min-height: 24px;
+  padding: var(--sp-2) 0 var(--sp-4);
+  color: var(--fg-4);
+  font-size: var(--text-xs);
+}
+.infinite-sentinel__text { opacity: 0.8; }
 .record-cards {
   display: grid;
   gap: var(--sp-2);

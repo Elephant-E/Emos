@@ -58,7 +58,10 @@ const TITLES: Array<[string, string, VideoItem['video_type']]> = [
   ['昼颜', 'Hirugao', 'tv'],
 ]
 
-const videos: VideoItem[] = TITLES.map(([title, origin, type], i) => ({
+// 真实库有 21 万条；mock 里复制几轮，才能验证分页与滚动加载
+const TITLES_X3 = [...TITLES, ...TITLES.map(([t, o, y]): [string, string, VideoItem['video_type']] => [`${t} Ⅱ`, o, y]), ...TITLES.map(([t, o, y]): [string, string, VideoItem['video_type']] => [`${t} Ⅲ`, o, y])]
+
+const videos: VideoItem[] = TITLES_X3.map(([title, origin, type], i) => ({
   item_id: `vl-${i + 1}`,
   todb_id: 1000 + i,
   tmdb_id: 63247 + i,
