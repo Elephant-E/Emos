@@ -6,9 +6,8 @@ import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
-import { fetchVideoPage, useVideoPage } from '@/api/queries'
+import { fetchVideoPage } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 import { useDebounced } from '@/lib/useDebounced'
 import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
@@ -38,18 +37,8 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
 
   // 纯数字：先当站内 ID 查，查不到再当 TMDB ID（见 useVideoPage）；其余按片名
   const numeric = /^\d{1,12}$/.test(search.q.trim())
-  const compact = useMediaQuery('(max-width: 600px)')
-  // 桌面：分页查询（URL 里的 page 有意义）
-  const paged = useVideoPage({
-    page: search.page,
-    page_size: search.page_size,
-    numericId: numeric ? Number(search.q) : undefined,
-    title: numeric ? undefined : search.q || undefined,
-    type: (search.type || undefined) as VideoType | undefined,
-    enabled: !compact,
-  })
-  // 手机：滚动加载，首屏取第 1 页，滑到底续下一页
-  const infinite = usePagedInfinite(
+  // 两端都是滚动加载：不再有分页器，也就不分「桌面用分页查询」这条路
+  const list = usePagedInfinite(
     (page) =>
       fetchVideoPage({
         page,
@@ -58,13 +47,9 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         title: numeric ? undefined : search.q || undefined,
         type: (search.type || undefined) as VideoType | undefined,
       }),
-    { enabled: compact, resetKey: `${search.q}|${search.type}|${search.page_size}` },
+    { resetKey: `${search.q}|${search.type}|${search.page_size}` },
   )
-  const data = compact ? { items: infinite.items, total: infinite.total, page_size: infinite.pageSize } : paged.data
-  const isLoading = compact ? infinite.loading : paged.isLoading
-  const error = compact ? infinite.error : paged.error
-  const refetch = compact ? infinite.retry : paged.refetch
-  const items = data?.items ?? []
+  const items = list.items
 
 
   return (
@@ -101,17 +86,12 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       </div>
 
       <ListSection
-        isLoading={isLoading}
-        error={error}
-        onRetry={() => refetch()}
-        items={data?.items ?? []}
-        total={data?.total ?? 0}
-        page={search.page}
-        pageSize={data?.page_size ?? search.page_size}
-        onPage={(page) => onSearch({ page })}
-        onPageSize={(page_size) => onSearch({ page: 1, page_size })}
-        infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        sizes={[20, 50]}
+        isLoading={list.loading && list.items.length === 0}
+        error={list.error}
+        onRetry={() => list.retry()}
+        items={items}
+        total={list.total}
+        infinite={{ hasMore: list.hasMore, loading: list.loadingMore, onLoadMore: list.loadMore }}
         idKey={(v) => v.video_id}
         scope={`${search.type}-${search.q}`}
         bare

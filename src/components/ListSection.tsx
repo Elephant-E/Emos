@@ -53,9 +53,10 @@ export function ListSection<T>({
   onRetry: () => void
   items: readonly T[]
   total: number
-  page: number
-  pageSize: number
-  onPage: (page: number) => void
+  /** 分页参数：只给仍在使用分页器的页面；滚动加载的页面不需要传 */
+  page?: number
+  pageSize?: number
+  onPage?: (page: number) => void
   onPageSize?: (size: number) => void
   sizes?: readonly number[]
   idKey: (item: T) => string | number | undefined | null
@@ -81,9 +82,10 @@ export function ListSection<T>({
   children: ReactNode
 }) {
   const compact = useMediaQuery('(max-width: 600px)')
-  const pager = paginated ? (
-    <Pager total={total} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} sizes={sizes} />
-  ) : null
+  const pager =
+    paginated && onPage && page != null && pageSize != null ? (
+      <Pager total={total} page={page} pageSize={pageSize} onPage={onPage} onPageSize={onPageSize} sizes={sizes} />
+    ) : null
 
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
   if (isLoading) {
@@ -97,7 +99,7 @@ export function ListSection<T>({
     if (outOfRange ?? (paginated && total > 0)) {
       return (
         <div className="table-card">
-          <OutOfRangeBlock onFirstPage={() => onPage(1)} />
+          <OutOfRangeBlock onFirstPage={() => onPage?.(1)} />
           {pager}
         </div>
       )
