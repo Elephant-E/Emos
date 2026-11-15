@@ -82,9 +82,9 @@ export function RecordRow<T>({
               <h3 className="record-row__title">{title(row)}</h3>
               {metaNode ? <div className="record-row__meta">{metaNode}</div> : null}
               {factsNode ? <div className="record-row__facts">{factsNode}</div> : null}
+              {/* 信息块跟着文字列走：封面比文字高，把块放右侧才能填满，不留大片空白 */}
+              {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
             </div>
-            {/* 跨整行的块放在 row 层，不放在 body 里：body 只有文字列宽 */}
-            {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
             {actions ? (
               <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>{actions(row)}</div>
             ) : null}

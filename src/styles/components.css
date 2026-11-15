@@ -2567,9 +2567,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
 }
 .record-row__body {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-1);
-  align-content: start;
   min-width: 0;
 }
 .record-row__title {
@@ -2600,7 +2600,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   opacity: 1;
 }
 .record-row__corner .row-menu:hover { border-color: var(--line-hot); color: var(--fg); }
-.record-row__extra { grid-column: 1 / -1; }
+/* 信息块贴到列底：封面比文字高，让块与封面底边对齐，右侧不留空洞 */
+.record-row__extra { min-width: 0; margin-top: auto; }
 /* 「求片记录」：一行说明 + 一行数据 */
 .seek-records { display: grid; gap: var(--sp-1); margin-top: var(--sp-1); }
 .seek-records__head { margin: 0; font-size: var(--text-xs); color: var(--fg-3); }
@@ -2636,8 +2637,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
 /* 宽屏：动作挪到右侧一列，信息占满中间，不再留大片空白 */
 @media (min-width: 900px) {
-  .record-row { align-items: start; }
-  .record-row:not(.record-row--plain) { grid-template-columns: 96px minmax(0, 1fr); }
+  /* 文字列要撑满行高，信息块才能贴到封面底边；封面列宽 112 与移动端一致 */
+  .record-row:not(.record-row--plain) { grid-template-columns: 112px minmax(0, 1fr); }
 }
 
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
