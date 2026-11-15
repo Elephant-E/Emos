@@ -4,6 +4,7 @@ import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton } from '@/components/StateBlock'
+import { RecordList } from '@/components/RecordList'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -148,112 +149,173 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
         onPageSize={onPageSize}
         idKey={(r) => String(r.media_id ?? r.video_id ?? '')}
         scope={tab}
+        cardList
         loadingRows={8}
         loadingCols={5}
         emptyTitle={q ? `没有找到「${q}」` : '回收站是空的'}
         emptyAction={q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined}
       >
           {tab === 'media' ? (
-            <table className="table table--auto">
-              <thead>
-                <tr>
-                  <th>资源</th>
-                  <th>所属</th>
-                  <th className="num">大小</th>
-                  <th>存储</th>
-                  <th className="num">入库时间</th>
-                  {restorable ? <th style={{ width: '96px' }}>操作</th> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const mediaId = String(row.media_id ?? '')
-                  const name = String(row.media_name ?? mediaId)
-                  // 与上面 restorable 用同一个判断，避免「整列渲染但行内全空」
-                  const canRestore = canRestoreRow(row)
-                  return (
-                    <tr key={mediaId}>
-                      <td>
-                        <span className="cell-title__name">{name}</span>
-                      </td>
-                      <td className="muted">
-                        {String(row.video_title ?? '—')}
-                        {row.season_number ? ` S${row.season_number}` : ''}
-                        {row.episode_number ? `E${row.episode_number}` : ''}
-                      </td>
-                      <td className="num muted">{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</td>
-                      <td className="muted">{String(row.storage_title ?? '—')}</td>
-                      <td className="num muted">{formatRelative(String(row.created_at ?? ''))}</td>
-                      {restorable ? (
-                        <td>
-                          {canRestore ? (
-                            <button type="button"
+            <RecordList<Record<string, unknown>>
+              rows={rows}
+              idKey={(row) => String(row.media_id ?? '')}
+              className="table table--auto"
+              columns={[
+                {
+                  key: 'name',
+                  label: '资源',
+                  mobile: 'primary',
+                  render: (row) => (
+                    <span className="cell-title__name">{String(row.media_name ?? row.media_id ?? '')}</span>
+                  ),
+                },
+                {
+                  key: 'belongs',
+                  label: '所属',
+                  mobile: 'row',
+                  render: (row) => (
+                    <span className="muted">
+                      {String(row.video_title ?? '—')}
+                      {row.season_number ? ` S${row.season_number}` : ''}
+                      {row.episode_number ? `E${row.episode_number}` : ''}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'size',
+                  label: '大小',
+                  thClass: 'num',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => (
+                    <span className="muted">
+                      {formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'storage',
+                  label: '存储',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{String(row.storage_title ?? '—')}</span>,
+                },
+                {
+                  key: 'created',
+                  label: '入库时间',
+                  thClass: 'num',
+                  mobile: 'hidden',
+                  render: (row) => <span className="muted">{formatRelative(String(row.created_at ?? ''))}</span>,
+                },
+                ...(restorable
+                  ? [
+                      {
+                        key: 'action',
+                        label: '操作',
+                        thWidth: 96,
+                        mobile: 'block' as const,
+                        mobileAlign: 'end' as const,
+                        render: (row: Record<string, unknown>) => {
+                          const mediaId = String(row.media_id ?? '')
+                          const name = String(row.media_name ?? mediaId)
+                          return canRestoreRow(row) ? (
+                            <button
+                              type="button"
                               className="btn btn--quiet"
                               disabled={busy === mediaId}
                               onClick={() => restoreMedia(mediaId, name)}
                             >
                               {busy === mediaId ? '恢复中…' : '恢复'}
                             </button>
-                          ) : null}
-                        </td>
-                      ) : null}
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                          ) : null
+                        },
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           ) : (
-            <table className="table table--auto">
-              <thead>
-                <tr>
-                  <th className="th-thumb">影片</th>
-                  <th>类型</th>
-                  <th className="num">TODB</th>
-                  <th className="num">上映</th>
-                  <th style={{ width: '96px' }}>
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => {
-                  const videoId = Number(row.video_id ?? 0)
-                  const title = String(row.video_title ?? '—')
-                  return (
-                    <tr key={videoId}>
-                      <td>
-                        <div className="cell-title">
-                          {row.video_image_poster ? (
-                            <Poster src={String(row.video_image_poster)} name={String(row.video_title ?? "?")} />
-                          ) : (
-                            <span className="thumb">{title.slice(0, 1)}</span>
-                          )}
-                          <span>
-                            <span className="cell-title__name">{title}</span>
-                            {row.user_pseudonym ? (
-                              <span className="cell-title__code">{String(row.user_pseudonym)}</span>
-                            ) : null}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="zone">
-                          <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }} />
-                          {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
+            <RecordList<Record<string, unknown>>
+              rows={rows}
+              idKey={(row) => String(row.video_id ?? '')}
+              className="table table--auto"
+              columns={[
+                {
+                  key: 'video',
+                  label: '影片',
+                  thClass: 'th-thumb',
+                  mobile: 'primary',
+                  render: (row) => {
+                    const title = String(row.video_title ?? '—')
+                    return (
+                      <div className="cell-title">
+                        {row.video_image_poster ? (
+                          <Poster src={String(row.video_image_poster)} name={title} collapseOnEmpty />
+                        ) : null}
+                        <span>
+                          <span className="cell-title__name">{title}</span>
+                          {row.user_pseudonym ? (
+                            <span className="cell-title__code">{String(row.user_pseudonym)}</span>
+                          ) : null}
                         </span>
-                      </td>
-                      <td className="num muted">{String(row.todb_id ?? '—')}</td>
-                      <td className="num muted">{String(row.video_date_air ?? '—')}</td>
-                      <td>
-                        <button type="button" className="btn btn--quiet" onClick={() => restoreVideo(videoId, title)}>
-                          恢复
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    )
+                  },
+                },
+                {
+                  key: 'type',
+                  label: '类型',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => (
+                    <span className="zone">
+                      <span
+                        className="rail__dot"
+                        style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }}
+                      />
+                      {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
+                    </span>
+                  ),
+                },
+                {
+                  key: 'todb',
+                  label: 'TODB',
+                  thClass: 'num',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{String(row.todb_id ?? '—')}</span>,
+                },
+                {
+                  key: 'air',
+                  label: '上映',
+                  thClass: 'num',
+                  mobile: 'inline',
+                  mobileLabel: null,
+                  render: (row) => <span className="muted">{String(row.video_date_air ?? '—')}</span>,
+                },
+                {
+                  key: 'action',
+                  label: '操作',
+                  thWidth: 96,
+                  mobile: 'block',
+                  mobileAlign: 'end',
+                  render: (row) => {
+                    const videoId = Number(row.video_id ?? 0)
+                    const title = String(row.video_title ?? '—')
+                    return canRestoreRow(row) ? (
+                      <button
+                        type="button"
+                        className="btn btn--quiet"
+                        disabled={busy === String(videoId)}
+                        onClick={() => restoreVideo(videoId, title)}
+                      >
+                        恢复
+                      </button>
+                    ) : null
+                  },
+                },
+              ]}
+            />
           )}
       </ListSection>
 
