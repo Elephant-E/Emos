@@ -213,7 +213,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                   {canClaim ? (
                     <button
                       type="button"
-                      className="btn btn--ghost"
+                      className="btn btn--primary"
                       disabled={claim.isPending && claim.variables === item.id}
                       onClick={() => claim.mutate(item.id)}
                     >
