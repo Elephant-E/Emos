@@ -2471,14 +2471,30 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   text-overflow: ellipsis;
 }
 .record-tile.is-clickable:hover .record-tile__title { color: var(--fg); }
+/* 信息行用 flex 逐项居中：原来靠「行内文字 + inline-flex 的类型」混排，
+   inline-flex 的盒高与纯文字盒高不同，年份会被顶高一两个像素，
+   看上去就是「电影」和「· 年份」没对齐 */
 .record-tile__meta,
 .record-tile__sub {
   margin: 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
   font-size: var(--text-xs);
   color: var(--fg-4);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+.record-tile__meta > *,
+.record-tile__sub > * { flex: none; }
+/* 分隔点由样式生成，避免各页自己拼「· 」的空格差异 */
+.record-tile__meta > * + *::before,
+.record-tile__sub > * + *::before {
+  content: '·';
+  /* 两侧都要留白，否则点会贴住前面的字 */
+  margin-inline: var(--sp-2);
+  color: var(--fg-5);
 }
 .record-tile__actions {
   display: flex;

@@ -146,7 +146,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
                   {VIDEO_TYPE_LABEL[video.video_type]}
                 </span>
                 {/* 只有类型与年份：都是定长，两列卡片的信息行永远对得齐 */}
-                {video.video_date_air ? <span> · {video.video_date_air.slice(0, 4)}</span> : null}
+                {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
               </>
             )}
           />
