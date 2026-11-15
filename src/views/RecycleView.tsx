@@ -3,9 +3,8 @@ import { mediaApi, videoApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { ClearSearchButton } from '@/components/StateBlock'
-import { RecordList } from '@/components/RecordList'
+import { RecordRow } from '@/components/RecordRow'
 import { useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -154,170 +153,88 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
         cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         loadingRows={8}
-        loadingCols={5}
+        loadingKind="rows"
         emptyTitle={q ? `没有找到「${q}」` : '回收站是空的'}
         emptyAction={q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined}
       >
           {tab === 'media' ? (
-            <RecordList<Record<string, unknown>>
+            <RecordRow<Record<string, unknown>>
               rows={rows}
               idKey={(row) => String(row.media_id ?? '')}
-              className="table table--auto"
-              columns={[
-                {
-                  key: 'name',
-                  label: '资源',
-                  mobile: 'primary',
-                  render: (row) => (
-                    <span className="cell-title__name">{String(row.media_name ?? row.media_id ?? '')}</span>
-                  ),
-                },
-                {
-                  key: 'belongs',
-                  label: '所属',
-                  mobile: 'row',
-                  render: (row) => (
-                    <span className="muted">
-                      {String(row.video_title ?? '—')}
-                      {row.season_number ? ` S${row.season_number}` : ''}
-                      {row.episode_number ? `E${row.episode_number}` : ''}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'size',
-                  label: '大小',
-                  thClass: 'num',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => (
-                    <span className="muted">
-                      {formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'storage',
-                  label: '存储',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => <span className="muted">{String(row.storage_title ?? '—')}</span>,
-                },
-                {
-                  key: 'created',
-                  label: '入库时间',
-                  thClass: 'num',
-                  mobile: 'hidden',
-                  render: (row) => <span className="muted">{formatRelative(String(row.created_at ?? ''))}</span>,
-                },
-                ...(restorable
-                  ? [
-                      {
-                        key: 'action',
-                        label: '操作',
-                        thWidth: 96,
-                        mobile: 'block' as const,
-                        mobileAlign: 'end' as const,
-                        render: (row: Record<string, unknown>) => {
-                          const mediaId = String(row.media_id ?? '')
-                          const name = String(row.media_name ?? mediaId)
-                          return canRestoreRow(row) ? (
-                            <button
-                              type="button"
-                              className="btn btn--quiet"
-                              disabled={busy === mediaId}
-                              onClick={() => restoreMedia(mediaId, name)}
-                            >
-                              {busy === mediaId ? '恢复中…' : '恢复'}
-                            </button>
-                          ) : null
-                        },
-                      },
-                    ]
-                  : []),
-              ]}
+              title={(row) => String(row.media_name ?? row.media_id ?? '')}
+              meta={(row) => (
+                <>
+                  <span>
+                    {String(row.video_title ?? '—')}
+                    {row.season_number ? ` S${row.season_number}` : ''}
+                    {row.episode_number ? ` E${row.episode_number}` : ''}
+                  </span>
+                  <span>{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</span>
+                </>
+              )}
+              facts={(row) => (
+                <>
+                  <span>{String(row.storage_title ?? '未指定存储')}</span>
+                  <span>{formatRelative(String(row.created_at ?? ''))} 入库</span>
+                </>
+              )}
+              actions={
+                restorable
+                  ? (row) => {
+                      const mediaId = String(row.media_id ?? '')
+                      const name = String(row.media_name ?? mediaId)
+                      return canRestoreRow(row) ? (
+                        <button
+                          type="button"
+                          className="btn btn--quiet"
+                          disabled={busy === mediaId}
+                          onClick={() => restoreMedia(mediaId, name)}
+                        >
+                          {busy === mediaId ? '恢复中…' : '恢复'}
+                        </button>
+                      ) : null
+                    }
+                  : undefined
+              }
             />
           ) : (
-            <RecordList<Record<string, unknown>>
+            <RecordRow<Record<string, unknown>>
               rows={rows}
               idKey={(row) => String(row.video_id ?? '')}
-              className="table table--auto"
-              columns={[
-                {
-                  key: 'video',
-                  label: '影片',
-                  thClass: 'th-thumb',
-                  mobile: 'primary',
-                  render: (row) => {
-                    const title = String(row.video_title ?? '—')
-                    return (
-                      <div className="cell-title">
-                        {row.video_image_poster ? (
-                          <Poster src={String(row.video_image_poster)} name={title} collapseOnEmpty />
-                        ) : null}
-                        <span>
-                          <span className="cell-title__name">{title}</span>
-                          {row.user_pseudonym ? (
-                            <span className="cell-title__code">{String(row.user_pseudonym)}</span>
-                          ) : null}
-                        </span>
-                      </div>
-                    )
-                  },
-                },
-                {
-                  key: 'type',
-                  label: '类型',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => (
-                    <span className="zone">
-                      <span
-                        className="rail__dot"
-                        style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }}
-                      />
-                      {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
-                    </span>
-                  ),
-                },
-                {
-                  key: 'todb',
-                  label: 'TODB',
-                  thClass: 'num',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => <span className="muted">{String(row.todb_id ?? '—')}</span>,
-                },
-                {
-                  key: 'air',
-                  label: '上映',
-                  thClass: 'num',
-                  mobile: 'inline',
-                  mobileLabel: null,
-                  render: (row) => <span className="muted">{String(row.video_date_air ?? '—')}</span>,
-                },
-                {
-                  key: 'action',
-                  label: '操作',
-                  thWidth: 96,
-                  mobile: 'block',
-                  mobileAlign: 'end',
-                  render: (row) => {
-                    const videoId = Number(row.video_id ?? 0)
-                    const title = String(row.video_title ?? '—')
-                    return canRestoreRow(row) ? (
-                      <button
-                        type="button"
-                        className="btn btn--quiet"
-                        disabled={busy === String(videoId)}
-                        onClick={() => restoreVideo(videoId, title)}
-                      >
-                        恢复
-                      </button>
-                    ) : null
-                  },
-                },
-              ]}
+              poster={(row) => (row.video_image_poster ? String(row.video_image_poster) : null)}
+              title={(row) => String(row.video_title ?? '—')}
+              meta={(row) => (
+                <>
+                  <span className="zone">
+                    <span
+                      className="rail__dot"
+                      style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }}
+                    />
+                    {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
+                  </span>
+                  {row.user_pseudonym ? <span>{String(row.user_pseudonym)}</span> : null}
+                </>
+              )}
+              facts={(row) => (
+                <>
+                  <span>TODB {String(row.todb_id ?? '—')}</span>
+                  <span>上映 {String(row.video_date_air ?? '—')}</span>
+                </>
+              )}
+              actions={(row) => {
+                const videoId = Number(row.video_id ?? 0)
+                const title = String(row.video_title ?? '—')
+                return canRestoreRow(row) ? (
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    disabled={busy === String(videoId)}
+                    onClick={() => restoreVideo(videoId, title)}
+                  >
+                    恢复
+                  </button>
+                ) : null
+              }}
             />
           )}
       </ListSection>
