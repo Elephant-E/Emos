@@ -8,12 +8,13 @@
  * 这里只做一件事：把 TMDB 图床的尺寸段换掉，其它图床原样返回。
  * 不改上游数据、不改接口，调用处按用途声明需要多大。
  */
-export type ImageSize = 'thumb' | 'card' | 'hero'
+export type ImageSize = 'thumb' | 'card'
 
 const TMDB_SIZE: Record<ImageSize, string> = {
-  thumb: 'w185', // 表格缩略图
-  card: 'w500', // 网格卡片（2x 屏下 250 CSS px 内都够清晰）
-  hero: 'original', // 详情页大图
+  // 表格缩略图、详情页头海报：显示尺寸只有 44×25 / 72×108，w185 已经够
+  thumb: 'w185',
+  // 网格卡片：一张要占 170–210 CSS px，2x 屏就是 340–420 设备像素，必须给原图
+  card: 'original',
 }
 
 /**
