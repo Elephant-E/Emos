@@ -2363,7 +2363,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     height: 32px;
     padding: 0 var(--sp-2);
     border: 1px solid var(--line-soft);
-    border-radius: var(--r-chip, 8px);
+    border-radius: var(--r-chip);
     text-align: right;
   }
   .record-card .remark-btn { height: 32px; }
@@ -2482,7 +2482,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   align-items: center;
   height: 20px;
   padding: 0 var(--sp-2);
-  border-radius: var(--r-chip, 6px);
+  border-radius: var(--r-chip);
   background: rgba(12, 14, 17, 0.72);
   backdrop-filter: blur(6px);
   color: var(--fg-2);
