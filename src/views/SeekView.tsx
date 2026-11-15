@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { Pager } from '@/components/Pager'
 import { seekApi } from '@/api/endpoints'
 import { useQuery } from '@tanstack/react-query'
 import { formatDateTime } from '@/lib/format'
@@ -103,6 +102,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
   })
+  const items = data?.items ?? []
 
   // 列表按 updated_at 排序，首行不一定是最大 id；用当前页最大 id 做增量基准，
   // 否则有人认领老求片就会把它顶上来，lastId 变小导致每轮都全量重查
@@ -166,44 +166,23 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         </label>
       </div>
 
-      {error ? <ErrorBlock error={error} onRetry={() => refetch()} /> : null}
-      {!error && isLoading ? <LoadingBlock rows={6} columns={4} /> : null}
-
-      {!error && !isLoading && data && data.items.length === 0 ? (
-        // 区分「确实没有求片」和「页码越界」：后者的总条数是有值的
-        data.total > 0 ? (
-          // 空态和分页器同属一张卡，并给回第一页的入口
-          <div className="table-card">
-            <EmptyBlock
-              bare
-              title="这一页没有内容"
-              hint={`共 ${formatThousand(data.total)} 条，当前在第 ${search.page} 页`}
-              action={
-                <button type="button" className="btn btn--ghost" onClick={() => onSearch({ page: 1 })}>
-                  回第一页
-                </button>
-              }
-            />
-            <Pager
-              total={data.total}
-              page={search.page}
-              pageSize={search.page_size}
-              onPage={(page) => onSearch({ page })}
-              onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-            />
-          </div>
-        ) : (
-          <EmptyBlock
-            action={
-              search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined
-            }
-            title={emptyTitle(search.q, search.mine, search.type)}
-          />
-        )
-      ) : null}
-
-      {!error && !isLoading && data && data.items.length > 0 ? (
-        <ListCard items={data.items} total={data.total ?? data.items.length} idKey={(v) => v.id}>
+      <ListSection
+        isLoading={isLoading}
+        error={error}
+        onRetry={() => refetch()}
+        items={data?.items ?? []}
+        total={data?.total ?? 0}
+        page={search.page}
+        pageSize={data?.page_size ?? search.page_size}
+        onPage={(page) => onSearch({ page })}
+        onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
+        idKey={(v) => v.id}
+        scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
+        loadingRows={6}
+        loadingCols={4}
+        emptyTitle={emptyTitle(search.q, search.mine, search.type)}
+        emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '', page: 1 })} /> : undefined}
+      >
           <table className="table table--auto table--dense">
             <thead>
               <tr>
@@ -217,7 +196,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               </tr>
             </thead>
             <tbody>
-              {data.items.map((item) => {
+              {items.map((item) => {
                 const st = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
                 // 认领人名字对上当前账号才显示「撤回」
                 const isMine =
@@ -323,15 +302,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               })}
             </tbody>
           </table>
-          <Pager
-            total={data.total}
-            page={search.page}
-            pageSize={search.page_size}
-            onPage={(page) => onSearch({ page })}
-            onPageSize={(page_size) => onSearch({ page_size, page: 1 })}
-          />
-        </ListCard>
-      ) : null}
+      </ListSection>
+
 
       {detailFor ? (
         <Modal

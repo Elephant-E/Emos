@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { ListCard } from '@/components/ListCard'
+import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock, OutOfRangeBlock } from '@/components/StateBlock'
-import { Pager } from '@/components/Pager'
+import { ClearSearchButton } from '@/components/StateBlock'
 import { useDeletedMedia, useDeletedVideos, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -129,25 +128,23 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
 
       </div>
 
-      {active.error ? <ErrorBlock error={active.error} onRetry={() => active.refetch()} /> : null}
-      {active.isLoading ? <LoadingBlock rows={8} columns={5} /> : null}
-
-      {!active.error && !active.isLoading && rows.length === 0 && page > 1 ? (
-        <OutOfRangeBlock onFirstPage={() => onPage(1)} />
-      ) : null}
-
-      {!active.error && !active.isLoading && rows.length === 0 && page === 1 ? (
-        <EmptyBlock
-          action={
-            q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined
-          }
-          title={q ? `没有找到「${q}」` : '回收站是空的'}
-          
-        />
-      ) : null}
-
-      {rows.length > 0 ? (
-        <ListCard items={rows} total={rows.length} idKey={(r) => String(r.media_id ?? r.video_id ?? '')} scope={tab}>
+      <ListSection
+        isLoading={active.isLoading}
+        error={active.error}
+        onRetry={() => active.refetch()}
+        items={rows}
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onPage={onPage}
+        onPageSize={onPageSize}
+        idKey={(r) => String(r.media_id ?? r.video_id ?? '')}
+        scope={tab}
+        loadingRows={8}
+        loadingCols={5}
+        emptyTitle={q ? `没有找到「${q}」` : '回收站是空的'}
+        emptyAction={q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined}
+      >
           {tab === 'media' ? (
             <table className="table table--auto">
               <thead>
@@ -225,25 +222,23 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
                           )}
                           <span>
                             <span className="cell-title__name">{title}</span>
-  
+                            {row.user_pseudonym ? (
+                              <span className="cell-title__code">{String(row.user_pseudonym)}</span>
+                            ) : null}
                           </span>
                         </div>
                       </td>
                       <td>
                         <span className="zone">
-                          <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[String(row.video_type)] }} />
-                          {VIDEO_TYPE_LABEL[String(row.video_type)] ?? '—'}
+                          <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }} />
+                          {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
                         </span>
                       </td>
                       <td className="num muted">{String(row.todb_id ?? '—')}</td>
                       <td className="num muted">{String(row.video_date_air ?? '—')}</td>
                       <td>
-                        <button type="button"
-                          className="btn btn--quiet"
-                          disabled={busy === String(videoId)}
-                          onClick={() => restoreVideo(videoId, title)}
-                        >
-                          {busy === String(videoId) ? '恢复中…' : '恢复'}
+                        <button type="button" className="btn btn--quiet" onClick={() => restoreVideo(videoId, title)}>
+                          恢复
                         </button>
                       </td>
                     </tr>
@@ -252,15 +247,8 @@ export function RecycleView({ tab, onTab, page, onPage, pageSize, onPageSize, q,
               </tbody>
             </table>
           )}
-          <Pager
-            total={total}
-            page={page}
-            pageSize={pageSize}
-            onPage={onPage}
-            onPageSize={onPageSize}
-          />
-        </ListCard>
-      ) : null}
+      </ListSection>
+
     </>
   )
 }
