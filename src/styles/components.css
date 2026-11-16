@@ -1694,6 +1694,9 @@ input.input[type='number'] { min-width: 0; }
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: var(--gap-card);
   margin-top: var(--gap-card);
+  /* 两列各自按内容高度：默认 stretch 会把矮的那列（季集卡 / 字幕卡）拉到与高列等高，
+     卡片内部就空出一大块。这里让高度回到内容，空余只留在列底，不在卡片里。 */
+  align-items: start;
 }
 .detail-col { display: grid; gap: var(--gap-card); align-content: start; }
 /* 电影没有季集，去掉左栏后资源与字幕占满整行 */
