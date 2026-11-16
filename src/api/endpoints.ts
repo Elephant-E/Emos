@@ -1,6 +1,6 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate, VideoSearchItem } from './types'
+  BanItem, CarrotDelta, RecognizeResult, UserDetail, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate, VideoSearchItem } from './types'
 
 
 export const sessionApi = {
@@ -66,7 +66,7 @@ export const uploadApi = {
       body: { music_song_id: musicSongId, file_id: fileId },
     }),
   recognize: (fileName: string, provider = 'binary') =>
-    request<MessageResult>('/api/upload/video/recognize', { query: { file_name: fileName, provider } }),
+    request<RecognizeResult>('/api/upload/video/recognize', { query: { file_name: fileName, provider } }),
   saveVideo: (itemType: string, itemId: number, fileId: string) =>
     request<{ count: number; media_id: string; carrot: number }>('/api/upload/video/save', { method: 'POST', body: { item_type: itemType, item_id: itemId, file_id: fileId } }),
   saveSubtitle: (itemType: string, itemId: number, fileId: string) =>
@@ -257,7 +257,7 @@ export const payApi = {
   apply: (name: string, description: string) => request<unknown>('/api/pay/apply', { method: 'POST', body: { name, description } }),
   query: (no: string) => request<Record<string, unknown>>('/api/pay/query', { query: { no } }),
   userInfo: (params: { user_id?: string; username?: string; telegram_user_id?: string }) =>
-    request<Record<string, unknown>>('/api/pay/getUserInfo', { query: params }),
+    request<UserDetail>('/api/pay/getUserInfo', { query: params }),
   /** 查别人的签到信息（服务商权限；非服务商 403） */
   userSign: (userId: string) =>
     request<{ sign_index: number; sign_at: string; earn_point: number; continuous_days: number; content: string | null }>(

@@ -3,6 +3,7 @@ import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, pay
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
 import { MUSIC_DISABLED } from '@/lib/feature-flags'
+import { rowsOf } from '@/lib/rows'
 import { toast } from '@/ui/toast'
 
 /**
@@ -181,7 +182,7 @@ export function useContinueWatching() {
   return useQuery({
     queryKey: ['record', 'list'] as const,
     queryFn: async () => {
-      const res = (await recordApi.list({ page: 1, page_size: 6 })) as unknown as { items?: Array<Record<string, unknown>> }
+      const res = await recordApi.list({ page: 1, page_size: 6 })
       return (res.items ?? []).filter((row) => !row.is_complete).slice(0, 3)
     },
     staleTime: 60_000,
@@ -388,7 +389,7 @@ export function useMediaList(
   return useQuery({
     queryKey: ['media', params] as const,
     // 接口返回的是数组本身，不是 { items } 信封
-    queryFn: () => mediaApi.list(params) as unknown as Promise<Array<Record<string, unknown>>>,
+    queryFn: async () => rowsOf(await mediaApi.list(params)),
     enabled: params.video_list_id > 0 && enabled,
   })
 }
@@ -841,7 +842,7 @@ export function useSong(songId: number) {
 export function useSongLyrics(songId: number) {
   return useQuery({
     queryKey: ['music', 'lyrics', songId] as const,
-    queryFn: async () => (await musicApi.lyrics(songId)) as unknown as Array<Record<string, unknown>>,
+    queryFn: async () => rowsOf(await musicApi.lyrics(songId)),
     enabled: songId > 0,
   })
 }
@@ -849,7 +850,7 @@ export function useSongLyrics(songId: number) {
 export function useSongMedia(songId: number) {
   return useQuery({
     queryKey: ['music', 'media', songId] as const,
-    queryFn: async () => (await musicApi.media(songId)) as unknown as Array<Record<string, unknown>>,
+    queryFn: async () => rowsOf(await musicApi.media(songId)),
     enabled: songId > 0,
   })
 }
@@ -945,7 +946,7 @@ export function useUserPayInfo(userId: string) {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       try {
-        return (await payApi.userInfo({ user_id: userId })) as unknown as import('./types').UserDetail | null
+        return await payApi.userInfo({ user_id: userId })
       } catch (error) {
         if ((error as { status?: number }).status === 403) return null
         throw error

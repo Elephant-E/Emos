@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CardHead } from '@/components/CardHead'
+import { rowsOf } from '@/lib/rows'
 import { RecordRow } from '@/components/RecordRow'
 import { Modal } from '@/components/Modal'
 import { StatCard } from '@/components/StatCard'
@@ -40,7 +41,7 @@ export function InvitePanel() {
   const inviteRows = buildInviteRows(
     myTree,
     tree.data ?? [],
-    (inviteHistory.data?.items ?? []) as unknown as InviteHistoryRow[],
+    rowsOf<InviteHistoryRow & Record<string, unknown>>(inviteHistory.data?.items),
   )
 
   /** 邀请进 EMOS：会扣胡萝卜，先确认再发 */

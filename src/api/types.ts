@@ -19,6 +19,18 @@ export interface MessageResult {
   message: string
 }
 
+/** 上传识别结果：可能直接认出目标（item_id），也可能只给一句提示让用户手选 */
+export interface RecognizeResult {
+  message?: string
+  item_id?: number
+  item_type?: string
+  title?: string
+  video_id?: number
+  season?: number
+  episode?: number
+  [key: string]: unknown
+}
+
 export interface SignCheck {
   is_sign: boolean
   user_id: string

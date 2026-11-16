@@ -158,7 +158,7 @@ export function useUploadQueue({ onSongTerm }: { onSongTerm?: (term: string) => 
 
       // 视频与字幕都要绑到某一部影片 / 某一集，识别方式相同
       try {
-        const res = (await uploadApi.recognize(item.file.name)) as unknown as Record<string, unknown>
+        const res = await uploadApi.recognize(item.file.name)
         const itemId = Number(res.item_id ?? 0)
         if (!itemId) {
           patch(item.id, { status: 'need-target', message: String(res.message ?? '手选一个目标') })

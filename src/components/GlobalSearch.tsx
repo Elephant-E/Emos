@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
 import { Poster } from '@/components/Poster'
+import { rowsOf } from '@/lib/rows'
 import { mediaApi, recordApi, seekApi, videoApi, watchApi } from '@/api/endpoints'
 import { useSession } from '@/api/queries'
 import { formatThousand, episodeCode } from '@/lib/format'
@@ -176,7 +177,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
     }
 
     // 未输入：最近的活动
-    const views = (recentViews.data as unknown as { items?: Array<Record<string, unknown>> } | undefined)?.items ?? []
+    const views = rowsOf(recentViews.data?.items)
     const uploads = (recentUploads.data?.items ?? []).slice().sort((a, b) =>
       String(b.created_at ?? '').localeCompare(String(a.created_at ?? '')),
     )
