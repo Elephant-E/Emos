@@ -2554,6 +2554,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row.is-clickable:hover { border-color: var(--line-hot); }
 .record-row__media {
   position: relative;
+  /* 移动端两行网格会把封面槽拉成整行高（72×96/123），图只有 72×72 → 底部多一条灰带 */
+  align-self: start;
   width: 112px;
   border-radius: var(--r-item);
   background: rgba(255, 255, 255, 0.055);

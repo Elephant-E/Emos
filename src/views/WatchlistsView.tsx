@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
+import { formatRelative } from '@/lib/format'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
@@ -138,7 +139,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             title={(watch) => watch.name}
             meta={(watch) => (
               <>
-                {watch.updated_at ? <span>{watch.updated_at.slice(0, 4)}</span> : null}
+                {watch.updated_at ? <span>{formatRelative(watch.updated_at)} 更新</span> : null}
                 <span>{watch.is_self ? '我创建的' : (watch.author?.username ?? '—')}</span>
               </>
             )}

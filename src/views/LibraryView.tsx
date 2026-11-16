@@ -27,6 +27,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
   const navigate = useNavigate()
   const [query, setQuery] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
+  // 路由 schema 里 season/episode 是必填，所以统一带 1/1；电影到详情页会忽略这两个值
   const openDetail = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
 

@@ -164,8 +164,8 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
                 <>
                   <span>
                     {String(row.video_title ?? '—')}
-                    {row.season_number ? ` S${row.season_number}` : ''}
-                    {row.episode_number ? ` E${row.episode_number}` : ''}
+                    {row.season_number != null ? ` S${row.season_number}` : ''}
+                    {row.episode_number != null ? ` E${row.episode_number}` : ''}
                   </span>
                   <span>{formatSize(row.media_file_size == null ? null : Number(row.media_file_size))}</span>
                 </>

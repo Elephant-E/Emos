@@ -288,7 +288,7 @@ export function ShopView({
                     <Badge tone={product.is_up ? 'ok' : 'off'}>{product.is_up ? '已上架' : '已下架'}</Badge>
                     <Price price={product.price} priceOrigin={product.price_origin} />
                     <span>{formatThousand(product.stock)} 件</span>
-                    {(product.sales ?? 0) > 0 ? <span>{formatThousand(product.sales ?? 0)} 已售</span> : null}
+                    {product.sales != null ? <span>{formatThousand(product.sales ?? 0)} 已售</span> : null}
                   </>
                 )}
                 facts={(product) => (

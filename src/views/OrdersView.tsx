@@ -159,9 +159,11 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 <Badge tone={order.status_pay === 'pay' || order.status_pay === 'paid' ? 'ok' : 'wait'}>
                   {order.status_pay === 'pay' || order.status_pay === 'paid' ? '已支付' : '待支付'}
                 </Badge>
-                <Badge tone={order.time_delivery ? 'ok' : (order.urge_number ?? 0) > 0 ? 'warn' : 'off'}>
-                  {order.time_delivery ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
-                </Badge>
+                {order.status_pay === 'pay' || order.status_pay === 'paid' ? (
+                  <Badge tone={order.time_delivery ? 'ok' : (order.urge_number ?? 0) > 0 ? 'warn' : 'off'}>
+                    {order.time_delivery ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
+                  </Badge>
+                ) : null}
               </>
             )}
             facts={(order) => (

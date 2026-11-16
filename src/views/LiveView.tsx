@@ -238,7 +238,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                 <span>{item.tagline ?? '—'}</span>
                 <span>{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</span>
                 <span>{item.media_count} 个源</span>
-                <span>{formatRelative(item.updated_at)}</span>
+                <span>{formatRelative(item.updated_at)} 更新</span>
               </>
             )}
             extra={(item) => (item.id === search.channel ? renderSources() : null)}

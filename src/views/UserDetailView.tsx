@@ -169,7 +169,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                 </button>
               </>
             ) : banned ? (
-              `该账号注册于 ${formatRelative(banned.created_at)}`
+              `封禁记录于 ${formatRelative(banned.created_at)}`
             ) : bans.isLoading ? (
               '正在核对封禁列表'
             ) : (

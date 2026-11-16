@@ -82,7 +82,7 @@ export function UserSearchView() {
             facts={(row) => (
               <>
                 <span>{row.disable_reason ?? '无原因'}</span>
-                <span>{formatDate(row.created_at)} 注册</span>
+                <span>{formatDate(row.created_at)} 封禁</span>
               </>
             )}
             actions={(row) => (

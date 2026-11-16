@@ -189,8 +189,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                 <div>
                   <dt>{item.status === 'upload' ? '认领到期' : '最近更新'}</dt>
                   <dd>
-                    {item.status === 'upload' && item.upload_expired_at
-                      ? formatDate(item.upload_expired_at)
+                    {item.status === 'upload'
+                      ? item.upload_expired_at
+                        ? formatDate(item.upload_expired_at)
+                        : '—'
                       : formatRelative(item.updated_at)}
                   </dd>
                 </div>
