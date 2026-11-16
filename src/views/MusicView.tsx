@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
-import { Poster } from '@/components/Poster'
 import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
 import { Modal } from '@/components/Modal'
 import { PageHeader } from '@/components/PageHeader'
-import { Badge } from '@/components/Badge'
+import { RecordRow } from '@/components/RecordRow'
 import { EmptyBlock } from '@/components/StateBlock'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -112,118 +111,85 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           ) : undefined
         }
       >
-          <table className="table">
-            <thead>
-              <tr>
-                <th style={{ width: '40%' }} className={search.tab === 'songs' ? undefined : 'th-thumb'}>
-                  {search.tab === 'persons' ? '歌手' : search.tab === 'albums' ? '专辑' : '歌曲'}
-                </th>
-                <th style={{ width: '26%' }}>
-                  {search.tab === 'persons' ? '出生地' : '艺人'}
-                </th>
-                <th className="num" style={{ width: '12%' }}>
-                  {search.tab === 'songs' ? '时长' : search.tab === 'persons' ? '生日' : '发行'}
-                </th>
-                <th style={{ width: '12%' }}>
-                  {search.tab === 'songs' ? '资源' : search.tab === 'albums' ? '曲目' : '类型'}
-                </th>
-                <th style={{ width: 96 }} />
-              </tr>
-            </thead>
-            <tbody>
-              {activeRows.map((row) => {
-                const isSong = search.tab === 'songs'
-                const isAlbum = search.tab === 'albums'
-                const id = Number(row.song_id ?? row.album_id ?? row.person_id ?? 0)
-                const name = String(row.name ?? '—')
-                const artists = (row.person_artists as Array<{ name: string }> | undefined)?.map((a) => a.name).join(' / ')
-                return (
-                  <tr
-                    key={`${search.tab}-${id}`}
-                    onClick={() => isSong && navigate({ to: '/music/song/$songId', params: { songId: String(id) } })}
-                    tabIndex={isSong ? 0 : undefined}
-                    role={isSong ? 'link' : undefined}
-                    onKeyDown={(e) => {
-                      if (!isSong) return
-                      if (e.key !== 'Enter' && e.key !== ' ') return
-                      e.preventDefault()
-                      navigate({ to: '/music/song/$songId', params: { songId: String(id) } })
-                    }}
-                    style={{ cursor: isSong ? 'pointer' : 'default' }}
+          <RecordRow
+          rows={activeRows}
+          idKey={(row) => {
+            const isSong = search.tab === 'songs'
+            const isAlbum = search.tab === 'albums'
+            return `${search.tab}-${String(isSong ? row.song_id : isAlbum ? row.album_id : row.person_id ?? row.name)}`
+          }}
+          onOpen={(row) => {
+            if (search.tab !== 'songs') return
+            const id = Number(row.song_id ?? 0)
+            navigate({ to: '/music/song/$songId', params: { songId: String(id) } })
+          }}
+          posterShape="square"
+          poster={(row) =>
+            (search.tab === 'albums' ? (row.image_poster_url as string) : (row.image_profile_url as string)) ?? null
+          }
+          title={(row) => String(row.name ?? '—')}
+          meta={(row) => {
+            const isSong = search.tab === 'songs'
+            const artists = (row.person_artists as Array<{ name: string }> | undefined)?.map((a) => a.name).join(' / ')
+            return (
+              <>
+                <span>
+                  {artists ||
+                    (search.tab === 'persons'
+                      ? String(row.birthplace ?? '—')
+                      : String(row.original_name ?? '—'))}
+                </span>
+                <span>
+                  {isSong
+                    ? duration(Number(row.duration ?? 0))
+                    : search.tab === 'persons'
+                      ? String(row.birthday ?? '—')
+                      : String(row.release_date ?? '—')}
+                </span>
+                {search.tab === 'persons' ? (
+                  <span>
+                    {row.is_virtual == null ? '—' : row.is_virtual === '0' || row.is_virtual === 0 ? '真人' : '虚拟'}
+                  </span>
+                ) : isSong ? (
+                  <span>{row.has_media === false ? '无资源' : '有资源'}</span>
+                ) : (
+                  <span>{String(row.count_song ?? '—')} 首</span>
+                )}
+              </>
+            )
+          }}
+          facts={(row) => (row.tagline ? <span className="ellipsis">{String(row.tagline)}</span> : null)}
+          actions={(row) => {
+            const id = Number(row.song_id ?? row.album_id ?? row.person_id ?? 0)
+            const name = String(row.name ?? '—')
+            return (
+              <>
+                {search.tab === 'albums' ? (
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    onClick={() => setMvAlbum({ albumId: id, name })}
                   >
-                    <td>
-                      <span className="cell-title">
-                        {isAlbum ? (
-                          <Poster src={row.image_poster_url as string} name={name} shape="square" />
-                        ) : isSong ? null : (
-                          <Poster src={row.image_profile_url as string} name={name} shape="square" />
-                        )}
-                        <span>
-                          <span className="cell-title__name">{name}</span>
-                          {row.tagline ? <span className="cell-title__code">{String(row.tagline)}</span> : null}
-                        </span>
-                      </span>
-                    </td>
-                    <td className="muted">
-                      {artists ||
-                        (search.tab === 'persons'
-                          ? String(row.birthplace ?? '—')
-                          : String(row.original_name ?? '—'))}
-                    </td>
-                    <td className="num muted">
-                      {isSong
-                        ? duration(Number(row.duration ?? 0))
-                        : search.tab === 'persons'
-                          ? String(row.birthday ?? '—')
-                          : String(row.release_date ?? '—')}
-                    </td>
-                    <td>
-                      {isSong && row.has_media === false ? (
-                        <Badge tone="wait">无资源</Badge>
-                      ) : isAlbum && row.count_song ? (
-                        <span className="muted">{String(row.count_song)} 首</span>
-                      ) : search.tab === 'persons' ? (
-                        <span className="muted">
-                          {row.is_virtual == null ? '—' : row.is_virtual === '0' || row.is_virtual === 0 ? '真人' : '虚拟'}
-                        </span>
-                      ) : (
-                        <span className="muted">—</span>
-                      )}
-                    </td>
-                    <td>
-                      <span className="action-group">
-                      {isAlbum ? (
-                        <button
-                          type="button"
-                          className="btn btn--quiet"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setMvAlbum({ albumId: id, name })
-                          }}
-                        >
-                          关联 MV
-                        </button>
-                      ) : null}
-                      <button type="button"
-                        className="btn btn--quiet"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          actions.sync.mutate(
-                            // mp 歌手 / ms 歌曲 / ma 专辑，按当前 tab 决定
-                            { type: search.tab === 'albums' ? 'ma' : search.tab === 'persons' ? 'mp' : 'ms', value: String(id) },
-                            { onSuccess: () => toast('已触发同步', 'success') },
-                          )
-                        }}
-                      >
-                        同步
-                      </button>
-                      </span>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                    关联 MV
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="btn btn--quiet"
+                  onClick={() =>
+                    actions.sync.mutate(
+                      // mp 歌手 / ms 歌曲 / ma 专辑，按当前 tab 决定
+                      { type: search.tab === 'albums' ? 'ma' : search.tab === 'persons' ? 'mp' : 'ms', value: String(id) },
+                      { onSuccess: () => toast('已触发同步', 'success') },
+                    )
+                  }
+                >
+                  同步
+                </button>
+              </>
+            )
+          }}
+        />
       </ListSection>
 
     

@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { musicApi } from '@/api/endpoints'
 import { Badge } from '@/components/Badge'
+import { RecordRow } from '@/components/RecordRow'
 import { PickList } from '@/components/PickList'
 import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
@@ -291,76 +292,58 @@ export function SongDetailView({ songId }: { songId: number }) {
             </CardHead>
             {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
-              <table className="table table--inset">
-                <thead>
-                  <tr>
-                    <th style={{ width: '38%' }}>文件</th>
-                    <th style={{ width: '14%' }}>音质</th>
-                    <th className="num" style={{ width: '11%' }}>大小</th>
-                    <th className="num" style={{ width: '11%' }}>码率</th>
-                    <th style={{ width: '14%' }}>上传者</th>
-                    <th style={{ width: '1%' }}>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(media.data ?? []).map((row, index) => (
-                    <tr key={String(row.media_id ?? index)}>
-                      <td>
-                        <span className="cell-title__name">
-              {String(row.name ?? '—')}
-              {row.is_primary ? (
-                <span style={{ marginLeft: 'var(--sp-2)' }}>
-                  <Badge tone="ok">主资源</Badge>
-                </span>
-              ) : null}
-                        </span>
-                        <span className="cell-title__code">
-              {row.file_duration ? duration(Number(row.file_duration)) : String(row.file_suffix ?? '')}
-                        </span>
-                      </td>
-                      <td className="muted">{String(row.file_suffix ?? '—')}</td>
-                      <td className="num muted">{formatSize(row.file_size == null ? null : Number(row.file_size))}</td>
-                      <td className="num muted">
-                        {row.meta_rate_bit ? `${Math.round(Number(row.meta_rate_bit) / 1000)} kbps` : '—'}
-                      </td>
-                      <td className="muted">{String((row.user as { username?: string } | undefined)?.username ?? '—')}</td>
-                      <td>
-                        <span className="action-group">
-              <button type="button"
-              className="btn btn--quiet"
-              onClick={() => {
-              setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
-              setMoveTerm('')
-              }}
-              >
-              移动
-              </button>
-              <button type="button"
-              className="btn btn--danger-text"
-              onClick={async () => {
-              // 音频列表没有 is_self_upload，归属看 user
-              const ownerUser = row.user as { user_id?: string; username?: string } | undefined
-              const reason = await confirmDelete({
-              title: '删除这个资源？',
-              message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
-              isSelf: Boolean(ownerUser?.user_id) && ownerUser?.user_id === session.data?.user_id,
-              owner: ownerUser?.username ?? null,
-              })
-              if (reason === null) return
-              actions.deleteMedia.mutate(
-              { mediaId: String(row.media_id), reason },
-              { onSuccess: () => toast('已删除', 'success') },
-              )
-              }}
-              >
-              删除
-              </button>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <RecordRow
+                rows={media.data ?? []}
+                idKey={(row) => String(row.media_id ?? row.name ?? "")}
+                title={(row) => String(row.name ?? '—')}
+                meta={(row) => (
+                  <>
+                    {row.is_primary ? <Badge tone="ok">主资源</Badge> : null}
+                    <span>{String(row.file_suffix ?? '—')}</span>
+                    <span>{row.file_duration ? duration(Number(row.file_duration)) : '未知时长'}</span>
+                    <span>{formatSize(row.file_size == null ? null : Number(row.file_size))}</span>
+                    {row.meta_rate_bit ? <span>{Math.round(Number(row.meta_rate_bit) / 1000)} kbps</span> : null}
+                  </>
+                )}
+                facts={(row) => (
+                  <span>上传者 {String((row.user as { username?: string } | undefined)?.username ?? '—')}</span>
+                )}
+                actions={(row) => (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn--quiet"
+                      onClick={() => {
+                        setMoving({ mediaId: String(row.media_id), name: String(row.name ?? '这份音频') })
+                        setMoveTerm('')
+                      }}
+                    >
+                      移动
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--danger-text"
+                      onClick={async () => {
+                        // 音频列表没有 is_self_upload，归属看 user
+                        const ownerUser = row.user as { user_id?: string; username?: string } | undefined
+                        const reason = await confirmDelete({
+                          title: '删除这个资源？',
+                          message: '歌曲本身不会被删除，只删这一份音频，会扣除相应胡萝卜。',
+                          isSelf: Boolean(ownerUser?.user_id) && ownerUser?.user_id === session.data?.user_id,
+                          owner: ownerUser?.username ?? null,
+                        })
+                        if (reason === null) return
+                        actions.deleteMedia.mutate(
+                          { mediaId: String(row.media_id), reason },
+                          { onSuccess: () => toast('已删除', 'success') },
+                        )
+                      }}
+                    >
+                      删除
+                    </button>
+                  </>
+                )}
+              />
             ) : null}
           </article>
         </section>
