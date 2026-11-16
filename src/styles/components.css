@@ -2683,27 +2683,26 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   border-radius: var(--r-item);
   object-fit: cover;
 }
+/* 封面上的状态标注：一块矩形小底（不是胶囊），里面只有圆点 + 文字 */
 .record-row__overlay {
   position: absolute;
   left: var(--sp-2);
   bottom: var(--sp-2);
   max-width: calc(100% - var(--sp-4));
+  padding: 2px var(--sp-2);
+  border-radius: 6px;
+  background: rgba(12, 14, 17, 0.72);
+  backdrop-filter: blur(6px);
   font-size: var(--text-2xs);
   color: var(--fg-2);
   white-space: nowrap;
 }
-/* 里面放的是 Badge 时，胶囊由 Badge 自己画：外层不再加底与模糊 */
-.record-row__overlay:has(.badge) {
+/* 里面的 Badge 只提供圆点与文字色，别自己再画一层胶囊 */
+.record-row__overlay .badge {
   padding: 0;
   background: none;
+  border: 0;
   backdrop-filter: none;
-}
-/* 放的是纯文字时，外层才需要一层底 */
-.record-row__overlay:not(:has(.badge)) {
-  padding: 2px var(--sp-2);
-  border-radius: 999px;
-  background: rgba(12, 14, 17, 0.72);
-  backdrop-filter: blur(6px);
 }
 .record-row__body {
   display: flex;
@@ -2848,11 +2847,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 
 /* 封面上的状态角标：胶囊贴在封面左下角，底色半透明压在图上 */
-.record-row__overlay .badge {
-  background: rgba(10, 9, 8, 0.72);
-  backdrop-filter: blur(6px);
-}
-
 /* 行内链接在手机上补垂直命中区（不改变行高） */
 .record-row__title a,
 .record-row__meta a {
