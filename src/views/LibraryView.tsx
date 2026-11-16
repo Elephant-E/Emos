@@ -8,7 +8,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { fetchVideoPage } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { useSearchTerm } from '@/lib/useSearchTerm'
-import {VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
@@ -114,10 +114,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
             title={(video) => video.video_title}
             meta={(video) => (
               <>
-                <span className="zone">
-                  <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                  {VIDEO_TYPE_LABEL[video.video_type]}
-                </span>
+                <span>{VIDEO_TYPE_LABEL[video.video_type]}</span>
                 {/* 只有类型与年份：都是定长，两列卡片的信息行永远对得齐 */}
                 {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
               </>

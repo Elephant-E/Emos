@@ -15,7 +15,7 @@ import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, u
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { confirmDelete } from '@/ui/confirm-delete'
-import { VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { VIDEO_TYPE_LABEL } from '@/lib/format'
 
 export interface DetailSearch {
   season: number
@@ -188,14 +188,9 @@ export function VideoDetailView({
         <DetailHead
           chips={
             <>
-              <span className="zone">
-                <span className="rail__dot" style={{ color: VIDEO_TYPE_COLOR[video.video_type] }} />
-                {VIDEO_TYPE_LABEL[video.video_type]}
-              </span>
+              <span>{VIDEO_TYPE_LABEL[video.video_type]}</span>
               {video.genres?.map((genre) => (
-                <span key={genre.id} className="chip">
-                  {genre.name}
-                </span>
+                <span key={genre.id}>{genre.name}</span>
               ))}
               {/* seek_is_request 为 false 也可能存在求片（实测 seek_id 有值却 false），按 id/count 判断 */}
               {video.request_count > 0 || video.seek_id ? (

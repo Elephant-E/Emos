@@ -9,7 +9,7 @@ import { useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useSearchTerm } from '@/lib/useSearchTerm'
-import {formatRelative, formatSize, formatThousand, VIDEO_TYPE_COLOR, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatRelative, formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 type Tab = 'media' | 'video'
@@ -203,13 +203,7 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
               title={(row) => String(row.video_title ?? '—')}
               meta={(row) => (
                 <>
-                  <span className="zone">
-                    <span
-                      className="rail__dot"
-                      style={{ color: VIDEO_TYPE_COLOR[row.video_type as keyof typeof VIDEO_TYPE_COLOR] }}
-                    />
-                    {VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}
-                  </span>
+                  <span>{VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}</span>
                   {row.user_pseudonym ? <span>{String(row.user_pseudonym)}</span> : null}
                 </>
               )}
