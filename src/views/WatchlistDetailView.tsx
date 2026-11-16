@@ -277,7 +277,7 @@ export function WatchlistDetailView({
           title={(video) => video.video_title}
           meta={(video) => (
             <>
-              <span>{VIDEO_TYPE_LABEL[video.video_type]}</span>
+              <span className="chip">{VIDEO_TYPE_LABEL[video.video_type]}</span>
               {video.video_date_air ? <span>{video.video_date_air.slice(0, 4)}</span> : null}
             </>
           )}

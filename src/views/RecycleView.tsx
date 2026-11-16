@@ -203,7 +203,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
               title={(row) => String(row.video_title ?? '—')}
               meta={(row) => (
                 <>
-                  <span>{VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}</span>
+                  <span className="chip">{VIDEO_TYPE_LABEL[row.video_type as keyof typeof VIDEO_TYPE_LABEL]}</span>
                   {row.user_pseudonym ? <span>{String(row.user_pseudonym)}</span> : null}
                 </>
               )}

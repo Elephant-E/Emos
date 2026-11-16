@@ -172,7 +172,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             title={(item) => item.video_title_display}
             meta={(item) => (
               <>
-                <span>{VIDEO_TYPE_LABEL[item.video_type]}</span>
+                <span className="chip">{VIDEO_TYPE_LABEL[item.video_type]}</span>
                 {item.upload_username ? <span className="cell-title__code">认领 {item.upload_username}</span> : null}
               </>
             )}
