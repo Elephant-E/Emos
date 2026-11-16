@@ -6,7 +6,6 @@ import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
-import { payApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatThousand } from '@/lib/format'
@@ -26,7 +25,6 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const [lookup, setLookup] = useState('')
   const order = usePayOrder(lookup)
 
-  const [closing, setClosing] = useState(false)
   const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
   // 服务商转账（与上面的胡萝卜转赠是两套：这个走支付服务，费率千六）
   const [payout, setPayout] = useState({ userId: '', carrot: 100 })
@@ -47,16 +45,12 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
       danger: true,
     })
     if (!ok) return
-    setClosing(true)
-    try {
-      await payApi.close(no)
-      toast('订单已关闭', 'success')
-      void order.refetch()
-    } catch (error) {
-      toast(error instanceof Error ? error.message : '关闭失败', 'error')
-    } finally {
-      setClosing(false)
-    }
+    payActions.closeOrder.mutate(no, {
+      onSuccess: () => {
+        toast('订单已关闭', 'success')
+        void order.refetch()
+      },
+    })
   }
 
   return (
@@ -91,16 +85,19 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
                   danger: true,
                 })
                 if (!ok) return
-                try {
-                  await payApi.apply('我的支付服务', '由后台发起申请')
-                  toast('已提交申请，等待审核', 'success')
-                  void base.refetch()
-                } catch (error) {
-                  toast(error instanceof Error ? error.message : '提交失败', 'error')
-                }
+                payActions.apply.mutate(
+                  { name: '我的支付服务', description: '由后台发起申请' },
+                  {
+                    onSuccess: () => {
+                      toast('已提交申请，等待审核', 'success')
+                      void base.refetch()
+                    },
+                  },
+                )
               }}
+              disabled={payActions.apply.isPending}
             >
-              申请成为服务商（扣 5000 胡萝卜）
+              {payActions.apply.isPending ? '提交中…' : '申请成为服务商（扣 5000 胡萝卜）'}
             </button>
           }
         />
@@ -188,8 +185,8 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
               </div>
             </div>
             <div className="row" style={{ justifyContent: 'flex-end', marginTop: 'var(--stack)' }}>
-              <button type="button" className="btn btn--danger-text" disabled={closing} onClick={() => void closeOrder()}>
-                {closing ? '关闭中…' : '关闭订单'}
+              <button type="button" className="btn btn--danger-text" disabled={payActions.closeOrder.isPending} onClick={() => void closeOrder()}>
+                {payActions.closeOrder.isPending ? '关闭中…' : '关闭订单'}
               </button>
             </div>
             </>
@@ -350,16 +347,16 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           footer={
             <ModalFooter
               onCancel={() => setEditing(null)}
-              onConfirm={async () => {
-                try {
-                  await payApi.update(editing)
-                  toast('已保存', 'success')
-                  setEditing(null)
-                  base.refetch()
-                } catch (error) {
-                  toast(error instanceof Error ? error.message : '保存失败', 'error')
-                }
-              }}
+              onConfirm={() =>
+                payActions.updateService.mutate(editing, {
+                  onSuccess: () => {
+                    toast('已保存', 'success')
+                    setEditing(null)
+                    base.refetch()
+                  },
+                })
+              }
+              pending={payActions.updateService.isPending}
             />
           }
         >

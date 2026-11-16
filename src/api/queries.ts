@@ -467,6 +467,9 @@ export function usePayMutations() {
   }
   return {
     transfer: useMutation({ mutationFn: (p: { user_id: string; carrot: number }) => payApi.transfer(p), onSuccess: invalidate }),
+    closeOrder: useMutation({ mutationFn: (no: string) => payApi.close(no), onSuccess: invalidate }),
+    apply: useMutation({ mutationFn: (p: { name: string; description: string }) => payApi.apply(p.name, p.description), onSuccess: invalidate }),
+    updateService: useMutation({ mutationFn: (p: Record<string, unknown>) => payApi.update(p), onSuccess: invalidate }),
     createOrder: useMutation({
       mutationFn: (p: { pay_way: 'telegram_bot' | 'web'; price: number; name: string; param?: string | null }) => payApi.createOrder(p),
       onSuccess: invalidate,
