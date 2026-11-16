@@ -6,9 +6,8 @@ import { Badge } from '@/components/Badge'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Tabs } from '@/components/Tabs'
-import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
 import { useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
@@ -103,23 +102,27 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     if (!channel) return null
     return (
     <div className="sources">
-            <CardHead
-              title={
-                <>
-                  直播源
-                  <span className="muted tnum-sm" style={{ marginLeft: 'var(--sp-2)', letterSpacing: 0 }}>{media.data?.total ?? 0}</span>
-                </>
-              }
-            >
+            <div className="sources__head">
+              <span className="sources__title">
+                直播源
+                <span className="sources__count">{media.data?.total ?? 0}</span>
+              </span>
               {channel.is_can_edit ? (
-                <button type="button" className="btn btn--quiet" onClick={() => { setSource({ name: '', path_type: 'm3u8', path_url: '' }); setAddingSource(true) }}>
+                <button
+                  type="button"
+                  className="btn btn--quiet"
+                  onClick={() => {
+                    setSource({ name: '', path_type: 'm3u8', path_url: '' })
+                    setAddingSource(true)
+                  }}
+                >
                   新增源
                 </button>
               ) : null}
-            </CardHead>
+            </div>
 
             {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
-            {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {media.isLoading ? <LoadingRows count={2} poster="none" lines={2} actions={1} /> : null}
             {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
