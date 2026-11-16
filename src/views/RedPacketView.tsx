@@ -3,9 +3,10 @@ import { PAGE_SIZE } from '@/lib/search'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
+import { ListSection } from '@/components/ListSection'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
+import { EmptyBlock } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { redPacketApi } from '@/api/endpoints'
 import { qk, useSession } from '@/api/queries'
@@ -331,27 +332,34 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
 
           {!search.id ? (
             <EmptyBlock title="输入红包 ID 查领取记录" />
-          ) : records.error ? (
-            <ErrorBlock error={records.error} onRetry={() => records.refetch()} />
-          ) : records.isLoading ? (
-            <LoadingRows count={6} poster="square" lines={2} actions={0} />
-          ) : (records.data?.items.length ?? 0) === 0 ? (
-            <EmptyBlock title="还没有人领" />
           ) : (
-            <RecordRow
+            <ListSection
+              isLoading={records.isLoading}
+              error={records.error}
+              onRetry={() => records.refetch()}
+              items={records.data?.items ?? []}
+              loadingKind="rows"
+              loadingPoster="square"
+              loadingLines={2}
+              loadingActions={0}
+              loadingRows={6}
+              emptyTitle="还没有人领"
+            >
+              <RecordRow
               rows={records.data?.items ?? []}
               idKey={(row) => `${row.user_id}-${row.receive_at}`}
               posterShape="square"
               poster={(row) => row.avatar}
               title={(row) => row.username ?? row.user_id}
               meta={(row) => <span>{row.user_id}</span>}
-              facts={(row) => (
-                <>
-                  <span className="mark-up">+{formatThousand(row.carrot)}</span>
-                  <span>{formatDateTime(row.receive_at)}</span>
-                </>
-              )}
-            />
+                facts={(row) => (
+                  <>
+                    <span className="mark-up">+{formatThousand(row.carrot)}</span>
+                    <span>{formatDateTime(row.receive_at)}</span>
+                  </>
+                )}
+              />
+            </ListSection>
           )}
         </>
       )}

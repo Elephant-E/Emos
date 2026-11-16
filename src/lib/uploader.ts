@@ -182,6 +182,17 @@ async function uploadMultipart(
   }
 }
 
+/**
+ * mock 模式下的假进度：没有真实上传，也要让进度条走完并给出结束回调。
+ * 五处原来各写一遍同样的循环。
+ */
+async function fakeProgress(onProgress: (ratio: number) => void, steps = 10, delay = 90) {
+  for (let i = 1; i <= steps; i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, delay))
+    onProgress(i / steps)
+  }
+}
+
 export async function uploadAndSave(
   file: File,
   target: UploadTarget,
@@ -189,10 +200,7 @@ export async function uploadAndSave(
   fileStorage?: string,
 ): Promise<UploadResult> {
   if (USE_MOCK) {
-    for (let i = 1; i <= 10; i += 1) {
-      await new Promise((r) => setTimeout(r, 90))
-      onProgress(i / 10)
-    }
+    await fakeProgress(onProgress)
     const saved = await uploadApi.saveVideo(target.item_type, target.item_id, 'mock-file')
     return { media_id: saved.media_id, carrot: saved.carrot }
   }
@@ -219,10 +227,7 @@ export async function uploadSubtitle(
   fileStorage?: string,
 ): Promise<void> {
   if (USE_MOCK) {
-    for (let i = 1; i <= 6; i += 1) {
-      await new Promise((r) => setTimeout(r, 80))
-      onProgress(i / 6)
-    }
+    await fakeProgress(onProgress, 6, 80)
     await uploadApi.saveSubtitle(target.item_type, target.item_id, 'mock-subtitle')
     return
   }
@@ -241,10 +246,7 @@ export async function uploadSong(
   fileStorage?: string,
 ): Promise<{ media_id: string; carrot: number }> {
   if (USE_MOCK) {
-    for (let i = 1; i <= 8; i += 1) {
-      await new Promise((r) => setTimeout(r, 80))
-      onProgress(i / 8)
-    }
+    await fakeProgress(onProgress, 8, 80)
     return { media_id: `mock-music-${Date.now()}`, carrot: 1 }
   }
   const fileId = await uploadObject(file, 'music', onProgress, fileStorage)
@@ -261,10 +263,7 @@ export async function uploadImage(
   fileStorage?: string,
 ): Promise<string> {
   if (USE_MOCK) {
-    for (let i = 1; i <= 6; i += 1) {
-      await new Promise((r) => setTimeout(r, 70))
-      onProgress(i / 6)
-    }
+    await fakeProgress(onProgress, 6, 70)
     return `mock-image-${Date.now()}`
   }
   return await uploadObject(file, 'image', onProgress, fileStorage)

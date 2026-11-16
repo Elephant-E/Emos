@@ -1663,7 +1663,8 @@ input.input[type='number'] { min-width: 0; }
   overflow-y: auto;
 }
 .image-picker__cell { position: relative; }
-.image-picker__sentinel { grid-column: 1 / -1; height: 1px; }
+/* 续页哨兵在图片网格里要横跨整行，否则会占掉一个图片位 */
+.image-picker__grid .infinite-sentinel { grid-column: 1 / -1; min-height: 1px; padding: 0; }
 .image-picker__thumb {
   display: block;
   width: 100%;

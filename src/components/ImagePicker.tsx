@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
+import { InfiniteSentinel } from '@/components/InfiniteSentinel'
 import { qk } from '@/api/queries'
 import { uploadApi } from '@/api/endpoints'
 import { uploadImage } from '@/lib/uploader'
@@ -160,25 +161,8 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
   })
   const imageRows = images.data?.pages.flatMap((page) => page.items) ?? []
 
-  // 滚到底自动取下一页。观察器随「还能不能取」与条数重建：
-  // 只建一次的话，首次渲染时哨兵已在视口内会立刻触发一次，之后不再变化就不再回调
-  const sentinelRef = useRef<HTMLDivElement>(null)
-  const loadedCount = images.data?.pages.reduce((sum, page) => sum + page.items.length, 0) ?? 0
+  // 滚到底自动取下一页：用共用的哨兵（它把回调收进 ref，不会随渲染重建观察器）
   const canFetchMore = Boolean(images.hasNextPage) && !images.isFetchingNextPage
-  const fetchNext = images.fetchNextPage
-  useEffect(() => {
-    if (!canFetchMore) return
-    const node = sentinelRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) void fetchNext()
-      },
-      { rootMargin: '120px' },
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [canFetchMore, loadedCount, fetchNext])
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
@@ -283,7 +267,13 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
             </button>
           </div>
         ))}
-        <div ref={sentinelRef} className="image-picker__sentinel" />
+        {images.hasNextPage ? (
+          <InfiniteSentinel
+            onLoadMore={() => void images.fetchNextPage()}
+            disabled={!canFetchMore}
+            loading={images.isFetchingNextPage}
+          />
+        ) : null}
       </div>
 
       {images.isFetchingNextPage ? <p className="muted">读取更多…</p> : null}

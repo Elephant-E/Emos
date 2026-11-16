@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Modal } from '@/components/Modal'
+import { useDebounced } from '@/lib/useDebounced'
 import { toast } from '@/ui/toast'
 import { mediaApi } from '@/api/endpoints'
 import { useEpisodes, useSeasons, useVideoPage } from '@/api/queries'
@@ -33,7 +34,6 @@ export function MediaMoveModal({
   const [term, setTerm] = useState('')
   const [keyword, setKeyword] = useState('')
   const [activeSeason, setActiveSeason] = useState(season)
-  const timer = useRef<number | undefined>(undefined)
 
   const targetId = target?.id ?? videoId
   const search = useVideoPage({ page: 1, page_size: 6, title: keyword || undefined, enabled: Boolean(keyword) })
@@ -41,6 +41,8 @@ export function MediaMoveModal({
   const episodes = useEpisodes(targetId, activeSeason)
 
   // 换目标影片后季号要归位，否则会停在上一个影片的季上
+  // 停手 300ms 才发查询，避免连打六个字就六个请求
+  useDebounced(term, setKeyword, { delay: 300 })
   useEffect(() => setActiveSeason(1), [targetId])
 
   const move = (type: 'vl' | 've', itemId: number, done: string) => {
@@ -70,11 +72,7 @@ export function MediaMoveModal({
             if (!value.trim()) {
               setTarget(null)
               setKeyword('')
-              return
             }
-            // 每次输入都清掉上一个定时器，否则连打六个字就是六个请求
-            window.clearTimeout(timer.current)
-            timer.current = window.setTimeout(() => setKeyword(value.trim()), 300)
           }}
         />
       </label>
