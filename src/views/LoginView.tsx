@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { LINKS } from '@/lib/links'
 import { sessionApi } from '@/api/endpoints'
 import { setToken as persistToken } from '@/api/client'
 import { LOGIN_POSTERS } from '@/views/login-posters'
@@ -158,11 +159,15 @@ export function LoginView({ onDone }: { onDone: () => void }) {
         </div>
 
         <p className="login__foot">
-          <a href="https://wiki.emos.best" target="_blank" rel="noreferrer">
+          <a href={LINKS.docs} target="_blank" rel="noreferrer">
             文档
           </a>
           <span aria-hidden="true">·</span>
-          <a href="https://status.emos.best" target="_blank" rel="noreferrer">
+          <a href={LINKS.group} target="_blank" rel="noreferrer" title="加入用户群">
+            群聊
+          </a>
+          <span aria-hidden="true">·</span>
+          <a href={LINKS.status} target="_blank" rel="noreferrer">
             服务状态
           </a>
         </p>

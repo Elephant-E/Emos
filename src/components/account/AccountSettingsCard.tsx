@@ -122,11 +122,6 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                       去绑定
                     </a>
                   ) : null}
-                  {user.telegram_group_url ? (
-                    <a className="btn btn--quiet" href={user.telegram_group_url} target="_blank" rel="noreferrer">
-                      加入群组
-                    </a>
-                  ) : null}
                 </div>
 
                 <div className="detail-stats" style={{ marginTop: 'var(--sp-1)' }}>
