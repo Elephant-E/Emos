@@ -316,7 +316,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                     {String(row.ip ?? '—')}
                     {row.is_proxy ? ' · 代理' : ''}
                   </span>
-                  <span className="ellipsis">{String(row.ua ?? '未知客户端')}</span>
+                  <span className="ellipsis">{String(row.ua ?? '—')}</span>
                 </>
               )}
             />

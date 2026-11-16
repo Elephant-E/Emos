@@ -112,7 +112,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   </span>
                 </>
               )}
-              facts={(row) => <span>{row.ua ?? '未知客户端'}</span>}
+              facts={(row) => <span>{row.ua ?? '—'}</span>}
               value={(row) => (row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—')}
             />
           ) : tab === 'live' ? (
@@ -121,7 +121,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               idKey={(row) => `${row.username}-${row.live_title}`}
               title={(row) => row.live_title}
               meta={(row) => <span>{row.username}</span>}
-              facts={(row) => <span>{row.ua ?? '未知客户端'}</span>}
+              facts={(row) => <span>{row.ua ?? '—'}</span>}
               value={(row) => `${Math.max(0, Math.round(row.play_durations / 60))} 分钟`}
             />
           ) : (

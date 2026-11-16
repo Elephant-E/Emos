@@ -169,7 +169,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
               )}
               facts={(row) => (
                 <>
-                  <span>{String(row.storage_title ?? '未指定存储')}</span>
+                  <span>{String(row.storage_title ?? '—')}</span>
                   <span>{formatRelative(String(row.created_at ?? ''))} 入库</span>
                 </>
               )}

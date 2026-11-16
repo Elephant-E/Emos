@@ -141,7 +141,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                     <Badge tone={row.status === 'normal' ? 'ok' : 'warn'}>
                       {row.status === 'normal' ? '正常' : row.status === 'error' ? '异常' : String(row.status ?? '—')}
                     </Badge>
-                    <span>{row.pseudonym ?? '未知上传者'}</span>
+                    <span>{row.pseudonym ?? '—'}</span>
                   </>
                 )}
                 facts={(row) => <span className="ellipsis">{row.path_url}</span>}
@@ -235,7 +235,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             meta={(item) => (
               <>
                 {item.code ? <span className="mark-official">官方</span> : null}
-                <span>{item.tagline ?? '无宣传词'}</span>
+                <span>{item.tagline ?? '—'}</span>
                 <span>{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</span>
                 <span>{item.media_count} 个源</span>
                 <span>{formatRelative(item.updated_at)}</span>

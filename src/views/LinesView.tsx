@@ -94,7 +94,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
             )}
             facts={(line) => (
               <>
-                <span>{line.tagline ?? '无简介'}</span>
+                <span>{line.tagline ?? '—'}</span>
                 <span>{formatDateTime(line.created_at)} 创建</span>
               </>
             )}
