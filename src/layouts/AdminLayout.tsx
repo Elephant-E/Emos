@@ -8,7 +8,6 @@ import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
 import { PromptHost } from '@/ui/prompt'
 import * as Collapsible from '@radix-ui/react-collapsible'
-import { useMediaQuery } from '@/lib/useMediaQuery'
 
 export function AdminLayout() {
   const { data } = useSession()
@@ -16,8 +15,6 @@ export function AdminLayout() {
   const pageRef = useRef<HTMLElement>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
-  /** 桌面端侧栏常显，手机端才交给 Collapsible 做展开动画 */
-  const isCompact = useMediaQuery('(max-width: 600px)')
 
   // ⌘K / Ctrl+K 在任意页面打开搜索面板，与侧栏的键帽提示一致
   useEffect(() => {
@@ -56,7 +53,10 @@ export function AdminLayout() {
       <Collapsible.Root open={navOpen} onOpenChange={setNavOpen} asChild>
         <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
           <MobileTopbar user={data} />
-          <Collapsible.Content asChild forceMount={isCompact ? undefined : true}>
+          {/* 侧栏始终挂载：以前按断点决定 forceMount，视口从 390 变宽到 844/1280 时
+              Radix 不会重新挂载内容，导致 .rail 缺失、main 被塞进侧栏那一列（66/300px）。
+              现在恒挂载，手机端的「收起」交给 CSS（closed 态 display:none）。 */}
+          <Collapsible.Content asChild forceMount>
             <Sidebar user={data} onOpenSearch={() => setSearchOpen(true)} open={navOpen} onClose={() => setNavOpen(false)} />
           </Collapsible.Content>
           {navOpen ? (

@@ -2073,6 +2073,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail[data-state='closed'] {
     overflow: hidden;
     animation: nav-collapse 200ms var(--ease);
+    /* 侧栏现在是恒挂载的（修跨断点不挂载），手机端收起时要真的不占位 */
+    display: none;
   }
   .shell__scrim {
     position: fixed;
