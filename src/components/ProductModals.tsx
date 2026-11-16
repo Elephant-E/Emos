@@ -4,7 +4,7 @@ import { Price, formatPrice } from '@/components/Price'
 import { Modal } from '@/components/Modal'
 import { Badge } from '@/components/Badge'
 import { Poster } from '@/components/Poster'
-import { ErrorBlock } from '@/components/StateBlock'
+import { ErrorBlock, SkeletonLines } from '@/components/StateBlock'
 import { useShopMutations, useShopProduct } from '@/api/queries'
 import { formatThousand } from '@/lib/format'
 import { toast } from '@/ui/toast'
@@ -63,12 +63,10 @@ export function ProductDetailModal({
       }
     >
       {product.isLoading ? (
-        <div aria-busy="true" aria-live="polite" style={{ display: 'flex', gap: 'var(--sp-4)' }}>
+        <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>
           <div className="skeleton" style={{ width: 160, height: 160, borderRadius: 10, flex: 'none' }} />
-          <div style={{ display: 'grid', gap: 'var(--sp-2)', alignContent: 'start', flex: 1 }}>
-            {[46, 30, 24, 24].map((width, i) => (
-              <div key={i} className="skeleton" style={{ height: i === 0 ? 14 : 12, width: `${width}%` }} />
-            ))}
+          <div style={{ flex: 1 }}>
+            <SkeletonLines widths={[46, 30, 24, 24]} titleHeight={14} />
           </div>
         </div>
       ) : null}

@@ -9,7 +9,7 @@ import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
-import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows, SkeletonLines } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
@@ -204,13 +204,7 @@ export function SongDetailView({ songId }: { songId: number }) {
               ) : null}
             </CardHead>
             {lyrics.error ? <ErrorBlock error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
-            {lyrics.isLoading ? (
-              <div aria-busy="true" aria-live="polite" style={{ display: 'grid', gap: 'var(--sp-2)', marginTop: 'var(--stack)' }}>
-                {[68, 54, 61, 47].map((width, i) => (
-                  <div key={i} className="skeleton" style={{ height: 12, width: `${width}%` }} />
-                ))}
-              </div>
-            ) : null}
+            {lyrics.isLoading ? <SkeletonLines widths={[68, 54, 61, 47]} /> : null}
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
                 

@@ -266,7 +266,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                   </button>
                   {item.code ? (
                     <button type="button" className="btn btn--quiet" disabled title="官方频道不可删除">
-                      删除
+                      删除频道
                     </button>
                   ) : (
                     <button
@@ -286,7 +286,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
                         actions.removeChannel.mutate(item.id, { onSuccess: () => toast('频道已删除', 'success') })
                       }}
                     >
-                      删除
+                      删除频道
                     </button>
                   )}
                 </>

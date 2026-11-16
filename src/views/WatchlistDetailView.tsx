@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
@@ -91,7 +91,14 @@ export function WatchlistDetailView({
         {watch.error ? (
           <ErrorBlock error={watch.error} onRetry={() => watch.refetch()} />
         ) : (
-          <EmptyBlock title="片单不存在，或没有查看权限" />
+          <EmptyBlock
+            title="片单不存在，或没有查看权限"
+            action={
+              <Link className="btn btn--ghost" to="/watchlists" search={{ q: '', scope: 'all' }}>
+                回到片单
+              </Link>
+            }
+          />
         )}
       </>
     )

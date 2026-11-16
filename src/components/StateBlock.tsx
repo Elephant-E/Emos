@@ -64,6 +64,30 @@ export function LoadingGrid({
  * 真实行之间有差异（有没有封面、有没有信息块、动作几个），骨架也要跟着变，
  * 否则「加载中」和「加载完」是两种形状，页面会塌一次。
  */
+/**
+ * 纯文字骨架：几行不同宽度的条，用于「不是列表、只是一段文字/几行键值」的位置
+ * （歌词、商品信息块、统计格、详情页头）。
+ */
+export function SkeletonLines({
+  widths = [68, 54, 61],
+  gap = 'var(--sp-2)',
+  titleHeight = 12,
+}: {
+  /** 每行宽度百分比，第一条当标题行可以更粗 */
+  widths?: number[]
+  gap?: string
+  /** 首行高度（标题行用 14，正文用 12） */
+  titleHeight?: number
+}) {
+  return (
+    <div aria-busy="true" aria-live="polite" style={{ display: 'grid', gap }}>
+      {widths.map((width, index) => (
+        <div key={index} className="skeleton" style={{ height: index === 0 ? titleHeight : 12, width: `${width}%` }} />
+      ))}
+    </div>
+  )
+}
+
 export function LoadingRows({
   count = 6,
   single = false,
