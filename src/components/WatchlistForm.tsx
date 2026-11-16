@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Segmented } from '@/components/Segmented'
 import { Modal } from '@/components/Modal'
 import { TagInput } from '@/components/TagInput'
 import { ImagePicker } from '@/components/ImagePicker'
@@ -72,14 +73,15 @@ export function WatchlistForm({
       {initial ? null : (
         <div className="field">
           <span>类型</span>
-          <div className="seg" role="group" aria-label="片单类型">
-            <button type="button" aria-pressed={form.type === 'video'} onClick={() => setForm({ ...form, type: 'video' })}>
-              影视
-            </button>
-            <button type="button" aria-pressed={form.type === 'music'} onClick={() => setForm({ ...form, type: 'music' })}>
-              音乐
-            </button>
-          </div>
+          <Segmented
+            label="片单类型"
+            value={form.type}
+            onChange={(type) => setForm({ ...form, type })}
+            items={[
+              { value: 'video', label: '影视' },
+              { value: 'music', label: '音乐' },
+            ]}
+          />
         </div>
       )}
       <ImagePicker

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
+import { Segmented } from '@/components/Segmented'
 import { ListSection } from '@/components/ListSection'
 import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
@@ -80,17 +81,16 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           onChange={(e) => setTerm(e.target.value)}
         />
         {search.tab === 'songs' ? (
-          <div className="seg" role="group" aria-label="过滤">
-            <button type="button" aria-pressed={search.filter === ''} onClick={() => onSearch({ filter: '' })}>
-              全部
-            </button>
-            <button type="button" aria-pressed={search.filter === 'no_media'} onClick={() => onSearch({ filter: 'no_media' })}>
-              无资源
-            </button>
-            <button type="button" aria-pressed={search.filter === 'favorite'} onClick={() => onSearch({ filter: 'favorite' })}>
-              我收藏的
-            </button>
-          </div>
+          <Segmented
+            label="过滤"
+            value={search.filter ?? ''}
+            onChange={(filter) => onSearch({ filter })}
+            items={[
+              { value: '', label: '全部' },
+              { value: 'no_media', label: '无资源' },
+              { value: 'favorite', label: '我收藏的' },
+            ]}
+          />
         ) : null}
       </div>
 

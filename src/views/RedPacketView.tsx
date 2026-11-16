@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { Segmented } from '@/components/Segmented'
 import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { ListSection } from '@/components/ListSection'
@@ -190,25 +191,27 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 <div className="field-row">
                   <label className="field">
                     <span>类型</span>
-                    <div className="seg" role="group" aria-label="红包类型">
-                      <button type="button" aria-pressed={type === 'default'} onClick={() => setType('default')}>
-                        普通
-                      </button>
-                      <button type="button" aria-pressed={type === 'password'} onClick={() => setType('password')}>
-                        口令
-                      </button>
-                    </div>
+                    <Segmented
+                      label="红包类型"
+                      value={type}
+                      onChange={setType}
+                      items={[
+                        { value: 'default', label: '普通' },
+                        { value: 'password', label: '口令' },
+                      ]}
+                    />
                   </label>
                   <label className="field">
                     <span>领取方式</span>
-                    <div className="seg" role="group" aria-label="领取方式">
-                      <button type="button" aria-pressed={receive === 'average'} onClick={() => setReceive('average')}>
-                        均分
-                      </button>
-                      <button type="button" aria-pressed={receive === 'random'} onClick={() => setReceive('random')}>
-                        随机
-                      </button>
-                    </div>
+                    <Segmented
+                      label="领取方式"
+                      value={receive}
+                      onChange={setReceive}
+                      items={[
+                        { value: 'average', label: '均分' },
+                        { value: 'random', label: '随机' },
+                      ]}
+                    />
                   </label>
                 </div>
 
@@ -304,14 +307,15 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 {coverUrl ? (
                   <label className="field">
                     <span>独占模式</span>
-                    <div className="seg" role="group" aria-label="独占模式">
-                      <button type="button" aria-pressed={!exclusive} onClick={() => setExclusive(false)}>
-                        寄语 + 封面
-                      </button>
-                      <button type="button" aria-pressed={exclusive} onClick={() => setExclusive(true)}>
-                        只显示封面
-                      </button>
-                    </div>
+                    <Segmented
+                      label="独占模式"
+                      value={exclusive ? 'cover' : 'text'}
+                      onChange={(next) => setExclusive(next === 'cover')}
+                      items={[
+                        { value: 'text', label: '寄语 + 封面' },
+                        { value: 'cover', label: '只显示封面' },
+                      ]}
+                    />
                   </label>
                 ) : null}
               </div>

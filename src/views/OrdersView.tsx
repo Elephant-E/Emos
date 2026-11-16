@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Segmented } from '@/components/Segmented'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { Badge } from '@/components/Badge'
@@ -94,14 +95,15 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         title="订单"
         tools={
           <>
-            <div className="seg" role="group" aria-label="视角">
-              <button type="button" aria-pressed={search.scope === 'shop'} onClick={() => onSearch({ scope: 'shop' })}>
-                店铺订单
-              </button>
-              <button type="button" aria-pressed={search.scope === 'mine'} onClick={() => onSearch({ scope: 'mine' })}>
-                我的订单
-              </button>
-            </div>
+            <Segmented
+              label="视角"
+              value={search.scope}
+              onChange={(scope) => onSearch({ scope })}
+              items={[
+                { value: 'shop', label: '店铺订单' },
+                { value: 'mine', label: '我的订单' },
+              ]}
+            />
           </>
         }
       />
@@ -117,13 +119,12 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
-        <div className="seg" role="group" aria-label="发货状态">
-          {DELIVERY_TABS.map((tab) => (
-            <button type="button" key={tab.key} aria-pressed={search.delivery === tab.key} onClick={() => onSearch({ delivery: tab.key })}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="发货状态"
+          value={search.delivery}
+          onChange={(delivery) => onSearch({ delivery })}
+          items={DELIVERY_TABS.map((tab) => ({ value: tab.key, label: tab.label }))}
+        />
       </div>
 
       <ListSection

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Segmented } from '@/components/Segmented'
 import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
@@ -166,25 +167,27 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 <div className="field-row">
                   <label className="field">
                     <span>允许撤回改投</span>
-                    <div className="seg" role="group" aria-label="允许撤回改投">
-                      <button type="button" aria-pressed={!revoting} onClick={() => setRevoting(false)}>
-                        不允许
-                      </button>
-                      <button type="button" aria-pressed={revoting} onClick={() => setRevoting(true)}>
-                        允许
-                      </button>
-                    </div>
+                    <Segmented
+                      label="允许撤回改投"
+                      value={revoting ? 'yes' : 'no'}
+                      onChange={(next) => setRevoting(next === 'yes')}
+                      items={[
+                        { value: 'no', label: '不允许' },
+                        { value: 'yes', label: '允许' },
+                      ]}
+                    />
                   </label>
                   <label className="field">
                     <span>结果公布</span>
-                    <div className="seg" role="group" aria-label="结果公布">
-                      <button type="button" aria-pressed={!hideResults} onClick={() => setHideResults(false)}>
-                        随时可看
-                      </button>
-                      <button type="button" aria-pressed={hideResults} onClick={() => setHideResults(true)}>
-                        结束后公布
-                      </button>
-                    </div>
+                    <Segmented
+                      label="结果公布"
+                      value={hideResults ? 'after' : 'always'}
+                      onChange={(next) => setHideResults(next === 'after')}
+                      items={[
+                        { value: 'always', label: '随时可看' },
+                        { value: 'after', label: '结束后公布' },
+                      ]}
+                    />
                   </label>
                 </div>
 

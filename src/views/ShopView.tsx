@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
+import { Segmented } from '@/components/Segmented'
 import { Price } from '@/components/Price'
 import { SellerFormModal } from '@/components/shop/SellerFormModal'
 import { ProductEditModal } from '@/components/shop/ProductEditModal'
@@ -163,14 +164,15 @@ export function ShopView({
         hint={mine && seller.data ? (SELLER_STATUS[seller.data.status] ?? seller.data.status) : undefined}
         tools={
           <>
-            <div className="seg" role="group" aria-label="范围">
-              <button type="button" aria-pressed={scope === 'all'} onClick={() => onSearch({ scope: 'all', category: 0 })}>
-                全部商品
-              </button>
-              <button type="button" aria-pressed={scope === 'mine'} onClick={() => onSearch({ scope: 'mine', category: 0 })}>
-                我的店铺
-              </button>
-            </div>
+            <Segmented
+              label="范围"
+              value={scope}
+              onChange={(next) => onSearch({ scope: next, category: 0 })}
+              items={[
+                { value: 'all', label: '全部商品' },
+                { value: 'mine', label: '我的店铺' },
+              ]}
+            />
             {/* 分类与店铺入口按「我在看自己的店铺」判断，而不是「已经有店」：
                 否则还没开店的人进不去店铺面板，也就点不到「申请开店」 */}
             {mine ? (

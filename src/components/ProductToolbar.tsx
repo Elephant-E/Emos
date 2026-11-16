@@ -1,3 +1,4 @@
+import { Segmented } from '@/components/Segmented'
 import type { CSSProperties, ReactNode } from 'react'
 import { Tabs } from './Tabs'
 
@@ -59,13 +60,12 @@ export function ProductToolbar({
         value={term}
         onChange={(e) => onTerm(e.target.value)}
       />
-      <div className="seg" role="group" aria-label="排序">
-        {SORTS.map((item) => (
-          <button type="button" key={item.key} aria-pressed={sort === item.key} onClick={() => onSort(item.key)}>
-            {item.label}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        label="排序"
+        value={sort}
+        onChange={onSort}
+        items={SORTS.map((item) => ({ value: item.key, label: item.label }))}
+      />
       {extra}
     </div>
   )

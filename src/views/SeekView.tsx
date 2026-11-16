@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Segmented } from '@/components/Segmented'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
@@ -117,17 +118,16 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
           value={term}
           onChange={(e) => setTerm(e.target.value)}
         />
-        <div className="seg" role="group" aria-label="类型">
-          <button type="button" aria-pressed={search.type === ''} onClick={() => onSearch({ type: '' })}>
-            不限
-          </button>
-          <button type="button" aria-pressed={search.type === 'movie'} onClick={() => onSearch({ type: 'movie' })}>
-            电影
-          </button>
-          <button type="button" aria-pressed={search.type === 'tv'} onClick={() => onSearch({ type: 'tv' })}>
-            剧集
-          </button>
-        </div>
+        <Segmented
+          label="类型"
+          value={search.type ?? ''}
+          onChange={(type) => onSearch({ type })}
+          items={[
+            { value: '', label: '不限' },
+            { value: 'movie', label: '电影' },
+            { value: 'tv', label: '剧集' },
+          ]}
+        />
         <label className="switch" style={{ marginLeft: 'var(--sp-1)' }}>
           <input type="checkbox" checked={search.mine} onChange={(e) => onSearch({ mine: e.target.checked })} />
           只看我认领的
