@@ -2687,13 +2687,23 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   position: absolute;
   left: var(--sp-2);
   bottom: var(--sp-2);
+  max-width: calc(100% - var(--sp-4));
+  font-size: var(--text-2xs);
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+/* 里面放的是 Badge 时，胶囊由 Badge 自己画：外层不再加底与模糊 */
+.record-row__overlay:has(.badge) {
+  padding: 0;
+  background: none;
+  backdrop-filter: none;
+}
+/* 放的是纯文字时，外层才需要一层底 */
+.record-row__overlay:not(:has(.badge)) {
   padding: 2px var(--sp-2);
   border-radius: 999px;
   background: rgba(12, 14, 17, 0.72);
   backdrop-filter: blur(6px);
-  font-size: var(--text-2xs);
-  color: var(--fg-2);
-  white-space: nowrap;
 }
 .record-row__body {
   display: flex;
