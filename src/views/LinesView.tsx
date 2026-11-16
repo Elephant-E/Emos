@@ -75,7 +75,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         loadingRows={5}
         loadingKind="rows"
         loadingPoster="none"
-        loadingLines={2}
+        loadingLines={3}
         loadingActions={1}
         emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
         emptyAction={

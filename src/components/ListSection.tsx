@@ -33,6 +33,7 @@ export function ListSection<T>({
   loadingExtra = false,
   loadingFullActions = false,
   loadingMulti = false,
+  loadingValue = false,
   loadingBadges = false,
   /** 滚动加载：滑到底部触发 onLoadMore（不传就只渲染当前这批） */
   infinite,
@@ -62,6 +63,7 @@ export function ListSection<T>({
   loadingFullActions?: boolean
   /** 骨架是否多列（求片这类待办型列表） */
   loadingMulti?: boolean
+  loadingValue?: boolean
   /** 网格骨架是否留右上角角标位（卡片上真有角标才传） */
   loadingBadges?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
@@ -72,7 +74,16 @@ export function ListSection<T>({
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
   if (isLoading) {
     if (loadingKind === 'single-rows') {
-      return <LoadingRows count={loadingRows} single poster={loadingPoster} lines={loadingLines} actions={loadingActions} />
+      return (
+        <LoadingRows
+          count={loadingRows}
+          single
+          poster={loadingPoster}
+          lines={loadingLines}
+          actions={loadingActions}
+          value={loadingValue}
+        />
+      )
     }
     if (loadingKind === 'rows') {
       return (
@@ -84,10 +95,12 @@ export function ListSection<T>({
           extra={loadingExtra}
           fullActions={loadingFullActions}
           multi={loadingMulti}
+          value={loadingValue}
         />
       )
     }
-    return <LoadingGrid count={loadingRows} shape={gridShape} badges={loadingBadges} />
+    // 网格卡片没有动作列（商品卡的购买键在 LoadingGrid 里单独传）
+    return <LoadingGrid count={loadingRows} shape={gridShape} badges={loadingBadges} lines={loadingLines} />
   }
 
   if (items.length === 0) {

@@ -347,6 +347,10 @@
  */
 .page-body > * + *,
 .content-in > * + * { margin-top: var(--gap-card); }
+/* 网格容器自己就带 content-in 时，子项的兄弟间距由 gap 负责 */
+.product-grid.content-in > * + *,
+.record-grid.content-in > * + *,
+.record-rows.content-in > * + * { margin-top: 0; }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 /* 表单页：左边表单、右边附属信息，比三等分实用 */
@@ -1814,7 +1818,22 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .pick-tabs__item { flex: none; }
 
 /* ── 商品卡片网格（浏览用，不是管理表格）──────────────── */
-
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
+  gap: var(--gap-card);
+}
+.product-tile {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
 .product-tile__cover {
   position: relative;
   aspect-ratio: 1 / 1;
@@ -1836,7 +1855,16 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 /* 商品封面是正方形；<Poster> 的首字兜底在列表里是 30×40 的缩略块，这里要撑满 */
 .product-tile__cover .thumb { width: 100%; height: 100%; border-radius: 0; font-size: 28px; }
-
+.product-tile__body { padding: var(--sp-4); display: grid; gap: var(--sp-2); }
+.product-tile__name {
+  font-size: var(--text-body);
+  color: var(--fg);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .product-tile__price { display: inline-flex; align-items: center; gap: var(--sp-2); white-space: nowrap; }
 .product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: var(--text-xs); color: var(--fg-5); }
@@ -1849,6 +1877,24 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-4);
   white-space: nowrap;
 }
+.product-tile__buy {
+  margin-left: auto;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg-3);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.product-tile__buy:hover { color: var(--fg); border-color: var(--line-hot); }
+.product-tile__buy:disabled { color: var(--fg-5); border-color: var(--line-soft); cursor: not-allowed; }
 
 /* 商品详情里的店铺行：封面小图 + 店名 + 简介，整行进店 */
 .seller-line {
@@ -2194,13 +2240,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 登录页「显示令牌」24px 高 */
   .login__reveal { min-height: 32px; }
   /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
-  
+  .product-tile__buy { width: 36px; height: 36px; }
   .detail-stat__link { min-height: 36px; }
   .tab { min-height: 40px; }
 
   /* 商品网格：一行一件太浪费，两列更接近手机购物的阅读习惯 */
-  
-  
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-3); }
+  .product-tile__buy { min-height: 36px; }
 }
 
 /* 顶栏面板展开：0 → 实际内容高度（Radix Collapsible 提供变量） */

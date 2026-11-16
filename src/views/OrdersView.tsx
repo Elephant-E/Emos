@@ -128,7 +128,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         loadingKind="rows"
         loadingPoster="square"
-        loadingLines={2}
+        loadingLines={3}
         loadingActions={3}
         loadingRows={6}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}

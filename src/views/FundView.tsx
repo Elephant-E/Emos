@@ -89,6 +89,7 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
         loadingPoster="none"
         loadingLines={2}
         loadingActions={0}
+        loadingValue
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordRow<Record<string, unknown>>
@@ -238,6 +239,9 @@ export function FundView({ tab, onTab }: {
         <ListSection
         loadingKind="rows"
         loadingPoster="none"
+        loadingLines={3}
+        loadingActions={1}
+        loadingValue
           isLoading={infinite.loading && infinite.items.length === 0}
           error={infinite.error}
           onRetry={() => infinite.retry()}

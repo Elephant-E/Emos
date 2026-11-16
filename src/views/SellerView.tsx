@@ -62,7 +62,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       ) : null}
       {query.error ? <ErrorBlock error={query.error} onRetry={() => query.refetch()} /> : null}
 
-      {query.isLoading ? <LoadingGrid count={10} shape="square" /> : null}
+      {query.isLoading ? <LoadingGrid count={10} shape="square" lines={3} /> : null}
 
       {!query.isLoading && !query.error && products.length === 0 ? (
         <EmptyBlock

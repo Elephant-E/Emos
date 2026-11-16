@@ -5,11 +5,17 @@ export function LoadingGrid({
   count = 10,
   shape = 'poster',
   badges = false,
+  lines = 2,
+  actions = false,
 }: {
   count?: number
   shape?: 'poster' | 'wide' | 'square'
   /** 真实卡片右上角有角标时才留角标位，否则骨架会多出一个永远不出现的胶囊 */
   badges?: boolean
+  /** 文字行数：影库/片单是标题 + 次要信息两行，商品卡多一行价格 */
+  lines?: number
+  /** 真实卡片底部有动作（购买键） */
+  actions?: boolean
 }) {
   return (
     <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
@@ -23,8 +29,18 @@ export function LoadingGrid({
             ) : null}
           </div>
           <div className="record-tile__body">
-            <div className="skeleton" style={{ height: 13, width: '62%' }} />
-            <div className="skeleton" style={{ height: 11, width: '38%' }} />
+            {Array.from({ length: lines }).map((_, line) => (
+              <div
+                key={line}
+                className="skeleton"
+                style={{ height: line === 0 ? 14 : 12, width: line === 0 ? '62%' : line === 1 ? '38%' : '48%' }}
+              />
+            ))}
+            {actions ? (
+              <div className="record-tile__actions">
+                <div className="skeleton" style={{ width: 56, height: 32, borderRadius: 'var(--r-item)' }} />
+              </div>
+            ) : null}
           </div>
         </div>
       ))}
@@ -47,6 +63,7 @@ export function LoadingRows({
   extra = false,
   fullActions = false,
   multi = false,
+  value = false,
 }: {
   count?: number
   /** 管理型单列（小图 + 右侧动作） */
@@ -63,6 +80,8 @@ export function LoadingRows({
   fullActions?: boolean
   /** 待办型多列布局：与 RecordRow 的 multi 对应 */
   multi?: boolean
+  /** 真实行右侧有数值列（榜单分数、资金金额）时留出同样的位置 */
+  value?: boolean
 }) {
   const posterSize =
     poster === 'poster' ? { width: 112, height: 168 } : poster === 'square' ? { width: 72, height: 72 } : null
@@ -92,7 +111,7 @@ export function LoadingRows({
               />
             ))}
           </div>
-          {actions > 0 ? (
+          {actions > 0 || value ? (
             <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>
               {Array.from({ length: actions }).map((__, action) => (
                 <div
@@ -101,6 +120,11 @@ export function LoadingRows({
                   style={{ width: fullActions ? undefined : 56, height: 32, borderRadius: 'var(--r-item)' }}
                 />
               ))}
+              {value ? (
+                <span className="record-row__value">
+                  <span className="skeleton" style={{ display: 'block', width: '100%', height: 16 }} />
+                </span>
+              ) : null}
             </div>
           ) : null}
           {/* 信息块按真实块的三行高度占位（求片的「求片记录」就是这个形状） */}

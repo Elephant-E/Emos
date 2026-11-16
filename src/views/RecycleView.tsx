@@ -149,6 +149,9 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         loadingRows={8}
         loadingKind="rows"
+        loadingPoster="none"
+        loadingLines={3}
+        loadingActions={1}
         emptyTitle={q ? `没有找到「${q}」` : '回收站是空的'}
         emptyAction={q ? <ClearSearchButton onClick={() => onQuery('', by)} /> : undefined}
       >
