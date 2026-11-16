@@ -143,8 +143,8 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
       {search.tab === 'create' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
-              <div className="card-body row" style={{ gap: 'var(--sp-3)' }}>
+            <div className="op-banner">
+              <div className="op-banner__body">
                 <span>抽奖已创建</span>
                 <b className="tnum">{created}</b>
                 <button type="button"

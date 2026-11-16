@@ -2905,3 +2905,18 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   color: var(--fg-4);
   font-variant-numeric: tabular-nums;
 }
+
+/* 运营页「创建成功」横幅：卡片质感 + 一行内容（原来借用 .table-card） */
+.op-banner {
+  margin-bottom: var(--gap-card);
+  padding: var(--sp-3) var(--pad-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+}
+.op-banner__body {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}

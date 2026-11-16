@@ -153,7 +153,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
       {search.tab === 'send' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
+            <div className="op-banner">
               <div className="card-body" style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)' }}>
                 <span>红包已发出</span>
                 <b className="tnum">{created}</b>

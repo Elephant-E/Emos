@@ -91,8 +91,8 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
       {search.tab === 'create' ? (
         <>
           {created ? (
-            <div className="table-card" style={{ marginBottom: 'var(--gap-card)' }}>
-              <div className="card-body row" style={{ gap: 'var(--sp-3)' }}>
+            <div className="op-banner">
+              <div className="op-banner__body">
                 <span>投票已创建</span>
                 <b className="tnum">{created.id}</b>
                 <span className="muted">{formatDateTime(created.timeEnd)} 结束</span>
