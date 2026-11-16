@@ -4,6 +4,7 @@ import { rememberAccount } from '@/lib/accounts'
 import type { UserInfo } from '@/api/types'
 import { Avatar } from './Avatar'
 import { AccountMenu } from './AccountMenu'
+import { hasLayer } from '@/ui/layers'
 import { USE_MOCK } from '@/api/client'
 import {
   IconBag,
@@ -101,10 +102,16 @@ export const Sidebar = forwardRef<
     if (!menuOpen) return
     const onPointerDown = (event: MouseEvent) => {
       if (footRef.current?.contains(event.target as Node)) return
+      // 上面开着弹层（如「添加账号」）：那次点击属于弹层，
+      // 弹层是 portal 到 body 的，不在 footRef 里，不能因此关掉菜单
+      if (hasLayer()) return
       setMenuOpen(false)
     }
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMenuOpen(false)
+      if (event.key !== 'Escape') return
+      // Esc 先归最上层弹层处理
+      if (hasLayer()) return
+      setMenuOpen(false)
     }
     document.addEventListener('mousedown', onPointerDown)
     document.addEventListener('keydown', onKey)
