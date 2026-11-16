@@ -7,7 +7,6 @@ import { useSession } from '@/api/queries'
 import { ToastHost } from '@/ui/toast'
 import { ConfirmHost } from '@/ui/confirm'
 import { PromptHost } from '@/ui/prompt'
-import { NavContext } from '@/ui/nav'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 
@@ -53,7 +52,7 @@ export function AdminLayout() {
   }, [navOpen])
 
   return (
-    <NavContext.Provider value={() => setNavOpen(true)}>
+    <>
       <Collapsible.Root open={navOpen} onOpenChange={setNavOpen} asChild>
         <div className={navOpen ? 'shell shell--nav-open' : 'shell'}>
           <MobileTopbar user={data} />
@@ -74,6 +73,6 @@ export function AdminLayout() {
       <ToastHost />
       <ConfirmHost />
       <PromptHost />
-    </NavContext.Provider>
+    </>
   )
 }

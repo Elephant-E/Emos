@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { Poster } from './Poster'
 
 /**
@@ -46,7 +46,7 @@ export interface RecordGridProps<T> {
   actions?: (row: T) => ReactNode
 }
 
-export function RecordGrid<T>({
+function RecordGridBase<T>({
   rows,
   idKey,
   onOpen,
@@ -113,3 +113,6 @@ export function RecordGrid<T>({
     </div>
   )
 }
+
+/** 行/卡片只依赖 props：父组件其它 state 变化时不要重排整个列表 */
+export const RecordGrid = memo(RecordGridBase) as typeof RecordGridBase

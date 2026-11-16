@@ -431,54 +431,18 @@
 }
 .spacer { flex: 1; }
 
-.table { width: 100%; border-collapse: collapse; }
-.table thead th {
-  padding: var(--sp-3) var(--pad-card);
-  text-align: left;
-  font-size: var(--text-xs);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--fg-3);
-  background: transparent;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
-}
 
 
-.table .num { text-align: left; font-variant-numeric: tabular-nums; }
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
-.table--fixed { table-layout: fixed; }
 /* 列宽自适应：交给内容决定（数字列贴住自己的宽度，长文本列吃掉剩余）；
    与 --fixed 一样保持单行省略，避免长文本把行撑高 */
-.table--auto { table-layout: auto; }
-.table--auto td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.table--fixed .cell-title { min-width: 0; }
-.table--fixed td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 可点的表格行（rowLink 会给 tr 加 role），光标不用每个调用点各写一次内联 */
-.table tbody tr[role='link'],
-.table tbody tr[role='button'] { cursor: pointer; }
 
-.table tbody td {
-  height: 38px;
-  padding: 7px var(--pad-card);
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--fg-2);
-  font-size: var(--text-sm);
-  white-space: nowrap;
-}
-.table tbody tr:last-child td { border-bottom: 0; }
 .cell-title { display: flex; align-items: center; gap: var(--sp-3); }
 /* 首列带缩略图时，表头对齐标题文字而不是缩略图，否则视线落在标题上会错开一格。
    间距 = 单元格左内边距 + 缩略图宽 + 与文字的间距，缩略图宽由表格上的变量决定 */
-.table { --thumb-w: 28px; }
-.table--thumb-wide { --thumb-w: 44px; }
-.table thead th.th-thumb { padding-left: calc(var(--pad-card) + var(--thumb-w) + var(--sp-3)); }
 /* 列多的表格：左右内边距收窄，否则固定布局下每格可用的宽度不够放徽标与时间 */
-.table--dense thead th,
-.table--dense tbody td { padding-left: var(--sp-3); padding-right: var(--sp-3); }
-.table--dense thead th.th-thumb,
-.table--dense tbody td.th-thumb { padding-left: calc(var(--sp-3) + var(--thumb-w) + var(--sp-3)); }
 .thumb {
   width: 28px;
   height: 42px;
@@ -543,15 +507,6 @@
 }
 .row-menu:focus-visible { opacity: 1; }
 .row-menu:hover { opacity: 1; color: var(--fg-2); }
-.table-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--sp-3) var(--pad-card);
-  border-top: 1px solid var(--line-soft);
-  color: var(--fg-3);
-  font-size: var(--text-xs);
-}
 .input {
   height: 32px;
   padding: 0 var(--sp-2);
@@ -755,9 +710,7 @@ input.input[type='number'] { min-width: 0; }
 
 /* 详情页头统一：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
-/* 详情头不带图时，文字列铺满整行 */
-.detail-head__row--text-only { gap: 0; }
-.detail-head__row--text-only .detail-head__text { flex: 1 1 auto; }
+
 .detail-head__text { display: grid; gap: var(--sp-2); min-width: 0; }
 /* 用户详情头的三行更紧，单独给 4px */
 .detail-head__name + .detail-head__meta { margin-top: calc(var(--sp-1) * -1); }
@@ -1069,26 +1022,8 @@ input.input[type='number'] { min-width: 0; }
 }
 
 /* 同一页面内切换筛选/分页时，内容淡入一次，避免旧列表被硬替换 */
-.table tr.table__expand > td {
-  padding: 0;
-  background: rgba(255, 255, 255, 0.018);
-  border-top: 1px solid var(--line-soft);
-}
 /* 展开行自己就是一层表面（td 有淡底色），里面再套一张完整的 .card，
    同一个位置会叠出两层边框、两层渐变和一层阴影 */
-.table__expand .card {
-  border: 0;
-  background: none;
-  box-shadow: none;
-  padding: 0;
-}
-.table__expand .sources {
-  padding: var(--sp-3) var(--pad-card) var(--sp-4) 66px;
-  animation: content-in 160ms var(--ease);
-}
-.table tr.is-expanded > td {
-  background: rgba(255, 255, 255, 0.025);
-}
 
 
 /* 集数可能上百，用固定高度的数字网格，高度不随集数增长 */
@@ -1297,14 +1232,7 @@ input.input[type='number'] { min-width: 0; }
 .card-body > .card-note + * { margin-top: var(--stack); }
 
 /* 尾部动作对齐：墨迹对齐内容边缘，而不是盒子对齐 */
-.table .btn {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--fg-3);
-}
 /* 表格里的输入（排序、评分）是内联小控件，不该被 .input 的 200px 最小宽度撑开 */
-.table .input { min-width: 0; }
 /* 行内可编辑的数字：平时就是一行文字，指上去/聚焦时才露出输入框。
    整行摆六个带边框的输入框，视觉重心会全跑到这些框上，把片名压下去。 */
 .input--cell {
@@ -1319,22 +1247,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .input--cell:hover { border-color: rgba(255, 255, 255, 0.16); color: var(--fg-2); }
 .input--cell:focus { color: var(--fg); }
-.table .btn:hover { color: var(--fg); background: transparent; }
-.table .btn--primary {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--fg);
-  font-weight: 550;
-}
-.table .btn--primary:hover { background: transparent; color: var(--fg); }
-.table .btn--danger-text { color: color-mix(in srgb, var(--c-red) 62%, var(--fg-3)); }
-.table .btn--danger-text:hover { color: var(--c-red); background: transparent; }
-.table .action-group { display: inline-flex; gap: var(--sp-3); }
-.table .row-menu { margin-right: -6px; }
 .modal__head .btn--icon { margin-right: -6px; }
-.table td:last-child,
-.table th:last-child { padding-right: var(--pad-card); }
 
 .kv { display: grid; gap: 0; margin: 0; }
 .kv > div {
@@ -1402,9 +1315,7 @@ input.input[type='number'] { min-width: 0; }
 .meta-end { margin-left: auto; font-size: var(--text-2xs); }
 /* 表格 td 自带 color（`.table tbody td`），所以这里必须比自己高一档才生效 */
 .mark-up,
-.table td.mark-up { color: var(--c-green); }
 .mark-down,
-.table td.mark-down { color: var(--c-red); }
 /* 表格单元格自己有 color（.table tbody td），特异性更高，必须再写一层才生效 */
 
 /* 固定 3 列：待办 1–2 条时卡片不会被拉伸到整行，3 条时正好铺满 */
@@ -1414,15 +1325,6 @@ input.input[type='number'] { min-width: 0; }
 /* 一屏只留一个主数字，其余降一档，避免抢焦点 */
 .card--secondary .stat__value { font-size: 30px; }
 
-/* 卡片内的表格：首列/末列去掉表格自身的 24px 内边距，
-   否则表格文字会比卡片标题再缩进 24px，看起来像两个层级 */
-/* --inset 只对「卡片里的表格」成立：卡片自己有内边距，表格首末列再各带 24px，
-   内容就会比卡片标题多缩进一截。
-.card > .table--inset thead th:first-child,
-.card > .table--inset tbody td:first-child { padding-left: 0; }
-.card > .table--inset thead th:last-child,
-.card > .table--inset tbody td:last-child { padding-right: 0; }
-.card > .table--inset thead th.th-thumb { padding-left: calc(var(--thumb-w) + var(--sp-3)); }
 .note-left { text-align: left; }
 
 
@@ -2143,7 +2045,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
 /* 单元格里放输入框（行内排序）时收紧左右内边距：
    表格默认左右各 24px，加上 72px 的输入框，固定列宽下会溢出被裁 */
-.table td.cell--input { padding-inline: var(--sp-3); }
 
 /* 窄屏：详情页两栏折叠成单栏，否则右列会被推出视口（820 实测页面级横向滚动 65px） */
 @media (max-width: 980px) {

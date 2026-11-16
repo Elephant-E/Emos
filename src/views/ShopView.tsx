@@ -88,7 +88,7 @@ export function ShopView({
         name: q || undefined,
         sort_by: sort || undefined,
       }),
-    { enabled: mine && Boolean(seller.data?.seller_id), resetKey: `${q}|${categoryId}|${pageSize}` },
+    { enabled: mine && Boolean(seller.data?.seller_id), resetKey: `${q}|${categoryId}|${sort}` },
   )
   const actions = useShopMutations()
 
@@ -265,6 +265,8 @@ export function ShopView({
 
           {mine ? (
             <ListSection
+            loadingKind="rows"
+            loadingPoster="square"
               isLoading={infinite.loading && infinite.items.length === 0}
               error={infinite.error}
               onRetry={() => infinite.retry()}

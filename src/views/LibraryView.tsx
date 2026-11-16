@@ -81,6 +81,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       </div>
 
       <ListSection
+      loadingKind="grid"
         isLoading={list.loading && list.items.length === 0}
         error={list.error}
         onRetry={() => list.retry()}

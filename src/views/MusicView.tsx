@@ -95,6 +95,8 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
       </div>
 
       <ListSection
+      loadingKind="rows"
+      loadingPoster="square"
         isLoading={active.isLoading}
         error={active.error}
         onRetry={() => active.refetch()}

@@ -107,6 +107,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       </div>
 
       <ListSection
+        loadingKind="grid"
         isLoading={infinite.loading && infinite.items.length === 0}
         error={infinite.error}
         onRetry={() => infinite.retry()}

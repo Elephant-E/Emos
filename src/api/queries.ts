@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi, type SeekQuery } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi } from './endpoints'
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
 import { MUSIC_DISABLED } from '@/lib/feature-flags'
@@ -257,14 +257,6 @@ export function useVideoPage(params: VideoPageParams & { enabled?: boolean }) {
   })
 }
 
-export function useSeekPage(params: SeekQuery, opts?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: qk.seeksPage(params),
-    queryFn: () => seekApi.list({ ...params, sort_order: 'desc' }),
-    enabled: opts?.enabled ?? true,
-  })
-}
-
 export function useUserRecords(userId: string) {
   return useQuery({
     queryKey: ['user', userId, 'records'] as const,
@@ -314,18 +306,6 @@ export function useWatch(watchId: number) {
     queryKey: ['watch', watchId, 'meta'] as const,
     queryFn: () => watchApi.list({ watch_id: watchId }),
     enabled: Number.isFinite(watchId) && watchId > 0,
-  })
-}
-
-export function useWatchVideos(
-  watchId: number,
-  params: { page: number; page_size: number; video_title?: string },
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: qk.watchVideos(watchId, params),
-    queryFn: () => watchApi.videos(watchId, params),
-    enabled,
   })
 }
 
@@ -599,34 +579,6 @@ function shopProductsQuery(p: {
   })
 }
 
-export function useShopProducts({
-  page,
-  sellerId,
-  categoryId = 0,
-  pageSize = 12,
-  name = '',
-  sortBy = '',
-  /** 只查上架商品；管理自己店铺时不传，才能看到下架商品 */
-  onlyUp = false,
-  enabled = true,
-}: {
-  page: number
-  sellerId: number
-  categoryId?: number
-  pageSize?: number
-  name?: string
-  sortBy?: '' | 'sales' | 'price'
-  onlyUp?: boolean
-  enabled?: boolean
-}) {
-  return useQuery({
-    queryKey: ['shop', 'products', sellerId, page, pageSize, categoryId, name, sortBy, onlyUp] as const,
-    queryFn: () => shopProductsQuery({ sellerId, page, pageSize, categoryId, name, sortBy, onlyUp }),
-    enabled,
-  })
-}
-
-/** 商品列表用滚动加载：卡片网格没有页码概念；sellerId 传 0 表示全站。 */
 export function useShopProductsInfinite(params: {
   sellerId: number
   categoryId?: number
@@ -706,32 +658,6 @@ export function useShopProduct(productId: number) {
   })
 }
 
-export function useShopMineOrders(
-  page: number,
-  filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string } = {},
-  pageSize = 10,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: ['shop', 'mineOrders', page, pageSize, filter] as const,
-    queryFn: () => shopApi.ordersUser({ page, page_size: pageSize, ...filter }),
-    enabled,
-  })
-}
-
-export function useShopOrders(
-  page: number,
-  filter: { is_pay?: boolean; is_delivery?: boolean; order_no?: string; order_title?: string },
-  pageSize = 10,
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: ['shop', 'orders', page, pageSize, filter] as const,
-    queryFn: () => shopApi.ordersShop({ page, page_size: pageSize, ...filter }),
-    enabled,
-  })
-}
-
 export function useShopMutations() {
   const qc = useQueryClient()
   const invalidate = () => {
@@ -784,14 +710,6 @@ export function useShopMutations() {
       onSuccess: invalidate,
     }),
   }
-}
-
-export function useLiveList(page: number, libraryId: number, pageSize = 15, enabled = true) {
-  return useQuery({
-    queryKey: ['live', 'list', page, libraryId] as const,
-    queryFn: () => liveApi.list({ page, page_size: pageSize, library_id: libraryId || undefined }),
-    enabled,
-  })
 }
 
 export function useLiveLibrary() {
@@ -944,31 +862,6 @@ export function useMusicMutations(songId = 0) {
       onSuccess: invalidate,
     }),
   }
-}
-
-export function useDeletedMedia(page: number, pageSize = 20, q?: string, by: 'media_id' | 'user_id' = 'media_id', enabled = true) {
-  return useQuery({
-    queryKey: ['recycle', 'media', page, pageSize, q ?? '', by] as const,
-    enabled,
-    queryFn: async () => {
-      const params: Record<string, unknown> = { only_delete: true, page, page_size: pageSize }
-      if (q) params[by] = q
-      const res = (await mediaApi.listAll(params as Parameters<typeof mediaApi.listAll>[0])) as unknown as {
-        items?: Array<Record<string, unknown>>
-        total?: number
-        page_size?: number
-      }
-      return { items: res.items ?? [], total: res.total ?? 0, page_size: res.page_size ?? pageSize }
-    },
-  })
-}
-
-export function useDeletedVideos(page: number, pageSize = 20, q?: string, enabled = true) {
-  return useQuery({
-    queryKey: ['recycle', 'video', page, pageSize, q ?? ''] as const,
-    enabled,
-    queryFn: () => videoApi.list({ only_delete: true, page, page_size: pageSize, title: q || undefined }),
-  })
 }
 
 export function useRecycleMutations() {

@@ -45,10 +45,17 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   const session = useSession()
   const userId = String(session.data?.user_id ?? '')
   const [term, setTerm] = useState('')
+  // 输入停手 250ms 才发查询：全局搜索一次要打三个接口，逐键请求太浪费
+  const [debounced, setDebounced] = useState('')
   const [active, setActive] = useState(0)
   const bodyRef = useRef<HTMLDivElement>(null)
 
-  const q = term.trim()
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(term), 250)
+    return () => clearTimeout(timer)
+  }, [term])
+
+  const q = debounced.trim()
   const searching = open && q.length >= MIN_LENGTH
   const showingRecents = open && !searching
 

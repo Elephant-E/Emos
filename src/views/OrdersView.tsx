@@ -55,7 +55,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       mineScope
         ? shopApi.ordersUser({ page, page_size: search.page_size, ...filter })
         : shopApi.ordersShop({ page, page_size: search.page_size, ...filter }),
-    { resetKey: `${mineScope}|${search.page_size}` },
+    // 筛选与搜索都影响结果集：切换后必须重新查，否则列表还留着旧结果
+    { resetKey: `${mineScope}|${search.q}|${search.pay}|${search.delivery}` },
   )
   const actions = useShopMutations()
   // 店铺订单和自己下的单走两个接口，判断只写一处

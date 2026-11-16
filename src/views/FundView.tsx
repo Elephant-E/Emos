@@ -238,6 +238,8 @@ export function FundView({ tab, onTab, pageSize }: {
 
       {tab === 'orders' ? (
         <ListSection
+        loadingKind="rows"
+        loadingPoster="none"
           isLoading={infinite.loading && infinite.items.length === 0}
           error={infinite.error}
           onRetry={() => infinite.retry()}

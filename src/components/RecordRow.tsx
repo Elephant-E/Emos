@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { Poster } from './Poster'
 
 /**
@@ -39,7 +39,7 @@ export interface RecordRowProps<T> {
   fullActions?: boolean
 }
 
-export function RecordRow<T>({
+function RecordRowBase<T>({
   rows,
   idKey,
   single = false,
@@ -115,3 +115,6 @@ export function RecordRow<T>({
     </div>
   )
 }
+
+/** 行/卡片只依赖 props：父组件其它 state 变化时不要重排整个列表 */
+export const RecordRow = memo(RecordRowBase) as typeof RecordRowBase
