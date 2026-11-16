@@ -94,6 +94,7 @@ export interface VideoItem {
   video_is_adult: boolean
   seek_is_request: boolean
   seek_id: number | null
+  /** 求片人数（**人**，不是条数：同一个人重复求也记 1） */
   request_count: number
   parts_count: number
   medias_count: number
@@ -136,6 +137,7 @@ export interface VideoEpisode {
     upload_username: string | null
     upload_expired_at: string | null
     is_can_claim: boolean
+    /** 求片人数 */
     request_count: number
     seek_carrot: number
     updated_at: string
@@ -279,6 +281,7 @@ export interface SeekItem {
   video_season_number: number | null
   video_episode_id: number | null
   video_episode_number: number | null
+  /** 求片人数（**人**；契约注释里的「求片总数」是错的） */
   count_request: number
   status: SeekStatus
   upload_expired_at: string | null
