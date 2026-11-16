@@ -708,7 +708,9 @@ input.input[type='number'] { min-width: 0; }
 /* 详情页头统一：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
 
-.detail-head__text { display: grid; gap: var(--sp-2); min-width: 0; }
+/* 文字列要吃掉整行剩余宽度：不给 flex:1 时它是 max-content 宽，
+   里面的统计块（手机上排成两列）会把 max-content 压到一百多像素，数字与标签全被挤断 */
+.detail-head__text { display: grid; gap: var(--sp-2); min-width: 0; flex: 1 1 auto; }
 /* 用户详情头的三行更紧，单独给 4px */
 .detail-head__name + .detail-head__meta { margin-top: calc(var(--sp-1) * -1); }
 .detail-head__chips { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
