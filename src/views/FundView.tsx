@@ -95,17 +95,15 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
             rows={infinite.items}
             idKey={(row) => `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${String(row.point ?? '')}`}
             title={(row) => String(row.trigger_type_string ?? row.trigger_type ?? '—')}
-            facts={(row) => {
+            facts={(row) => <span>{formatDateTime(String(row.created_at ?? ''))}</span>}
+            value={(row) => {
               // point 恒为正数（金额大小），收支方向在 type：earn / cost
               const signed = row.type === 'cost' ? -Number(row.point) : Number(row.point)
               return (
-                <>
-                  <span className={signed >= 0 ? 'mark-up' : 'mark-down'}>
-                    {signed > 0 ? '+' : ''}
-                    {formatThousand(signed)}
-                  </span>
-                  <span>{formatDateTime(String(row.created_at ?? ''))}</span>
-                </>
+                <span className={signed >= 0 ? 'mark-up' : 'mark-down'}>
+                  {signed > 0 ? '+' : ''}
+                  {formatThousand(signed)}
+                </span>
               )
             }}
           />

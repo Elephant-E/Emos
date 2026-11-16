@@ -121,12 +121,8 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               idKey={(row) => `${row.username}-${row.live_title}`}
               title={(row) => row.live_title}
               meta={(row) => <span>{row.username}</span>}
-              facts={(row) => (
-                <>
-                  <span>{Math.max(0, Math.round(row.play_durations / 60))} 分钟</span>
-                  <span>{row.ua ?? '未知客户端'}</span>
-                </>
-              )}
+              facts={(row) => <span>{row.ua ?? '未知客户端'}</span>}
+              value={(row) => `${Math.max(0, Math.round(row.play_durations / 60))} 分钟`}
             />
           ) : (
             <RecordRow
@@ -137,11 +133,11 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               title={(row) => row.username}
               meta={(row) => (
                 <>
-                  <span>#{row.index}</span>
+                  <span className="tnum">#{row.index}</span>
                   <span>{row.level}</span>
                 </>
               )}
-              facts={(row) => <span>{row.value}</span>}
+              value={(row) => row.value}
             />
           )}
         </ListSection>

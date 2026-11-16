@@ -2827,3 +2827,12 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   flex-wrap: wrap;
   gap: var(--sp-3);
 }
+
+/* 右侧数值列：等宽、右对齐，跨行可比 */
+.record-row__value {
+  margin-right: var(--sp-3);
+  color: var(--fg);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

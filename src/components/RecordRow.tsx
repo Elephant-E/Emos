@@ -34,6 +34,8 @@ export interface RecordRowProps<T> {
   posterOverlay?: (row: T) => ReactNode
   /** 跨整行的信息块（如「求片记录」），放在正文与动作之间 */
   extra?: (row: T) => ReactNode
+  /** 右侧的数值列：等宽数字、右对齐，跨行能竖着比（榜单名次/金额这类） */
+  value?: (row: T) => ReactNode
   /** 底部主要动作；传了 fullActions 就等分成整行按钮 */
   actions?: (row: T) => ReactNode
   fullActions?: boolean
@@ -55,6 +57,7 @@ function RecordRowBase<T>({
   facts,
   posterOverlay,
   extra,
+  value,
   actions,
   fullActions = false,
 }: RecordRowProps<T>) {
@@ -106,8 +109,11 @@ function RecordRowBase<T>({
             </div>
             {/* 信息块跨整行：文字列只有 128px 宽，三行标签值放不进去会乱折 */}
             {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
-            {actions ? (
-              <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>{actions(row)}</div>
+            {value || actions ? (
+              <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>
+                {value ? <span className="record-row__value tnum">{value(row)}</span> : null}
+                {actions ? actions(row) : null}
+              </div>
             ) : null}
           </article>
         )
