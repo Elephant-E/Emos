@@ -80,6 +80,21 @@ export default defineConfig(({ mode }) => {
   },
   // 生产不产出 sourcemap：dist 会整目录上传到 Cloudflare Assets，
   // .map 会连同源码一起被公开下载
-  build: { target: 'es2020', sourcemap: mode !== 'production' },
+  build: {
+    target: 'es2020',
+    sourcemap: mode !== 'production',
+    rollupOptions: {
+      output: {
+        // 三方库改动频率远低于业务代码：拆成独立 chunk，发版时用户只需重新下载业务包。
+        // mock 已改成动态 import，生产构建里会被整段 tree-shake 掉。
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          query: ['@tanstack/react-query'],
+          router: ['@tanstack/react-router'],
+          tus: ['tus-js-client'],
+        },
+      },
+    },
+  },
   }
 })
