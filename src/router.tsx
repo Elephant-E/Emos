@@ -15,8 +15,6 @@ import { SellerView } from '@/views/SellerView'
 import { OrdersView } from '@/views/OrdersView'
 import { LiveView } from '@/views/LiveView'
 import { LinesView, type LinesSearch } from '@/views/LinesView'
-import { MusicView } from '@/views/MusicView'
-import { SongDetailView } from '@/views/SongDetailView'
 import { UserDetailView } from '@/views/UserDetailView'
 import { RecycleView } from '@/views/RecycleView'
 import { UserSearchView } from '@/views/UserSearchView'
@@ -32,7 +30,6 @@ import type { DetailSearch } from '@/views/VideoDetailView'
 import type { OrdersSearch } from '@/views/OrdersView'
 import type { LiveSearch } from '@/views/LiveView'
 import type { RecycleSearch } from '@/views/RecycleView'
-import type { MusicSearch } from '@/views/MusicView'
 import type { RedPacketSearch } from '@/views/RedPacketView'
 import type { RankSearch } from '@/views/RankView'
 import type { LotterySearch } from '@/views/LotteryView'
@@ -258,34 +255,6 @@ function RecycleRoute() {
   )
 }
 
-const musicRoute = createRoute({
-  getParentRoute: () => appLayout,
-  path: '/music',
-  validateSearch: (s: Record<string, unknown>): MusicSearch => ({
-    tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
-    q: asString(s.q),
-    filter: s.filter === 'no_media' || s.filter === 'favorite' ? s.filter : '',
-  }),
-  component: MusicRoute,
-})
-
-function MusicRoute() {
-  const search = musicRoute.useSearch()
-  const navigate = musicRoute.useNavigate()
-  return <MusicView search={search} onSearch={(patch) => navigate({ search: (prev) => ({ ...prev, ...patch }) })} />
-}
-
-const songRoute = createRoute({
-  getParentRoute: () => appLayout,
-  path: '/music/song/$songId',
-  component: SongRoute,
-})
-
-function SongRoute() {
-  const { songId } = songRoute.useParams()
-  return <SongDetailView songId={Number(songId)} />
-}
-
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
@@ -468,9 +437,7 @@ const routeTree = rootRoute.addChildren([
     liveRoute,
     linesRoute,
     recycleRoute,
-    musicRoute,
-    songRoute,
-      fundRoute,
+    fundRoute,
     whisperRoute,
     redPacketRoute,
     rankRoute,

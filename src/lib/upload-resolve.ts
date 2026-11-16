@@ -1,13 +1,11 @@
-import { musicApi, videoApi } from '@/api/endpoints'
+import { videoApi } from '@/api/endpoints'
 import { episodeCode } from './format'
 import { parseFilename } from './filename'
 import type { UploadTarget } from './uploader'
 
 /**
- * 上传前的两步解析，从视图里搬出来的纯逻辑（只依赖 api 封装，不碰 React state）：
- *
- * - `resolveTargetByFilename`：文件名 → 上传落点
- * - `findDuplicateMusic`：按文件 sha256 查库里是否已有同一份音频
+ * 上传前的解析，从视图里搬出来的纯逻辑（只依赖 api 封装，不碰 React state）：
+ * `resolveTargetByFilename`：文件名 → 上传落点
  */
 
 /**
@@ -50,23 +48,4 @@ export async function resolveTargetByFilename(fileName: string): Promise<UploadT
   } catch {
     return null
   }
-}
-
-/** 按 sha256 查重；网络或接口失败一律当作「没查到」，不拦上传 */
-export async function findDuplicateMusic(file: File): Promise<{ music_song_id: number } | null> {
-  try {
-    const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer())
-    const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
-    const hits = await musicApi.batchHashExist([hash])
-    return hits.find((row) => row.file_hash.toLowerCase() === hash) ?? null
-  } catch {
-    return null
-  }
-}
-
-/** 从文件名取歌名：「歌手 - 歌名」取后一段，并去掉开头的音轨号 */
-export function musicTermFromName(name: string): string {
-  const base = name.replace(/\.[^.]+$/, '').replace(/^\d+[\s._-]+/, '')
-  const parts = base.split(/\s+-\s+/)
-  return (parts.length > 1 ? parts[parts.length - 1] : base).trim()
 }

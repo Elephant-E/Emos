@@ -106,17 +106,15 @@ export function realmOf(carrot: number): { name: string; next: number | null } {
 }
 
 const VIDEO_EXT = ['mp4', 'mkv', 'avi', 'mov', 'ts', 'm2ts', 'wmv', 'flv', 'webm', 'rmvb', 'm4v']
-const AUDIO_EXT = ['mp3', 'flac', 'wav', 'aac', 'ogg', 'm4a', 'wma', 'ape', 'alac', 'dsd', 'dff', 'dsf']
 const SUBTITLE_EXT = ['srt', 'ass', 'ssa', 'vtt', 'sub']
 
-/** 上传支持的三类文件，其余一律拒绝 */
-export type UploadKind = 'video' | 'subtitle' | 'music'
+/** 上传支持的两类文件，其余一律拒绝 */
+export type UploadKind = 'video' | 'subtitle'
 
 export function detectUploadKind(file: { name: string; type: string }): UploadKind | null {
   if (isVideoFile(file)) return 'video'
   const ext = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase()
   if (SUBTITLE_EXT.includes(ext) || file.type.includes('subrip') || file.type.includes('ssa')) return 'subtitle'
-  if (file.type.startsWith('audio/') || AUDIO_EXT.includes(ext)) return 'music'
   return null
 }
 
@@ -127,14 +125,6 @@ function isVideoFile(file: { name: string; type: string }): boolean {
   return VIDEO_EXT.includes(ext)
 }
 
-
-/** 秒 → m:ss；空值给 —。三处视图（音乐列表、片单歌曲行、歌曲详情）共用 */
-export function duration(seconds: number | null | undefined): string {
-  if (!seconds) return '—'
-  const m = Math.floor(seconds / 60)
-  const s = Math.round(seconds % 60)
-  return `${m}:${String(s).padStart(2, '0')}`
-}
 
 /** 两位补零：集号、季号在多处要用（S01E03 这种） */
 function pad2(n: number): string {

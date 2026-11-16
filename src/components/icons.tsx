@@ -139,14 +139,6 @@ export const IconUser = (p: IconProps) => (
   </Svg>
 )
 
-export const IconMusic = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="M6.2 12V4.2l6.6-1.4v7.4" />
-    <circle cx="4.4" cy="12.2" r="1.8" />
-    <circle cx="11" cy="10.6" r="1.8" />
-  </Svg>
-)
-
 export const IconWallet = (p: IconProps) => (
   <Svg {...p}>
     <g transform="translate(0 -0.6)">

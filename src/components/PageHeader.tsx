@@ -19,7 +19,6 @@ const SECTION_PATH: Record<string, string> = {
   媒体库: '/library',
   片单: '/watchlists',
   求片: '/seek',
-  音乐: '/music',
   上传: '/upload',
   直播: '/live',
   商城: '/shop',

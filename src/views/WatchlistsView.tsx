@@ -43,7 +43,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const session = useSession()
   const watchParams = {
     page_size: PAGE_SIZE,
-    // 不传 type：上游只认 video，传 music 直接 422
     name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
@@ -60,7 +59,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const create = useMutation({
     mutationFn: (values: WatchlistFormValues) =>
       watchApi.createOrUpdate({
-        type: values.type,
         name: values.name,
         description: values.description.trim() || undefined,
         is_public: values.is_public,
@@ -154,7 +152,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
 
       {creating ? (
         <WatchlistForm
-          defaultType="video"
           submitLabel="创建"
           pending={create.isPending}
           onClose={() => setCreating(false)}

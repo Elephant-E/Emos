@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { PAGE_SIZE } from '@/lib/search'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { SearchField } from '@/components/SearchField'
 import { RecordRow } from '@/components/RecordRow'
-import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
 import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
 import { MaintainerModal } from '@/components/watchlist/MaintainerModal'
 import { SubscribersModal } from '@/components/watchlist/SubscribersModal'
@@ -19,11 +17,16 @@ import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { IconPlus } from '@/components/icons'
 import { WatchlistForm } from '@/components/WatchlistForm'
 import type {} from '@/api/types'
-import { qk, useWatch, useWatchMusic, useWatchMutations } from '@/api/queries'
+import { qk, useWatch, useWatchMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
+
+/** 片单详情页的查询参数 */
+export interface WatchDetailSearch {
+  q: string
+}
 
 export function WatchlistDetailView({
   watchId,
@@ -39,7 +42,6 @@ export function WatchlistDetailView({
   const qc = useQueryClient()
 
   const [adding, setAdding] = useState(false)
-  const [addingSong, setAddingSong] = useState(false)
   const [editing, setEditing] = useState(false)
   const [remarkFor, setRemarkFor] = useState<{ videoId: number; title: string; remark: string } | null>(null)
   const [maintainerOpen, setMaintainerOpen] = useState(false)
@@ -65,20 +67,9 @@ export function WatchlistDetailView({
     { queryKey: [...qk.watchOne(id), 'videos', { q: search.q }] },
   )
   const videoRows = infinite.items
-  const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
-
+  const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos } = useWatchMutations(id)
 
   const item = watch.data?.items[0]
-  const isMusic = item?.type === 'music'
-
-  // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮
-  const songs = useWatchMusic(
-    id,
-    { page: 1, page_size: PAGE_SIZE, song_name: search.q || undefined },
-    isMusic,
-  )
-
-
 
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })
@@ -103,11 +94,10 @@ export function WatchlistDetailView({
     )
   }
 
-  /** 片单里的条目数：影视用视频数，音乐用歌曲数（清空与删除都要显示） */
-  const entryCount = isMusic ? (songs.data?.total ?? 0) : (item?.video_count ?? 0)
-  const entryUnit = isMusic ? '首' : '部影片'
+  /** 片单里的条目数（清空与删除都要显示） */
+  const entryCount = item?.video_count ?? 0
 
-  /** 清空片单内容：影视走 video/empty，音乐走 music/empty，都不可撤销 */
+  /** 清空片单内容：不可撤销 */
   const clearAll = async () => {
     const count = entryCount
     if (!count) {
@@ -116,15 +106,14 @@ export function WatchlistDetailView({
     }
     const ok = await confirmDialog({
       title: '清空这份片单？',
-      message: `会把里面的 ${formatThousand(count)} ${isMusic ? '首歌' : '部影片'} 全部移除。`,
+      message: `会把里面的 ${formatThousand(count)} 部影片 全部移除。`,
       hint: '片单本身保留，只清内容；这个操作不能在界面上撤销。',
       confirmText: '清空',
       danger: true,
     })
     if (!ok) return
-    // 成功后 ['watch'] 前缀失效，影片/歌曲列表与头部计数一起重取
-    const empty = isMusic ? clearMusic : clearVideos
-    empty.mutate(undefined, {
+    // 成功后 ['watch'] 前缀失效，影片列表与头部计数一起重取
+    clearVideos.mutate(undefined, {
       onSuccess: () => {
         toast('已清空', 'success')
       },
@@ -137,11 +126,7 @@ export function WatchlistDetailView({
       <PageHeader
         crumb={['片单', item?.name ?? '详情']}
         title={item?.name ?? '片单'}
-        hint={
-          item
-            ? `${formatThousand(isMusic ? (songs.data?.total ?? 0) : item.video_count)} ${isMusic ? '首' : '部'}`
-            : undefined
-        }
+        hint={item ? `${formatThousand(item.video_count)} 部` : undefined}
         tools={
           item ? (
             <>
@@ -188,7 +173,7 @@ export function WatchlistDetailView({
               <button
                 type="button"
                 className="btn btn--danger-text"
-                disabled={clearVideos.isPending || clearMusic.isPending}
+                disabled={clearVideos.isPending}
                 onClick={() => void clearAll()}
               >
                 清空
@@ -200,7 +185,7 @@ export function WatchlistDetailView({
                 onClick={async () => {
                   const ok = await confirmDialog({
                     title: `删除片单「${item.name}」？`,
-                    message: `${formatThousand(entryCount)} ${entryUnit}会一起从片单移除，内容本身不受影响。`,
+                    message: `${formatThousand(entryCount)} 部影片会一起从片单移除，内容本身不受影响。`,
                     hint: '片单删除后无法恢复，槽位会释放。',
                     confirmText: '删除',
                     danger: true,
@@ -221,8 +206,8 @@ export function WatchlistDetailView({
       {item ? (
         <WatchlistHead
           item={item}
-          count={isMusic ? (songs.data?.total ?? 0) : item.video_count}
-          countLabel={isMusic ? '首' : '影片'}
+          count={item.video_count}
+          countLabel="影片"
           onSubscribers={
             item.is_self
               ? () => setSubsOpen(true)
@@ -240,26 +225,12 @@ export function WatchlistDetailView({
         />
         <span className="spacer" />
         {item?.is_edit_video ? (
-          <button type="button"
-            className="btn btn--primary"
-            onClick={() => {
-              if (isMusic) {
-                setAddingSong(true)
-              } else {
-                setAdding(true)
-              }
-            }}
-          >
+          <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
             <IconPlus />
-            {isMusic ? '添加歌曲' : '添加影片'}
+            添加影片
           </button>
         ) : null}
       </div>
-
-      {isMusic ? (
-        <WatchMusicRows watchId={id} item={item} songs={songs} addingSong={addingSong} onCloseAdd={() => setAddingSong(false)} />
-      ) : (
-        <>
 
       <ListSection
         isLoading={infinite.loading && infinite.items.length === 0}
@@ -342,8 +313,6 @@ export function WatchlistDetailView({
           }
         />
       </ListSection>
-        </>
-      )}
 
       {adding ? (
         <AddVideoModal
@@ -379,8 +348,6 @@ export function WatchlistDetailView({
           }}
         />
       ) : null}
-
-
 
       {subsOpen && item ? (
         <SubscribersModal watchId={watchId} watchName={String(item.name ?? '')} onClose={() => setSubsOpen(false)} />
@@ -422,7 +389,6 @@ export function WatchlistDetailView({
       {editing && item ? (
         <WatchlistForm
           initial={{
-            type: item.type,
             name: item.name,
             description: item.description ?? '',
             is_public: item.is_public,
@@ -435,19 +401,15 @@ export function WatchlistDetailView({
           pending={update.isPending}
           onClose={() => setEditing(false)}
           onSubmit={(values) =>
-            update.mutate(
-              { ...values, type: item.type },
-              {
-                onSuccess: () => {
-                  toast('已保存', 'success')
-                  setEditing(false)
-                },
+            update.mutate(values, {
+              onSuccess: () => {
+                toast('已保存', 'success')
+                setEditing(false)
               },
-            )
+            })
           }
         />
       ) : null}
-    
-</>
+    </>
   )
 }

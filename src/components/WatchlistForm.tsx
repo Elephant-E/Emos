@@ -1,12 +1,9 @@
 import { useState } from 'react'
-import { Segmented } from '@/components/Segmented'
 import { Modal } from '@/components/Modal'
 import { TagInput } from '@/components/TagInput'
 import { ImagePicker } from '@/components/ImagePicker'
 
 export interface WatchlistFormValues {
-  /** 影视片单还是音乐片单，创建后不可改 */
-  type: 'video' | 'music'
   name: string
   description: string
   is_public: boolean
@@ -18,7 +15,6 @@ export interface WatchlistFormValues {
 }
 
 const EMPTY: WatchlistFormValues = {
-  type: 'video',
   name: '',
   description: '',
   is_public: true,
@@ -33,7 +29,6 @@ const EMPTY: WatchlistFormValues = {
  */
 export function WatchlistForm({
   initial,
-  defaultType = 'video',
   submitLabel,
   pending,
   onClose,
@@ -41,14 +36,12 @@ export function WatchlistForm({
 }: {
   /** 传入即为编辑模式 */
   initial?: WatchlistFormValues | null
-  /** 新建时的默认类型（跟当前列表 tab 一致） */
-  defaultType?: 'video' | 'music'
   submitLabel: string
   pending?: boolean
   onClose: () => void
   onSubmit: (values: WatchlistFormValues) => void
 }) {
-  const [form, setForm] = useState<WatchlistFormValues>(initial ?? { ...EMPTY, type: defaultType })
+  const [form, setForm] = useState<WatchlistFormValues>(initial ?? EMPTY)
   const valid = form.name.trim().length >= 2
 
   return (
@@ -70,20 +63,6 @@ export function WatchlistForm({
         </>
       }
     >
-      {initial ? null : (
-        <div className="field">
-          <span>类型</span>
-          <Segmented
-            label="片单类型"
-            value={form.type}
-            onChange={(type) => setForm({ ...form, type })}
-            items={[
-              { value: 'video', label: '影视' },
-              { value: 'music', label: '音乐' },
-            ]}
-          />
-        </div>
-      )}
       <ImagePicker
         label="封面"
         value={form.image_poster_url}

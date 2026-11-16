@@ -1,8 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi } from './endpoints'
+import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, payApi, recordApi, seekApi, sessionApi, shopApi, subtitleApi, userApi, videoApi, watchApi } from './endpoints'
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
-import { MUSIC_DISABLED } from '@/lib/feature-flags'
 import { rowsOf } from '@/lib/rows'
 import { toast } from '@/ui/toast'
 
@@ -32,11 +31,9 @@ export const qk = {
   watchSubscribers: (id: number, page: number) => ['watch', id, 'subscribers', page] as const,
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 
-  music: ['music'] as const,
   seeks: ['seeks'] as const,
   whisper: ['whisper'] as const,
   upload: ['upload'] as const,
-  uploadSongs: (term: string) => ['upload', 'song-pick', term] as const,
   uploadImages: ['upload', 'images'] as const,
 
   user: ['user'] as const,
@@ -282,7 +279,6 @@ export function useWatchPage(
   params: {
     page: number
     page_size: number
-    type?: 'video' | 'music'
     is_self?: boolean
     is_subscribe?: boolean
     name?: string
@@ -301,44 +297,6 @@ export function useWatch(watchId: number) {
     queryKey: ['watch', watchId, 'meta'] as const,
     queryFn: () => watchApi.list({ watch_id: watchId }),
     enabled: Number.isFinite(watchId) && watchId > 0,
-  })
-}
-
-export function useWatchMusic(
-  watchId: number,
-  params: { page: number; page_size: number; song_name?: string },
-  enabled = true,
-) {
-  return useQuery({
-    queryKey: ['watch', watchId, 'music', params] as const,
-    queryFn: () => watchApi.music(watchId, params),
-    enabled: enabled && !MUSIC_DISABLED,
-  })
-}
-
-export function useWatchMusicMutations(watchId: number) {
-  const qc = useQueryClient()
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: [...qk.watchOne(watchId), 'music'] })
-    qc.invalidateQueries({ queryKey: qk.watchOne(watchId) })
-  }
-  return {
-    addSong: useMutation({
-      mutationFn: (songId: number) => watchApi.addMusic(watchId, songId),
-      onSuccess: invalidate,
-    }),
-    removeSong: useMutation({
-      mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
-      onSuccess: invalidate,
-    }),
-  }
-}
-
-export function useWatchMusicSearch(watchId: number, title: string) {
-  return useQuery({
-    queryKey: ['watch', watchId, 'musicSearch', title] as const,
-    queryFn: () => watchApi.searchMusic(watchId, { song_name: title, page_size: 8 }),
-    enabled: !MUSIC_DISABLED && title.trim().length > 0,
   })
 }
 
@@ -751,20 +709,6 @@ export function useLiveLibrary() {
   return useQuery({ queryKey: ['live', 'library'] as const, queryFn: () => liveApi.library(), staleTime: 5 * 60_000 })
 }
 
-/** 专辑级的动作：目前只有「关联 MV」 */
-export function useAlbumMutations() {
-  const qc = useQueryClient()
-  return {
-    updateAlbumVideoId: useMutation({
-      mutationFn: (p: { albumId: number; videoId: number }) => musicApi.updateAlbumVideoId(p.albumId, p.videoId),
-      onSuccess: () => {
-        qc.invalidateQueries({ queryKey: qk.music })
-        qc.invalidateQueries({ queryKey: qk.carrot })
-      },
-    }),
-  }
-}
-
 export function useLineList() {
   return useQuery({ queryKey: ['line', 'list'] as const, queryFn: () => lineApi.list() })
 }
@@ -787,108 +731,6 @@ export function useLineMutations() {
   return {
     create: useMutation({ mutationFn: (payload: { name: string; url: string; tagline?: string }) => lineApi.create(payload), onSuccess: invalidate }),
     remove: useMutation({ mutationFn: (id: number) => lineApi.remove(id), onSuccess: invalidate }),
-  }
-}
-
-export function useMusicSongs(
-  page: number,
-  term: string,
-  enabled = true,
-  pageSize = 20,
-  filter: '' | 'no_media' | 'favorite' = '',
-) {
-  return useQuery({
-    queryKey: ['music', 'songs', page, pageSize, term, filter] as const,
-    queryFn: () =>
-      musicApi.songs({
-        page,
-        page_size: pageSize,
-        name: term || undefined,
-        has_media: filter === 'no_media' ? false : undefined,
-        is_favorite: filter === 'favorite' ? true : undefined,
-      }),
-    enabled: enabled && !MUSIC_DISABLED,
-  })
-}
-
-export function useMusicAlbums(page: number, term: string, enabled = true, pageSize = 20) {
-  return useQuery({
-    queryKey: ['music', 'albums', page, pageSize, term] as const,
-    queryFn: () => musicApi.albums({ page, page_size: pageSize, name: term || undefined }),
-    enabled: enabled && !MUSIC_DISABLED,
-  })
-}
-
-export function useMusicPersons(page: number, term: string, enabled = true, pageSize = 20) {
-  return useQuery({
-    queryKey: ['music', 'persons', page, pageSize, term] as const,
-    queryFn: () => musicApi.persons({ page, page_size: pageSize, name: term || undefined }),
-    enabled: enabled && !MUSIC_DISABLED,
-  })
-}
-
-export function useSong(songId: number) {
-  return useQuery({
-    queryKey: ['music', 'song', songId] as const,
-    staleTime: 5 * 60_000,
-    // 音乐域停用时不要真的打接口（直链访问 /music/song/:id 也会走到这里）
-    enabled: !MUSIC_DISABLED,
-    queryFn: async () => {
-      const res = await musicApi.songs({ song_id: songId, page: 1, page_size: 1 })
-      return res.items?.[0] ?? null
-    },
-  })
-}
-
-export function useSongLyrics(songId: number) {
-  return useQuery({
-    queryKey: ['music', 'lyrics', songId] as const,
-    queryFn: async () => rowsOf(await musicApi.lyrics(songId)),
-    enabled: songId > 0 && !MUSIC_DISABLED,
-  })
-}
-
-export function useSongMedia(songId: number) {
-  return useQuery({
-    queryKey: ['music', 'media', songId] as const,
-    queryFn: async () => rowsOf(await musicApi.media(songId)),
-    enabled: songId > 0 && !MUSIC_DISABLED,
-  })
-}
-
-export function useMusicMutations(songId = 0) {
-  const qc = useQueryClient()
-  const invalidate = () => {
-    qc.invalidateQueries({ queryKey: qk.music })
-    qc.invalidateQueries({ queryKey: qk.session })  // 删资源会扣胡萝卜
-    qc.invalidateQueries({ queryKey: qk.carrot })
-  }
-  return {
-    favorite: useMutation({ mutationFn: (p: { type: string; value: number }) => musicApi.favorite(p.type, p.value), onSuccess: invalidate }),
-    rating: useMutation({ mutationFn: (p: { type: string; value: number; rating: number }) => musicApi.rating(p.type, p.value, p.rating), onSuccess: invalidate }),
-    sync: useMutation({ mutationFn: (p: { type: string; value: string }) => musicApi.sync(p.type, p.value), onSuccess: invalidate }),
-    // 允许直接粘整条 spotify 链接，只取 artist/ 后面那段
-    updateSongVideoId: useMutation({
-      mutationFn: (videoId: number) => musicApi.updateSongVideoId(songId, videoId),
-      onSuccess: invalidate,
-    }),
-    syncArtist: useMutation({
-      mutationFn: (input: string) => musicApi.syncSpotifyArtist(input.split('/artist/').pop()!.split(/[?#]/)[0]),
-      onSuccess: invalidate,
-    }),
-    deleteSong: useMutation({ mutationFn: () => musicApi.deleteSong(songId), onSuccess: invalidate }),
-    createLyric: useMutation({
-      mutationFn: (p: { type: string; language: string; content: string }) => musicApi.createLyric(songId, p),
-      onSuccess: invalidate,
-    }),
-    deleteLyric: useMutation({
-      mutationFn: (lyricId: number) => musicApi.deleteLyric(songId, lyricId),
-      onSuccess: invalidate,
-    }),
-    deleteMedia: useMutation({
-      mutationFn: (p: { mediaId: string; reason: string }) => musicApi.deleteMedia(songId, p.mediaId, p.reason),
-      onSuccess: invalidate,
-    }),
   }
 }
 
@@ -1016,17 +858,7 @@ export function useWatchMutations(watchId: number) {
       watchApi.addVideo(watchId, p.videoId, p.sort, p.remark),
     onSuccess: invalidate,
   })
-  const addMusic = useMutation({
-    mutationFn: (songId: number) => watchApi.addMusic(watchId, songId),
-    onSuccess: invalidate,
-  })
-  const removeMusic = useMutation({
-    mutationFn: (songId: number) => watchApi.removeMusic(watchId, songId),
-    onSuccess: invalidate,
-  })
-  // 清空内容：影视、音乐各一个接口；invalidate 的 ['watch'] 前缀同时覆盖 videos 与 music 两个列表
   const clearVideos = useMutation({ mutationFn: () => watchApi.emptyVideos(watchId), onSuccess: invalidate })
-  const clearMusic = useMutation({ mutationFn: () => watchApi.emptyMusic(watchId), onSuccess: invalidate })
   const subscribe = useMutation({ mutationFn: () => watchApi.subscribe(watchId), onSuccess: invalidate })
   const toggleShow = useMutation({ mutationFn: () => watchApi.show(watchId), onSuccess: invalidate })
   const setDynamic = useMutation({ mutationFn: (url: string | null) => watchApi.dynamic(watchId, url), onSuccess: invalidate })
@@ -1037,7 +869,6 @@ export function useWatchMutations(watchId: number) {
   })
   const update = useMutation({
     mutationFn: (v: {
-      type: 'video' | 'music'
       is_show_empty: boolean
       name: string
       description: string
@@ -1048,7 +879,6 @@ export function useWatchMutations(watchId: number) {
     }) =>
       watchApi.createOrUpdate({
         id: watchId,
-        type: v.type,
         name: v.name,
         description: v.description.trim() || undefined,
         is_public: v.is_public,
@@ -1062,7 +892,7 @@ export function useWatchMutations(watchId: number) {
   const sort = useMutation({ mutationFn: (value: number) => watchApi.sort(watchId, value), onSuccess: invalidate })
 
   return {
-    addVideo, removeVideo, updateVideoEntry, addMusic, removeMusic, clearVideos, clearMusic,
+    addVideo, removeVideo, updateVideoEntry, clearVideos,
     subscribe, toggleShow, setDynamic, sort, update, setMaintainers,
   }
 }

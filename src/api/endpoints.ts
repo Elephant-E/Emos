@@ -1,6 +1,6 @@
 import { request } from './client'
 import type {
-  BanItem, CarrotDelta, RecognizeResult, UserDetail, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, MusicSong, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate, VideoSearchItem } from './types'
+  BanItem, CarrotDelta, RecognizeResult, UserDetail, CarrotHistory, IdResult, LineItem, ListResult, LiveListItem, LiveMedia, LotteryCreateBody, LotteryWinner, MessageResult, RankCarrotRow, RankPlayingLiveRow, RankPlayingVideoRow, RankSignRow, RankUploadRow, RedPacketCreateBody, RedPacketReceiver, VoteCreateBody, VoteResult, SeekItem, SeekStatus, ShopOrder, VideoPerson, ShopCategory, ShopProduct, ShopSeller, SignCheck, UserInfo, VideoEpisode, VideoItem, VideoMedia, VideoSeason, VideoType, WatchItem, WatchVideo, WatchVideoCandidate, VideoSearchItem } from './types'
 
 
 export const sessionApi = {
@@ -59,11 +59,6 @@ export const uploadApi = {
   videoBase: (itemType: string, itemId: number) =>
     request<{ title: string; video_medias: VideoMedia[] }>('/api/upload/video/base', {
       query: { item_type: itemType, item_id: itemId },
-    }),
-  saveMusic: (musicSongId: number, fileId: string) =>
-    request<{ carrot: number; media_id: string }>('/api/upload/music/save', {
-      method: 'POST',
-      body: { music_song_id: musicSongId, file_id: fileId },
     }),
   recognize: (fileName: string, provider = 'binary') =>
     request<RecognizeResult>('/api/upload/video/recognize', { query: { file_name: fileName, provider } }),
@@ -164,11 +159,10 @@ export const watchApi = {
       `/api/watch/${watchId}/user`,
       { query: params },
     ),
-  emptyMusic: (watchId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/empty`, { method: 'DELETE' }),
-  list: (params: { watch_id?: number; type?: 'video' | 'music'; name?: string; author_id?: string; author_username?: string; is_public?: boolean; is_self?: boolean; is_subscribe?: boolean; page?: number; page_size?: number }) =>
+  list: (params: { watch_id?: number; name?: string; author_id?: string; author_username?: string; is_public?: boolean; is_self?: boolean; is_subscribe?: boolean; page?: number; page_size?: number }) =>
     request<ListResult<WatchItem>>('/api/watch', { query: params }),
-  createOrUpdate: (payload: { id?: number | null; type: 'video' | 'music'; name: string; description?: string; is_public?: boolean; point?: number; tags?: string[]; is_show_empty?: boolean; image_poster_url?: string | null }) =>
-    request<{ watch_id: number; count: number }>('/api/watch', { method: 'POST', body: payload }),
+  createOrUpdate: (payload: { id?: number | null; name: string; description?: string; is_public?: boolean; point?: number; tags?: string[]; is_show_empty?: boolean; image_poster_url?: string | null }) =>
+    request<{ watch_id: number; count: number }>('/api/watch', { method: 'POST', body: { ...payload, type: 'video' } }),
   remove: (watchId: number) => request<unknown>(`/api/watch/${watchId}`, { method: 'DELETE' }),
   slot: () => request<{ slot_remaining: number }>('/api/watch/slot', { method: 'POST' }),
   sort: (watchId: number, sort: number) => request<unknown>(`/api/watch/${watchId}/sort`, { method: 'PUT', query: { sort } }),
@@ -183,14 +177,6 @@ export const watchApi = {
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'POST', body: { sort, remark } }),
   removeVideo: (watchId: number, videoId: number) =>
     request<{ count: number }>(`/api/watch/${watchId}/video/${videoId}`, { method: 'DELETE' }),
-  // 后端认的是 song_name（song_title 会被忽略，返回全库 52 万条）
-  music: (watchId: number, params: { song_name?: string; page?: number; page_size?: number }) =>
-    request<ListResult<MusicSong>>(`/api/watch/${watchId}/music`, { query: params }),
-  removeMusic: (watchId: number, songId: number) => request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'DELETE' }),
-  searchMusic: (watchId: number, params: { song_name?: string; page?: number; page_size?: number }) =>
-    request<ListResult<MusicSong>>(`/api/watch/${watchId}/music/search`, { query: params }),
-  addMusic: (watchId: number, songId: number, sort = 80, remark: string | null = null) =>
-    request<{ count: number }>(`/api/watch/${watchId}/music/${songId}`, { method: 'POST', body: { sort, remark } }),
 }
 
 export const lineApi = {
@@ -326,43 +312,6 @@ export const banApi = {
   // reason 对 disable 与 unblock 都是必填，缺了直接 422
   change: (type: 'disable' | 'unblock', userId: string, reason = '后台操作') =>
     request<CarrotDelta>('/api/ban/change', { method: 'PUT', query: { type, user_id: userId, reason } }),
-}
-
-export const musicApi = {
-  /** 给歌曲关联 MV（即 video_id）；服务端会按规则结算胡萝卜 */
-  updateSongVideoId: (songId: number, videoId: number) =>
-    request<CarrotDelta>(`/api/music/song/${songId}/updateVideoId`, { method: 'PUT', query: { video_id: videoId } }),
-  /** 给专辑关联 MV */
-  updateAlbumVideoId: (albumId: number, videoId: number) =>
-    request<CarrotDelta>(`/api/music/album/${albumId}/updateVideoId`, { method: 'PUT', query: { video_id: videoId } }),
-  /** 按 sha256（小写）批量判断资源是否已存在 */
-  batchHashExist: (hashs: string[]) =>
-    request<Array<{ media_id: string; music_song_id: number; file_hash: string; name: string; created_at: string }>>(
-      '/api/music/song/batchHashExist',
-      { method: 'POST', body: { hashs } },
-    ),
-  /** 用 spotify 歌手的 id 去 todb 同步一次数据 */
-  syncSpotifyArtist: (artistId: string) =>
-    request<unknown>('/api/music/syncSpotifyArtist', { method: 'PATCH', body: { artist_id: artistId } }),
-  deleteMedia: (songId: number, mediaId: string, reason?: string) =>
-    request<CarrotDelta>(`/api/music/song/${songId}/media/delete`, { method: 'DELETE', query: { media_id: mediaId, reason } }),
-  moveMedia: (songId: number, mediaId: string) =>
-    request<CarrotDelta>(`/api/music/song/${songId}/media/move`, { method: 'PUT', query: { media_id: mediaId } }),
-  persons: (params: { person_id?: number; name?: string; page?: number; page_size?: number }) =>
-    request<ListResult<Record<string, unknown>>>('/api/music/person/list', { query: params }),
-  songs: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/list', { query: params }),
-  songSearch: (params: Record<string, unknown>) => request<ListResult<MusicSong>>('/api/music/song/search', { query: params }),
-  albums: (params: Record<string, unknown>) => request<ListResult<Record<string, unknown>>>('/api/music/album/list', { query: params }),
-  favorite: (type: string, value: number) => request<{ is_favorite: boolean }>('/api/music/favorite', { method: 'PUT', query: { type, value } }),
-  rating: (type: string, value: number, rating: number) => request<{ rating: number | null }>('/api/music/rating', { method: 'PUT', query: { type, value, rating } }),
-  sync: (type: string, value: string) => request<{ type: string; value: string }>('/api/music/sync', { method: 'PATCH', query: { type, value } }),
-  lyrics: (songId: number) => request<Array<Record<string, unknown>>>(`/api/music/song/${songId}/lyric/list`),
-  createLyric: (songId: number, payload: { type: string; language: string; content: string }) =>
-    request<{ lyric_id: number; carrot: number }>(`/api/music/song/${songId}/lyric/create`, { method: 'POST', body: payload }),
-  deleteLyric: (songId: number, lyricId: number) =>
-    request<{ carrot: number }>(`/api/music/song/${songId}/lyric/delete`, { method: 'DELETE', query: { lyric_id: lyricId } }),
-  media: (songId: number) => request<Array<Record<string, unknown>>>(`/api/music/song/${songId}/media/list`),
-  deleteSong: (songId: number) => request<CarrotDelta>(`/api/music/song/${songId}/delete`, { method: 'DELETE' }),
 }
 
 export const redPacketApi = {

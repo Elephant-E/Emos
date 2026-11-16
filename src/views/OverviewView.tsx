@@ -55,7 +55,7 @@ export function OverviewView() {
     Boolean(caps.isAdmin && todos.data && [todos.data.seeks, todos.data.orders, todos.data.bans].every((value) => value == null))
   // 没有待办时（非管理员或已清空）用「我的片单」补位；取不到时不换，失败与空态分开
   const showWatchlists = !todos.isLoading && !todosFailed && todoItems.length === 0
-  const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
+  const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
 
   const [signing, setSigning] = useState(false)

@@ -67,7 +67,7 @@ type Token = {
  */
 async function uploadObject(
   file: File,
-  kind: 'video' | 'subtitle' | 'image' | 'music',
+  kind: 'video' | 'subtitle' | 'image',
   onProgress: (ratio: number) => void,
   fileStorage: string = DEFAULT_UPLOAD_STORAGE,
 ): Promise<string> {
@@ -236,24 +236,6 @@ export async function uploadSubtitle(
   }
   const fileId = await uploadObject(file, 'subtitle', onProgress, fileStorage)
   await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
-}
-
-/**
- * 歌曲：音频传上去之后绑到某首歌上（POST /api/upload/music/save），
- * 只需知道 song_id，不需要预先选季集。
- */
-export async function uploadSong(
-  file: File,
-  songId: number,
-  onProgress: (ratio: number) => void,
-  fileStorage?: string,
-): Promise<{ media_id: string; carrot: number }> {
-  if (USE_MOCK) {
-    await fakeProgress(onProgress, 8, 80)
-    return { media_id: `mock-music-${Date.now()}`, carrot: 1 }
-  }
-  const fileId = await uploadObject(file, 'music', onProgress, fileStorage)
-  return await uploadApi.saveMusic(songId, fileId)
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { ListResult, MusicSong, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
+import type { ListResult, SeekItem, UserInfo, VideoItem, WatchItem, WatchVideo, WatchVideoCandidate } from './types'
 import { USE_FIXTURES } from './client'
 
 type Fixture = { method: string; pattern: string; name: string; body: unknown; re: RegExp }
@@ -37,7 +37,6 @@ const user: UserInfo = {
   sign: { sign_index: 12, sign_at: '2026-11-04 09:00:00', earn_point: 2, continuous_days: 7 },
   server_video: 'https://video.emos.best',
   server_live: null,
-  server_music: null,
   telegram_group_url: 'https://t.me/emospg',
   telegram_bind_url: null,
   telegram_user_id: null,
@@ -90,49 +89,33 @@ const videos: VideoItem[] = TITLES_X3.map(([title, origin, type], i) => ({
 
 const watches: WatchItem[] = [
   {
-    subscribe_id: null, id: 1000, type: 'video' as const, name: '本周新片', description: '每周更新的院线新片合集',
+    subscribe_id: null, id: 1000, name: '本周新片', description: '每周更新的院线新片合集',
     is_public: true, carrot: 0, tags: ['院线', '追新'], image_poster_url: poster('watch1'),
     is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: true,
     user_sort: 80, subscribe_count: 128, video_count: 24, maintainers: [], author: { username: 'sorakand' },
     updated_at: '2026-11-04T09:12:00Z',
   },
   {
-    subscribe_id: 77, id: 1001, type: 'video' as const, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
+    subscribe_id: 77, id: 1001, name: '4K 修复计划', description: '老片 4K 修复，按年份推进',
     is_public: true, carrot: 10, tags: ['修复', '4K'], image_poster_url: poster('watch2'),
     is_show_empty: false, is_self: true, is_edit_video: true, is_subscribe: true, user_is_show: true,
     user_sort: 70, subscribe_count: 42, video_count: 12, maintainers: [{ username: 'lin' }], author: { username: 'sorakand' },
     updated_at: '2026-11-02T12:40:00Z',
   },
   {
-    subscribe_id: null, id: 1002, type: 'video' as const, name: '纪录片精选', description: null,
+    subscribe_id: null, id: 1002, name: '纪录片精选', description: null,
     is_public: false, carrot: 0, tags: ['纪录片'], image_poster_url: poster('watch3'),
     is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: false,
     user_sort: 80, subscribe_count: 6, video_count: 31, maintainers: [], author: { username: 'zhou' },
     updated_at: '2026-10-28T18:20:00Z',
   },
   {
-    subscribe_id: null, id: 1004, type: 'video' as const, name: '只看一遍的', description: '自己留着，不公开',
+    subscribe_id: null, id: 1004, name: '只看一遍的', description: '自己留着，不公开',
     is_public: false, carrot: 0, tags: [], image_poster_url: null,
     is_show_empty: true, is_self: true, is_edit_video: true, is_subscribe: false, user_is_show: false,
     user_sort: 70, subscribe_count: 0, video_count: 0, maintainers: [], author: { username: '陈曦' },
     updated_at: '2026-11-08T10:00:00Z',
   },
-  {
-    subscribe_id: null, id: 1003, type: 'music' as const, name: '夜间通勤', description: '适合路上听的歌单',
-    is_public: true, carrot: 0, tags: ['通勤'], image_poster_url: poster('watch4'),
-    is_show_empty: true, is_self: false, is_edit_video: false, is_subscribe: false, user_is_show: true,
-    user_sort: 80, subscribe_count: 12, video_count: 3, maintainers: [], author: { username: 'lin' },
-    updated_at: '2026-11-01T08:00:00Z',
-  },
-]
-
-const songs: MusicSong[] = [
-  { song_id: 2001, name: '夜航', image_poster_url: poster('song1'), description: '专辑《潮汐》第一首', tagline: null,
-    duration: 254, video_list_id: null, rating: 4.6, rating_user: 5, is_adult: false, count_medias: 2, person_artists: [{ name: '陈曦' }] },
-  { song_id: 2002, name: '雾中列车', image_poster_url: poster('song2'), description: null, tagline: null,
-    duration: 312, video_list_id: null, rating: 4.2, is_adult: false, count_medias: 1, person_artists: [{ name: '林一' }] },
-  { song_id: 2003, name: '晨间信号', image_poster_url: poster('song3'), description: null, tagline: null,
-    duration: 198, video_list_id: null, rating: null, is_adult: false, count_medias: 0, person_artists: [] },
 ]
 
 const watchVideos: WatchVideo[] = videos.slice(0, 6).map((v, i) => ({
@@ -269,7 +252,7 @@ export async function mockRequest<T>(
     return paginate(rows, page, 15) as T
   }
   if (/\/api\/watch\/\d+\/(sort|dynamic|maintainer|show)$/.test(clean)) return {} as T
-  if (/\/api\/watch\/\d+\/(video|music)\/empty$/.test(clean)) return { count: 3 } as T
+  if (/\/api\/watch\/\d+\/video\/empty$/.test(clean)) return { count: 3 } as T
   if (clean === '/api/invite/exit') return {} as T
   if (clean === '/api/invite/emps') return { carrot: -120 } as T
   if (clean === '/api/pay/close') return { is_close: true } as T
@@ -377,7 +360,6 @@ export async function mockRequest<T>(
     // 上游不会把别人的私密片单返回给当前账号
     let rows = watches.filter((w) => w.is_public || w.is_self)
     if (query.watch_id) rows = rows.filter((w) => w.id === Number(query.watch_id))
-    if (query.type) rows = rows.filter((w) => w.type === query.type)
     if (query.name) rows = rows.filter((w) => w.name.includes(String(query.name)))
     if (query.is_self) rows = rows.filter((w) => w.is_self)
     if (query.is_subscribe) rows = rows.filter((w) => w.is_subscribe)
@@ -445,50 +427,6 @@ export async function mockRequest<T>(
     })) as T
   }
 
-  const songMedia = clean.match(/^\/api\/music\/song\/(\d+)\/media\/list$/)
-  if (songMedia) {
-    return [
-      { media_id: '2g598yxqwqzr', file_suffix: 'mp3', file_type: 'audio/mpeg', file_size: 13_767_777,
-        file_duration: 330, file_quality: 'high', meta_rate_bit: 320_000, is_primary: true, name: '陈曦 上传', created_at: '2026-06-09T10:18:20Z',
-        user: { user_id: user.user_id, username: user.username, avatar: null } },
-      { media_id: '9x111aa22bb', file_suffix: 'flac', file_type: 'audio/flac', file_size: 41_234_567,
-        file_duration: 332, file_quality: 'lossless', meta_rate_bit: 931_876, is_primary: false, name: 'lin 上传', created_at: '2026-05-01T09:00:00Z',
-        user: { user_id: 'eK98L0NEMs', username: 'lin', avatar: null } },
-    ] as T
-  }
-
-  if (clean === '/api/music/song/list') {
-    const name = String(query.name ?? '').trim()
-    let rows = name ? songs.filter((x) => x.name.includes(name)) : songs
-    const truthy = (v: unknown) => v === true || v === '1' || v === 'true'
-    const falsy = (v: unknown) => v === false || v === '0' || v === 'false'
-    if (falsy(query.has_media)) rows = rows.filter((x) => x.has_media === false)
-    if (truthy(query.has_media)) rows = rows.filter((x) => x.has_media !== false)
-    if (truthy(query.is_favorite)) rows = rows.filter((x) => x.is_favorite === true)
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
-  }
-  if (clean === '/api/music/song/search') {
-    const name = String(query.name ?? '').trim()
-    const rows = name ? songs.filter((x) => x.name.includes(name)) : songs
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 10)) as T
-  }
-  if (clean === '/api/music/album/list') {
-    const rows = [
-      { album_id: 3001, name: '潮汐', image_poster_url: poster('album1'), release_date: '2026-03-01', count_song: 10, person_artists: [{ name: '陈曦' }] },
-      { album_id: 3002, name: '夜行记', image_poster_url: poster('album2'), release_date: '2025-11-12', count_song: 8, person_artists: [{ name: 'lin' }] },
-    ]
-    return paginate(rows, 1, 20) as T
-  }
-  if (clean === '/api/music/person/list') {
-    const rows = [
-      { person_id: 4001, name: '陈曦', image_profile: 'profile1', count_medias: 12 },
-      { person_id: 4002, name: 'lin', image_profile: 'profile2', count_medias: 7 },
-    ]
-    return paginate(rows, 1, 20) as T
-  }
-  if (clean === '/api/music/favorite') return { is_favorite: true } as T
-  if (clean === '/api/music/rating') return { rating: Number(query.rating ?? 5) } as T
-  if (clean === '/api/music/sync') return {} as T
   if (clean === '/api/seek/history') return [] as T
   if (clean === '/api/seek/claim') return { seek_id: 1 } as T
   if (clean === '/api/invite/remark') return {} as T
@@ -561,9 +499,6 @@ export async function mockRequest<T>(
     if (index >= 0) watches.splice(index, 1)
     return {} as T
   }
-  if (/^\/api\/watch\/\d+\/music\/\d+$/.test(clean) && method === 'DELETE') return { count: 1 } as T
-
-  if (clean === '/api/upload/music/save') return { carrot: 1, media_id: 'mock-music-media' } as T
   if (clean === '/api/upload/video/base') {
     // ve 传的是 episode_id；查不到时返回空 title，调用方沿用识别结果
     const id = Number(query.item_id ?? 0)
@@ -631,20 +566,6 @@ export async function mockRequest<T>(
   }
   const watchEmptyMatch = clean.match(/^\/api\/watch\/(\d+)\/video\/empty$/)
   if (watchEmptyMatch) return { count: 0 } as T
-
-  const watchMusicSearchMatch = clean.match(/^\/api\/watch\/(\d+)\/music\/search$/)
-  if (watchMusicSearchMatch) {
-    const title = String(query.song_name ?? '').trim()
-    const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
-  }
-
-  const watchMusicMatch = clean.match(/^\/api\/watch\/(\d+)\/music$/)
-  if (watchMusicMatch) {
-    const title = String(query.song_name ?? '').trim()
-    const rows = title ? songs.filter((x) => x.name.includes(title)) : songs
-    return paginate(rows, Number(query.page ?? 1), Number(query.page_size ?? 20)) as T
-  }
 
   const watchVideoMatch = clean.match(/^\/api\/watch\/(\d+)\/video$/)
   if (watchVideoMatch) {
@@ -896,38 +817,6 @@ export async function mockRequest<T>(
   if (clean === '/api/user/passwordReset') return {} as T
   if (clean === '/api/user/sign') return { sign_index: 1, earn_point: 2, continuous_days: 7 } as T
 
-  if (/\/api\/music\/song\/\d+\/media\/list$/.test(clean)) {
-    return [
-      {
-        media_id: '2g598yxqwqzr', name: 'sorakand 上传', file_suffix: 'flac', file_size: 42_000_000,
-        file_duration: 330, file_quality: 'lossless', meta_rate_bit: 900_000, is_primary: true,
-        user: { username: 'sorakand' },
-      },
-      {
-        media_id: '9b31xkq2mz', name: 'lin 上传', file_suffix: 'mp3', file_size: 13_767_777,
-        file_duration: 330, file_quality: 'high', meta_rate_bit: 320_000, is_primary: false,
-        user: { username: 'lin' },
-      },
-    ] as T
-  }
-  if (/\/api\/music\/song\/\d+\/media\/move$/.test(clean)) return { carrot: 0 } as T
-  if (/\/api\/music\/song\/\d+\/media\/delete$/.test(clean)) return { carrot: -1 } as T
-
-  if (/\/api\/music\/song\/\d+\/lyric\/list$/.test(clean)) {
-    return [
-      {
-        lyric_id: 9001,
-        type: 'text',
-        language: 'zh-CN',
-        name: '简体中文',
-        content: '抬头的一片天\n是男儿的一片天\n曾经在满天的星光下\n做梦的少年',
-        created_at: '2026-10-20T10:00:00Z',
-      },
-    ] as T
-  }
-  if (/\/api\/music\/song\/\d+\/lyric\/create$/.test(clean)) return { lyric_id: 9002, carrot: 2 } as T
-  if (/\/api\/music\/song\/\d+\/lyric\/delete$/.test(clean)) return { carrot: 2 } as T
-
   if (clean === '/api/upload/image/list') {
     const name = String(query.name ?? '').trim()
     // 真机服务端固定每页 15 条，这里造 38 张验证滚动加载
@@ -971,7 +860,6 @@ export async function mockRequest<T>(
   if (/^\/api\/upload\/multipart\/.+\/complete$/.test(clean)) return { file_id: 'mock-file' } as T
   if (clean === '/api/upload/video/save') return { count: 1, media_id: 'mock-media', carrot: 3 } as T
   if (clean === '/api/upload/subtitle/save') return { carrot: 2, subtitle_id: 'mock-subtitle' } as T
-  if (clean === '/api/upload/music/save') return { carrot: 2, media_id: 'mock-song' } as T
 
   if (/^\/api\/watch\/\d+\/video\/\d+$/.test(clean)) return { count: 1 } as T
   if (/^\/api\/watch\/\d+\/subscribe$/.test(clean)) return { is_subscribe: true } as T
@@ -979,7 +867,7 @@ export async function mockRequest<T>(
   if (/^\/api\/watch\/\d+\/dynamic$/.test(clean)) return { url: (body.url as string | null) ?? null } as T
   if (/^\/api\/watch\/\d+\/sort$/.test(clean)) return {} as T
 
-  // ---- 运营动作（关联 MV / 转账 / 建单 / 查重 / 批量替换 / 签到 / 通知 / 歌手同步）----
+  // ---- 运营动作（转账 / 建单 / 签到 / 通知）----
   if (clean === '/api/pay/getUserSign') {
     return { sign_index: 1804, sign_at: '2026-11-11 16:00:00', earn_point: 2, continuous_days: 155, content: null } as T
   }
@@ -997,16 +885,5 @@ export async function mockRequest<T>(
       expired: new Date(Date.now() + 5 * 60_000).toISOString(),
     } as T
   }
-  if (clean === '/api/music/syncSpotifyArtist') return { message: 'ok' } as T
-  if (/^\/api\/music\/song\/\d+\/updateVideoId$/.test(clean)) return { carrot: 1000 } as T
-  if (/^\/api\/music\/album\/\d+\/updateVideoId$/.test(clean)) return { carrot: 1000 } as T
-  if (clean === '/api/music/song/batchHashExist') {
-    const hashs = (body as { hashs?: string[] }).hashs ?? []
-    // 造一条命中，方便验证上传页的查重分支
-    return (hashs.length && hashs[0].endsWith('dead')
-      ? [{ media_id: 'mock-media', music_song_id: 1908, file_hash: hashs[0], name: 'mock 上传', created_at: '2026-06-08T17:19:26.000000Z' }]
-      : []) as T
-  }
-
   throw Object.assign(new Error(`未模拟的接口：${clean}`), { status: 404 })
 }

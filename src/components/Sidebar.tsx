@@ -6,7 +6,6 @@ import { Avatar } from './Avatar'
 import { AccountMenu } from './AccountMenu'
 import { hasLayer } from '@/ui/layers'
 import { USE_MOCK } from '@/api/client'
-import { MUSIC_DISABLED } from '@/lib/feature-flags'
 import {
   IconBag,
   IconFilm,
@@ -20,7 +19,6 @@ import {
   IconLive,
   IconShield,
   IconLogo,
-  IconMusic,
   IconWallet,
   IconReceipt,
   IconRoute,
@@ -46,7 +44,6 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { to: '/library', label: '媒体库', icon: IconFilm },
       { to: '/watchlists', label: '片单', icon: IconTag },
       { to: '/seek', label: '求片', icon: IconInbox },
-      { to: '/music', label: '音乐', icon: IconMusic },
       { to: '/upload', label: '上传', icon: IconUpload },
       { to: '/live', label: '直播', icon: IconLive },
     ],
@@ -183,9 +180,7 @@ export const Sidebar = forwardRef<
         <div key={group.label}>
           <p className="rail__label">{group.label}</p>
           <nav className="rail__nav" aria-label={group.label}>
-            {group.items
-              .filter((item) => !(item.to === '/music' && MUSIC_DISABLED))
-              .map((item) => {
+            {group.items.map((item) => {
               const Icon = item.icon
               const active = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
               return (

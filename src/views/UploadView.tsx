@@ -1,27 +1,22 @@
 import { useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { qk, useCapabilities } from '@/api/queries'
+import { useCapabilities } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { RecordRow } from '@/components/RecordRow'
 import { Badge } from '@/components/Badge'
-import { PickList } from '@/components/PickList'
 import { TargetPicker } from '@/components/TargetPicker'
 import { IconPlus, IconUpload } from '@/components/icons'
-import { musicApi } from '@/api/endpoints'
 import { UPLOAD_STORAGES } from '@/lib/uploader'
 import { KIND_LABEL, useUploadQueue, type Status } from '@/lib/use-upload-queue'
 import { ConsentDialog } from '@/components/ConsentDialog'
 import { formatSize } from '@/lib/format'
 
-/** 从文件名猜一个歌名：去掉扩展名和开头的音轨号，「歌手 - 歌名」取歌名那段 */
 export function UploadView() {
   const caps = useCapabilities()
   const inputRef = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
   const [consent, setConsent] = useState(false)
-  const [songTerm, setSongTerm] = useState('')
   const {
     queue,
     clearDone,
@@ -29,20 +24,13 @@ export function UploadView() {
     addFiles,
     startUpload,
     uploadAll,
-    applySong,
     placing,
     setPlacing,
     readyCount,
     uploading,
     fileStorage,
     setFileStorage,
-  } = useUploadQueue({ onSongTerm: setSongTerm })
-
-  const songs = useQuery({
-    queryKey: qk.uploadSongs(songTerm),
-    queryFn: () => musicApi.songSearch({ name: songTerm, page_size: 10 }),
-    enabled: placing?.mode === 'song' && songTerm.trim().length > 0,
-  })
+  } = useUploadQueue()
 
   const active = queue.filter((item) => item.status !== 'done')
 
@@ -97,7 +85,7 @@ export function UploadView() {
           type="file"
           multiple
           hidden
-          accept="video/*,audio/*,.mkv,.ts,.m2ts,.m4v,.rmvb,.srt,.ass,.ssa,.vtt,.sub,.flac,.ape,.alac,.dsd"
+          accept="video/*,.mkv,.ts,.m2ts,.m4v,.rmvb,.srt,.ass,.ssa,.vtt,.sub"
           onChange={(e) => {
             if (e.target.files) void addFiles(e.target.files)
             e.target.value = ''
@@ -149,15 +137,12 @@ export function UploadView() {
               </>
             )}
             facts={(item) => {
-              const placedTitle = item.song
-                ? `${item.song.name}${item.song.artists ? ` · ${item.song.artists}` : ''}`
-                : (item.target?.title ?? '')
+              const placedTitle = item.target?.title ?? ''
               return (
                 <>
                   <span>{item.message ?? KIND_LABEL[item.kind]}</span>
                   {placedTitle ? <span className="ellipsis">目标：{placedTitle}</span> : null}
                   {item.existing ? <span>已有 {item.existing} 个资源</span> : null}
-                  {item.song?.has_media ? <span>已有音频</span> : null}
                   {item.status === 'uploading' ? (
                     <span className="progress-line">
                       <i style={{ transform: `scaleX(${item.progress.toFixed(3)})` }} />
@@ -168,11 +153,7 @@ export function UploadView() {
             }}
             actions={(item) =>
               item.status === 'done' ? (
-                item.kind === 'music' && item.song ? (
-                  <Link className="btn btn--quiet" to="/music/song/$songId" params={{ songId: String(item.song.song_id) }}>
-                    查看
-                  </Link>
-                ) : item.target ? (
+                item.target ? (
                   <Link
                     className="btn btn--quiet"
                     to="/media/$videoId"
@@ -187,13 +168,7 @@ export function UploadView() {
                 <span className="meta-sm">已跳过</span>
               ) : item.status === 'uploading' ? null : (
                 <button type="button" className="btn btn--quiet" onClick={() => startUpload(item)}>
-                  {item.status === 'need-target' || item.status === 'need-song'
-                    ? item.kind === 'music'
-                      ? '选歌曲'
-                      : '选目标'
-                    : item.status === 'failed'
-                      ? '重试'
-                      : '上传'}
+                  {item.status === 'need-target' ? '选目标' : item.status === 'failed' ? '重试' : '上传'}
                 </button>
               )
             }
@@ -209,7 +184,7 @@ export function UploadView() {
         </div>
       ) : null}
 
-      {placing?.mode === 'target' ? (
+      {placing ? (
         <Modal
           title={`选择目标 · ${placing.item.file.name}`}
           onClose={() => setPlacing(null)}
@@ -241,44 +216,6 @@ export function UploadView() {
         </Modal>
       ) : null}
 
-      {placing?.mode === 'song' ? (
-        <Modal
-          title={`选择歌曲 · ${placing.item.file.name}`}
-          onClose={() => setPlacing(null)}
-          width={460}
-          footer={
-            <button type="button" className="btn btn--ghost" onClick={() => setPlacing(null)}>
-              取消
-            </button>
-          }
-        >
-          <label className="field">
-            <span>按歌名搜索</span>
-            <input className="input" autoFocus value={songTerm} onChange={(e) => setSongTerm(e.target.value)} placeholder="输入歌名" />
-          </label>
-          <PickList loading={songs.isFetching} query={songTerm} count={(songs.data?.items ?? []).length}>
-            {(songs.data?.items ?? []).map((song) => (
-              <button
-                type="button"
-                key={song.song_id}
-                className="pick-row"
-                onClick={() => {
-                  applySong(placing.item.id, song)
-                  setPlacing(null)
-                }}
-              >
-                <span className="pick-row__text">
-                  <span className="pick-row__title">{song.name}</span>
-                  <span className="pick-row__sub">
-                    {(song.person_artists ?? []).map((a) => a.name).join(' / ') || '—'}
-                    {song.has_media ? ' · 已有音频' : ''}
-                  </span>
-                </span>
-              </button>
-            ))}
-          </PickList>
-        </Modal>
-      ) : null}
       {consent ? <ConsentDialog kind="upload" onClose={() => setConsent(false)} /> : null}
     </>
   )
@@ -287,7 +224,6 @@ export function UploadView() {
 const STATUS: Record<Status, { label: string; tone: 'ok' | 'wait' | 'run' | 'warn' | 'off' }> = {
   recognizing: { label: '识别中', tone: 'run' as const },
   'need-target': { label: '待关联', tone: 'wait' as const },
-  'need-song': { label: '待选歌', tone: 'wait' as const },
   ready: { label: '待上传', tone: 'run' as const },
   uploading: { label: '上传中', tone: 'run' as const },
   done: { label: '已入库', tone: 'ok' as const },

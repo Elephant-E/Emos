@@ -110,7 +110,6 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
               servers={[
                 ['视频服', user.server_video],
                 ['直播服', user.server_live],
-                ['音乐服', user.server_music],
               ]}
             />
           </section>

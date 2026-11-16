@@ -29,26 +29,17 @@
 
 `video_medias.length` 显示为「已有 N 个资源」，上传前即可看到该落点上已有的内容。
 
-### 三类文件走同一条队列
+### 两类文件走同一条队列
 
-上传页同时接收**视频、字幕、音乐**，按类型分流（与旧项目 `detectFileType` 一致）：
+上传页同时接收**视频、字幕**，按类型分流（与旧项目 `detectFileType` 一致）：
 
 | 类型 | 选什么目标 | 上传 | 保存 |
 |---|---|---|---|
 | 视频 | 影片 / 某一集 | `getUploadToken(type=video)` | `upload/video/save` |
 | 字幕 | 影片 / 某一集 | `getUploadToken(type=subtitle)` | `upload/subtitle/save` |
-| 音乐 | 某一首歌 | `getUploadToken(type=music)` | `upload/music/save` |
 
 **图片不在这一页**：商品封面与片单封面走 `ImagePicker`（传一次进图库、到处引用），
 红包封面那类「换一个能直接用的直链」走 `temporary.emos.best`，都不是入库体系。
-
-音乐不需要季集解析（本地解析器只会拆「片名/季/集」，对歌名没用）：
-
-```
-文件名 → 去掉扩展名与开头音轨号，「歌手 - 歌名」取歌名那段 → GET /api/music/song/search
-  唯一命中 → 直接绑上
-  没有或多条 → 状态「待选歌」，手动搜一首
-```
 
 ### 三步
 
@@ -60,7 +51,7 @@ getUploadToken → 按返回的 type 上传 → save
 
 ```json5
 {
-  "type": "video",            // video 视频 / subtitle 字幕 / image 图片 / music 音乐
+  "type": "video",            // video 视频 / subtitle 字幕 / image 图片
   "file_type": "video/mp4",
   "file_name": "demo.mp4",
   "file_size": 250817,        // 字节，必填，缺了 422

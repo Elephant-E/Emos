@@ -45,7 +45,6 @@ interface UserBase {
 export interface UserInfo extends UserBase {
   server_video: string | null
   server_live: string | null
-  server_music: string | null
   telegram_group_url: string | null
   telegram_bind_url: string | null
   telegram_user_id: string | null
@@ -216,7 +215,6 @@ interface WatchAuthor {
 export interface WatchItem {
   subscribe_id: number | null
   id: number
-  type: 'video' | 'music'
   name: string
   description: string | null
   is_public: boolean
@@ -401,25 +399,6 @@ export interface ShopOrder {
   remark_shop: string | null
   remark_user: string | null
   created_at: string
-}
-
-export interface MusicSong {
-  song_id: number
-  name: string
-  image_poster_url: string | null
-  description: string | null
-  tagline: string | null
-  duration: number | null
-  video_list_id: number | null
-  /** 平均分（可能是小数，如 4.6） */
-  rating: number | null
-  /** 自己打的分（1–5 整数，没打过为 null） */
-  rating_user?: number | null
-  has_media?: boolean
-  is_adult: boolean
-  is_favorite?: boolean
-  count_medias?: number
-  person_artists: Array<{ person_id?: number; name: string }>
 }
 
 export interface UserDetail {
