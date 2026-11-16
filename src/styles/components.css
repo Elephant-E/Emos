@@ -247,14 +247,6 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.stamp {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--text-xs);
-  color: var(--fg-3);
-  white-space: nowrap;
-}
 .head-note {
   font-size: var(--text-xs);
   color: var(--fg-4);
@@ -471,7 +463,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cell-title__row { display: flex; align-items: center; gap: var(--sp-1); }
 .cell-title__code {
   display: block;
   margin-top: var(--sp-hair);
@@ -898,10 +889,6 @@ input.input[type='number'] { min-width: 0; }
   background: rgba(255, 197, 61, 0.05);
 }
 
-.queue-name { display: grid; gap: var(--sp-1); min-width: 0; }
-.queue-name b { font-size: var(--text-sm); font-weight: 450; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.queue-name span { font-size: var(--text-2xs); color: var(--fg-4); }
-
 .rail__foot {
   position: relative;
   flex: none;
@@ -1128,8 +1115,6 @@ input.input[type='number'] { min-width: 0; }
   to { opacity: 1; transform: none; }
 }
 
-.stamp i { background: var(--fg-5); }
-
 .card.todo {
   text-decoration: none;
   color: inherit;
@@ -1271,10 +1256,6 @@ input.input[type='number'] { min-width: 0; }
   border-radius: 8px;
 }
 .poster-img--wide.detail-head__poster,
-.thumb--wide.detail-head__poster {
-  width: 128px;
-  height: 72px;
-}
 
 .poster-img {
   /* 影片与求片的海报是 2:3（TMDB w185 实测 185×278） */
@@ -1289,8 +1270,6 @@ input.input[type='number'] { min-width: 0; }
 .poster-img--wide { width: 44px; height: 25px; }
 /* 直播频道 logo 与商品封面是方图 */
 .poster-img--square { width: 28px; height: 28px; }
-.thumb--wide { width: 44px; height: 25px; }
-.thumb--square { width: 28px; height: 28px; }
 
 /* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
 .cards--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
