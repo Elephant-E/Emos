@@ -46,5 +46,7 @@
 ## 视觉约束
 
 1. **hover 不改变表面亮度**，只改变前景对比度。铺底色等于凭空造一层。
-2. **状态块不是容器**：`LoadingBlock / EmptyBlock / ErrorBlock` 传 `bare` 放进卡片，容器由调用方决定。
-3. **表格 thead 默认透明**，只有页面级 `.table-card` 的粘性表头保留底色。
+2. **状态块不是容器**：`ListSection` 直接渲染四态（出错 / 同形骨架 / 空 / 内容），
+   不再套 `.table-card` 这类外层容器——列表自己就是卡片。
+3. **列表已无表格**：全站零 `<table>`，信息型列表用 `RecordRow`、图片型用 `RecordGrid`，
+   `thead` / `.table-card` / 粘性表头这些约束随表格一起移除。

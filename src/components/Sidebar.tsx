@@ -6,6 +6,7 @@ import { Avatar } from './Avatar'
 import { AccountMenu } from './AccountMenu'
 import { hasLayer } from '@/ui/layers'
 import { USE_MOCK } from '@/api/client'
+import { MUSIC_DISABLED } from '@/lib/feature-flags'
 import {
   IconBag,
   IconFilm,
@@ -182,7 +183,9 @@ export const Sidebar = forwardRef<
         <div key={group.label}>
           <p className="rail__label">{group.label}</p>
           <nav className="rail__nav" aria-label={group.label}>
-            {group.items.map((item) => {
+            {group.items
+              .filter((item) => !(item.to === '/music' && MUSIC_DISABLED))
+              .map((item) => {
               const Icon = item.icon
               const active = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
               return (
@@ -198,7 +201,7 @@ export const Sidebar = forwardRef<
                   <span>{item.label}</span>
                 </Link>
               )
-            })}
+              })}
           </nav>
         </div>
       ))}

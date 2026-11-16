@@ -80,7 +80,7 @@
 
 - 卡片内**不嵌套卡片**。状态块（Loading/Empty/Error）放进卡片时传 `bare`。
 - 表格放进卡片时不会有额外底色；`thead` 默认透明。
-- **表头不吸顶**：`.table-card` 是 `overflow: clip`，不产生纵向滚动容器，`position: sticky` 实际不生效。要吸顶必须先给它 `max-height`，那是另一种交互（表内滚动），不属于默认行为。
+- **列表不用表格**：全站已无 `<table>` 与表头，信息型列表是 `RecordRow` 卡片（见 `DESIGN-RULES.md`）。
 
 ## 2.5 全局搜索面板
 
