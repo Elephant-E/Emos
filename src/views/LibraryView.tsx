@@ -8,7 +8,7 @@ import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
 import { fetchVideoPage, qk } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
-import { useSearchTerm } from '@/lib/useSearchTerm'
+import { SearchField } from '@/components/SearchField'
 import { VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
@@ -25,7 +25,6 @@ const TABS: Array<{ key: '' | VideoType; label: string }> = [
 
 export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSearch: (patch: Partial<LibrarySearch>) => void }) {
   const navigate = useNavigate()
-  const [query, setQuery] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   // 路由 schema 里 season/episode 是必填，所以统一带 1/1；电影到详情页会忽略这两个值
   const openDetail = (videoId: number) =>
@@ -63,17 +62,11 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
       <div className="toolbar">
         <Tabs items={TABS} value={search.type} onChange={(type) => onSearch({ type })} label="类型" />
         <span className="spacer" />
-        <input
-          className="input"
-          type="search"
-            aria-label="片名或 TMDB ID"
-          value={query}
+        <SearchField
+          label="片名或 TMDB ID"
           placeholder="片名或 TMDB ID"
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key !== 'Enter') return
-            onSearch({ q: query.trim() })
-          }}
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <button type="button" className="btn btn--primary" onClick={() => navigate({ to: '/upload' })}>
           <IconPlus />
