@@ -270,7 +270,7 @@ export function UploadView() {
                 <span className="pick-row__text">
                   <span className="pick-row__title">{song.name}</span>
                   <span className="pick-row__sub">
-                    {(song.person_artists ?? []).map((a) => a.name).join(' / ') || '未知艺人'}
+                    {(song.person_artists ?? []).map((a) => a.name).join(' / ') || '—'}
                     {song.has_media ? ' · 已有音频' : ''}
                   </span>
                 </span>

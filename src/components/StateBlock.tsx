@@ -75,7 +75,7 @@ export function LoadingRows({
       aria-live="polite"
     >
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="record-row">
+        <div key={i} className={`record-row${posterSize ? '' : ' record-row--plain'}`}>
           {posterSize ? (
             <div
               className="record-row__media skeleton"

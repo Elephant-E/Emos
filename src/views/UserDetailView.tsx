@@ -209,7 +209,7 @@ export function UserDetailView({ userId }: { userId: string }) {
           label="邀请关系"
           word
           value={invited ? '由我邀请' : '—'}
-          note={invited ? `加入于 ${formatDateTime(String(invited.join_at))}` : '没有邀请记录'}
+          note={invited ? `加入于 ${formatDate(String(invited.join_at))}` : '没有邀请记录'}
         />
       </section>
 

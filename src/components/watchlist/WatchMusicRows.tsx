@@ -58,7 +58,7 @@ export function WatchMusicRows({
           title={(song) => song.name}
           meta={(song) => (
             <>
-              <span>{(song.person_artists ?? []).map((x) => x.name).join(' / ') || '未知艺人'}</span>
+              <span>{(song.person_artists ?? []).map((x) => x.name).join(' / ') || '—'}</span>
               <span>{duration(song.duration)}</span>
             </>
           )}

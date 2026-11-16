@@ -18,9 +18,9 @@ export function Price({
   const now = price ?? 0
   const origin = priceOrigin ?? 0
   return (
-    <div className="product-tile__price">
+    <span className="product-tile__price">
       <b>{formatPrice(price)}</b>
       {now > 0 && origin > now ? <s>{formatThousand(origin)}</s> : null}
-    </div>
+    </span>
   )
 }

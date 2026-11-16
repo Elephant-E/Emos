@@ -300,7 +300,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                   <>
                     {row.is_primary ? <Badge tone="ok">主资源</Badge> : null}
                     <span>{String(row.file_suffix ?? '—')}</span>
-                    <span>{row.file_duration ? duration(Number(row.file_duration)) : '未知时长'}</span>
+                    <span>{row.file_duration ? duration(Number(row.file_duration)) : '—'}</span>
                     <span>{formatSize(row.file_size == null ? null : Number(row.file_size))}</span>
                     {row.meta_rate_bit ? <span>{Math.round(Number(row.meta_rate_bit) / 1000)} kbps</span> : null}
                   </>

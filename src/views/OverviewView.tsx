@@ -273,7 +273,7 @@ export function OverviewView() {
                     </span>
                   </span>
                   <span className="muted tnum text-xs">
-                    {total > 0 ? `${Math.round(ratio * 100)}%` : '时长未知'}
+                    {total > 0 ? `${Math.round(ratio * 100)}%` : '—'}
                   </span>
                   </Link>
                 </li>

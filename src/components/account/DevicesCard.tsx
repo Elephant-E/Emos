@@ -55,7 +55,7 @@ export function DevicesCard() {
         emptyTitle="没有登录中的设备"
         loadingKind="rows"
         loadingPoster="none"
-        loadingLines={2}
+        loadingLines={3}
         loadingActions={1}
       >
         <RecordRow
