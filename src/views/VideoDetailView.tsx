@@ -170,16 +170,24 @@ export function VideoDetailView({
       />
 
       {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
+      {/* 与真实详情头同形：卡片外壳 + 一排胶囊 + 原名 + 四格统计，加载完不跳高度 */}
       {detail.isLoading ? (
-        <div aria-busy="true" aria-live="polite" style={{ display: 'grid', gap: 'var(--sp-3)', marginTop: 'var(--gap-card)' }}>
-          <div className="skeleton" style={{ height: 28, width: '38%' }} />
-          <div className="skeleton" style={{ height: 13, width: '22%' }} />
-          <div style={{ display: 'flex', gap: 'var(--sp-4)', marginTop: 'var(--sp-2)' }}>
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="skeleton" style={{ height: 38, flex: 1, borderRadius: 'var(--r-item)' }} />
+        <section className="detail-head" aria-busy="true" aria-live="polite">
+          <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+            {[56, 44, 44].map((width, i) => (
+              <div key={i} className="skeleton" style={{ height: 24, width, borderRadius: 999 }} />
             ))}
           </div>
-        </div>
+          <div className="skeleton" style={{ height: 14, width: '34%' }} />
+          <div style={{ display: 'flex', gap: 'var(--sp-5)' }}>
+            {[46, 58, 62, 74].map((width, i) => (
+              <div key={i} style={{ display: 'grid', gap: 'var(--sp-1)' }}>
+                <div className="skeleton" style={{ height: 19, width }} />
+                <div className="skeleton" style={{ height: 12, width: Math.round(width * 0.6) }} />
+              </div>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       {!detail.isLoading && !detail.error && !video ? (

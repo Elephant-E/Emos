@@ -26,6 +26,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60_000,
       gcTime: 30 * 60_000,
+      // 重试发生在 api/client 里（GET 对 502/503/504 与网络失败重试 3 次），
+      // 这里关掉 TanStack 自带的重试，否则同一请求最多会被放大成 3×3 次
       retry: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
