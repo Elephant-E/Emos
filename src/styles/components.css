@@ -373,6 +373,8 @@
  */
 .stat__value {
   margin: 0;
+  /* 主卡 36px、次卡 30px，高度不一致会让下面的说明行错位 6px：统一盒子高度 */
+  min-height: 36px;
   display: flex;
   align-items: baseline;
   gap: var(--sp-2);
