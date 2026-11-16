@@ -1,5 +1,5 @@
 import { CardHead } from '@/components/CardHead'
-import { CardTable } from '@/components/CardTable'
+import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -47,13 +47,16 @@ export function DevicesCard() {
           </button>
         ) : null}
       </CardHead>
-      <CardTable
-        loading={devices.isLoading}
+      <ListSection
+        isLoading={devices.isLoading}
         error={devices.error}
         onRetry={() => devices.refetch()}
-        empty="没有登录中的设备"
-        count={devices.data?.length ?? 0}
-        loadingCols={3}
+        items={devices.data ?? []}
+        emptyTitle="没有登录中的设备"
+        loadingKind="rows"
+        loadingPoster="none"
+        loadingLines={2}
+        loadingActions={1}
       >
         <RecordRow
           rows={devices.data ?? []}
@@ -87,7 +90,7 @@ export function DevicesCard() {
             </button>
           )}
         />
-      </CardTable>
+      </ListSection>
     </article>
   )
 }

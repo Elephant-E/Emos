@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { CardTable } from '@/components/CardTable'
+import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
@@ -285,14 +285,16 @@ export function UserDetailView({ userId }: { userId: string }) {
           <CardHead title="最近播放">
             <span className="muted tnum-sm">近一周 · 全站</span>
           </CardHead>
-          <CardTable
-            loading={records.isLoading}
+          <ListSection
+            isLoading={records.isLoading}
             error={records.error}
             onRetry={() => records.refetch()}
-            empty="近一周没有播放记录"
-            count={(records.data?.items ?? []).length}
-            loadingRows={3}
-            loadingCols={4}
+            items={records.data?.items ?? []}
+            emptyTitle="近一周没有播放记录"
+            loadingKind="rows"
+            loadingPoster="none"
+            loadingLines={3}
+            loadingActions={0}
           >
             <RecordRow
               rows={records.data?.items ?? []}
@@ -318,7 +320,7 @@ export function UserDetailView({ userId }: { userId: string }) {
                 </>
               )}
             />
-          </CardTable>
+          </ListSection>
         </article>
       </section>
     
