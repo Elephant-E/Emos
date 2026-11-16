@@ -6,7 +6,6 @@ export function LoadingGrid({
   shape = 'poster',
   badges = false,
   lines = 2,
-  actions = false,
 }: {
   count?: number
   shape?: 'poster' | 'wide' | 'square'
@@ -14,8 +13,6 @@ export function LoadingGrid({
   badges?: boolean
   /** 文字行数：影库/片单是标题 + 次要信息两行，商品卡多一行价格 */
   lines?: number
-  /** 真实卡片底部有动作（购买键） */
-  actions?: boolean
 }) {
   return (
     <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
@@ -36,11 +33,6 @@ export function LoadingGrid({
                 style={{ height: line === 0 ? 14 : 12, width: line === 0 ? '62%' : line === 1 ? '38%' : '48%' }}
               />
             ))}
-            {actions ? (
-              <div className="record-tile__actions">
-                <div className="skeleton" style={{ width: 56, height: 32, borderRadius: 'var(--r-item)' }} />
-              </div>
-            ) : null}
           </div>
         </div>
       ))}

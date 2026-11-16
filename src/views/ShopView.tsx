@@ -187,7 +187,7 @@ export function ShopView({
 
       {seller.error ? <ErrorBlock error={seller.error} onRetry={() => seller.refetch()} /> : null}
 
-      {mine && isSeller && tab === 'products' && !panel ? (
+      {mine && isSeller && tab === 'products' ? (
         <section className="cards cards--4" style={{ marginBottom: 'var(--gap-card)' }}>
           <StatCard
             label="待发货"

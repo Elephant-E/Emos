@@ -26,6 +26,8 @@ const SECTION_PATH: Record<string, string> = {
   订单: '/orders',
   线路: '/lines',
   用户: '/users',
+  // 「运营」在侧栏没有对应入口（榜单/抽奖/投票/红包分散在社区），根节点不做跳转
+  运营: '',
   资金: '/fund',
   支付: '/fund',
   悄悄话: '/whisper',

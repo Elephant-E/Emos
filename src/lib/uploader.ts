@@ -1,10 +1,10 @@
 import * as tus from 'tus-js-client'
 import { uploadApi } from '@/api/endpoints'
-import { TOKEN_KEY, USE_MOCK } from '@/api/client'
+import { SESSION_CACHE_KEY, USE_MOCK, getToken } from '@/api/client'
 
 function currentUserId(): string {
   try {
-    const raw = localStorage.getItem('emos_admin_profile')
+    const raw = localStorage.getItem(SESSION_CACHE_KEY)
     if (!raw) return ''
     const profile = JSON.parse(raw) as { user_id?: string }
     return profile.user_id ?? ''
@@ -14,7 +14,7 @@ function currentUserId(): string {
 }
 
 function authHeader(): Record<string, string> {
-  const token = localStorage.getItem(TOKEN_KEY)
+  const token = getToken()
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 

@@ -6,6 +6,7 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
 import { DetailHead } from '@/components/DetailHead'
+import { Badge } from '@/components/Badge'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
 import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvite, useUserPayInfo, useUserRecords, useUserSign } from '@/api/queries'
@@ -135,10 +136,9 @@ export function UserDetailView({ userId }: { userId: string }) {
         <DetailHead
           chips={
             <>
-              <span className={`badge ${banned ? 'badge--warn' : 'badge--ok'}`}>
-                <i />
+              <Badge tone={banned ? 'warn' : 'ok'} dot>
                 {banned ? '已封禁' : '正常'}
-              </span>
+              </Badge>
               {self ? <span>我自己</span> : null}
               {info?.is_viewing ? <span>在线</span> : null}
             </>
