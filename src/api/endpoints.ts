@@ -122,7 +122,8 @@ export const mediaApi = {
   // 上游返回数组本身，不是 { medias }
   list: (params: { video_list_id?: number; video_season_id?: number; video_episode_id?: number; video_part_id?: number; include_metadata?: boolean }) =>
     request<VideoMedia[]>('/api/video/media/list', { query: params }),
-  listAll: (params: { media_id?: string; user_id?: string; status?: string; only_delete?: boolean; include_metadata?: boolean; page?: number; page_size?: number }) =>
+  // 除了固定字段，还能按任意媒资属性过滤（回收站按媒体名称/ID/上传者搜），故留一个索引签名
+  listAll: (params: { only_delete?: boolean; page?: number; page_size?: number; [key: string]: string | number | boolean | undefined }) =>
     request<ListResult<Record<string, unknown>>>('/api/video/media/listAll', { query: params }),
   remove: (mediaId: string, reason = '后台删除') => request<CarrotDelta>('/api/video/media/delete', { method: 'DELETE', body: { media_id: mediaId, reason } }),
   restore: (mediaId: string) => request<CarrotDelta>('/api/video/media/restore', { method: 'PUT', body: { media_id: mediaId } }),

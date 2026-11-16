@@ -275,7 +275,15 @@ export function FundView({ tab, onTab }: {
                 </span>
               </>
             )}
-            value={(row) => (row.payout_price == null ? '未打款' : `打款 ¥${formatThousand(Number(row.payout_price))}`)}
+            // 与「能否提交凭证」共用 payout_status：只看 payout_price 会出现
+            // 「状态已打款、值却写未打款、还不能提交凭证」的自相矛盾
+            value={(row) =>
+              String(row.payout_status ?? '') === 'pass'
+                ? row.payout_price == null
+                  ? '已打款'
+                  : `打款 ¥${formatThousand(Number(row.payout_price))}`
+                : '未打款'
+            }
             actions={
               // 已打款的订单不需要再传凭证
               (row) =>

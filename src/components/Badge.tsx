@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
-export type BadgeTone = 'ok' | 'wait' | 'run' | 'warn' | 'off' | 'danger'
+import type { BadgeTone } from '@/lib/tones'
+
+export type { BadgeTone }
 
 /**
  * 状态徽标。站内原本两种写法混用：有的带 `<i />` 圆点、有的不带，

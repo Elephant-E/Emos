@@ -402,7 +402,7 @@ const seekRoute = createRoute({
   path: '/seek',
   validateSearch: (s: Record<string, unknown>): SeekSearch => ({
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
-    q: typeof s.q === 'string' ? s.q : '',
+    q: asString(s.q),
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
     mine: asBool(s.mine),
   }),
@@ -420,7 +420,7 @@ const watchlistsRoute = createRoute({
   path: '/watchlists',
   validateSearch: (s: Record<string, unknown>): WatchSearch => ({
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
-    q: typeof s.q === 'string' ? s.q : '',
+    q: asString(s.q),
   }),
   component: WatchlistsRoute,
 })

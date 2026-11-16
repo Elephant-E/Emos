@@ -52,7 +52,6 @@ export function PageHeader({ crumb, title, hint, tools, more }: PageHeaderProps)
   const [moreOpen, setMoreOpen] = useState(false)
   const compact = useMediaQuery('(max-width: 600px)')
   const root = crumb[0]
-  // 传了 fragment 但里面全是 null 时不要渲染空容器（会留一块空白）
   // 传了 fragment 但内容全是 null 时不渲染容器（否则右上角留一个 0×4 的空盒）
   const toolNodes = tools ? childrenOf(tools) : null
   const moreNodes = more ? childrenOf(more) : null

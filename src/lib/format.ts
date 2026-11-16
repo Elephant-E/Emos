@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/components/Badge'
+import type { BadgeTone } from './tones'
 export function formatThousand(n: number | null | undefined): string {
   if (n === null || n === undefined || Number.isNaN(n)) return '—'
   return n.toLocaleString('zh-CN')

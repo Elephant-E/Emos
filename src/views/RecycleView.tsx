@@ -38,7 +38,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
     (next) =>
       tab === 'media'
         ? mediaApi
-            .listAll({ only_delete: true, page: next, ...(q ? { [by]: q } : {}) } as never)
+            .listAll({ only_delete: true, page: next, ...(q ? { [by]: q } : {}) })
             .then((res) => {
               const r = res as unknown as { items?: Array<Record<string, unknown>>; total?: number; page_size?: number }
               return { items: r.items ?? [], total: r.total ?? 0, page_size: r.page_size ?? PAGE_SIZE }
