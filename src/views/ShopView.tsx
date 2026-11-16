@@ -193,14 +193,22 @@ export function ShopView({
 
       {mine && isSeller && tab === 'products' ? (
         <section className="cards cards--4" style={{ marginBottom: 'var(--gap-card)' }}>
+          {/* 四张卡要么都出数、要么都是 —：/ 「在售 0 件 共 — 件」这种半成品最像故障 */}
+          {/* eslint-disable-next-line no-constant-condition */}
           <StatCard
             label="待发货"
-            value={counts.ordersPending ?? '—'}
+            value={counts.isLoading ? '—' : (counts.ordersPending ?? '—')}
             unit="单"
             /* 取不到（比如非管理员，订单接口 403）与 0 单是两回事 */
-            note={counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
+            note={counts.isLoading || counts.ordersPending === undefined ? '读取中' : counts.ordersPending > 0 ? '需要处理' : '都发完了'}
           />
-          <StatCard secondary label="在售商品" value={counts.productsOnSale ?? '—'} unit="件" note={`共 ${counts.productsAll ?? '—'} 件`} />
+          <StatCard
+            secondary
+            label="在售商品"
+            value={counts.isLoading ? '—' : (counts.productsOnSale ?? '—')}
+            unit="件"
+            note={`共 ${counts.isLoading ? '—' : (counts.productsAll ?? '—')} 件`}
+          />
           <StatCard secondary label="订单" value={counts.ordersAll ?? '—'} unit="单" note="开店以来" />
           <StatCard
             secondary

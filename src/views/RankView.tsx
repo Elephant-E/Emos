@@ -62,9 +62,13 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
       value: `${formatSize(row.size)} 上传`,
     })),
   ]
-  const signPeople = (sign.data ?? []).map((row) => ({
+  // 按连续天数降序后再编号：`#1` 必须是天数最多的那位，
+  // 否则「#1 291 天 < #3 301 天」会被读成名次错乱
+  const signPeople = [...(sign.data ?? [])]
+    .sort((a, b) => b.continuous_days - a.continuous_days)
+    .map((row, position) => ({
     key: `s-${row.sign_index}-${row.username}`,
-    index: row.sign_index,
+    index: position + 1,
     username: row.username,
     avatar: row.avatar,
     level: row.sign_content ?? '签到',
@@ -106,8 +110,13 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   </span>
                 </>
               )}
-              facts={(row) => <span>{row.ua ?? '—'}</span>}
-              value={(row) => (row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—')}
+              facts={(row) => (
+                <>
+                  <span>{row.ua ?? '—'}</span>
+                  <span>{row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—'}</span>
+                </>
+              )}
+              value={(row) => `${Math.max(0, Math.round(Number(row.play_seconds ?? 0) / 60))} 分钟`}
             />
           ) : tab === 'live' ? (
             <RecordRow

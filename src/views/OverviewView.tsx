@@ -85,9 +85,11 @@ export function OverviewView() {
     hour < 6 ? GREETINGS[4] : hour < 11 ? GREETINGS[0] : hour < 14 ? GREETINGS[1] : hour < 18 ? GREETINGS[2] : GREETINGS[3]
   const displayName = session.data?.pseudonym || session.data?.username || ''
   // stats/video/history 的日期区间不含今天，因此按未看完条数判断而不是今天的观看秒数
+  const watchingReady = watching.isFetched
   const unfinished = watching.data?.length ?? 0
-  const todayText =
-    unfinished > 0
+  const todayText = !watchingReady
+    ? '正在读取观看记录…'
+    : unfinished > 0
       ? `还有 ${unfinished} 部没看完${pickByDay(['～', '，接着看吧～', '，从上次停下的地方继续～'], now)}`
       : pickByDay(LINES_IDLE, now)
 
@@ -121,8 +123,9 @@ export function OverviewView() {
             <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
               <p className="stat__value">
-                {item.value === null ? '—' : formatThousand(item.value ?? 0)}
-                <small>{item.unit}</small>
+                {/* 未加载 / 取不到都显示 —：显示 0 等于断言「没有待办」 */}
+                {item.value == null ? '—' : formatThousand(item.value)}
+                {item.value == null ? null : <small>{item.unit}</small>}
               </p>
               <p className="stat__delta stat__delta--quiet">去处理</p>
             </Link>

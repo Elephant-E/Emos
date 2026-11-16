@@ -154,6 +154,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
                 </>
               )}
               actions={
+                // 一直挂上动作列：不可恢复时写清原因，不要整列消失（与影片 tab 一致）
                 restorable
                   ? (row) => {
                       const mediaId = String(row.media_id ?? '')
@@ -167,9 +168,11 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
                         >
                           {busy === mediaId ? '恢复中…' : '恢复'}
                         </button>
-                      ) : null
+                      ) : (
+                        <span className="meta-sm">仅自己上传可恢复</span>
+                      )
                     }
-                  : undefined
+                  : () => <span className="meta-sm">仅自己上传可恢复</span>
               }
             />
           ) : (

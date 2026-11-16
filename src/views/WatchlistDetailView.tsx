@@ -234,7 +234,7 @@ export function WatchlistDetailView({
       <div className="toolbar">
         <SearchField
           label="搜索"
-          placeholder=""
+          placeholder="在该片单里搜片名"
           value={search.q}
           onCommit={(next) => onSearch({ q: next })}
         />
