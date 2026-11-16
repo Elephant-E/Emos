@@ -1,12 +1,16 @@
-import { Fragment, isValidElement, useEffect, useRef, type ReactNode } from 'react'
+import { Fragment, isValidElement, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { IconGrid } from './icons'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 interface PageHeaderProps {
   crumb: string[]
   title: string
   hint?: ReactNode
+  /** 主要工具：始终显示 */
   tools?: ReactNode
+  /** 次要工具：收起端（手机）折进「更多」，展开端常显 */
+  more?: ReactNode
 }
 
 /** 面包屑首段对应的列表页，点它能回到那一级 */
@@ -41,11 +45,15 @@ function childrenOf(node: ReactNode): ReactNode {
   return node
 }
 
-export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
+export function PageHeader({ crumb, title, hint, tools, more }: PageHeaderProps) {
+  // 手机端把次要工具收进「更多」：由调用方声明主次，比让组件按数量猜可靠
+  const [moreOpen, setMoreOpen] = useState(false)
+  const compact = useMediaQuery('(max-width: 600px)')
   const root = crumb[0]
   // 传了 fragment 但里面全是 null 时不要渲染空容器（会留一块空白）
   // 传了 fragment 但内容全是 null 时不渲染容器（否则右上角留一个 0×4 的空盒）
   const toolNodes = tools ? childrenOf(tools) : null
+  const moreNodes = more ? childrenOf(more) : null
   const path = SECTION_PATH[root]
   // 工具横向溢出时才加渐隐：没溢出还渐隐会把最后一个按钮右边缘裁掉
   const toolsRef = useRef<HTMLDivElement>(null)
@@ -86,9 +94,20 @@ export function PageHeader({ crumb, title, hint, tools }: PageHeaderProps) {
           {hint ? <span className="page-title__hint">{hint}</span> : null}
         </div>
       </div>
-      {toolNodes ? (
+      {toolNodes || moreNodes ? (
         <div className="head-tools" ref={toolsRef}>
           {toolNodes}
+          {moreNodes && (!compact || moreOpen) ? moreNodes : null}
+          {moreNodes && compact ? (
+            <button
+              type="button"
+              className="btn btn--quiet"
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((open) => !open)}
+            >
+              {moreOpen ? '收起' : '更多'}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>

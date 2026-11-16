@@ -154,51 +154,58 @@ export function WatchlistDetailView({
                   />
                 </span>
               ) : null}
-              {item.is_self ? (
-                <>
-                  <button type="button" className="btn btn--ghost" onClick={() => setEditing(true)}>
-                    编辑
-                  </button>
-                  <button type="button"
-                    className="btn btn--ghost"
-                    onClick={() => setMaintainerOpen(true)}
-                  >
-                    维护者
-                  </button>
-                  <button type="button" className="btn btn--ghost" onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })} disabled={toggleShow.isPending}>
-                    {item.user_is_show ? '隐藏' : '显示'}
-                  </button>
-                  <button type="button" className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
-                    动态抓取
-                  </button>
-                  <button type="button"
-                    className="btn btn--danger-text"
-                    disabled={clearVideos.isPending || clearMusic.isPending}
-                    onClick={() => void clearAll()}
-                  >
-                    清空
-                  </button>
-                  <button type="button"
-                    className="btn btn--danger-text"
-                    disabled={removeWatch.isPending}
-                    onClick={async () => {
-                      const ok = await confirmDialog({
-                        title: `删除片单「${item.name}」？`,
-                        message: `${formatThousand(entryCount)} ${entryUnit}会一起从片单移除，内容本身不受影响。`,
-                        hint: '片单删除后无法恢复，槽位会释放。',
-                        confirmText: '删除',
-                        danger: true,
-                      })
-                      if (!ok) return
-                      removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page_size: 20, q: '', scope: 'self' } }) })
-                    }}
-                  >
-                    删除
-                  </button>
-                </>
-              ) : null}
+
             </>
           ) : null
+        }
+        more={
+          item?.is_self ? (
+            <>
+              <button type="button" className="btn btn--ghost" onClick={() => setEditing(true)}>
+                编辑
+              </button>
+              <button type="button" className="btn btn--ghost" onClick={() => setMaintainerOpen(true)}>
+                维护者
+              </button>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => toggleShow.mutate(undefined, { onSuccess: () => toast(item.user_is_show ? '已隐藏' : '已显示', 'success') })}
+                disabled={toggleShow.isPending}
+              >
+                {item.user_is_show ? '隐藏' : '显示'}
+              </button>
+              <button type="button" className="btn btn--ghost" onClick={() => { setDynamicUrl(''); setDynamicOpen(true) }}>
+                动态抓取
+              </button>
+              <button
+                type="button"
+                className="btn btn--danger-text"
+                disabled={clearVideos.isPending || clearMusic.isPending}
+                onClick={() => void clearAll()}
+              >
+                清空
+              </button>
+              <button
+                type="button"
+                className="btn btn--danger-text"
+                disabled={removeWatch.isPending}
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: `删除片单「${item.name}」？`,
+                    message: `${formatThousand(entryCount)} ${entryUnit}会一起从片单移除，内容本身不受影响。`,
+                    hint: '片单删除后无法恢复，槽位会释放。',
+                    confirmText: '删除',
+                    danger: true,
+                  })
+                  if (!ok) return
+                  removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page_size: 20, q: '', scope: 'self' } }) })
+                }}
+              >
+                删除
+              </button>
+            </>
+          ) : undefined
         }
       />
 
