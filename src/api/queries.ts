@@ -14,7 +14,6 @@ export const qk = {
   session: ['session'] as const,
   carrot: ['carrot'] as const,
   carrotCurrent: ['carrot', 'current'] as const,
-  carrotHistory: (page: number, pageSize: number) => ['carrot', 'history', page, pageSize] as const,
   todos: ['todos'] as const,
 
   video: ['video'] as const,
@@ -28,13 +27,11 @@ export const qk = {
   watchOne: (id: number) => ['watch', id] as const,
   watches: ['watches'] as const,
   watchesPage: (p: object) => ['watches', p] as const,
-  watchVideos: (id: number, p: Record<string, unknown>) => ['watch', id, 'videos', p] as const,
   watchSubscribers: (id: number, page: number) => ['watch', id, 'subscribers', page] as const,
   watchSearch: (id: number, title: string) => ['watch', id, 'search', title] as const,
 
   music: ['music'] as const,
   seeks: ['seeks'] as const,
-  seeksPage: (p: object) => ['seeks', p] as const,
   whisper: ['whisper'] as const,
   upload: ['upload'] as const,
   uploadSongs: (term: string) => ['upload', 'song-pick', term] as const,
@@ -53,17 +50,12 @@ export const qk = {
   shopMineOrders: ['shop', 'mineOrders'] as const,
   shopOrders: ['shop', 'orders'] as const,
   shopCategories: ['shop', 'categories'] as const,
-  shopSeller: ['shop', 'seller'] as const,
 
   live: ['live'] as const,
   line: ['line'] as const,
   pay: ['pay'] as const,
   fund: ['fund'] as const,
   recycle: ['recycle'] as const,
-  rank: ['rank'] as const,
-  lottery: ['lottery'] as const,
-  vote: ['vote'] as const,
-  redpacket: ['redpacket'] as const,
 }
 
 

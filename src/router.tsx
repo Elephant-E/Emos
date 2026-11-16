@@ -453,16 +453,6 @@ function WatchDetailRoute() {
   )
 }
 
-// 旧地址兼容：/pay 曾经是独立页，现在付款在「资金 · 支付服务」里。
-// 留一个重定向，是为了旧书签不落到空白页（界面里已无指向它的链接）
-const payRoute = createRoute({
-  getParentRoute: () => appLayout,
-  path: '/pay',
-  beforeLoad: () => {
-    throw redirect({ to: '/fund', search: { tab: 'merchant' } })
-  },
-})
-
 const routeTree = rootRoute.addChildren([
   loginRoute,
   appLayout.addChildren([
@@ -490,7 +480,6 @@ const routeTree = rootRoute.addChildren([
     userDetailRoute,
     watchlistsRoute,
     watchlistDetailRoute,
-    payRoute,
   ]),
 ])
 
