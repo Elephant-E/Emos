@@ -190,7 +190,9 @@ export function VideoDetailView({
             <>
               <span>{VIDEO_TYPE_LABEL[video.video_type]}</span>
               {video.genres?.map((genre) => (
-                <span key={genre.id}>{genre.name}</span>
+                <span key={genre.id} className="chip">
+                  {genre.name}
+                </span>
               ))}
               {/* seek_is_request 为 false 也可能存在求片（实测 seek_id 有值却 false），按 id/count 判断 */}
               {video.request_count > 0 || video.seek_id ? (
