@@ -1696,11 +1696,18 @@ input.input[type='number'] { min-width: 0; }
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: var(--gap-card);
   margin-top: var(--gap-card);
-  /* 两列各自按内容高度：默认 stretch 会把矮的那列（季集卡 / 字幕卡）拉到与高列等高，
-     卡片内部就空出一大块。这里让高度回到内容，空余只留在列底，不在卡片里。 */
-  align-items: start;
+  /* 两列等高：底边对齐——矮的那列由它最后一张卡补足剩余高度，
+     否则短列会在页面背景上留一条永远对不齐的空档 */
+  align-items: stretch;
 }
-.detail-col { display: grid; gap: var(--gap-card); align-content: start; }
+.detail-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-card);
+  min-height: 0;
+}
+/* 最后一张卡吃掉剩余高度：列底与左列底边对齐，空档落在卡内而不是页面背景上 */
+.detail-col > :last-child { flex: 1 1 auto; }
 /* 电影没有季集，去掉左栏后资源与字幕占满整行 */
 .detail-body--single { grid-template-columns: minmax(0, 1fr); }
 /* 演职员 */
