@@ -306,18 +306,14 @@ export function FundView({ tab, onTab }: {
             if (code.trim() && Number(carrot) > 0 && !create.isPending && !checking) void checkThenCreate()
           }}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setCreating(false)}>
-                取消
-              </button>
-              <button
-                className="btn btn--primary"
-                type="submit"
-                disabled={!code.trim() || Number(carrot) <= 0 || create.isPending || checking}
-              >
-                {checking ? '检查中…' : create.isPending ? '创建中…' : '创建'}
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setCreating(false)}
+              confirmText="创建"
+              submit
+              disabled={!code.trim() || Number(carrot) <= 0 || create.isPending || checking}
+              pending={create.isPending || checking}
+              pendingText={checking ? '检查中…' : '创建中…'}
+            />
           }
         >
           <div className="stack">
@@ -339,18 +335,14 @@ export function FundView({ tab, onTab }: {
           width={460}
           onClose={() => setEvidenceFor(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setEvidenceFor(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                disabled={submitEvidence.isPending || images.length === 0}
-                onClick={() => submitEvidence.mutate(String(evidenceFor.order_no ?? ''))}
-              >
-                {submitEvidence.isPending ? '提交中…' : '提交'}
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setEvidenceFor(null)}
+              onConfirm={() => submitEvidence.mutate(String(evidenceFor.order_no ?? ''))}
+              confirmText="提交"
+              disabled={images.length === 0}
+              pending={submitEvidence.isPending}
+              pendingText="提交中…"
+            />
           }
         >
           <div className="stack">

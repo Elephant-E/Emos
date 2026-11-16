@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
+import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
@@ -283,35 +284,30 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           width={480}
           onClose={() => setDraft(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setDraft(null)}>
-                取消
-              </button>
-              <button
-                type="button"
-                className="btn btn--primary"
-                disabled={!draft.name.trim() || draft.price < 1 || draft.price > 50000 || payActions.createOrder.isPending}
-                onClick={() =>
-                  payActions.createOrder.mutate(
-                    {
-                      pay_way: draft.payWay,
-                      price: draft.price,
-                      name: draft.name.trim(),
-                      param: draft.param.trim() || null,
+            <ModalFooter
+              onCancel={() => setDraft(null)}
+              onConfirm={() =>
+                payActions.createOrder.mutate(
+                  {
+                    pay_way: draft.payWay,
+                    price: draft.price,
+                    name: draft.name.trim(),
+                    param: draft.param.trim() || null,
+                  },
+                  {
+                    onSuccess: (res: { no: string; pay_url?: string }) => {
+                      toast(`已创建 ${res.no}`, 'success')
+                      setCreated({ no: res.no, pay_url: res.pay_url })
+                      setDraft(null)
                     },
-                    {
-                      onSuccess: (res: { no: string; pay_url?: string }) => {
-                        toast(`已创建 ${res.no}`, 'success')
-                        setCreated({ no: res.no, pay_url: res.pay_url })
-                        setDraft(null)
-                      },
-                    },
-                  )
-                }
-              >
-                {payActions.createOrder.isPending ? '创建中…' : '创建'}
-              </button>
-            </>
+                  },
+                )
+              }
+              confirmText="创建"
+              disabled={!draft.name.trim() || draft.price < 1 || draft.price > 50000}
+              pending={payActions.createOrder.isPending}
+              pendingText="创建中…"
+            />
           }
         >
           <label className="field">
@@ -352,26 +348,19 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           title="服务商信息"
           onClose={() => setEditing(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
-                取消
-              </button>
-              <button type="button"
-                className="btn btn--primary"
-                onClick={async () => {
-                  try {
-                    await payApi.update(editing)
-                    toast('已保存', 'success')
-                    setEditing(null)
-                    base.refetch()
-                  } catch (error) {
-                    toast(error instanceof Error ? error.message : '保存失败', 'error')
-                  }
-                }}
-              >
-                保存
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setEditing(null)}
+              onConfirm={async () => {
+                try {
+                  await payApi.update(editing)
+                  toast('已保存', 'success')
+                  setEditing(null)
+                  base.refetch()
+                } catch (error) {
+                  toast(error instanceof Error ? error.message : '保存失败', 'error')
+                }
+              }}
+            />
           }
         >
           <label className="field">
