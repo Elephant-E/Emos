@@ -1840,7 +1840,15 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 /* 商品封面是正方形；<Poster> 的首字兜底在列表里是 30×40 的缩略块，这里要撑满 */
 .product-tile__cover .thumb { width: 100%; height: 100%; border-radius: 0; font-size: 28px; }
-.product-tile__body { padding: var(--sp-4); display: grid; gap: var(--sp-2); }
+.product-tile__body {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  /* 正文撑满卡片剩余高度，销量/库存（含购买键）贴底：
+     否则有角标或多一行的卡会把按钮顶下去，同一行两张卡按钮高低不齐 */
+  flex: 1;
+}
 .product-tile__name {
   font-size: var(--text-body);
   color: var(--fg);
@@ -1860,7 +1868,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: var(--text-xs); color: var(--fg-5); }
 .product-tile__meta {
-  margin-top: var(--sp-hair);
+  margin-top: auto;
   display: flex;
   align-items: center;
   /* 允许换行：销量/库存在极端数值下原来会被卡片圆角切断，看起来像渲染错误 */

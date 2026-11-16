@@ -158,6 +158,14 @@ export function LoadingRows({
               />
             ))}
           </div>
+          {/* 信息块按真实块的三行高度占位（求片的「求片记录」就是这个形状） */}
+          {extra ? (
+            <div className="record-row__extra">
+              {[0, 1, 2].map((row) => (
+                <div key={row} className="skeleton" style={{ height: 22, marginTop: row === 0 ? 0 : 2 }} />
+              ))}
+            </div>
+          ) : null}
           {actions > 0 || value ? (
             <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>
               {Array.from({ length: actions }).map((__, action) => (
@@ -172,14 +180,6 @@ export function LoadingRows({
                   <span className="skeleton" style={{ display: 'block', width: '100%', height: 16 }} />
                 </span>
               ) : null}
-            </div>
-          ) : null}
-          {/* 信息块按真实块的三行高度占位（求片的「求片记录」就是这个形状） */}
-          {extra ? (
-            <div className="record-row__extra">
-              {[0, 1, 2].map((row) => (
-                <div key={row} className="skeleton" style={{ height: 22, marginTop: row === 0 ? 0 : 2 }} />
-              ))}
             </div>
           ) : null}
         </div>
