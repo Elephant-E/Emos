@@ -24,7 +24,8 @@ export async function resolveTargetByFilename(fileName: string): Promise<UploadT
   if (!parsed.title) return null
   try {
     const found = await videoApi.list({ title: parsed.title, page: 1, page_size: 10 })
-    const video = found.items.find((v) => v.video_title === parsed.title) ?? found.items[0]
+    // 只认精确同名：拿搜索结果第一条当落点会把文件静默挂到别的影片下
+    const video = found.items.find((v) => v.video_title === parsed.title)
     if (!video) return null
 
     if (parsed.episode != null) {

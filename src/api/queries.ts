@@ -420,6 +420,7 @@ export function useVideoMutations(videoId: number) {
     qc.invalidateQueries({ queryKey: qk.videoOne(videoId) })
     qc.invalidateQueries({ queryKey: qk.videos })      // 媒体库列表（删除影片后要消失）
     qc.invalidateQueries({ queryKey: qk.media })
+    qc.invalidateQueries({ queryKey: qk.recycle })   // 删掉的影片会出现在回收站里
     qc.invalidateQueries({ queryKey: qk.subtitles })
     qc.invalidateQueries({ queryKey: qk.session })     // 删除会扣胡萝卜
     qc.invalidateQueries({ queryKey: qk.carrot })
@@ -748,15 +749,6 @@ export function useShopMutations() {
 
 export function useLiveLibrary() {
   return useQuery({ queryKey: ['live', 'library'] as const, queryFn: () => liveApi.library(), staleTime: 5 * 60_000 })
-}
-
-export function useLiveMedia(liveListId: number, page = 1) {
-  return useQuery({
-    queryKey: ['live', 'media', liveListId, page] as const,
-    // 该接口的 page_size 被后端固定成 15，传别的也没用
-    queryFn: () => liveApi.media(liveListId, { page }),
-    enabled: liveListId > 0,
-  })
 }
 
 /** 专辑级的动作：目前只有「关联 MV」 */

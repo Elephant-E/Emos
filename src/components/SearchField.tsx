@@ -4,9 +4,8 @@ import { useDebounced } from '@/lib/useDebounced'
 /**
  * 列表页的搜索框。
  *
- * 输入状态放在这里而不是页面里：`useSearchTerm` 把 term 存在页面 state，
- * 每敲一个字都会让整页（含整张列表）重渲染一次；列表的 `memo` 又因为
- * 调用点传的是内联回调而失效，等于每键都重排 20 行。
+ * 输入状态放在这里而不是页面里：状态若留在页面，每敲一个字都会让整页（含整张列表）
+ * 重渲染一次；列表的 `memo` 又因为调用点传的是内联回调而失效，等于每键都重排 20 行。
  * 现在 page 只在防抖后 URL 变化时渲染一次。
  */
 export function SearchField({

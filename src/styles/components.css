@@ -1290,10 +1290,10 @@ input.input[type='number'] { min-width: 0; }
 .text-xs { font-size: var(--text-xs); }
 .text-body { color: var(--fg-2); font-size: var(--text-sm); }
 .meta-end { margin-left: auto; font-size: var(--text-2xs); }
-/* 表格 td 自带 color（`.table tbody td`），所以这里必须比自己高一档才生效 */
-.mark-up,
-.mark-down,
-/* 表格单元格自己有 color（.table tbody td），特异性更高，必须再写一层才生效 */
+/* 收支方向：涨绿跌红。之前删表格规则体时把选择器留在这儿，
+   结果这两条被并进了下面的 .cards--todos，mark-up/mark-down 完全没有样式 */
+.mark-up { color: var(--c-green); }
+.mark-down { color: var(--c-red); }
 
 /* 固定 3 列：待办 1–2 条时卡片不会被拉伸到整行，3 条时正好铺满 */
 .cards--todos { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }

@@ -206,7 +206,8 @@ export async function uploadAndSave(
   }
 
   const fileId = await uploadObject(file, 'video', onProgress, fileStorage)
-  // 「视频正在合并中 请等待1分钟后再保存试下」是正常的等待信号，重试几次
+  // 只有「视频正在合并中」是可重试信号；saveVideo 非幂等（会建档并结算胡萝卜），
+  // 其余错误盲重试会重复入库、重复扣款
   let lastError: unknown
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
@@ -214,6 +215,8 @@ export async function uploadAndSave(
       return { media_id: saved.media_id, carrot: saved.carrot }
     } catch (error) {
       lastError = error
+      const message = (error as Error)?.message ?? ''
+      if (!message.includes('合并')) throw error
       await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)))
     }
   }
