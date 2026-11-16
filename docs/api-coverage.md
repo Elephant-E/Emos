@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**191** 个接口；
-代码（`src/api/endpoints.ts`）：**167** 个封装。
+代码（`src/api/endpoints.ts`）：**143** 个封装。
 
-- 已接且有界面调用：**164**
+- 已接且有界面调用：**140**
 - 已接但无调用：**0**
-- 未接：**25**
+- 未接：**49**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -18,6 +18,7 @@
 | 登录相关 | link登录跳转 | `GET /link` |
 | 用户相关 | 简单的信息 | `GET /api/user/base` |
 | 上传相关 / 视频 | 内部入库 | `POST /api/upload/video/saveInternal` |
+| 上传相关 / 音乐 | 保存上传结果 | `POST /api/upload/music/save` |
 | 上传相关 / 音乐 | 保存为群星版本 | `POST /api/upload/music/saveHeadless` |
 | 上传相关 / 分片上传 | 客户端上传分片 | `PUT https://emos.local/xxxx` |
 | 上传相关 / 储存 | 可用储存列表 | `GET /api/upload/store/disk` |
@@ -28,12 +29,35 @@
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
 | 视频相关 | 获取视频标识id | `GET /api/video/getVideoId` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
+| 片单相关 / 音乐类 | 歌单歌曲列表 | `GET /api/watch/{var}/music` |
+| 片单相关 / 音乐类 | 搜索未加入歌单的歌曲 | `GET /api/watch/{var}/music/search` |
+| 片单相关 / 音乐类 | 更新歌单内歌曲 | `POST /api/watch/{var}/music/{var}` |
+| 片单相关 / 音乐类 | 删除歌单内歌曲 | `DELETE /api/watch/{var}/music/{var}` |
+| 片单相关 / 音乐类 | 清空歌单内歌曲 | `DELETE /api/watch/{var}/music/empty` |
 | 求片相关 | 查询认领信息 | `GET /api/seek/query` |
 | 求片相关 | 查询求片历史 | `GET /api/seek/history` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
 | 商城相关 / 商品 | 修改分类 | `PUT /api/shop/product/category` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |
+| 音乐相关(于261114停用) / 其他 | 收藏/取消收藏 | `PUT /api/music/favorite` |
+| 音乐相关(于261114停用) / 其他 | 评分 | `PUT /api/music/rating` |
+| 音乐相关(于261114停用) / 其他 | 从todb同步数据 | `PATCH /api/music/sync` |
+| 音乐相关(于261114停用) / 其他 | 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` |
+| 音乐相关(于261114停用) / 歌手 | 歌手列表 | `GET /api/music/person/list` |
+| 音乐相关(于261114停用) / 音乐 / 歌词 | 歌词列表 | `GET /api/music/song/{var}/lyric/list` |
+| 音乐相关(于261114停用) / 音乐 / 歌词 | 创建歌词 | `POST /api/music/song/{var}/lyric/create` |
+| 音乐相关(于261114停用) / 音乐 / 歌词 | 删除歌词 | `DELETE /api/music/song/{var}/lyric/delete` |
+| 音乐相关(于261114停用) / 音乐 / 资源 | 资源列表 | `GET /api/music/song/{var}/media/list` |
+| 音乐相关(于261114停用) / 音乐 / 资源 | 删除资源 | `DELETE /api/music/song/{var}/media/delete` |
 | 音乐相关(于261114停用) / 音乐 / 资源 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` |
+| 音乐相关(于261114停用) / 音乐 / 资源 | 移动资源 | `PUT /api/music/song/{var}/media/move` |
+| 音乐相关(于261114停用) / 音乐 | 音乐搜索 | `GET /api/music/song/search` |
+| 音乐相关(于261114停用) / 音乐 | 音乐列表 | `GET /api/music/song/list` |
+| 音乐相关(于261114停用) / 音乐 | 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` |
+| 音乐相关(于261114停用) / 音乐 | 删除音乐 | `DELETE /api/music/song/{var}/delete` |
+| 音乐相关(于261114停用) / 音乐 | 通过hash批量判断资源是否存在 | `POST /api/music/song/batchHashExist` |
+| 音乐相关(于261114停用) / 专辑 | 专辑列表 | `GET /api/music/album/list` |
+| 音乐相关(于261114停用) / 专辑 | 更新关联的视频ID | `PUT /api/music/album/{var}/updateVideoId` |
 | 影院相关 | 随机影片 | `GET /api/reel/rand` |
 | 影院相关 | 影片信息 | `GET /api/reel/info/{var}` |
 | 影院相关 | 添加影片 | `POST /api/reel/create` |
@@ -72,7 +96,11 @@
 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` | 批量重置片单内容的对外接口：契约写明「请先联系官方确认」，且每次提交会清空整个片单 |
 | 测试回调 | `POST /api/pay/testNotify` | 回调自测，联调用 |
 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` | 发到 Telegram 频道，bot 侧入口，后台没有场景 |
+| 用spotify歌手去todb同步数据 | `PATCH /api/music/syncSpotifyArtist` | 从 Spotify 同步歌手，一次性数据修补 |
 | 获取播放地址 | `GET /api/music/song/{var}/media/playUrl` | 播放地址按需求不展示 |
+| 更新关联的视频ID | `PUT /api/music/song/{var}/updateVideoId` | 手工关联歌曲与影片，数据修补 |
+| 通过hash批量判断资源是否存在 | `POST /api/music/song/batchHashExist` | 按 hash 批量判重，上传前的客户端逻辑 |
+| 更新关联的视频ID | `PUT /api/music/album/{var}/updateVideoId` | 同上（专辑） |
 | 随机影片 | `GET /api/reel/rand` | 随机会话：为一部影片开一次放映，返回 forge_reel_uuid |
 | 影片信息 | `GET /api/reel/info/{var}` | 查这次放映的进度：哪一季哪一集、哪个源、第几秒、是否播完 |
 | 添加影片 | `POST /api/reel/create` | 为指定影片开一次放映，用户侧动作 |
