@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { forgetAccount, listAccounts, switchAccount } from '@/lib/accounts'
 import { setToken } from '@/api/client'
 import { Avatar } from '@/components/Avatar'
+import { AddAccountModal } from '@/components/AddAccountModal'
 
 /**
  * 账号菜单：当前账号、其他已登录账号（可切换 / 移除）、添加账号、退出登录。
@@ -9,6 +10,7 @@ import { Avatar } from '@/components/Avatar'
  */
 export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string; onDone?: () => void }) {
   const [accounts, setAccounts] = useState(() => listAccounts())
+  const [adding, setAdding] = useState(false)
 
   return (
     <>
@@ -40,10 +42,13 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
                 </div>
               )
             })}
-            <button type="button" className="rail__menu-add" role="menuitem" onClick={() => {
-                  onDone?.()
-                  location.href = '/login'
-                }}>
+            <button
+              type="button"
+              className="rail__menu-add"
+              role="menuitem"
+              // 先开弹层再收菜单：菜单一卸载，弹层会跟着消失
+              onClick={() => setAdding(true)}
+            >
               添加账号
             </button>
             <button
@@ -64,6 +69,14 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
             >
               退出登录
             </button>
+      {adding ? (
+        <AddAccountModal
+          onClose={() => {
+            setAdding(false)
+            onDone?.()
+          }}
+        />
+      ) : null}
     </>
   )
 }
