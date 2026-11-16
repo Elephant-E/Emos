@@ -261,8 +261,7 @@ export function FundView({ tab, onTab }: {
             facts={(row) => (
               <>
                 <span>{row.tier_carrot == null ? '—' : `${formatThousand(Number(row.tier_carrot))} 胡萝卜`}</span>
-                <span>承诺 ¥{row.tier_price == null ? '—' : String(row.tier_price)}</span>
-                <span>打款 ¥{row.payout_price == null ? '—' : String(row.payout_price)}</span>
+                <span>承诺 ¥{row.tier_price == null ? '—' : formatThousand(Number(row.tier_price))}</span>
                 <span>
                   {row.payout_at
                     ? formatDateTime(String(row.payout_at))
@@ -272,6 +271,7 @@ export function FundView({ tab, onTab }: {
                 </span>
               </>
             )}
+            value={(row) => (row.payout_price == null ? '未打款' : `打款 ¥${formatThousand(Number(row.payout_price))}`)}
             actions={
               // 已打款的订单不需要再传凭证
               (row) =>
