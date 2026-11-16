@@ -2512,27 +2512,29 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   border-radius: var(--r-item);
   object-fit: cover;
 }
-/* 封面上的状态标注：一块矩形小底（不是胶囊），里面只有圆点 + 文字 */
-.record-row__overlay {
+/* 卡片右上角的状态点：颜色区分状态，文案走 title/aria-label */
+.record-row__corner {
   position: absolute;
-  left: var(--sp-2);
-  bottom: var(--sp-2);
-  max-width: calc(100% - var(--sp-4));
-  padding: 2px var(--sp-2);
-  border-radius: 6px;
-  background: rgba(12, 14, 17, 0.72);
-  backdrop-filter: blur(6px);
-  font-size: var(--text-2xs);
-  color: var(--fg-2);
-  white-space: nowrap;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  display: flex;
+  align-items: center;
+  z-index: 1;
 }
-/* 里面的 Badge 只提供圆点与文字色，别自己再画一层胶囊 */
-.record-row__overlay .badge {
-  padding: 0;
-  background: none;
-  border: 0;
-  backdrop-filter: none;
+.seek-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  /* 压在图上也看得清：一圈深色描边 */
+  box-shadow: 0 0 0 2px rgba(10, 9, 8, 0.55);
 }
+.seek-dot--wait { background: var(--c-yellow); }
+.seek-dot--run { background: var(--c-blue); }
+.seek-dot--ok { background: var(--c-green); }
+.seek-dot--warn { background: var(--c-red); }
+.seek-dot--off { background: var(--fg-5); }
+.seek-dot--danger { background: var(--c-red); }
+
 .record-row__body {
   display: flex;
   flex-direction: column;

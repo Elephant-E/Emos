@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
-import { Badge } from '@/components/Badge'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
@@ -157,9 +156,17 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
             rows={items}
             idKey={(item) => item.id}
             poster={(item) => item.video_image_poster}
-            posterOverlay={(item) => {
+            corner={(item) => {
               const status = SEEK_STATUS[item.status] ?? SEEK_STATUS.default
-              return <Badge tone={status.tone}>{status.label}</Badge>
+              // 状态只用一个小点表示：颜色区分，文案留在 title/aria-label 里
+              return (
+                <span
+                  className={`seek-dot seek-dot--${status.tone}`}
+                  title={status.label}
+                  aria-label={status.label}
+                  role="img"
+                />
+              )
             }}
 
             title={(item) => item.video_title_display}
