@@ -5,7 +5,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingGrid } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useDebounced } from '@/lib/useDebounced'
 import { useShopCategories, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 
 /**
@@ -15,10 +14,8 @@ export function SellerView({ sellerId }: { sellerId: number }) {
   const seller = useShopSeller(sellerId)
   const [categoryId, setCategoryId] = useState(0)
   const [sort, setSort] = useState<'' | 'sales' | 'price'>('')
-  const [term, setTerm] = useState('')
+  // 搜索词直接由 ProductToolbar 里的 SearchField 自己持状态，这里只留生效值
   const [keyword, setKeyword] = useState('')
-
-  useDebounced(term, setKeyword)
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
   const categories = useShopCategories(sellerId)
@@ -53,8 +50,8 @@ export function SellerView({ sellerId }: { sellerId: number }) {
           categories={categories.data.map((c) => ({ id: c.category_id, name: c.name }))}
           categoryId={categoryId}
           onCategory={setCategoryId}
-          term={term}
-          onTerm={setTerm}
+          value={keyword}
+          onCommit={setKeyword}
           sort={sort}
           onSort={setSort}
           placeholder="搜这家店的商品"
@@ -68,7 +65,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
         <EmptyBlock
           title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
           action={
-            keyword ? <ClearSearchButton onClick={() => { setTerm(''); setKeyword('') }} /> : undefined
+            keyword ? <ClearSearchButton onClick={() => setKeyword('')} /> : undefined
           }
         />
       ) : null}

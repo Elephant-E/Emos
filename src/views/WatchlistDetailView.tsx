@@ -4,6 +4,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
+import { SearchField } from '@/components/SearchField'
 import { RecordRow } from '@/components/RecordRow'
 import { WatchMusicRows, type WatchDetailSearch } from '@/components/watchlist/WatchMusicRows'
 import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
@@ -21,7 +22,6 @@ import type {} from '@/api/types'
 import { qk, useWatch, useWatchMusic, useWatchMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -38,7 +38,6 @@ export function WatchlistDetailView({
   const navigate = useNavigate()
   const qc = useQueryClient()
 
-  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
   const [adding, setAdding] = useState(false)
   const [addingSong, setAddingSong] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -233,13 +232,11 @@ export function WatchlistDetailView({
       ) : null}
 
       <div className="toolbar">
-        <input
-          className="input"
-          type="search"
-            aria-label="搜索"
-          placeholder={isMusic ? '搜歌名' : '在该片单里搜片名'}
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
+        <SearchField
+          label="搜索"
+          placeholder=""
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <span className="spacer" />
         {item?.is_edit_video ? (

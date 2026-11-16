@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { Segmented } from '@/components/Segmented'
+import { SearchField } from '@/components/SearchField'
 import { ListSection } from '@/components/ListSection'
 import { VideoPicker } from '@/components/VideoPicker'
 import { Tabs } from '@/components/Tabs'
@@ -12,7 +13,6 @@ import { EmptyBlock } from '@/components/StateBlock'
 import { useAlbumMutations, useMusicAlbums, useMusicMutations, useMusicPersons, useMusicSongs } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { duration } from '@/lib/format'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 
@@ -30,7 +30,6 @@ const TABS: Array<{ key: MusicSearch['tab']; label: string }> = [
 
 export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch: (patch: Partial<MusicSearch>) => void }) {
   const navigate = useNavigate()
-  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
   const songs = useMusicSongs(1, search.q, search.tab === 'songs', PAGE_SIZE, search.filter)
@@ -72,13 +71,11 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
           </button>
         ) : null}
         <span className="spacer" />
-        <input
-          className="input"
-          type="search"
-            aria-label="搜索名称"
+        <SearchField
+          label="搜索名称"
           placeholder="搜索名称"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         {search.tab === 'songs' ? (
           <Segmented

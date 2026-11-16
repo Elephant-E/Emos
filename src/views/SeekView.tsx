@@ -3,6 +3,7 @@ import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Segmented } from '@/components/Segmented'
+import { SearchField } from '@/components/SearchField'
 import { ListSection } from '@/components/ListSection'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { RecordRow } from '@/components/RecordRow'
@@ -15,7 +16,6 @@ import { seekApi } from '@/api/endpoints'
 import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatDate, formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
@@ -58,7 +58,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const myNames = [session.data?.pseudonym, session.data?.username].filter(Boolean) as string[]
   const [carrot, setCarrot] = useState(10)
   const statuses = TABS.find((t) => t.key === search.tab)?.statuses ?? TABS[0].statuses
-  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const seekParams = {
     page_size: PAGE_SIZE,
@@ -110,13 +109,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       <div className="toolbar">
         <Tabs items={TABS} value={search.tab} onChange={(tab) => onSearch({ tab })} label="状态" />
         <span className="spacer" />
-        <input
-          className="input"
-          type="search"
-            aria-label="搜索片名"
+        <SearchField
+          label="搜索片名"
           placeholder="搜索片名"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <Segmented
           label="类型"

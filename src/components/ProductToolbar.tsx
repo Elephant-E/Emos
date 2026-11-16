@@ -1,4 +1,5 @@
 import { Segmented } from '@/components/Segmented'
+import { SearchField } from '@/components/SearchField'
 import type { CSSProperties, ReactNode } from 'react'
 import { Tabs } from './Tabs'
 
@@ -20,8 +21,8 @@ export function ProductToolbar({
   onCategory,
   allLabel = '全部',
   showCategories = true,
-  term,
-  onTerm,
+  value,
+  onCommit,
   sort,
   onSort,
   placeholder,
@@ -33,8 +34,9 @@ export function ProductToolbar({
   onCategory: (categoryId: number) => void
   allLabel?: string
   showCategories?: boolean
-  term: string
-  onTerm: (value: string) => void
+  /** 当前生效的搜索词（来自 URL） */
+  value: string
+  onCommit: (next: string) => void
   sort: ProductSort
   onSort: (sort: ProductSort) => void
   placeholder: string
@@ -52,14 +54,7 @@ export function ProductToolbar({
         />
       ) : null}
       <span className="spacer" />
-      <input
-        className="input"
-        type="search"
-            aria-label="搜索"
-        placeholder={placeholder}
-        value={term}
-        onChange={(e) => onTerm(e.target.value)}
-      />
+      <SearchField label="搜索商品名" placeholder={placeholder} value={value} onCommit={onCommit} />
       <Segmented
         label="排序"
         value={sort}

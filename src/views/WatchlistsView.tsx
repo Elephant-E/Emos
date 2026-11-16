@@ -4,6 +4,7 @@ import { formatRelative } from '@/lib/format'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
+import { SearchField } from '@/components/SearchField'
 import { RecordGrid } from '@/components/RecordGrid'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
@@ -14,7 +15,6 @@ import { IconPlus } from '@/components/icons'
 import { watchApi } from '@/api/endpoints'
 import { qk, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface WatchSearch {
@@ -40,7 +40,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
-  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
   const session = useSession()
   const watchParams = {
     page_size: PAGE_SIZE,
@@ -93,13 +92,11 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
       <div className="toolbar">
         <Tabs items={TABS} value={search.scope} onChange={(scope) => onSearch({ scope })} label="范围" />
         <span className="spacer" />
-        <input
-          className="input"
-          type="search"
-            aria-label="搜索片单名"
+        <SearchField
+          label="搜索片单名"
           placeholder="搜索片单名"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
           <IconPlus />

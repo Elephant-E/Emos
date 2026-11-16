@@ -22,7 +22,6 @@ import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { qk, useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import {formatDateTime, formatThousand} from '@/lib/format'
 import type { ShopProduct } from '@/api/types'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
@@ -99,7 +98,6 @@ export function ShopView({
   const [editing, setEditing] = useState<Partial<ShopProduct> | null>(null)
   const [detailId, setDetailId] = useState(0)
   const [buyTarget, setBuyTarget] = useState<ShopProduct | null>(null)
-  const [term, setTerm] = useSearchTerm(q, (next) => onSearch({ q: next }))
   const [sellerForm, setSellerForm] = useState<{ name: string; description: string; cover_url: string | null } | null>(null)
 
   // createOrUpdate 是整体覆盖：payload 里少 description / exchange_way / time_start /
@@ -222,8 +220,8 @@ export function ShopView({
               onCategory={(category) => onSearch({ category })}
               allLabel="全部分类"
               showCategories={mine}
-              term={term}
-              onTerm={setTerm}
+              value={q}
+              onCommit={(next) => onSearch({ q: next })}
               sort={sort}
               onSort={(next) => onSearch({ sort: next })}
               placeholder="搜索商品名"

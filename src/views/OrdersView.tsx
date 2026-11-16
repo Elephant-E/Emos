@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Segmented } from '@/components/Segmented'
+import { SearchField } from '@/components/SearchField'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { Badge } from '@/components/Badge'
@@ -13,7 +14,6 @@ import { shopApi } from '@/api/endpoints'
 import { qk, useShopMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatDateTime, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -39,7 +39,6 @@ const DELIVERY_TABS: Array<{ key: OrdersSearch['delivery']; label: string; filte
 export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearch: (patch: Partial<OrdersSearch>) => void }) {
   const pay = PAY_TABS.find((t) => t.key === search.pay) ?? PAY_TABS[0]
   const delivery = DELIVERY_TABS.find((t) => t.key === search.delivery) ?? DELIVERY_TABS[0]
-  const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const mineScope = search.scope === 'mine'
   // 两个视角共用同一份筛选：分开写会出现「店铺订单能搜到、我的订单搜不到」
@@ -111,13 +110,11 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
       <div className="toolbar">
         <Tabs items={PAY_TABS} value={search.pay} onChange={(pay) => onSearch({ pay })} label="支付状态" />
         <span className="spacer" />
-        <input
-          className="input"
-          type="search"
-            aria-label="订单号或商品名"
+        <SearchField
+          label="订单号或商品名"
           placeholder="订单号或商品名"
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
+          value={search.q}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <Segmented
           label="发货状态"

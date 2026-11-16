@@ -3,6 +3,7 @@ import { PAGE_SIZE } from '@/lib/search'
 import { pageOf } from '@/lib/rows'
 import { mediaApi, videoApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
+import { SearchField } from '@/components/SearchField'
 import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
@@ -10,7 +11,6 @@ import { RecordRow } from '@/components/RecordRow'
 import { qk, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { useSearchTerm } from '@/lib/useSearchTerm'
 import { formatRelative, formatSize, formatThousand, VIDEO_TYPE_LABEL } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -52,7 +52,6 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)
   // 输入即搜：停手 350ms 后发起查询，不需要回车确认
-  const [term, setTerm] = useSearchTerm(q, (next) => onQuery(next, by))
 
   const rows = infinite.items as Array<Record<string, unknown>>
   // 恢复口径按契约：只有 is_can_restore 为 true 的资源可恢复。
@@ -109,15 +108,12 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
 
         <label className="field">
           <span className="visually-hidden">搜索</span>
-          <input
-            className="input"
-            type="search"
-            aria-label="搜索"
-            value={term}
-            onChange={(event) => setTerm(event.target.value)}
-            placeholder={tab === 'media' ? (by === 'media_id' ? '搜资源 ID' : '搜上传者 ID') : '搜片名'}
-            style={{ width: 280 }}
-          />
+          <SearchField
+          label="搜索"
+          placeholder=""
+          value={q}
+          onCommit={(next) => onQuery(next, by)}
+        />
         </label>
 
       </div>
