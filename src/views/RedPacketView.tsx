@@ -162,8 +162,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
                 <button type="button"
                   className="btn btn--quiet"
                   onClick={() => {
-                    void copyText(created, '口令')
-                    toast('已复制红包 ID', 'success')
+                    void copyText(created, '红包 ID')
                   }}
                 >
                   复制 ID

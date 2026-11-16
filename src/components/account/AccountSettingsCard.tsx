@@ -61,6 +61,7 @@ export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () =
                   <input
                     type="checkbox"
                     checked={user.is_show_empty}
+                    disabled={actions.setShowEmpty.isPending}
                     onChange={(e) =>
                       actions.setShowEmpty.mutate(e.target.checked, { onSuccess: () => toast('已更新显示设置', 'success') })
                     }

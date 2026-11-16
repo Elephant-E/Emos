@@ -62,13 +62,10 @@ export function PageHeader({ crumb, title, hint, tools, more }: PageHeaderProps)
     if (!el) return
     const sync = () => el.classList.toggle('is-scrollable', el.scrollWidth > el.clientWidth + 1)
     sync()
+    // 只挂 ResizeObserver：元素宽度变化已经覆盖窗口缩放，再挂 window.resize 是重复触发
     const observer = new ResizeObserver(sync)
     observer.observe(el)
-    window.addEventListener('resize', sync)
-    return () => {
-      observer.disconnect()
-      window.removeEventListener('resize', sync)
-    }
+    return () => observer.disconnect()
     // 依赖数组留空：tools 在调用点普遍是内联 fragment，每次渲染都是新引用，
     // 挂上去会让 ResizeObserver 与 resize 监听随每次键入重建（元素引用由 ref 拿）
   }, [])

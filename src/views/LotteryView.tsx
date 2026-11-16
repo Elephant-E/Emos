@@ -151,7 +151,6 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                   className="btn btn--quiet"
                   onClick={() => {
                     void copyText(created, '抽奖 ID')
-                    toast('已复制抽奖 ID', 'success')
                   }}
                 >
                   复制 ID

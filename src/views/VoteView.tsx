@@ -105,7 +105,6 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   className="btn btn--quiet"
                   onClick={() => {
                     void copyText(String(created.id), '投票 ID')
-                    toast('已复制投票 ID', 'success')
                   }}
                 >
                   复制 ID
