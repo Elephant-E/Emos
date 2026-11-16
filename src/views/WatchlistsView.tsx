@@ -52,7 +52,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.list({ ...watchParams, page }),
-    { resetKey: `${search.scope}|${search.q}|${PAGE_SIZE}` },
+    { queryKey: [...qk.watches, { scope: search.scope, q: search.q }] },
   )
   const items = infinite.items
 

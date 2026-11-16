@@ -6,7 +6,7 @@ import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { IconPlus } from '@/components/icons'
 import { useNavigate } from '@tanstack/react-router'
-import { fetchVideoPage } from '@/api/queries'
+import { fetchVideoPage, qk } from '@/api/queries'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 import { useSearchTerm } from '@/lib/useSearchTerm'
 import { VIDEO_TYPE_LABEL } from '@/lib/format'
@@ -43,7 +43,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         title: numeric ? undefined : search.q || undefined,
         type: (search.type || undefined) as VideoType | undefined,
       }),
-    { resetKey: `${search.q}|${search.type}|${PAGE_SIZE}` },
+    { queryKey: [...qk.videos, { q: search.q, type: search.type }] },
   )
   const items = list.items
 

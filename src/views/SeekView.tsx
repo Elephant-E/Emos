@@ -69,7 +69,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => seekApi.list({ ...seekParams, page, sort_order: 'desc' }),
-    { resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${PAGE_SIZE}` },
+    { queryKey: [...qk.seeks, { tab: search.tab, q: search.q, mine: search.mine, type: search.type }] },
   )
   const items = infinite.items
 

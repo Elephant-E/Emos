@@ -18,7 +18,7 @@ import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
-import { useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProductsInfinite, useShopSeller } from '@/api/queries'
+import { qk, useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useSearchTerm } from '@/lib/useSearchTerm'
@@ -87,7 +87,11 @@ export function ShopView({
         name: q || undefined,
         sort_by: sort || undefined,
       }),
-    { enabled: mine && Boolean(seller.data?.seller_id), resetKey: `${q}|${categoryId}|${sort}` },
+    {
+      enabled: mine && Boolean(seller.data?.seller_id),
+      // 前缀与 useShopMutations 的失效键（qk.shopProducts）对齐
+      queryKey: [...qk.shopProducts, { seller: seller.data?.seller_id ?? 0, categoryId, q, sort }],
+    },
   )
   const actions = useShopMutations()
 

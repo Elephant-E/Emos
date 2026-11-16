@@ -63,7 +63,7 @@ export function WatchlistDetailView({
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.videos(id, { page, video_title: search.q || undefined }),
-    { resetKey: `${id}|${search.q}|${PAGE_SIZE}` },
+    { queryKey: [...qk.watchOne(id), 'videos', { q: search.q }] },
   )
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)

@@ -10,7 +10,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
-import { useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
+import { qk, useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative } from '@/lib/format'
@@ -32,7 +32,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
   // 两端都滚动加载
   const infinite = usePagedInfinite(
     (page) => liveApi.list({ page, page_size: 15, library_id: search.library || undefined }),
-    { resetKey: `${search.library}` },
+    { queryKey: [...qk.live, 'channels', { library: search.library }] },
   )
   const [mediaPage, setMediaPage] = useState(1)
   // 换频道时源列表回到第一页，不然会停在上一个频道的页码上

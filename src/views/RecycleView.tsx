@@ -6,7 +6,7 @@ import { Tabs } from '@/components/Tabs'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
 import { RecordRow } from '@/components/RecordRow'
-import { useRecycleMutations } from '@/api/queries'
+import { qk, useRecycleMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useSearchTerm } from '@/lib/useSearchTerm'
@@ -46,7 +46,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
         : videoApi
             .list({ only_delete: true, page: next, ...(q ? { title: q } : {}) })
             .then((r) => ({ items: r.items as unknown as Array<Record<string, unknown>>, total: r.total, page_size: r.page_size })),
-    { resetKey: `${tab}|${q}|${by}|${PAGE_SIZE}` },
+    { queryKey: [...qk.recycle, { tab, q, by }] },
   )
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)

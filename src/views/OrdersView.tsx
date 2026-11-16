@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { shopApi } from '@/api/endpoints'
-import { useShopMutations } from '@/api/queries'
+import { qk, useShopMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useSearchTerm } from '@/lib/useSearchTerm'
@@ -55,7 +55,13 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         ? shopApi.ordersUser({ page, ...filter })
         : shopApi.ordersShop({ page, ...filter }),
     // 筛选与搜索都影响结果集：切换后必须重新查，否则列表还留着旧结果
-    { resetKey: `${mineScope}|${search.q}|${search.pay}|${search.delivery}` },
+    {
+      // 键前缀必须与 mutation 的失效键一致，否则改了订单列表不刷新
+      queryKey: [
+        ...(mineScope ? qk.shopMineOrders : qk.shopOrders),
+        { q: search.q, pay: search.pay, delivery: search.delivery },
+      ],
+    },
   )
   const actions = useShopMutations()
   // 店铺订单和自己下的单走两个接口，判断只写一处
