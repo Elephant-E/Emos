@@ -107,9 +107,30 @@ export function ListSection<T>({
     return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
   }
 
+  // 续页时在列表后面补两三条同形骨架：用户能看出「正在加载更多」，
+  // 而不是盯着列表尾部以为加载不动了
+  const moreSkeleton = infinite?.loading ? (
+    loadingKind === 'grid' ? (
+      <LoadingGrid count={gridShape === 'poster' ? 4 : 3} shape={gridShape} badges={loadingBadges} lines={loadingLines} />
+    ) : (
+      <LoadingRows
+        count={2}
+        single={loadingKind === 'single-rows'}
+        poster={loadingPoster}
+        lines={loadingLines}
+        actions={loadingActions}
+        extra={loadingExtra}
+        fullActions={loadingFullActions}
+        multi={loadingMulti}
+        value={loadingValue}
+      />
+    )
+  ) : null
+
   return (
     <>
       {children}
+      {moreSkeleton}
       {infinite && (infinite.hasMore || infinite.loading) ? (
         <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} />
       ) : null}

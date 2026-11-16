@@ -1,4 +1,5 @@
 import { InfiniteSentinel } from '@/components/InfiniteSentinel'
+import { LoadingGrid } from '@/components/StateBlock'
 import { ProductTile } from '@/components/ProductTile'
 import type { ShopProduct } from '@/api/types'
 
@@ -36,6 +37,7 @@ export function ProductGrid({
           />
         ))}
       </div>
+      {loadingMore ? <LoadingGrid count={4} shape="square" lines={3} /> : null}
       {hasMore ? <InfiniteSentinel onLoadMore={onLoadMore} loading={loadingMore} /> : null}
       {!loadingMore && loadError ? (
         <p className="grid-state">

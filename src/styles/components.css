@@ -2722,6 +2722,11 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
    用 :has 统一兜住还没接 ListSection cardList 的页面 */
 
 /* 滚动加载哨兵：占位很小，只是在进入视口时触发下一次请求 */
+/* 续页骨架是列表后面的第二个容器：与列表之间保持同样的行距，别贴在一起 */
+.record-rows + .record-rows,
+.record-grid + .record-grid {
+  margin-top: var(--gap-card);
+}
 .infinite-sentinel {
   display: grid;
   place-items: center;

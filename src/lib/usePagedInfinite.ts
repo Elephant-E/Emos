@@ -78,7 +78,9 @@ export function usePagedInfinite<T>(
     loading,
     error,
     hasMore: !done && items.length < total,
-    loadingMore: loading && page > 1,
+    // 用「已有数据 + 正在请求」判断续页：page 是成功后才有值的，
+    // 拿 page > 1 判断会让第一次续页的加载态永远不出现（用户以为加载不动了）
+    loadingMore: loading && items.length > 0,
     loadMore,
     retry,
   }
