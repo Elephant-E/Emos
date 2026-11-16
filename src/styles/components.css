@@ -741,6 +741,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .detail-stat { display: grid; gap: var(--sp-1); min-width: 0; }
 .detail-stat__link {
+  position: relative;
   /* 与 .detail-stat b 完全同字号同字重：这个数字可以点（看订阅用户），
      但视觉上不能和旁边的统计值不一致——原来它是 inherit 字号 + 600 字重 + 一条虚线下划线 */
   font: inherit;
@@ -2241,7 +2242,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .login__reveal { min-height: 32px; }
   /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
   .product-tile__buy { width: 36px; height: 36px; }
-  .detail-stat__link { min-height: 36px; }
+  /* 触控区用透明的伪元素撑开，不能用 min-height：那会把「订阅」这一格的标签顶低 5px */
+  .detail-stat__link::after {
+    content: '';
+    position: absolute;
+    inset: -8px -10px;
+    border-radius: var(--r-item);
+  }
   .tab { min-height: 40px; }
 
   /* 商品网格：一行一件太浪费，两列更接近手机购物的阅读习惯 */
