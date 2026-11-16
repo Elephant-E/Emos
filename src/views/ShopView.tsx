@@ -215,7 +215,6 @@ export function ShopView({
         </section>
       ) : null}
 
-      <>
           <ProductToolbar
               style={{ marginTop: 0 }}
               categories={(categories.data ?? []).map((c) => ({ id: c.category_id, name: c.name }))}
@@ -358,7 +357,6 @@ export function ShopView({
               />
             </ListSection>
           ) : null}
-      </>
 
       {panel === 'categories' ? (
         <CategoryPanel
