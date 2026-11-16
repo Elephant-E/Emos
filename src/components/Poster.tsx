@@ -20,6 +20,7 @@ export function Poster({
   className,
   style,
   collapseOnEmpty = false,
+  fallback = 'media',
 }: {
   src?: string | null
   /** 保留字段：调用方仍在传（原先用于首字兜底），现在不再渲染文字 */
@@ -29,6 +30,8 @@ export function Poster({
   style?: CSSProperties
   /** 卡片等自由布局：没有图就完全不占位（表格里必须占位，否则标题会跳） */
   collapseOnEmpty?: boolean
+  /** 没有图时显示什么：媒体用默认占位图，用户头像用首字 */
+  fallback?: 'media' | 'initial'
 }) {
   const [failed, setFailed] = useState(false)
   const url = src?.trim()
@@ -36,11 +39,22 @@ export function Poster({
   useEffect(() => setFailed(false), [url])
 
   const shapeClass = shape === 'poster' ? '' : ` poster-img--${shape}`
-  const fallbackClass = shape === 'poster' ? 'thumb' : `thumb thumb--${shape}`
 
   if (!url || failed) {
     if (collapseOnEmpty) return null
-    return <span className={[fallbackClass, className].filter(Boolean).join(' ')} style={style} aria-hidden="true" />
+    // 没有图也要有个东西：媒体位显示默认占位，人显示首字
+    // 没有名字时不要显示一个「?」，退回媒体占位（一条淡横杠）
+    const initial = (name ?? '').trim().slice(0, 1)
+    const kind = fallback === 'initial' && initial ? 'initial' : 'media'
+    return (
+      <span
+        className={[className, 'poster-fallback', `poster-fallback--${kind}`].filter(Boolean).join(' ')}
+        style={style}
+        aria-hidden="true"
+      >
+        {kind === 'initial' ? initial : null}
+      </span>
+    )
   }
   return (
     <img

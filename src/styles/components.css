@@ -2863,3 +2863,28 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   background: none;
   padding: var(--sp-2) 0;
 }
+
+/* 没有图片时的占位：媒体位是一块带图标感的空面，用户位显示首字 */
+.poster-fallback {
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--fg-5);
+  border: 1px solid var(--line-soft);
+  font-variant-numeric: tabular-nums;
+}
+.poster-fallback--initial {
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--fg-3);
+  letter-spacing: 0.02em;
+}
+/* 媒体占位：中间一条淡横杠，像「缺图」而不是空盒 */
+.poster-fallback--media::after {
+  content: '';
+  width: 34%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.45;
+}

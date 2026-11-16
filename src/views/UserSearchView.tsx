@@ -72,6 +72,8 @@ export function UserSearchView() {
             rows={rows}
             idKey={(row) => row.user_id}
             posterShape="square"
+            posterFallback="initial"
+            posterName={(row) => row.username ?? row.user_id}
             poster={(row) => row.avatar}
             title={(row) => (
               <Link to="/users/$userId" params={{ userId: row.user_id }}>

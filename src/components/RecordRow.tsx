@@ -15,6 +15,10 @@ export interface RecordRowProps<T> {
   single?: boolean
   /** 左侧图片的比例：影片海报 2:3、用户头像方图 */
   posterShape?: 'poster' | 'square'
+  /** 没有图时的占位：媒体默认图，用户显示首字 */
+  posterFallback?: 'media' | 'initial'
+  /** 首字占位用的文字（用户列表传用户名，别拿 ReactNode 转字符串） */
+  posterName?: (row: T) => string
   /** 标题允许两行（消息内容这类需要多行展示的） */
   wrapTitle?: boolean
   /** 待办型多列布局（求片这类字段少、按卡浏览的列表） */
@@ -40,6 +44,8 @@ export function RecordRow<T>({
   idKey,
   single = false,
   posterShape = 'poster',
+  posterFallback = 'media',
+  posterName,
   wrapTitle = false,
   multi = false,
   onOpen,
@@ -83,7 +89,13 @@ export function RecordRow<T>({
           >
             {poster ? (
               <div className={`record-row__media record-row__media--${posterShape}`}>
-                <Poster src={poster(row)} shape={posterShape} className="record-row__poster" collapseOnEmpty />
+                <Poster
+                  src={poster(row)}
+                  name={posterName ? posterName(row) : ''}
+                  shape={posterShape}
+                  className="record-row__poster"
+                  fallback={posterFallback}
+                />
                 {posterOverlay ? <div className="record-row__overlay">{posterOverlay(row)}</div> : null}
               </div>
             ) : null}
