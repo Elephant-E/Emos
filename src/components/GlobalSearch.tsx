@@ -6,6 +6,7 @@ import { Poster } from '@/components/Poster'
 import { mediaApi, recordApi, seekApi, videoApi, watchApi } from '@/api/endpoints'
 import { useSession } from '@/api/queries'
 import { formatThousand, episodeCode } from '@/lib/format'
+import { useDebounced } from '@/lib/useDebounced'
 
 const PAGE_SIZE = 5
 const RECENT_SIZE = 4
@@ -50,10 +51,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   const [active, setActive] = useState(0)
   const bodyRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(term), 250)
-    return () => clearTimeout(timer)
-  }, [term])
+  useDebounced(term, setDebounced, { delay: 250 })
 
   const q = debounced.trim()
   const searching = open && q.length >= MIN_LENGTH

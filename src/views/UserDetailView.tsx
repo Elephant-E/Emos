@@ -4,6 +4,7 @@ import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
+import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
 import { DetailHead } from '@/components/DetailHead'
 import { Badge } from '@/components/Badge'
@@ -330,36 +331,31 @@ export function UserDetailView({ userId }: { userId: string }) {
           width={520}
           onClose={() => setNotify(null)}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setNotify(null)}>
-                取消
-              </button>
-              <button
-                type="button"
-                className="btn btn--primary"
-                disabled={!notify.subject.trim() || !notify.body.trim() || actions.notifyEmail.isPending}
-                onClick={async () => {
-                  const ok = await confirmDialog({
-                    title: '发送这封通知？',
-                    message: '会从余额里扣 10 胡萝卜。',
-                    hint: '收件用户在账号页绑定了邮箱才会收到。',
-                    confirmText: '发送',
-                  })
-                  if (!ok) return
-                  actions.notifyEmail.mutate(
-                    { user_id: userId, subject: notify.subject.trim(), body: notify.body.trim() },
-                    {
-                      onSuccess: () => {
-                        toast('已发送', 'success')
-                        setNotify(null)
-                      },
+            <ModalFooter
+              onCancel={() => setNotify(null)}
+              onConfirm={async () => {
+                const ok = await confirmDialog({
+                  title: '发送这封通知？',
+                  message: '会从余额里扣 10 胡萝卜。',
+                  hint: '收件用户在账号页绑定了邮箱才会收到。',
+                  confirmText: '发送',
+                })
+                if (!ok) return
+                actions.notifyEmail.mutate(
+                  { user_id: userId, subject: notify.subject.trim(), body: notify.body.trim() },
+                  {
+                    onSuccess: () => {
+                      toast('已发送', 'success')
+                      setNotify(null)
                     },
-                  )
-                }}
-              >
-                {actions.notifyEmail.isPending ? '发送中…' : '发送'}
-              </button>
-            </>
+                  },
+                )
+              }}
+              confirmText="发送"
+              disabled={!notify.subject.trim() || !notify.body.trim()}
+              pending={actions.notifyEmail.isPending}
+              pendingText="发送中…"
+            />
           }
         >
           <label className="field">

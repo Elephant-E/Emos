@@ -6,6 +6,7 @@ import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
+import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
 import { qk, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
@@ -404,14 +405,13 @@ export function OverviewView() {
             if (!sign.isPending) sign.mutate(signNote.trim() || undefined)
           }}
           footer={
-            <>
-              <button type="button" className="btn btn--ghost" onClick={() => setSigning(false)}>
-                取消
-              </button>
-              <button className="btn btn--primary" type="submit" disabled={sign.isPending}>
-                {sign.isPending ? '签到中…' : '签到'}
-              </button>
-            </>
+            <ModalFooter
+              onCancel={() => setSigning(false)}
+              confirmText="签到"
+              submit
+              pending={sign.isPending}
+              pendingText="签到中…"
+            />
           }
         >
           <div className="stack">
