@@ -2245,12 +2245,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 @media (max-width: 1240px) {
   .record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .record-grid--poster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* 平板档：方块网格 3 列（4 列会压到 156–189px，真实文案的价格/库存行会溢出） */
+  .record-grid--square { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
   .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); row-gap: var(--sp-5); }
   .record-grid--poster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* 平板档：方块网格 3 列（4 列会压到 156–189px，真实文案的价格/库存行会溢出） */
+  .record-grid--square { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 600px) {
   /* 详情头在手机上收紧：卡片内边距、图文间距、统计字号都降一档 */
@@ -2794,8 +2796,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
 /* 右侧数值列：等宽、右对齐，跨行可比 */
 .record-row__value {
-  /* 固定最小宽度 + 右对齐：有按钮/没按钮的行，金额都落在同一竖线上 */
-  min-width: 96px;
+  /* 固定宽度 + 右对齐：有按钮/没按钮的行，金额都落在同一竖线上 */
+  width: 120px;
+  flex: none;
   text-align: right;
   margin-right: var(--sp-3);
   color: var(--fg);

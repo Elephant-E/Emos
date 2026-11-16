@@ -13,7 +13,7 @@ import { ProductToolbar } from '@/components/ProductToolbar'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingGrid } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
 import { ProductGrid } from '@/components/ProductGrid'
@@ -242,7 +242,7 @@ export function ShopView({
           {!mine && browse.error ? (
             <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
           ) : null}
-          {!mine && browse.isLoading ? <LoadingBlock rows={4} columns={5} /> : null}
+          {!mine && browse.isLoading ? <LoadingGrid count={10} shape="square" /> : null}
           {!mine && !browse.isLoading && !browse.error && browseItems.length === 0 ? (
             <EmptyBlock
               title={q ? `没有找到「${q}」` : '还没有在售商品'}
@@ -365,7 +365,7 @@ export function ShopView({
         <Modal title="店铺设置" width={560} onClose={() => onSearch({ tab: 'products' })}>
           <>
             <CardHead title="店铺信息" />
-            {seller.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+            {seller.isLoading ? <LoadingGrid count={6} shape="square" /> : null}
             {!seller.isLoading && !seller.data ? (
               <>
                 <p className="card-note">这个账号还没有店铺。</p>

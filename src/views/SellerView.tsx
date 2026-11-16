@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ProductToolbar } from '@/components/ProductToolbar'
 import { PageHeader } from '@/components/PageHeader'
-import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { ClearSearchButton, EmptyBlock, ErrorBlock, LoadingGrid } from '@/components/StateBlock'
 import { ProductGrid } from '@/components/ProductGrid'
 import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { useDebounced } from '@/lib/useDebounced'
@@ -62,7 +62,7 @@ export function SellerView({ sellerId }: { sellerId: number }) {
       ) : null}
       {query.error ? <ErrorBlock error={query.error} onRetry={() => query.refetch()} /> : null}
 
-      {query.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
+      {query.isLoading ? <LoadingGrid count={10} shape="square" /> : null}
 
       {!query.isLoading && !query.error && products.length === 0 ? (
         <EmptyBlock

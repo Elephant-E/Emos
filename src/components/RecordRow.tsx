@@ -111,8 +111,9 @@ function RecordRowBase<T>({
             {extra ? <div className="record-row__extra">{extra(row)}</div> : null}
             {value || actions ? (
               <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>
-                {value ? <span className="record-row__value tnum">{value(row)}</span> : null}
                 {actions ? actions(row) : null}
+                {/* 数值放在最后：右边缘就固定与容器对齐，不受按钮宽度影响 */}
+                {value ? <span className="record-row__value tnum">{value(row)}</span> : null}
               </div>
             ) : null}
           </article>
