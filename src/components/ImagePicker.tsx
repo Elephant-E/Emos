@@ -174,6 +174,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       toast('图片已上传', 'success')
       qc.invalidateQueries({ queryKey: qk.uploadImages })
     },
+    meta: { skipErrorToast: true },
     onError: (error) => {
       setUploading(0)
       toast(error instanceof Error ? error.message : '上传失败', 'error')
@@ -187,6 +188,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
       toast('图片已删除', 'success')
       qc.invalidateQueries({ queryKey: qk.uploadImages })
     },
+    meta: { skipErrorToast: true },
     onError: (error) => {
       setRemoving(null)
       toast(error instanceof Error ? error.message : '删除失败', 'error')

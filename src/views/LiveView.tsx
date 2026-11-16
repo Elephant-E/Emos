@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { liveApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
+import { InfiniteSentinel } from '@/components/InfiniteSentinel'
 import { Badge } from '@/components/Badge'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
@@ -10,7 +11,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { IconPlus } from '@/components/icons'
-import { qk, useLiveLibrary, useLiveMedia, useLiveMutations } from '@/api/queries'
+import { qk, useLiveLibrary, useLiveMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { formatRelative } from '@/lib/format'
@@ -34,10 +35,11 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
     (page) => liveApi.list({ page, page_size: 15, library_id: search.library || undefined }),
     { queryKey: [...qk.live, 'channels', { library: search.library }] },
   )
-  const [mediaPage, setMediaPage] = useState(1)
-  // 换频道时源列表回到第一页，不然会停在上一个频道的页码上
-  useEffect(() => setMediaPage(1), [search.channel])
-  const media = useLiveMedia(search.channel, mediaPage)
+  // 源列表也走滚动加载：接口固定 15 条/页，原来只有 page=1，第 16 条起永远看不到
+  const media = usePagedInfinite(
+    (page) => liveApi.media(search.channel, { page }),
+    { enabled: search.channel > 0, queryKey: [...qk.live, 'media', search.channel] },
+  )
   const actions = useLiveMutations()
 
   // 新增与编辑共用一个表单；id 为空即新增。image_poster 存图库 file_id，image_url 只用于预览
@@ -106,10 +108,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               <span className="sources__title">
                 直播源
                 <span className="sources__count">
-                  {media.data?.total ?? 0}
-                  {(media.data?.total ?? 0) > (media.data?.items.length ?? 0)
-                    ? `（本页显示 ${media.data?.items.length ?? 0}）`
-                    : ''}
+                  {media.total}
                 </span>
               </span>
               {channel.is_can_edit ? (
@@ -126,13 +125,21 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               ) : null}
             </div>
 
-            {media.error ? <ErrorBlock error={media.error} onRetry={() => media.refetch()} /> : null}
-            {media.isLoading ? <LoadingRows count={2} poster="none" lines={2} actions={1} /> : null}
-            {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock title="这个频道还没有源" hint="支持 m3u8" /> : null}
+            {media.error ? <ErrorBlock error={media.error} onRetry={() => media.retry()} /> : null}
+            {media.loading && media.items.length === 0 ? <LoadingRows count={2} poster="none" lines={2} actions={1} /> : null}
+            {!media.error && !media.loading && media.items.length === 0 ? <EmptyBlock title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
-            {media.data && media.data.items.length > 0 ? (
+            {media.hasMore || media.loading ? (
+              <InfiniteSentinel
+                onLoadMore={media.loadMore}
+                disabled={!media.hasMore}
+                loading={media.loadingMore}
+              />
+            ) : null}
+
+            {media.items.length > 0 ? (
               <RecordRow
-                rows={media.data.items}
+                rows={media.items}
                 idKey={(row) => row.media_id}
                 title={(row) => row.name}
                 meta={(row) => (

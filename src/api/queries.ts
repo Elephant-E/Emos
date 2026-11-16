@@ -839,6 +839,8 @@ export function useSong(songId: number) {
   return useQuery({
     queryKey: ['music', 'song', songId] as const,
     staleTime: 5 * 60_000,
+    // 音乐域停用时不要真的打接口（直链访问 /music/song/:id 也会走到这里）
+    enabled: !MUSIC_DISABLED,
     queryFn: async () => {
       const res = await musicApi.songs({ song_id: songId, page: 1, page_size: 1 })
       return res.items?.[0] ?? null
@@ -850,7 +852,7 @@ export function useSongLyrics(songId: number) {
   return useQuery({
     queryKey: ['music', 'lyrics', songId] as const,
     queryFn: async () => rowsOf(await musicApi.lyrics(songId)),
-    enabled: songId > 0,
+    enabled: songId > 0 && !MUSIC_DISABLED,
   })
 }
 
@@ -858,7 +860,7 @@ export function useSongMedia(songId: number) {
   return useQuery({
     queryKey: ['music', 'media', songId] as const,
     queryFn: async () => rowsOf(await musicApi.media(songId)),
-    enabled: songId > 0,
+    enabled: songId > 0 && !MUSIC_DISABLED,
   })
 }
 
@@ -908,7 +910,12 @@ export function useRecycleMutations() {
     qc.invalidateQueries({ queryKey: qk.carrot })
   }
   return {
-    restoreMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.restore(mediaId), onSuccess: invalidate }),
+    // 视图自己 try/catch 并弹提示（要显示扣了多少胡萝卜），全局不要再弹一条
+    restoreMedia: useMutation({
+      mutationFn: (mediaId: string) => mediaApi.restore(mediaId),
+      onSuccess: invalidate,
+      meta: { skipErrorToast: true },
+    }),
   }
 }
 
