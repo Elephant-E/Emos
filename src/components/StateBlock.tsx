@@ -83,8 +83,16 @@ export function LoadingRows({
   /** 真实行右侧有数值列（榜单分数、资金金额）时留出同样的位置 */
   value?: boolean
 }) {
+  // 封面尺寸必须跟真实行一致：信息型单列（片单详情）的封面是 72 宽、按 2:3 得到 108 高，
+  // 高列（订单、榜单）是 112×168；方图统一 72×72。写错就会比真实行高或矮一截
   const posterSize =
-    poster === 'poster' ? { width: 112, height: 168 } : poster === 'square' ? { width: 72, height: 72 } : null
+    poster === 'poster'
+      ? single
+        ? { width: 72, height: 108 }
+        : { width: 112, height: 168 }
+      : poster === 'square'
+        ? { width: 72, height: 72 }
+        : null
   const lineWidths = ['46%', '62%', '52%']
 
   return (

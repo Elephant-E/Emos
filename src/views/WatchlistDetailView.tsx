@@ -263,7 +263,10 @@ export function WatchlistDetailView({
         onRetry={() => infinite.retry()}
         items={videoRows}
         loadingKind="single-rows"
+        /* 封面是 2:3 的小海报（72×108），与真实行一致 */
+        loadingPoster="poster"
         loadingLines={3}
+        loadingActions={item?.is_edit_video ? 3 : 0}
         loadingRows={6}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         emptyTitle="片单里还没有影片"
