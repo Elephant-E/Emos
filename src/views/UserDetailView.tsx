@@ -139,8 +139,8 @@ export function UserDetailView({ userId }: { userId: string }) {
                 <i />
                 {banned ? '已封禁' : '正常'}
               </span>
-              {self ? <span className="chip">我自己</span> : null}
-              {info?.is_viewing ? <span className="chip">在线</span> : null}
+              {self ? <span>我自己</span> : null}
+              {info?.is_viewing ? <span>在线</span> : null}
             </>
           }
         >

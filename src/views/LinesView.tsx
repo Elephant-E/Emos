@@ -92,7 +92,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
             meta={(line) => (
               <>
                 <span className="ellipsis">{line.url}</span>
-                {line.is_self ? <span className="chip">我的</span> : null}
+                {line.is_self ? <span className="mark-mine">我的</span> : null}
               </>
             )}
             facts={(line) => (

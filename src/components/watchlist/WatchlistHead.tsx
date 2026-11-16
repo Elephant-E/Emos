@@ -25,11 +25,9 @@ export function WatchlistHead({
         <>
           <Badge tone={item.is_public ? 'ok' : 'off'}>{item.is_public ? '公开' : '私密'}</Badge>
           {(item.tags ?? []).map((tag) => (
-            <span key={tag} className="chip">
-              {tag}
-            </span>
+            <span key={tag}>{tag}</span>
           ))}
-          {item.carrot > 0 ? <span className="chip">订阅需 {item.carrot} 胡萝卜</span> : null}
+          {item.carrot > 0 ? <span>订阅需 {item.carrot} 胡萝卜</span> : null}
         </>
       }
     >

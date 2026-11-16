@@ -228,7 +228,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             title={(item) => item.title}
             meta={(item) => (
               <>
-                {item.code ? <span className="chip">官方</span> : null}
+                {item.code ? <span className="mark-official">官方</span> : null}
                 <span>{item.tagline ?? '无宣传词'}</span>
                 <span>{library.data?.find((l) => l.id === item.live_library_id)?.title ?? `#${item.live_library_id}`}</span>
                 <span>{item.media_count} 个源</span>

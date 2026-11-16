@@ -2905,3 +2905,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   background: currentColor;
   opacity: 0.45;
 }
+
+/* 「官方」「我的」这类标注：纯文字，用颜色区分，不再套胶囊 */
+.mark-official { color: var(--c-yellow); }
+.mark-mine { color: var(--fg-3); }
