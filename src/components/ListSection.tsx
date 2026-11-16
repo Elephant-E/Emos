@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
-import { EmptyBlock, ErrorBlock, LoadingBlock, LoadingGrid, LoadingRows } from './StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingGrid, LoadingRows } from './StateBlock'
 import { InfiniteSentinel } from './InfiniteSentinel'
 
 /**
  * 列表页的「四态 + 容器」外壳。
  *
- * 站内每个列表页原本各写一遍 `error ? ErrorBlock : isLoading ? LoadingBlock :
+ * 站内每个列表页原本各写一遍 `error ? ErrorBlock : isLoading ? 骨架 :
  * items.length === 0 ? EmptyBlock : …`，经常漏掉某种情形。这里一次说清：
  *
  * - 出错 → 错误块（带重试）
@@ -25,7 +25,6 @@ export function ListSection<T>({
   emptyAction,
   emptyHint,
   loadingRows = 8,
-  loadingCols = 5,
   gridShape = 'poster',
   loadingKind,
   loadingPoster = 'poster',
@@ -47,11 +46,10 @@ export function ListSection<T>({
   emptyAction?: ReactNode
   emptyHint?: string
   loadingRows?: number
-  loadingCols?: number
   /** 网格骨架的图片比例（ 页用） */
   gridShape?: 'poster' | 'wide' | 'square'
   /** 骨架形态：默认按  推断（网格 / 表格），行卡片页显式指定 rows */
-  loadingKind?: 'table' | 'grid' | 'rows' | 'single-rows'
+  loadingKind: 'grid' | 'rows' | 'single-rows'
   /** 行骨架的封面形态：跟真实行一致，避免加载完高度塌一次 */
   loadingPoster?: 'poster' | 'square' | 'none'
   /** 行骨架的文字行数 */
@@ -89,10 +87,7 @@ export function ListSection<T>({
         />
       )
     }
-    if (loadingKind === 'grid') {
-      return <LoadingGrid count={loadingRows} shape={gridShape} badges={loadingBadges} />
-    }
-    return <LoadingBlock rows={loadingRows} columns={loadingCols} />
+    return <LoadingGrid count={loadingRows} shape={gridShape} badges={loadingBadges} />
   }
 
   if (items.length === 0) {

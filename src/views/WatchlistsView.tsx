@@ -116,7 +116,6 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
         loadingBadges
         loadingRows={8}
         gridShape="wide"
-        loadingCols={4}
         emptyTitle={emptyTitle(search.q, search.scope)}
         emptyAction={
           search.q ? (

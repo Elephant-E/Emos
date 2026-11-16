@@ -1,6 +1,6 @@
 import { CardHead } from '@/components/CardHead'
 import { RecordRow } from '@/components/RecordRow'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
 import { formatDateTime, formatSize } from '@/lib/format'
 import type { MediaTarget } from './MediaEditModal'
@@ -36,7 +36,7 @@ export function VideoMedias({
 
       {error ? <ErrorBlock error={error} onRetry={onRetry} /> : null}
       {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
-      {loading ? <LoadingBlock rows={3} columns={3} /> : null}
+      {loading ? <LoadingRows count={3} poster="none" lines={2} actions={canEdit ? 1 : 0} /> : null}
 
       {!error && !loading && rows.length === 0 ? (
         <EmptyBlock

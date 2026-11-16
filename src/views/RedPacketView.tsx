@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { redPacketApi } from '@/api/endpoints'
 import { qk, useSession } from '@/api/queries'
@@ -334,7 +334,7 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
           ) : records.error ? (
             <ErrorBlock error={records.error} onRetry={() => records.refetch()} />
           ) : records.isLoading ? (
-            <LoadingBlock rows={6} columns={4} />
+            <LoadingRows count={6} poster="square" lines={2} actions={0} />
           ) : (records.data?.items.length ?? 0) === 0 ? (
             <EmptyBlock title="还没有人领" />
           ) : (

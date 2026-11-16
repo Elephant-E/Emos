@@ -131,7 +131,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         loadingLines={2}
         loadingActions={3}
         loadingRows={6}
-        loadingCols={5}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
         emptyAction={
           filtered ? (

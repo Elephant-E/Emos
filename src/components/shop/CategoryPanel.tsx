@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { CardHead } from '@/components/CardHead'
 import { InlineSortInput } from '@/components/InlineSortInput'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useShopCategories, useShopMutations } from '@/api/queries'
@@ -66,7 +66,7 @@ export function CategoryPanel({
         </CardHead>
 
         {categories.error ? <ErrorBlock error={categories.error} onRetry={() => categories.refetch()} /> : null}
-        {!categories.error && categories.isLoading ? <LoadingBlock rows={3} columns={2} /> : null}
+        {!categories.error && categories.isLoading ? <LoadingRows count={3} poster="none" lines={1} actions={isSeller ? 1 : 0} /> : null}
         {!categories.error && (categories.data?.length ?? 0) === 0 ? <EmptyBlock title="还没有分类" /> : null}
 
         {(categories.data?.length ?? 0) > 0 ? (

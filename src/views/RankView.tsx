@@ -3,7 +3,6 @@ import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { rankApi } from '@/api/endpoints'
 import { formatSize, formatThousand, episodeCode } from '@/lib/format'
 
@@ -80,24 +79,18 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
         <Tabs items={TABS} value={tab} onChange={(next) => onSearch({ tab: next })} label="榜单" />
       </div>
 
-      {current.error ? <ErrorBlock error={current.error} onRetry={() => current.refetch()} /> : null}
-      {current.isLoading ? <LoadingBlock rows={8} columns={4} /> : null}
-
-      {!current.error && !current.isLoading && (rows?.length ?? 0) === 0 ? <EmptyBlock title="还没有数据" /> : null}
-
-      {!current.error && (rows?.length ?? 0) > 0 ? (
-        <ListSection
-          isLoading={current.isLoading}
-          error={current.error}
-          onRetry={() => current.refetch()}
-          items={(rows ?? []) as unknown[]}
-          loadingKind="rows"
+      <ListSection
+        isLoading={current.isLoading}
+        error={current.error}
+        onRetry={() => current.refetch()}
+        items={(rows ?? []) as unknown[]}
+        loadingKind="rows"
         loadingPoster="square"
         loadingLines={2}
         loadingActions={0}
-          loadingRows={8}
-          emptyTitle="还没有数据"
-        >
+        loadingRows={8}
+        emptyTitle="还没有数据"
+      >
           {tab === 'playing' ? (
             <RecordRow
               rows={playing.data ?? []}
@@ -140,8 +133,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
               value={(row) => row.value}
             />
           )}
-        </ListSection>
-      ) : null}
+      </ListSection>
     </>
   )
 }

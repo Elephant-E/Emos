@@ -87,7 +87,8 @@ export function LoadingRows({
               <div
                 key={line}
                 className="skeleton"
-                style={{ height: line === 0 ? 14 : 12, width: lineWidths[Math.min(line, lineWidths.length - 1)] }}
+                // 行高按真实文字量给：标题 ~20px、次要行 ~16px，否则骨架比真实行矮一截
+                style={{ height: line === 0 ? 20 : 16, width: lineWidths[Math.min(line, lineWidths.length - 1)] }}
               />
             ))}
           </div>
@@ -116,27 +117,6 @@ export function LoadingRows({
   )
 }
 
-export function LoadingBlock({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
-  return (
-    <div aria-busy="true" aria-live="polite">
-      <div style={{ padding: 'var(--sp-4)' }}>
-        <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 'var(--gap-card)' }} />
-        {Array.from({ length: rows }).map((_, r) => (
-          <div key={r} style={{ display: 'flex', gap: 'var(--sp-4)', marginBottom: 'var(--stack)', alignItems: 'center' }}>
-            <div className="skeleton" style={{ height: 40, width: 34, flex: 'none' }} />
-            {Array.from({ length: columns }).map((__, c) => (
-              <div
-                key={c}
-                className="skeleton"
-                style={{ height: 12, flex: c === 0 ? 2 : 1, maxWidth: c === 0 ? 260 : 120 }}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 interface EmptyBlockProps {
   title: string
   hint?: string

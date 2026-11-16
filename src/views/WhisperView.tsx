@@ -6,7 +6,6 @@ import { qk } from '@/api/queries'
 import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { ListSection } from '@/components/ListSection'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
 import { whisperApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -81,26 +80,18 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
         <Tabs items={WHISPER_TABS} value={tab} onChange={onTab} label="悄悄话方向" />
       </div>
 
-      {list.error ? <ErrorBlock error={list.error} onRetry={() => list.refetch()} /> : null}
-      {list.isLoading ? <LoadingBlock rows={6} columns={3} /> : null}
-
-      {!list.isLoading && !list.error && rows.length === 0 ? (
-        <EmptyBlock title={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'} />
-      ) : null}
-
-      {rows.length > 0 ? (
-        <ListSection
-          isLoading={list.isLoading}
-          error={list.error}
-          onRetry={() => list.refetch()}
-          items={rows}
-          loadingKind="rows"
+      <ListSection
+        isLoading={list.isLoading}
+        error={list.error}
+        onRetry={() => list.refetch()}
+        items={rows}
+        loadingKind="rows"
         loadingPoster="none"
         loadingLines={3}
         loadingActions={1}
-          loadingRows={5}
-          emptyTitle={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'}
-        >
+        loadingRows={5}
+        emptyTitle={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'}
+      >
           <RecordRow
             rows={rows}
             idKey={(row) => String(row.whisper_id ?? '')}
@@ -141,8 +132,7 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
                 : undefined
             }
           />
-        </ListSection>
-      ) : null}
+      </ListSection>
 
       {replyTarget ? (
         <Modal

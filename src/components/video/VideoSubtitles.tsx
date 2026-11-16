@@ -1,6 +1,6 @@
 import { CardHead } from '@/components/CardHead'
 import { RecordRow } from '@/components/RecordRow'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { IconDots } from '@/components/icons'
 import { formatDateTime } from '@/lib/format'
 
@@ -59,7 +59,7 @@ export function VideoSubtitles({
       </CardHead>
 
       {error ? <ErrorBlock error={error} onRetry={onRetry} /> : null}
-      {loading ? <LoadingBlock rows={2} columns={3} /> : null}
+      {loading ? <LoadingRows count={2} poster="none" lines={2} actions={canEdit ? 1 : 0} /> : null}
       {!error && !loading && rows.length === 0 ? <EmptyBlock title="还没有字幕" /> : null}
 
       {rows.length > 0 ? (

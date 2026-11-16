@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { voteApi } from '@/api/endpoints'
 import { formatDateTime, formatThousand } from '@/lib/format'
@@ -225,7 +225,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
           ) : result.error ? (
             <ErrorBlock error={result.error} onRetry={() => result.refetch()} />
           ) : result.isLoading ? (
-            <LoadingBlock rows={6} columns={4} />
+            <LoadingRows count={6} poster="none" lines={2} actions={0} />
           ) : (
             <>
               <section className="cards cards--wide">

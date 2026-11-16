@@ -9,7 +9,7 @@ import { Tabs } from '@/components/Tabs'
 import { CardHead } from '@/components/CardHead'
 import { PageHeader } from '@/components/PageHeader'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { useMusicMutations, useSession, useSong, useSongLyrics, useSongMedia } from '@/api/queries'
 import { uploadSong } from '@/lib/uploader'
 import { toast } from '@/ui/toast'
@@ -204,7 +204,13 @@ export function SongDetailView({ songId }: { songId: number }) {
               ) : null}
             </CardHead>
             {lyrics.error ? <ErrorBlock error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
-            {lyrics.isLoading ? <LoadingBlock rows={4} columns={2} /> : null}
+            {lyrics.isLoading ? (
+              <div aria-busy="true" aria-live="polite" style={{ display: 'grid', gap: 'var(--sp-2)', marginTop: 'var(--stack)' }}>
+                {[68, 54, 61, 47].map((width, i) => (
+                  <div key={i} className="skeleton" style={{ height: 12, width: `${width}%` }} />
+                ))}
+              </div>
+            ) : null}
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
                 
@@ -261,7 +267,7 @@ export function SongDetailView({ songId }: { songId: number }) {
         <section className="cards cards--wide">
           <article className="card">
             {media.error ? <ErrorBlock error={media.error} onRetry={() => media.refetch()} /> : null}
-            {media.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+            {media.isLoading ? <LoadingRows count={3} poster="none" lines={2} actions={1} /> : null}
             <CardHead title="资源">
               <button type="button" className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}

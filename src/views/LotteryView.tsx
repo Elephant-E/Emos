@@ -5,7 +5,7 @@ import { qk } from '@/api/queries'
 import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { Tabs } from '@/components/Tabs'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { lotteryApi } from '@/api/endpoints'
@@ -308,7 +308,7 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
           ) : winners.error ? (
             <ErrorBlock error={winners.error} onRetry={() => winners.refetch()} />
           ) : winners.isLoading ? (
-            <LoadingBlock rows={6} columns={4} />
+            <LoadingRows count={6} poster="none" lines={2} actions={0} />
           ) : (
             <>
               <section className="cards cards--wide">

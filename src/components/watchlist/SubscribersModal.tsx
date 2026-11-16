@@ -1,6 +1,6 @@
 import { Modal } from '@/components/Modal'
 import { RecordRow } from '@/components/RecordRow'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { formatThousand } from '@/lib/format'
 import { useWatchSubscribers } from '@/api/queries'
 
@@ -28,7 +28,7 @@ export function SubscribersModal({
       }
     >
       {subs.error ? <ErrorBlock error={subs.error} onRetry={() => subs.refetch()} /> : null}
-      {subs.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
+      {subs.isLoading ? <LoadingRows count={4} single poster="square" lines={2} actions={0} /> : null}
       {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? (
         <EmptyBlock title="还没有人订阅" />
       ) : null}

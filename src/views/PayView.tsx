@@ -3,7 +3,7 @@ import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
 import { Modal } from '@/components/Modal'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
 import { payApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
@@ -154,7 +154,13 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </button>
           </div>
 
-          {order.isFetching ? <LoadingBlock rows={2} columns={2} /> : null}
+          {order.isFetching ? (
+            <div aria-busy="true" aria-live="polite" style={{ display: 'flex', gap: 'var(--sp-4)', marginTop: 'var(--gap-card)' }}>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="skeleton" style={{ height: 38, flex: 1, borderRadius: 'var(--r-item)' }} />
+              ))}
+            </div>
+          ) : null}
           {order.error ? (
             <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
               没有查到这个订单，或订单号有误。

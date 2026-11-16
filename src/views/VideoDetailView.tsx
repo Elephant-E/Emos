@@ -9,7 +9,7 @@ import { MediaEditModal } from '@/components/video/MediaEditModal'
 import { SubtitleEditModal } from '@/components/video/SubtitleEditModal'
 import { PageHeader } from '@/components/PageHeader'
 import { DetailHead, DetailStats } from '@/components/DetailHead'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { uploadSubtitle } from '@/lib/uploader'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
@@ -170,7 +170,17 @@ export function VideoDetailView({
       />
 
       {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
-      {detail.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
+      {detail.isLoading ? (
+        <div aria-busy="true" aria-live="polite" style={{ display: 'grid', gap: 'var(--sp-3)', marginTop: 'var(--gap-card)' }}>
+          <div className="skeleton" style={{ height: 28, width: '38%' }} />
+          <div className="skeleton" style={{ height: 13, width: '22%' }} />
+          <div style={{ display: 'flex', gap: 'var(--sp-4)', marginTop: 'var(--sp-2)' }}>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="skeleton" style={{ height: 38, flex: 1, borderRadius: 'var(--r-item)' }} />
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {!detail.isLoading && !detail.error && !video ? (
         <EmptyBlock

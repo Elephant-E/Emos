@@ -272,7 +272,6 @@ export function ShopView({
               items={infinite.items}
               infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
               loadingRows={6}
-              loadingCols={5}
               emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
               emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
             >

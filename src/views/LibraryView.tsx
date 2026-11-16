@@ -88,7 +88,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         items={items}
         infinite={{ hasMore: list.hasMore, loading: list.loadingMore, onLoadMore: list.loadMore }}
         loadingRows={8}
-        loadingCols={5}
         emptyTitle={
           search.q || search.type ? '没有找到匹配的影片' : '片库还是空的'
         }

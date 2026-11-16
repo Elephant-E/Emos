@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Modal } from '@/components/Modal'
 import { PickList } from '@/components/PickList'
-import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
+import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { duration } from '@/lib/format'
@@ -44,7 +44,7 @@ export function WatchMusicRows({
     <>
 
       {songs.error ? <ErrorBlock error={songs.error} onRetry={() => songs.refetch()} /> : null}
-      {songs.isLoading ? <LoadingBlock rows={8} columns={3} /> : null}
+      {songs.isLoading ? <LoadingRows count={8} poster="none" lines={2} actions={1} /> : null}
 
       {!songs.error && !songs.isLoading && songs.data && songs.data.items.length === 0 ? (
         <EmptyBlock title="这个片单还没有歌" />
