@@ -342,9 +342,11 @@
   margin-inline: auto;
 }
 /*
- * 页面正文的垂直节奏由容器统一负责，组件不再各自带上边距。
- * 以前是「谁挨着谁」逐条补：.cards 自带 margin-top，
- * 再加 .cards + 
+ * 页面正文的垂直节奏由容器统一负责：.page-body / .content-in 的子元素之间留 18px，
+ * 组件自己不再带上边距（否则会出现「有的块有间距、有的没有」）。
+ */
+.page-body > * + *,
+.content-in > * + * { margin-top: var(--gap-card); }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 /* 表单页：左边表单、右边附属信息，比三等分实用 */
@@ -398,7 +400,6 @@
 .stat__delta span { color: var(--fg-3); }
 .stat__delta--quiet { color: var(--fg-3); }
 .toolbar {
-  margin-bottom: var(--gap-card);
   display: flex;
   align-items: center;
   gap: var(--sp-3);
