@@ -10,7 +10,14 @@ type Phase = 'idle' | 'checking' | 'error'
 function readPrefill(): string {
   const search = new URLSearchParams(location.search)
   const hashParams = new URLSearchParams(location.hash.replace(/^#\/?/, '').replace(/^sign\??/, ''))
-  return search.get('token') ?? hashParams.get('token') ?? ''
+  const token = search.get('token') ?? hashParams.get('token') ?? ''
+  // 令牌一到手就从地址栏抹掉：留在 URL 里会进浏览器历史、Referer、代理日志与截图
+  if (token) {
+    search.delete('token')
+    const rest = search.toString()
+    history.replaceState(null, '', `${location.pathname}${rest ? `?${rest}` : ''}`)
+  }
+  return token
 }
 
 // 应用标识，必须是合法 UUID（接口会校验格式），固定值保证每次授权认作同一个应用

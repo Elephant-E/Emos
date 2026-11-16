@@ -8,6 +8,34 @@ interface Env {
 
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' }
 
+/**
+ * 静态资源的安全响应头。
+ *
+ * 这是个纯前端管理台：令牌放 localStorage，所以必须尽量避免 XSS 与点击劫持。
+ * - script-src 只允许同源（没有内联脚本，Vite 产物是外链 module）
+ * - style-src 放开 inline：卡片样式用了大量 style 属性，改成 nonce 成本过高
+ * - connect-src 放开 https:：接口走同源 /api 代理，上传直连 temporary.emos.best
+ * - frame-ancestors 'none'：后台不允许被任何页面嵌套
+ */
+const SECURITY_HEADERS: Record<string, string> = {
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https:",
+    "media-src 'self' blob: https:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; '),
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'same-origin',
+  'X-Frame-Options': 'DENY',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
@@ -20,13 +48,19 @@ export default {
       return proxyApi(request, url, env)
     }
 
-    return env.ASSETS.fetch(request)
+    const asset = await env.ASSETS.fetch(request)
+    // 只在静态资源上补安全头；/api 是 JSON 代理，不需要（也不该）套 CSP
+    const headers = new Headers(asset.headers)
+    for (const [key, value] of Object.entries(SECURITY_HEADERS)) headers.set(key, value)
+    return new Response(asset.body, { status: asset.status, statusText: asset.statusText, headers })
   },
 }
 
 async function proxyApi(request: Request, url: URL, env: Env): Promise<Response> {
   const target = new URL(url.pathname + url.search, env.API_ORIGIN)
   const headers = new Headers(request.headers)
+  // 鉴权走 Authorization；Cookie 不该跟到上游去
+  headers.delete('Cookie')
   if (env.EMOS_PROXY_NAME) headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
   if (env.EMOS_PROXY_ID) headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
   // wiki/proxy 要求必须传 X-Forwarded-For，否则记不到调用方真实 IP
