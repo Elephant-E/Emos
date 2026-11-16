@@ -153,6 +153,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
       >
           <RecordRow
             multi
+            // 求片的影片名是主信息，两行内不省略（单行省略会把片名截断）
+            wrapTitle
             rows={items}
             idKey={(item) => item.id}
             poster={(item) => item.video_image_poster}
