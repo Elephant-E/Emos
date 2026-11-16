@@ -36,6 +36,7 @@ export function LoadingRows({
   actions = 2,
   extra = false,
   fullActions = false,
+  multi = false,
 }: {
   count?: number
   /** 管理型单列（小图 + 右侧动作） */
@@ -50,13 +51,19 @@ export function LoadingRows({
   extra?: boolean
   /** 动作是否等分成整行（求片三键） */
   fullActions?: boolean
+  /** 待办型多列布局：与 RecordRow 的 multi 对应 */
+  multi?: boolean
 }) {
   const posterSize =
     poster === 'poster' ? { width: 112, height: 168 } : poster === 'square' ? { width: 72, height: 72 } : null
   const lineWidths = ['46%', '62%', '52%']
 
   return (
-    <div className={`record-rows${single ? ' record-rows--single' : ''}`} aria-busy="true" aria-live="polite">
+    <div
+      className={`record-rows${single ? ' record-rows--single' : ''}${multi ? ' record-rows--multi' : ''}`}
+      aria-busy="true"
+      aria-live="polite"
+    >
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="record-row">
           {posterSize ? (

@@ -36,6 +36,7 @@ export function ListSection<T>({
   loadingActions = 2,
   loadingExtra = false,
   loadingFullActions = false,
+  loadingMulti = false,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
   /** 滚动加载：滑到底部触发 onLoadMore（不传就只渲染当前这批） */
@@ -68,6 +69,8 @@ export function ListSection<T>({
   loadingExtra?: boolean
   /** 动作是否等分成整行 */
   loadingFullActions?: boolean
+  /** 骨架是否多列（求片这类待办型列表） */
+  loadingMulti?: boolean
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   bare?: boolean
@@ -92,6 +95,7 @@ export function ListSection<T>({
           actions={loadingActions}
           extra={loadingExtra}
           fullActions={loadingFullActions}
+          multi={loadingMulti}
         />
       )
     }

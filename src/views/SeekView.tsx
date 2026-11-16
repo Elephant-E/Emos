@@ -150,6 +150,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         loadingActions={3}
         loadingExtra
         loadingFullActions
+        loadingMulti
         emptyTitle={emptyTitle(search.q, search.mine, search.type)}
         emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
       >
