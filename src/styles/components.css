@@ -353,7 +353,12 @@ main.page > * + *,
 /* 页面正文真正的容器是 .page-body（各页把内容都包在它里面），
    只写 main.page 的子元素等于没生效——块间距全是 0 就是这么来的 */
 .page-body > * + *,
+/* 同一容器里的网格/行卡列表已经用 gap 排版，不要再叠一层兄弟间距 */
 .content-in > * + * { margin-top: var(--gap-card); }
+/* 网格容器自己就带 content-in 时，子项的兄弟间距由 gap 负责 */
+.product-grid.content-in > * + *,
+.record-grid.content-in > * + *,
+.record-rows.content-in > * + * { margin-top: 0; }
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 /* 表单页：左边表单、右边附属信息，比三等分实用 */
