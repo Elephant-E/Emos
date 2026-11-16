@@ -45,6 +45,7 @@ export const qk = {
   ban: ['ban'] as const,
 
   shop: ['shop'] as const,
+  shopSeller: ['shop', 'seller'] as const,
   shopCount: ['shop', 'count'] as const,
   shopProducts: ['shop', 'products'] as const,
   shopProductsInfinite: ['shop', 'productsInfinite'] as const,
@@ -564,7 +565,7 @@ export function useAccountMutations() {
 /** 不传 sellerId 就是自己的店；传了就查别人的 */
 export function useShopSeller(sellerId?: number) {
   return useQuery({
-    queryKey: ['shop', 'seller', sellerId ?? 0] as const,
+    queryKey: [...qk.shopSeller, sellerId ?? 0] as const,
     queryFn: () => shopApi.sellerBase(sellerId),
   })
 }
@@ -695,6 +696,12 @@ export function useShopMutations() {
     qc.invalidateQueries({ queryKey: qk.shopOrders })
     // 分类也会被这组 mutation 改（新增/删除/排序），漏掉它就会出现「建完了列表里没有」
     qc.invalidateQueries({ queryKey: qk.shopCategories })
+    // 店铺资料（申请开店 / 改名 / 简介）也在这一组：漏掉它「申请开店」成功后页面还说没开店
+    qc.invalidateQueries({ queryKey: qk.shopSeller })
+    // 概览的待发货数字是自己拉订单算的，发货/支付/关单都会改它
+    qc.invalidateQueries({ queryKey: qk.todos })
+    // 用户详情页的余额/签到/资料（转赠、封禁后要刷新）
+    qc.invalidateQueries({ queryKey: qk.user })
     qc.invalidateQueries({ queryKey: qk.session })
     qc.invalidateQueries({ queryKey: qk.carrot })   // 下单/退款都会动余额
   }

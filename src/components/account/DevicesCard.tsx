@@ -56,6 +56,7 @@ export function DevicesCard() {
         loadingKind="rows"
         loadingPoster="none"
         loadingLines={3}
+        loadingRows={2}
         loadingActions={1}
       >
         <RecordRow

@@ -767,6 +767,14 @@ export async function mockRequest<T>(
     filtered = [...filtered, ...otherRows]
     if (query.is_up !== undefined) filtered = filtered.filter((r) => r.is_up === (String(query.is_up) === '1' || query.is_up === true))
     if (query.name) filtered = filtered.filter((r) => r.name.includes(String(query.name)))
+    // mock 也要真的排序：否则本地看到的「排序没反应」会被误判成功能失效
+    const sortBy = String(query.sort_by ?? 'sort')
+    const desc = String(query.sort_order ?? 'asc') === 'desc'
+    const key = sortBy === 'sales' ? 'sales' : sortBy === 'price' ? 'price' : 'sort'
+    filtered = [...filtered].sort((a, b) => {
+      const diff = Number(a[key] ?? 0) - Number(b[key] ?? 0)
+      return desc ? -diff : diff
+    })
     return paginate(filtered, Number(query.page ?? 1), Number(query.page_size ?? 12)) as T
   }
   if (clean === '/api/shop/product/up') return { is_up: true } as T

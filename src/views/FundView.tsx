@@ -31,13 +31,16 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
     { queryKey: [...qk.carrot, 'history'] },
   )
   const actions = useAccountMutations()
+  // 余额作为转赠上限：超过余额直接禁用（后端也会拒，但本地先拦住并说明）
+  const balance = carrot.data?.carrot ?? null
   const [transferring, setTransferring] = useState(false)
   const [transferTo, setTransferTo] = useState('')
   const [transferAmount, setTransferAmount] = useState(10)
 
   /** 转赠唯一入口：按钮与回车都走这里，先确认再扣款 */
   const submitTransfer = async () => {
-    if (!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending) return
+    const overBalance = balance != null && transferAmount > balance
+    if (!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || overBalance || actions.transfer.isPending) return
     const ok = await confirmDialog({
       title: `转赠 ${transferAmount} 个胡萝卜？`,
       message: `转给 ${transferTo.trim()}，转出后不可撤回。`,
@@ -124,7 +127,7 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
               onConfirm={() => void submitTransfer()}
               confirmText="转赠"
               pending={actions.transfer.isPending}
-              disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || actions.transfer.isPending}
+              disabled={!transferTo.trim() || transferAmount < 2 || transferAmount > 6000 || (balance != null && transferAmount > balance) || actions.transfer.isPending}
             />
           }
         >

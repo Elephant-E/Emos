@@ -21,10 +21,15 @@ export function LoadingGrid({
         {Array.from({ length: count }).map((_, i) => (
           <div key={i} className="product-tile">
             <div className="product-tile__cover skeleton" style={{ boxShadow: 'none' }} />
+            {/* 与真实商品卡同形：名称 / 价格 / 销量库存 + 一颗购买键 */}
             <div className="product-tile__body">
-              <div className="skeleton" style={{ height: 14, width: '72%' }} />
-              <div className="skeleton" style={{ height: 16, width: '46%' }} />
-              <div className="skeleton" style={{ height: 12, width: '58%' }} />
+              <div className="skeleton" style={{ height: 16, width: '82%' }} />
+              <div className="skeleton" style={{ height: 20, width: '52%' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginTop: 'var(--sp-hair)' }}>
+                <div className="skeleton" style={{ height: 12, width: '42%' }} />
+                <div className="skeleton" style={{ height: 12, width: '30%' }} />
+                <div className="skeleton" style={{ height: 26, width: 26, marginLeft: 'auto', borderRadius: 7 }} />
+              </div>
             </div>
           </div>
         ))}

@@ -104,6 +104,21 @@ export function ListSection<T>({
   }
 
   if (items.length === 0) {
+    // 「还有下一页」时不能落到空态：有些页面是拿回一页后在本地再筛一次
+    // （上游忽略 is_pay 之类的过滤参数），本页可能一条都不命中。
+    // 这时要用哨兵继续往下取，否则用户看到「没有结果」却再也不会加载第 2 页。
+    if (infinite?.hasMore) {
+      return (
+        <>
+          <p className="card-note">本页没有符合条件的结果，正在继续加载…</p>
+          <InfiniteSentinel
+            onLoadMore={infinite.onLoadMore}
+            disabled={false}
+            loading={infinite.loading}
+          />
+        </>
+      )
+    }
     return <EmptyBlock title={emptyTitle} hint={emptyHint} action={emptyAction} />
   }
 
