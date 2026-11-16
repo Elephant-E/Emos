@@ -153,7 +153,7 @@ export function OverviewView() {
 
       {/* 待办取不到时走错误态，不进空态 */}
       {todosFailed ? (
-        <ErrorBlock bare error={todos.error ?? new Error('待办没取到')} onRetry={() => todos.refetch()} />
+        <ErrorBlock error={todos.error ?? new Error('待办没取到')} onRetry={() => todos.refetch()} />
       ) : null}
 
       {session.error ? (
@@ -237,7 +237,7 @@ export function OverviewView() {
           {watching.isLoading ? <div className="skeleton" style={{ height: 96 }} /> : null}
 
           {watching.error ? (
-            <ErrorBlock bare error={watching.error} onRetry={() => watching.refetch()} />
+            <ErrorBlock error={watching.error} onRetry={() => watching.refetch()} />
           ) : null}
 
           {!watching.error && watching.data && watching.data.length === 0 ? (
@@ -290,7 +290,7 @@ export function OverviewView() {
           <div className="card-body">
 
           {stats.error ? (
-            <ErrorBlock bare error={stats.error} onRetry={() => stats.refetch()} />
+            <ErrorBlock error={stats.error} onRetry={() => stats.refetch()} />
           ) : null}
 
           {!stats.data && !stats.error ? (

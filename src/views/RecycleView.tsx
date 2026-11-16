@@ -147,8 +147,6 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={rows}
-        scope={tab}
-        cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         loadingRows={8}
         loadingKind="rows"

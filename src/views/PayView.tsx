@@ -154,7 +154,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             </button>
           </div>
 
-          {order.isFetching ? <LoadingBlock bare rows={2} columns={2} /> : null}
+          {order.isFetching ? <LoadingBlock rows={2} columns={2} /> : null}
           {order.error ? (
             <p className="state__hint" style={{ marginTop: 'var(--stack)' }}>
               没有查到这个订单，或订单号有误。

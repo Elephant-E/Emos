@@ -65,9 +65,9 @@ export function CategoryPanel({
           ) : null}
         </CardHead>
 
-        {categories.error ? <ErrorBlock bare error={categories.error} onRetry={() => categories.refetch()} /> : null}
-        {!categories.error && categories.isLoading ? <LoadingBlock bare rows={3} columns={2} /> : null}
-        {!categories.error && (categories.data?.length ?? 0) === 0 ? <EmptyBlock bare title="还没有分类" /> : null}
+        {categories.error ? <ErrorBlock error={categories.error} onRetry={() => categories.refetch()} /> : null}
+        {!categories.error && categories.isLoading ? <LoadingBlock rows={3} columns={2} /> : null}
+        {!categories.error && (categories.data?.length ?? 0) === 0 ? <EmptyBlock title="还没有分类" /> : null}
 
         {(categories.data?.length ?? 0) > 0 ? (
           <ul style={{ display: 'grid', gap: 'var(--sp-hair)', marginTop: 'var(--stack)' }}>

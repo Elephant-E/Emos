@@ -62,8 +62,8 @@ export function ProductDetailModal({
         ) : null
       }
     >
-      {product.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
-      {product.error ? <ErrorBlock bare error={product.error} onRetry={() => product.refetch()} /> : null}
+      {product.isLoading ? <LoadingBlock rows={4} columns={2} /> : null}
+      {product.error ? <ErrorBlock error={product.error} onRetry={() => product.refetch()} /> : null}
       {p ? (
         <>
           <div style={{ display: 'flex', gap: 'var(--sp-4)' }}>

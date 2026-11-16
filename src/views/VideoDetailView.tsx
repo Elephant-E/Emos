@@ -170,7 +170,7 @@ export function VideoDetailView({
       />
 
       {detail.error ? <ErrorBlock error={detail.error} onRetry={() => detail.refetch()} /> : null}
-      {detail.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+      {detail.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
 
       {!detail.isLoading && !detail.error && !video ? (
         <EmptyBlock

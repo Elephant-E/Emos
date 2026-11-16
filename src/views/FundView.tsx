@@ -82,9 +82,7 @@ function CarrotSection({ pageSize }: { pageSize: number }) {
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={infinite.items}
-        cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        scope="carrot"
         loadingRows={8}
         loadingKind="rows"
         loadingPoster="none"
@@ -244,9 +242,7 @@ export function FundView({ tab, onTab, pageSize }: {
           error={infinite.error}
           onRetry={() => infinite.retry()}
           items={rows}
-          cardList
           infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-          scope="orders"
           loadingRows={8}
           emptyTitle="还没有基金订单"
         >

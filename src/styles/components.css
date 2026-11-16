@@ -344,17 +344,7 @@
 /*
  * 页面正文的垂直节奏由容器统一负责，组件不再各自带上边距。
  * 以前是「谁挨着谁」逐条补：.cards 自带 margin-top，
- * 再加 .cards + .table-card / + section 这种按兄弟类型兜底的规则——
- * 结果手机端 ListSection 换了个根元素（section → div.record-section），
- * 规则匹配不到，余额卡片和列表就贴在一起了。
- * 现在只有一条：相邻块之间 18px（与 .page__head 的 margin-bottom 折叠，不会翻倍）。
- */
-main.page > * + *,
-/* 页面正文真正的容器是 .page-body（各页把内容都包在它里面），
-   只写 main.page 的子元素等于没生效——块间距全是 0 就是这么来的 */
-.page-body > * + *,
-/* 同一容器里的网格/行卡列表已经用 gap 排版，不要再叠一层兄弟间距 */
-.content-in > * + * { margin-top: var(--gap-card); }
+ * 再加 .cards + 
 /* 网格容器自己就带 content-in 时，子项的兄弟间距由 gap 负责 */
 .product-grid.content-in > * + *,
 .record-grid.content-in > * + *,
@@ -440,17 +430,7 @@ main.page > * + *,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .spacer { flex: 1; }
-.table-card {
-  border-radius: var(--r-card);
-  border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
-  box-shadow: var(--shadow-card);
-  /* 只在真的放不下时出横向滚动条；y 轴仍 clip，避免圆角处出现竖向滚动容器 */
-  overflow-x: auto;
-  overflow-y: clip;
-  max-width: var(--page-max);
-  margin-inline: auto;
-}
+
 .table { width: 100%; border-collapse: collapse; }
 .table thead th {
   padding: var(--sp-3) var(--pad-card);
@@ -464,7 +444,7 @@ main.page > * + *,
   white-space: nowrap;
 }
 
-.table-card .table thead th { background: #141311; }
+
 .table .num { text-align: left; font-variant-numeric: tabular-nums; }
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
 .table--fixed { table-layout: fixed; }
@@ -615,10 +595,7 @@ input.input[type='number'] { min-width: 0; }
   .shell { grid-template-columns: var(--rail-w-compact) minmax(0, 1fr); }
   .page { padding: var(--sp-5) var(--pad-card) var(--sp-page); }
 
-  /* 列表表格（在 .table-card 里）到这个宽度就装不下：给最小宽让它横向滚动，
-     否则只会被裁掉右侧几列。卡片内的 .table--inset 不在此列——
-     给它 820px 会把整张卡片撑出屏幕（手机详情页就是这么被裁的）。 */
-  .table-card .table { min-width: 820px; }
+  /* 列表表格（在 
 }
 @media (max-width: 900px) {
   .shell { grid-template-columns: var(--rail-w-icon) minmax(0, 1fr); }
@@ -1307,7 +1284,7 @@ input.input[type='number'] { min-width: 0; }
 .card-body { margin-top: var(--stack); min-width: 0; }
 /* 卡片里的宽表格要能横向滚动；但表单卡片不需要滚动容器 ——
    滚动容器会把输入框的焦点环在左右两侧切掉（环比输入框宽 4px） */
-.card-body:has(> .table, > .table-card, > .cards, table) { overflow-x: auto; }
+.card-body:has(> .table, > 
 .card table { min-width: 420px; }
 
 .card-note {
@@ -1440,9 +1417,7 @@ input.input[type='number'] { min-width: 0; }
 /* 卡片内的表格：首列/末列去掉表格自身的 24px 内边距，
    否则表格文字会比卡片标题再缩进 24px，看起来像两个层级 */
 /* --inset 只对「卡片里的表格」成立：卡片自己有内边距，表格首末列再各带 24px，
-   内容就会比卡片标题多缩进一截。.table-card 本身是带边框的容器、没有内边距，
-   套上 --inset 会把内容顶到边框上 —— 所以这里用子选择器限死作用范围。 */
-.card > .table--inset { margin-top: var(--sp-3); }
+   内容就会比卡片标题多缩进一截。
 .card > .table--inset thead th:first-child,
 .card > .table--inset tbody td:first-child { padding-left: 0; }
 .card > .table--inset thead th:last-child,
@@ -2836,7 +2811,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
 /* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。
    用 :has 统一兜住还没接 ListSection cardList 的页面 */
-.record-section { display: grid; gap: var(--gap-card); }
+
 /* 滚动加载哨兵：占位很小，只是在进入视口时触发下一次请求 */
 .infinite-sentinel {
   display: grid;

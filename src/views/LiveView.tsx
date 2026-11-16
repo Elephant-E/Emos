@@ -121,9 +121,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               ) : null}
             </div>
 
-            {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
+            {media.error ? <ErrorBlock error={media.error} onRetry={() => media.refetch()} /> : null}
             {media.isLoading ? <LoadingRows count={2} poster="none" lines={2} actions={1} /> : null}
-            {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock bare title="这个频道还没有源" hint="支持 m3u8" /> : null}
+            {!media.error && media.data && media.data.items.length === 0 ? <EmptyBlock title="这个频道还没有源" hint="支持 m3u8" /> : null}
 
             {media.data && media.data.items.length > 0 ? (
               <RecordRow
@@ -212,9 +212,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={liveItems}
-        cardList
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        scope={`${search.library}-${search.channel}`}
         loadingRows={6}
         loadingKind="rows"
         loadingPoster="square"

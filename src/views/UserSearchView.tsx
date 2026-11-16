@@ -61,7 +61,6 @@ export function UserSearchView() {
         onRetry={() => bans.refetch()}
         items={rows}
         loadingRows={5}
-        bare
         loadingKind="rows"
         loadingPoster="square"
         loadingLines={2}

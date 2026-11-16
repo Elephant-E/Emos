@@ -91,7 +91,6 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
           error={current.error}
           onRetry={() => current.refetch()}
           items={(rows ?? []) as unknown[]}
-          bare
           loadingKind="rows"
         loadingPoster="square"
         loadingLines={2}

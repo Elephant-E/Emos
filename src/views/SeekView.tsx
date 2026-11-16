@@ -141,8 +141,6 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         onRetry={() => infinite.retry()}
         items={items}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        bare
-        scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={6}
         loadingKind="rows"
         loadingPoster="poster"

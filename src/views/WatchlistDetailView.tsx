@@ -261,11 +261,9 @@ export function WatchlistDetailView({
         error={infinite.error}
         onRetry={() => infinite.retry()}
         items={videoRows}
-        bare
         loadingKind="single-rows"
         loadingRows={6}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        scope={search.q}
         emptyTitle="片单里还没有影片"
       >
         <RecordRow

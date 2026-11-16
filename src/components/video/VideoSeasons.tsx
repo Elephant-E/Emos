@@ -41,7 +41,7 @@ export function VideoSeasons({
         </span>
       </CardHead>
 
-      {seasonsError ? <ErrorBlock bare error={seasonsError} onRetry={onRetrySeasons} /> : null}
+      {seasonsError ? <ErrorBlock error={seasonsError} onRetry={onRetrySeasons} /> : null}
       {seasonsLoading ? <div className="skeleton" style={{ height: 34, marginTop: 'var(--stack)' }} /> : null}
       {seasons.length > 0 ? (
         <select
@@ -60,10 +60,10 @@ export function VideoSeasons({
         </select>
       ) : null}
 
-      {episodesError ? <ErrorBlock bare error={episodesError} onRetry={onRetryEpisodes} /> : null}
+      {episodesError ? <ErrorBlock error={episodesError} onRetry={onRetryEpisodes} /> : null}
       {episodesLoading ? <div className="skeleton" style={{ height: 160, marginTop: 'var(--stack)' }} /> : null}
       {!episodesError && !episodesLoading && seasonEpisodes.length === 0 ? (
-        <EmptyBlock bare title="这一季还没有集" />
+        <EmptyBlock title="这一季还没有集" />
       ) : null}
 
       {seasonEpisodes.length > 0 ? (

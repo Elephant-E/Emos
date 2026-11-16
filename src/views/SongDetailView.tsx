@@ -203,11 +203,11 @@ export function SongDetailView({ songId }: { songId: number }) {
                 </button>
               ) : null}
             </CardHead>
-            {lyrics.error ? <ErrorBlock bare error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
-            {lyrics.isLoading ? <LoadingBlock bare rows={4} columns={2} /> : null}
+            {lyrics.error ? <ErrorBlock error={lyrics.error} onRetry={() => lyrics.refetch()} /> : null}
+            {lyrics.isLoading ? <LoadingBlock rows={4} columns={2} /> : null}
             {lyrics.data && lyrics.data.length === 0 ? (
               <EmptyBlock
-                bare
+                
                 title="还没有歌词"
                 action={
                   <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
@@ -260,8 +260,8 @@ export function SongDetailView({ songId }: { songId: number }) {
       {tab === 'media' ? (
         <section className="cards cards--wide">
           <article className="card">
-            {media.error ? <ErrorBlock bare error={media.error} onRetry={() => media.refetch()} /> : null}
-            {media.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {media.error ? <ErrorBlock error={media.error} onRetry={() => media.refetch()} /> : null}
+            {media.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
             <CardHead title="资源">
               <button type="button" className="btn btn--quiet" onClick={() => fileRef.current?.click()} disabled={uploading}>
                 {uploading ? `上传中 ${Math.round(progress * 100)}%` : '上传音频'}
@@ -290,7 +290,7 @@ export function SongDetailView({ songId }: { songId: number }) {
                 }}
               />
             </CardHead>
-            {media.data && media.data.length === 0 ? <EmptyBlock bare title="还没有音频资源" /> : null}
+            {media.data && media.data.length === 0 ? <EmptyBlock title="还没有音频资源" /> : null}
             {(media.data ?? []).length > 0 ? (
               <RecordRow
                 rows={media.data ?? []}

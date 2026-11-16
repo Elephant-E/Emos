@@ -25,8 +25,8 @@ export function CardTable({
   loadingCols?: number
   children: ReactNode
 }) {
-  if (loading) return <LoadingBlock bare rows={loadingRows} columns={loadingCols} />
-  if (error) return <ErrorBlock bare error={error} onRetry={onRetry} />
-  if (count === 0) return <EmptyBlock bare title={empty} />
+  if (loading) return <LoadingBlock rows={loadingRows} columns={loadingCols} />
+  if (error) return <ErrorBlock error={error} onRetry={onRetry} />
+  if (count === 0) return <EmptyBlock title={empty} />
   return <>{children}</>
 }

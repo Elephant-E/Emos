@@ -27,10 +27,10 @@ export function SubscribersModal({
         </button>
       }
     >
-      {subs.error ? <ErrorBlock bare error={subs.error} onRetry={() => subs.refetch()} /> : null}
-      {subs.isLoading ? <LoadingBlock bare rows={4} columns={4} /> : null}
+      {subs.error ? <ErrorBlock error={subs.error} onRetry={() => subs.refetch()} /> : null}
+      {subs.isLoading ? <LoadingBlock rows={4} columns={4} /> : null}
       {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? (
-        <EmptyBlock bare title="还没有人订阅" />
+        <EmptyBlock title="还没有人订阅" />
       ) : null}
       {(subs.data?.items.length ?? 0) > 0 ? (
         <RecordRow

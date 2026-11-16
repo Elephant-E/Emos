@@ -86,8 +86,6 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         onRetry={() => list.retry()}
         items={items}
         infinite={{ hasMore: list.hasMore, loading: list.loadingMore, onLoadMore: list.loadMore }}
-        scope={`${search.type}-${search.q}`}
-        bare
         loadingRows={8}
         loadingCols={5}
         emptyTitle={

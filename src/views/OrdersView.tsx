@@ -126,12 +126,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         onRetry={() => infinite.retry()}
         items={visibleOrders}
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-        cardList
         loadingKind="rows"
         loadingPoster="square"
         loadingLines={2}
         loadingActions={3}
-        scope={`${search.scope}-${search.q}-${search.pay}-${search.delivery}`}
         loadingRows={6}
         loadingCols={5}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}

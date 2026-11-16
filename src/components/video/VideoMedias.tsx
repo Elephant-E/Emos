@@ -34,13 +34,13 @@ export function VideoMedias({
         {episodeTitle && !isMovie ? <span className="muted text-xs">{episodeTitle}</span> : null}
       </CardHead>
 
-      {error ? <ErrorBlock bare error={error} onRetry={onRetry} /> : null}
+      {error ? <ErrorBlock error={error} onRetry={onRetry} /> : null}
       {/* 剧集还没选中具体某集时请求被 enabled 挡住，此时按加载态占位，避免卡片空着 */}
-      {loading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+      {loading ? <LoadingBlock rows={3} columns={3} /> : null}
 
       {!error && !loading && rows.length === 0 ? (
         <EmptyBlock
-          bare
+          
           title={isMovie ? '这部影片还没有资源' : '这一集还没有资源'}
           hint="去上传页把文件入库到这里。"
         />

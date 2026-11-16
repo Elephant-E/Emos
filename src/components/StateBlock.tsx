@@ -116,9 +116,9 @@ export function LoadingRows({
   )
 }
 
-export function LoadingBlock({ rows = 5, columns = 5, bare = false }: { rows?: number; columns?: number; bare?: boolean }) {
+export function LoadingBlock({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
   return (
-    <div className={bare ? undefined : 'table-card'} aria-busy="true" aria-live="polite">
+    <div aria-busy="true" aria-live="polite">
       <div style={{ padding: 'var(--sp-4)' }}>
         <div className="skeleton" style={{ height: 14, width: '22%', marginBottom: 'var(--gap-card)' }} />
         {Array.from({ length: rows }).map((_, r) => (
@@ -141,11 +141,10 @@ interface EmptyBlockProps {
   title: string
   hint?: string
   action?: ReactNode
-  bare?: boolean
 }
-export function EmptyBlock({ title, hint, action, bare = false }: EmptyBlockProps) {
+export function EmptyBlock({ title, hint, action }: EmptyBlockProps) {
   return (
-    <div className={bare ? undefined : 'table-card'}>
+    <div>
       <div className="state">
         <span className="state__icon">
           <IconEmpty />
@@ -160,14 +159,13 @@ export function EmptyBlock({ title, hint, action, bare = false }: EmptyBlockProp
 interface ErrorBlockProps {
   error: unknown
   onRetry?: () => void
-  bare?: boolean
 }
-export function ErrorBlock({ error, onRetry, bare = false }: ErrorBlockProps) {
+export function ErrorBlock({ error, onRetry }: ErrorBlockProps) {
   const status = (error as { status?: number } | null)?.status
   const message = error instanceof Error ? error.message : ''
   const timedOut = status === 0
   return (
-    <div className={bare ? undefined : 'table-card'}>
+    <div>
       <div className="state">
         <span className="state__icon" style={{ color: 'var(--c-red)' }}>
           <IconAlert />

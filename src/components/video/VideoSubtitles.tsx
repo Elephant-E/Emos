@@ -58,9 +58,9 @@ export function VideoSubtitles({
         </label>
       </CardHead>
 
-      {error ? <ErrorBlock bare error={error} onRetry={onRetry} /> : null}
-      {loading ? <LoadingBlock bare rows={2} columns={3} /> : null}
-      {!error && !loading && rows.length === 0 ? <EmptyBlock bare title="还没有字幕" /> : null}
+      {error ? <ErrorBlock error={error} onRetry={onRetry} /> : null}
+      {loading ? <LoadingBlock rows={2} columns={3} /> : null}
+      {!error && !loading && rows.length === 0 ? <EmptyBlock title="还没有字幕" /> : null}
 
       {rows.length > 0 ? (
         <RecordRow

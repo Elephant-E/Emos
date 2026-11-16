@@ -99,7 +99,6 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
         error={active.error}
         onRetry={() => active.refetch()}
         items={activeRows}
-        scope={`${search.tab}-${search.q}-${search.filter}`}
         loadingRows={8}
         loadingCols={4}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合筛选的歌曲' : '这个库还是空的'}

@@ -94,7 +94,6 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           error={list.error}
           onRetry={() => list.refetch()}
           items={rows}
-          bare
           loadingKind="rows"
         loadingPoster="none"
         loadingLines={3}

@@ -71,11 +71,9 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         error={lines.error}
         onRetry={() => lines.refetch()}
         items={rows}
-        cardList
         // 线路一次取全，直接列出
         infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
         loadingRows={5}
-        bare
         loadingKind="rows"
         loadingPoster="none"
         loadingLines={2}

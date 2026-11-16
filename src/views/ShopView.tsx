@@ -269,9 +269,7 @@ export function ShopView({
               error={infinite.error}
               onRetry={() => infinite.retry()}
               items={infinite.items}
-              cardList
               infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
-              scope={`${scope}-${q}-${categoryId}`}
               loadingRows={6}
               loadingCols={5}
               emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
@@ -366,7 +364,7 @@ export function ShopView({
         <Modal title="店铺设置" width={560} onClose={() => onSearch({ tab: 'products' })}>
           <>
             <CardHead title="店铺信息" />
-            {seller.isLoading ? <LoadingBlock bare rows={3} columns={3} /> : null}
+            {seller.isLoading ? <LoadingBlock rows={3} columns={3} /> : null}
             {!seller.isLoading && !seller.data ? (
               <>
                 <p className="card-note">这个账号还没有店铺。</p>
