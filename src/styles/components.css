@@ -2241,7 +2241,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .login__reveal { min-height: 32px; }
   /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
   .product-tile__buy { width: 36px; height: 36px; }
-  .detail-stat__link { min-height: 36px; }
+  /* 订阅数是按钮，触控要 36px；但只把它撑高会让这一格的数字与标签比旁边低 5px，
+     所以所有统计值统一成同一个盒子高度，各自的文字在盒内居中 */
+  .detail-stat b,
+  .detail-stat__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
   .tab { min-height: 40px; }
 
   /* 商品网格：一行一件太浪费，两列更接近手机购物的阅读习惯 */
