@@ -108,7 +108,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
                     const ok = await confirmDialog({
                       title: `删除线路「${line.name}」？`,
                       message: '使用这条线路的客户端会立刻失效。',
-                      hint: '建议先在客户端切到其它线路。',
+                      hint: '建议先在客户端切到其他线路。',
                       confirmText: '删除',
                       danger: true,
                     })

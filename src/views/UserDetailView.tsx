@@ -152,7 +152,7 @@ export function UserDetailView({ userId }: { userId: string }) {
         </DetailHead>
       ) : null}
 
-      {/* 无服务商权限时 pay 取不到，多数指标显示「—」；封禁状态、邀请关系来自其它接口，
+      {/* 无服务商权限时 pay 取不到，多数指标显示「—」；封禁状态、邀请关系来自其他接口，
           照常渲染，权限缺口只留在上面的提示里 */}
       <section className="cards cards--4">
         <StatCard

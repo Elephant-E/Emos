@@ -2494,6 +2494,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 手机上文字比图片重要，一张占满整行 */
   .record-rows { grid-template-columns: minmax(0, 1fr); }
   /* 手机宽度放不下「文字 + 右侧按钮」，动作回到底部整行右对齐 */
+  /* 卡片内的行在手机上：正文占满、动作换到下一行右对齐，避免压住标题 */
+  .card .record-row,
+  .card .record-row--no-poster { grid-template-columns: minmax(0, 1fr); }
+  .card .record-row .record-row__actions {
+    grid-column: 1;
+    margin-top: var(--sp-2);
+  }
   /* 提高特异性才能压过基线里后写的 grid-column: 3 */
   .record-row .record-row__actions,
   .record-row .record-row__actions:not(.record-row__actions--full) {
@@ -2502,7 +2509,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     flex-wrap: wrap;
   }
   /* 卡片内行的动作是绝对定位的 ⋯，手机上只需让出 44px，不必 108px */
-  .card .record-row { padding-right: 44px; }
   /* 单列行在手机上回到「图左文右 + 动作整行」的堆叠，避免中间列被压到 90px */
   .record-rows--single .record-row {
     grid-template-columns: 72px minmax(0, 1fr);
@@ -2541,14 +2547,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   padding: var(--sp-2) 0;
 }
 .card .record-row + .record-row { border-top: 1px solid var(--line-soft); }
-/* 卡片内的行：⋯ 放到标题行右侧，不要单独占一行留下大片空白 */
-.card .record-row { padding-right: 108px; }
-.card .record-row__actions {
-  position: absolute;
-  top: var(--sp-2);
-  right: 0;
-  margin: 0;
-}
+/* 卡片内的行：动作同样落在第三列、垂直居中（与列表行一套规则） */
 .record-row.is-clickable { cursor: pointer; }
 .record-row.is-clickable:hover { border-color: var(--line-hot); }
 .record-row__media {

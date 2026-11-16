@@ -4,7 +4,7 @@ import { setToken } from '@/api/client'
 import { Avatar } from '@/components/Avatar'
 
 /**
- * 账号菜单：当前账号、其它已登录账号（可切换 / 移除）、添加账号、退出登录。
+ * 账号菜单：当前账号、其他已登录账号（可切换 / 移除）、添加账号、退出登录。
  * 桌面侧栏与手机顶栏头像共用这份内容——两边展示位置不同，行为必须一致。
  */
 export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string; onDone?: () => void }) {

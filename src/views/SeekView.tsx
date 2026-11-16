@@ -200,6 +200,8 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                   <button
                     type="button"
                     className="btn btn--quiet"
+                    disabled={!item.video_list_id}
+                    title={item.video_list_id ? undefined : '这条求片没有关联影片'}
                     onClick={() => {
                       if (!item.video_list_id) return
                       navigate({
