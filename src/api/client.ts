@@ -1,5 +1,4 @@
 import type { ApiError } from './types'
-import { mockRequest } from './mock'
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 const MOCK_MODE = import.meta.env.VITE_MOCK ?? ''
 export const USE_FIXTURES = MOCK_MODE === 'fixtures'
@@ -83,6 +82,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 async function requestOnce<T>(path: string, options: RequestOptions): Promise<T> {
   const { method = 'GET', query, body, signal, silent401 } = options
   if (USE_MOCK) {
+    // 动态引入：mock 里的几百条假数据不该被打进生产主包
+    // （以前静态 import，dist 的入口 chunk 里能直接 grep 到「夜航西飞」「picsum.photos」）
+    const { mockRequest } = await import('./mock')
     return mockRequest<T>(path, { method, query, body })
   }
   const headers: Record<string, string> = { Accept: 'application/json' }

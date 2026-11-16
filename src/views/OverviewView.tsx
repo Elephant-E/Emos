@@ -250,7 +250,7 @@ export function OverviewView() {
               const total = Number(row.media_seconds ?? 0)
               const ratio = total > 0 ? Math.min(1, played / total) : 0
               return (
-                <li key={index}>
+                <li key={String(row.video_id ?? index)}>
                   <Link
                     to="/media/$videoId"
                     params={{ videoId: String(row.video_id ?? 0) }}
@@ -340,7 +340,7 @@ export function OverviewView() {
           {carrotHistory.data && carrotHistory.data.items.length > 0 ? (
             <ul style={{ display: 'grid', gap: 'var(--sp-2)', marginTop: 'var(--stack)', paddingTop: 'var(--stack)', borderTop: '1px solid var(--line-soft)' }}>
               {carrotHistory.data.items.slice(0, 3).map((row, index) => (
-                <li key={index} className="row--baseline" style={{ display: 'flex' }}>
+                <li key={`${String(row.created_at)}-${String(row.trigger_type)}-${index}`} className="row--baseline" style={{ display: 'flex' }}>
                   <span style={{ color: 'var(--fg-3)' }}>{row.trigger_type_string || row.trigger_type}</span>
                   <span className="muted meta-end">
                     {String(row.created_at).slice(5, 10)}
