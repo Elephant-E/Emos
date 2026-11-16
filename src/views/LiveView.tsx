@@ -105,7 +105,12 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <div className="sources__head">
               <span className="sources__title">
                 直播源
-                <span className="sources__count">{media.data?.total ?? 0}</span>
+                <span className="sources__count">
+                  {media.data?.total ?? 0}
+                  {(media.data?.total ?? 0) > (media.data?.items.length ?? 0)
+                    ? `（本页显示 ${media.data?.items.length ?? 0}）`
+                    : ''}
+                </span>
               </span>
               {channel.is_can_edit ? (
                 <button
