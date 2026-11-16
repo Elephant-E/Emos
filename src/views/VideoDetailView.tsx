@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { DetailHead, DetailStats } from '@/components/DetailHead'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { uploadSubtitle } from '@/lib/uploader'
+import { rowsOf } from '@/lib/rows'
 import { useCapabilities, useSeekApply, useEpisodes, useMediaList, usePersons, useSeasons, useSubtitles, useVideoDetail, useVideoMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
@@ -259,7 +260,7 @@ export function VideoDetailView({
 
         <div className="detail-col">
           <VideoMedias
-            rows={(media.data ?? []) as unknown as Array<Record<string, unknown>>}
+            rows={rowsOf(media.data)}
             error={media.error}
             loading={!episodeReady || media.isLoading}
             onRetry={() => media.refetch()}
@@ -270,7 +271,7 @@ export function VideoDetailView({
           />
 
           <VideoSubtitles
-            rows={(subtitles.data ?? []) as unknown as SubtitleRow[]}
+            rows={rowsOf<SubtitleRow & Record<string, unknown>>(subtitles.data)}
             error={subtitles.error}
             loading={!episodeReady || subtitles.isLoading}
             onRetry={() => subtitles.refetch()}

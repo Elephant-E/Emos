@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
+import { pageOf } from '@/lib/rows'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
@@ -26,7 +27,7 @@ const FUND_TABS = [
 function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
   const carrot = useCarrot()
   const infinite = usePagedInfinite<Record<string, unknown>>(
-    (next) => carrotApi.history({ page: next, page_size: PAGE_SIZE }) as unknown as Promise<{ items: Array<Record<string, unknown>>; total: number; page_size: number }>,
+    async (next) => pageOf(await carrotApi.history({ page: next, page_size: PAGE_SIZE })),
     { queryKey: [...qk.carrot, 'history'] },
   )
   const actions = useAccountMutations()
@@ -207,7 +208,7 @@ export function FundView({ tab, onTab }: {
     (next) =>
       fundApi
         .orders({ page: next, page_size: Math.min(30, PAGE_SIZE) })
-        .then((r) => ({ items: r.items as unknown as Row[], total: r.total, page_size: r.page_size })),
+        .then((r) => pageOf<Row>(r)),
     { enabled: tab === 'orders', queryKey: [...qk.fund, 'orders'] },
   )
   const rows = infinite.items

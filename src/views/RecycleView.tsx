@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PAGE_SIZE } from '@/lib/search'
+import { pageOf } from '@/lib/rows'
 import { mediaApi, videoApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
@@ -40,12 +41,12 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
         ? mediaApi
             .listAll({ only_delete: true, page: next, ...(q ? { [by]: q } : {}) })
             .then((res) => {
-              const r = res as unknown as { items?: Array<Record<string, unknown>>; total?: number; page_size?: number }
-              return { items: r.items ?? [], total: r.total ?? 0, page_size: r.page_size ?? PAGE_SIZE }
+              const r = pageOf(res)
+              return { ...r, page_size: r.page_size || PAGE_SIZE }
             })
         : videoApi
             .list({ only_delete: true, page: next, ...(q ? { title: q } : {}) })
-            .then((r) => ({ items: r.items as unknown as Array<Record<string, unknown>>, total: r.total, page_size: r.page_size })),
+            .then((r) => pageOf(r)),
     { queryKey: [...qk.recycle, { tab, q, by }] },
   )
   const actions = useRecycleMutations()
