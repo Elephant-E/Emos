@@ -120,12 +120,6 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         </div>
       </div>
 
-      {filtered ? (
-        <p className="card-note">
-          支付/发货/关键词筛选只在当前页生效（接口忽略这几个条件），翻页会重新按后端结果展示。
-        </p>
-      ) : null}
-
       <ListSection
         isLoading={infinite.loading && infinite.items.length === 0}
         error={infinite.error}
