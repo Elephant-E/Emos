@@ -37,6 +37,7 @@ export function ListSection<T>({
   loadingExtra = false,
   loadingFullActions = false,
   loadingMulti = false,
+  loadingBadges = false,
   /** 内容在手机端是卡片列表：卡片自带边框，外层就不要再套一层 .table-card */
   cardList = false,
   /** 滚动加载：滑到底部触发 onLoadMore（不传就只渲染当前这批） */
@@ -71,6 +72,8 @@ export function ListSection<T>({
   loadingFullActions?: boolean
   /** 骨架是否多列（求片这类待办型列表） */
   loadingMulti?: boolean
+  /** 网格骨架是否留右上角角标位（卡片上真有角标才传） */
+  loadingBadges?: boolean
   cardList?: boolean
   infinite?: { hasMore: boolean; loading: boolean; onLoadMore: () => void }
   bare?: boolean
@@ -100,7 +103,7 @@ export function ListSection<T>({
       )
     }
     if (loadingKind === 'grid' || (bare && loadingKind !== 'table')) {
-      return <LoadingGrid count={loadingRows} shape={gridShape} />
+      return <LoadingGrid count={loadingRows} shape={gridShape} badges={loadingBadges} />
     }
     return <LoadingBlock rows={loadingRows} columns={loadingCols} />
   }

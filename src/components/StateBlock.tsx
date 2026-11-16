@@ -1,16 +1,26 @@
 import type { ReactNode } from 'react'
 import { IconAlert, IconEmpty } from './icons'
 /** 网格列表的骨架：与 RecordGrid 的卡片同形（图片位 + 两行文字），换页不跳 */
-export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; shape?: 'poster' | 'wide' | 'square' }) {
+export function LoadingGrid({
+  count = 10,
+  shape = 'poster',
+  badges = false,
+}: {
+  count?: number
+  shape?: 'poster' | 'wide' | 'square'
+  /** 真实卡片右上角有角标时才留角标位，否则骨架会多出一个永远不出现的胶囊 */
+  badges?: boolean
+}) {
   return (
     <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="record-tile">
           <div className={`record-tile__media record-tile__media--${shape} skeleton`} style={{ boxShadow: 'none' }}>
-            {/* 右上角标位置也留出来，加载完不要在视觉上跳一下 */}
-            <div className="record-tile__badges">
-              <span className="skeleton" style={{ width: 34, height: 20 }} />
-            </div>
+            {badges ? (
+              <div className="record-tile__badges">
+                <span className="skeleton" style={{ width: 34, height: 20 }} />
+              </div>
+            ) : null}
           </div>
           <div className="record-tile__body">
             <div className="skeleton" style={{ height: 13, width: '62%' }} />
