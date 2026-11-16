@@ -237,7 +237,7 @@ export function UserDetailView({ userId }: { userId: string }) {
               </div>
               <div>
                 <dt>注册时间</dt>
-                <dd>{info ? formatDateTime(info.created_at) : '—'}</dd>
+                <dd>{info ? formatDate(info.created_at) : '—'}</dd>
               </div>
               {banned ? (
                 <div>

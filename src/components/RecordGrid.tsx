@@ -44,6 +44,8 @@ export interface RecordGridProps<T> {
    * 能在详情页做的事就不要在卡片上重复（片单的删除就是这样去掉的）。
    */
   actions?: (row: T) => ReactNode
+  /** 额外的容器类（进场动画等） */
+  className?: string
 }
 
 function RecordGridBase<T>({
@@ -58,9 +60,10 @@ function RecordGridBase<T>({
   sub,
   badges,
   actions,
+  className,
 }: RecordGridProps<T>) {
   return (
-    <div className={`record-grid record-grid--${shape}`}>
+    <div className={`record-grid record-grid--${shape}${className ? ` ${className}` : ''}`}>
       {rows.map((row) => {
         const clickable = Boolean(onOpen)
         const subNode = sub?.(row)

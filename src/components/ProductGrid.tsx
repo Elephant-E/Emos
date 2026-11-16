@@ -29,6 +29,7 @@ export function ProductGrid({
   return (
     <>
       <RecordGrid
+        className="content-in"
         rows={products}
         idKey={(product) => product.product_id}
         onOpen={onOpen}
@@ -38,15 +39,16 @@ export function ProductGrid({
         meta={(product) => <Price price={product.price} priceOrigin={product.price_origin} />}
         sub={(product) => (
           <>
-            <span>销量 {formatThousand(product.sales)}</span>
-            {product.stock <= 0 ? <span>已售罄</span> : <span>库存 {formatThousand(product.stock)}</span>}
+            {(product.sales ?? 0) > 0 ? <span>销量 {formatThousand(product.sales)}</span> : null}
+            {product.stock <= 0 ? null : <span>库存 {formatThousand(product.stock)}</span>}
           </>
         )}
         actions={(product) => (
           <button
             type="button"
             className="btn btn--ghost"
-            aria-label={`购买 ${product.name}`}
+            aria-label={product.stock <= 0 ? `${product.name} 已售罄` : `购买 ${product.name}`}
+            title={product.stock <= 0 ? '已售罄' : '购买'}
             disabled={product.stock <= 0 || !product.is_up}
             onClick={(event) => {
               event.stopPropagation()

@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { useAccountMutations, useBanList } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatRelative } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 
 export function UserSearchView() {
   const navigate = useNavigate()
@@ -82,7 +82,7 @@ export function UserSearchView() {
             facts={(row) => (
               <>
                 <span>{row.disable_reason ?? '无原因'}</span>
-                <span>{formatRelative(row.created_at)} 注册</span>
+                <span>{formatDate(row.created_at)} 注册</span>
               </>
             )}
             actions={(row) => (
