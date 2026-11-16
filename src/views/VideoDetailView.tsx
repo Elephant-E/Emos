@@ -232,8 +232,10 @@ export function VideoDetailView({
             items={[
               { value: <b>{video.todb_id}</b>, label: 'TODB' },
               { value: <b>{video.tmdb_id ?? '—'}</b>, label: 'TMDB' },
-              { value: <b>{video.medias_count}</b>, label: '资源' },
-              { value: <b>{video.subtitles_count}</b>, label: '字幕' },
+              // 剧集的这两个是「全剧」口径，而下面的资源/字幕卡只显示当前这一集，
+              // 标签不区分的话会出现「217 资源」旁边只有 1 行的错觉
+              { value: <b>{video.medias_count}</b>, label: isMovie ? '资源' : '全剧资源' },
+              { value: <b>{video.subtitles_count}</b>, label: isMovie ? '字幕' : '全剧字幕' },
             ]}
           />
         </DetailHead>
