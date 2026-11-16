@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/PageHeader'
 import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
 import { Modal } from '@/components/Modal'
-import { qk, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
+import { qk, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodoBans, useTodoOrders, useTodoSeeks, useWatchPage, useWatchStats } from '@/api/queries'
 import { userApi } from '@/api/endpoints'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand, realmOf } from '@/lib/format'
@@ -41,21 +41,24 @@ export function OverviewView() {
   const weekDays = week.filter((d) => d.seconds > 0).length
   const weekSeconds = week.reduce((sum, d) => sum + d.seconds, 0)
   const carrotHistory = useCarrotHistory(1, 3)
-  const todos = useTodos()
+  const todoSeeks = useTodoSeeks()
+  const todoOrders = useTodoOrders()
+  const todoBans = useTodoBans()
+  // 三个数字各自独立取：谁先回来谁先显示，不再互相等待
   const todoAll = [
-    { label: '待处理求片', value: todos.data?.seeks, unit: '条', to: '/seek' as const, search: { tab: 'default' as const } },
-    { label: '待发货订单', value: todos.data?.orders, unit: '单', to: '/orders' as const, search: { pay: 'paid' as const, delivery: 'pending' as const } },
-    { label: '封禁中用户', value: todos.data?.bans, unit: '人', to: '/users' as const, search: {} },
+    { label: '待处理求片', query: todoSeeks, unit: '条', to: '/seek' as const, search: { tab: 'default' as const } },
+    { label: '待发货订单', query: todoOrders, unit: '单', to: '/orders' as const, search: { pay: 'paid' as const, delivery: 'pending' as const } },
+    { label: '封禁中用户', query: todoBans, unit: '人', to: '/users' as const, search: {} },
   ]
-  // 加载中也占位：空态要区分「还没有数据」与「取不到」
-  const todoItems = todos.isLoading ? todoAll : todoAll.filter((item) => (item.value ?? 0) > 0)
+  // 加载中也占位，但数值显示「—」：显示 0 等于告诉用户「没有待办」
+  const todoItems = todoAll.filter((item) => item.query.isPending || (item.query.data ?? 0) > 0)
   // useTodos 把每个接口的失败吞成 null：管理员三个都是 null 说明全没读出来，要给错误态；
   // 失败与 0 是两回事。非管理员本就没有这三个权限（403 → null），不算故障
   const todosFailed =
-    Boolean(todos.error) ||
-    Boolean(caps.isAdmin && todos.data && [todos.data.seeks, todos.data.orders, todos.data.bans].every((value) => value == null))
+    caps.isAdmin && todoAll.every((item) => item.query.isError) ? true : todoAll.every((item) => item.query.isError)
   // 没有待办时（非管理员或已清空）用「我的片单」补位；取不到时不换，失败与空态分开
-  const showWatchlists = !todos.isLoading && !todosFailed && todoItems.length === 0
+  const todosLoading = todoAll.some((item) => item.query.isPending)
+  const showWatchlists = !todosLoading && !todosFailed && todoItems.length === 0
   const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
   const qc = useQueryClient()
@@ -132,7 +135,7 @@ export function OverviewView() {
 
       <p className="greeting">
         {greeting}
-        {displayName ? `，${displayName}` : ''}
+        {displayName ? `，${displayName}，` : ''}
         <span>{todayText}</span>
       </p>
 
@@ -142,10 +145,10 @@ export function OverviewView() {
             <Link key={item.label} className="card card--stat todo" to={item.to} search={item.search}>
               <p className="stat__label">{item.label}</p>
               <p className="stat__value">
-                {item.value === null ? '—' : formatThousand(item.value ?? 0)}
-                <small>{item.unit}</small>
+                {item.query.isPending || item.query.data == null ? '—' : formatThousand(item.query.data)}
+                {item.query.isPending || item.query.data == null ? null : <small>{item.unit}</small>}
               </p>
-              <p className="stat__delta stat__delta--quiet">去处理</p>
+              <p className="stat__delta stat__delta--quiet">{item.query.isPending ? '读取中' : '去处理'}</p>
             </Link>
           ))}
         </section>
@@ -153,7 +156,14 @@ export function OverviewView() {
 
       {/* 待办取不到时走错误态，不进空态 */}
       {todosFailed ? (
-        <ErrorBlock error={todos.error ?? new Error('待办没取到')} onRetry={() => todos.refetch()} />
+        <ErrorBlock
+          error={new Error('待办没取到')}
+          onRetry={() => {
+            void todoSeeks.refetch()
+            void todoOrders.refetch()
+            void todoBans.refetch()
+          }}
+        />
       ) : null}
 
       {session.error ? (
@@ -202,22 +212,20 @@ export function OverviewView() {
           })()}
         />
 
-        <Link className="card card--stat card--secondary todo" to="/watchlists" search={{ scope: 'self',  q: '' }}>
+        <Link className="card card--stat card--secondary todo" to="/account" search={{ tab: 'profile' }}>
           <p className="stat__label">片单槽位</p>
           <p className="stat__value">
             {ready ? caps.slotRemaining : '—'}
             <small>个可用</small>
           </p>
-          <p className="stat__delta stat__delta--quiet">
-            可用胡萝卜兑换
-          </p>
+          <p className="stat__delta stat__delta--quiet">{ready ? '去兑换' : '读取中'}</p>
         </Link>
 
         <Link className="card card--stat card--secondary todo" to="/upload">
           <p className="stat__label">我的上传</p>
           <p className="stat__value">
-            {!ready ? '—' : formatSize(caps.sizeUpload)}
-            <small>累计</small>
+            {!ready || !caps.canUpload ? '—' : formatSize(caps.sizeUpload)}
+            {!ready || !caps.canUpload ? null : <small>累计</small>}
           </p>
           <p className="stat__delta stat__delta--quiet">
             {!ready ? '读取中' : caps.canUpload ? '进入上传' : '上传权限未开通'}
