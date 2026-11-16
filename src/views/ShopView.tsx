@@ -242,7 +242,7 @@ export function ShopView({
           {!mine && browse.error ? (
             <ErrorBlock error={browse.error} onRetry={() => browse.refetch()} />
           ) : null}
-          {!mine && browse.isLoading ? <LoadingGrid count={10} shape="square" lines={3} /> : null}
+          {!mine && browse.isLoading ? <LoadingGrid count={10} shape="product" /> : null}
           {!mine && !browse.isLoading && !browse.error && browseItems.length === 0 ? (
             <EmptyBlock
               title={q ? `没有找到「${q}」` : '还没有在售商品'}
@@ -366,7 +366,7 @@ export function ShopView({
         <Modal title="店铺设置" width={560} onClose={() => onSearch({ tab: 'products' })}>
           <>
             <CardHead title="店铺信息" />
-            {seller.isLoading ? <LoadingGrid count={6} shape="square" lines={3} /> : null}
+            {seller.isLoading ? <LoadingGrid count={6} shape="product" /> : null}
             {!seller.isLoading && !seller.data ? (
               <>
                 <p className="card-note">这个账号还没有店铺。</p>

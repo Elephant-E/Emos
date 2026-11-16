@@ -275,7 +275,7 @@
   border-color: var(--line);
   color: var(--fg-2);
 }
-.btn--ghost:hover { border-color: var(--line-hot); color: var(--fg); }
+.btn--ghost:not(:disabled):hover { border-color: var(--line-hot); color: var(--fg); }
 .btn--ghost:active { border-color: var(--fg-3); }
 .btn--primary {
   background: #f2f1ee;
@@ -283,10 +283,10 @@
   color: var(--on-light);
   font-weight: 500;
 }
-.btn--primary:hover { background: #fff; border-color: #fff; }
+.btn--primary:not(:disabled):hover { background: #fff; border-color: #fff; }
 .btn--primary:active { background: #e4e2dc; }
 .btn--quiet { color: var(--fg-3); }
-.btn--quiet:hover { color: var(--fg); }
+.btn--quiet:not(:disabled):hover { color: var(--fg); }
 .btn:disabled,
 .btn[aria-disabled='true'] {
   opacity: 0.45;
@@ -812,7 +812,7 @@ input.input[type='number'] { min-width: 0; }
   color: #ff9a7a;
   background: transparent;
 }
-.btn--danger:hover {
+.btn--danger:not(:disabled):hover {
   border-color: rgba(242, 112, 74, 0.8);
   background: rgba(242, 112, 74, 0.1);
   color: #ffb094;
@@ -1210,7 +1210,7 @@ input.input[type='number'] { min-width: 0; }
   letter-spacing: 0.02em;
   color: var(--fg-3);
 }
-.card-head .btn--quiet:hover,
+.card-head .btn--quiet:not(:disabled):hover,
 .card--stat .stat__label .btn:hover { color: var(--fg); background: transparent; }
 .card-head .btn--quiet:disabled,
 .card--stat .stat__label .btn:disabled { color: var(--fg-5); cursor: default; }
@@ -2209,7 +2209,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .head-tools .btn--primary { color: var(--on-light); }
   /* 描边退一档：这是次要入口，不该比正文内容更抢眼 */
   .head-tools .btn--ghost { border-color: var(--line-soft); }
-  .head-tools .btn--ghost:hover { border-color: var(--line); color: var(--fg-2); }
+  .head-tools .btn--ghost:not(:disabled):hover { border-color: var(--line); color: var(--fg-2); }
   .head-tools .seg { height: 34px; }
   .head-tools .seg button { height: 32px; }
 

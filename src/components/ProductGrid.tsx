@@ -37,7 +37,7 @@ export function ProductGrid({
           />
         ))}
       </div>
-      {loadingMore ? <LoadingGrid count={4} shape="square" lines={3} /> : null}
+      {loadingMore ? <LoadingGrid count={4} shape="product" /> : null}
       {hasMore ? <InfiniteSentinel onLoadMore={onLoadMore} loading={loadingMore} /> : null}
       {!loadingMore && loadError ? (
         <p className="grid-state">

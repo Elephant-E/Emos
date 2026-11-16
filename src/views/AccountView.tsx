@@ -56,6 +56,28 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
       {session.error ? <ErrorBlock error={session.error} onRetry={() => session.refetch()} /> : null}
 
+      {/* 会话还没到时给同形占位：原来这里直接渲染空内容，接口一慢就是长时间白屏 */}
+      {session.isLoading ? (
+        <>
+          <section className="cards" aria-busy="true" aria-live="polite">
+            {[0, 1, 2].map((i) => (
+              <article key={i} className="card">
+                <div className="skeleton" style={{ height: 12, width: '38%' }} />
+                <div className="skeleton" style={{ height: 30, width: '54%', marginTop: 'var(--sp-3)' }} />
+                <div className="skeleton" style={{ height: 12, width: '62%', marginTop: 'var(--sp-3)' }} />
+              </article>
+            ))}
+          </section>
+          <section className="cards cards--wide" aria-busy="true" aria-live="polite">
+            <article className="card">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="skeleton" style={{ height: i === 0 ? 14 : 12, width: i === 0 ? '26%' : '100%', marginTop: i === 0 ? 0 : 'var(--stack)' }} />
+              ))}
+            </article>
+          </section>
+        </>
+      ) : null}
+
       {tab === 'profile' && user ? (
         <>
           <section className="cards">

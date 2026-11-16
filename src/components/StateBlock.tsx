@@ -8,12 +8,30 @@ export function LoadingGrid({
   lines = 2,
 }: {
   count?: number
-  shape?: 'poster' | 'wide' | 'square'
+  shape?: 'poster' | 'wide' | 'square' | 'product'
   /** 真实卡片右上角有角标时才留角标位，否则骨架会多出一个永远不出现的胶囊 */
   badges?: boolean
   /** 文字行数：影库/片单是标题 + 次要信息两行，商品卡多一行价格 */
   lines?: number
 }) {
+  // 商品卡是独立形态（product-grid + product-tile），列宽与卡片结构都和通用网格不同
+  if (shape === 'product') {
+    return (
+      <div className="product-grid" aria-busy="true" aria-live="polite">
+        {Array.from({ length: count }).map((_, i) => (
+          <div key={i} className="product-tile">
+            <div className="product-tile__cover skeleton" style={{ boxShadow: 'none' }} />
+            <div className="product-tile__body">
+              <div className="skeleton" style={{ height: 14, width: '72%' }} />
+              <div className="skeleton" style={{ height: 16, width: '46%' }} />
+              <div className="skeleton" style={{ height: 12, width: '58%' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className={`record-grid record-grid--${shape}`} aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (

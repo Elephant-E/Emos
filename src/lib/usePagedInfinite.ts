@@ -20,7 +20,9 @@ export function usePagedInfinite<T>(
   const [total, setTotal] = useState(0)
   const [pageSize, setPageSize] = useState(20)
   const [page, setPage] = useState(1)
-  const [loading, setLoading] = useState(false)
+  // 初始就是「加载中」：否则首个渲染帧 items 为空且 loading 为 false，
+  // 会先闪一下「空态」文案再切骨架（实测 7–12ms，约一帧）
+  const [loading, setLoading] = useState(enabled)
   const [error, setError] = useState<unknown>(null)
   const [done, setDone] = useState(false)
 
