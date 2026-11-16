@@ -1869,17 +1869,24 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.product-tile__price { display: inline-flex; align-items: center; gap: var(--sp-2); white-space: nowrap; }
+.product-tile__price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  min-width: 0;
+}
 .product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: var(--text-xs); color: var(--fg-5); }
 .product-tile__meta {
   margin-top: var(--sp-hair);
   display: flex;
   align-items: center;
+  /* 允许换行：销量/库存在极端数值下原来会被卡片圆角切断，看起来像渲染错误 */
+  flex-wrap: wrap;
   gap: var(--sp-2);
   font-size: var(--text-2xs);
   color: var(--fg-4);
-  white-space: nowrap;
 }
 .product-tile__buy {
   margin-left: auto;
