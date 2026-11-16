@@ -94,6 +94,8 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
           bare
           loadingKind="rows"
         loadingPoster="square"
+        loadingLines={2}
+        loadingActions={0}
           loadingRows={8}
           emptyTitle="还没有数据"
         >

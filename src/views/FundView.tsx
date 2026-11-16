@@ -88,6 +88,8 @@ function CarrotSection({ pageSize }: { pageSize: number }) {
         loadingRows={8}
         loadingKind="rows"
         loadingPoster="none"
+        loadingLines={2}
+        loadingActions={0}
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordRow<Record<string, unknown>>
@@ -246,7 +248,6 @@ export function FundView({ tab, onTab, pageSize }: {
           infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
           scope="orders"
           loadingRows={8}
-          loadingKind="rows"
           emptyTitle="还没有基金订单"
         >
           <RecordRow

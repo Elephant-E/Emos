@@ -215,6 +215,8 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
         loadingRows={6}
         loadingKind="rows"
         loadingPoster="square"
+        loadingLines={2}
+        loadingActions={2}
         emptyTitle="这个媒体库还没有频道"
       >
           <RecordRow

@@ -97,6 +97,8 @@ export function WhisperView({ tab, onTab }: { tab: 'receiver' | 'sender'; onTab:
           bare
           loadingKind="rows"
         loadingPoster="none"
+        loadingLines={3}
+        loadingActions={1}
           loadingRows={5}
           emptyTitle={tab === 'receiver' ? '还没有收到悄悄话' : '还没有发出过悄悄话'}
         >

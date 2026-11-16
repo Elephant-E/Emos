@@ -22,55 +22,72 @@ export function LoadingGrid({ count = 10, shape = 'poster' }: { count?: number; 
   )
 }
 
-/** 行卡片骨架：与 RecordRow 同形（封面 + 标题/信息 + 字段行 + 三键） */
+/**
+ * 行卡片骨架：与 RecordRow 同形。
+ *
+ * 真实行之间有差异（有没有封面、有没有信息块、动作几个），骨架也要跟着变，
+ * 否则「加载中」和「加载完」是两种形状，页面会塌一次。
+ */
 export function LoadingRows({
   count = 6,
   single = false,
   poster = 'poster',
+  lines = 2,
+  actions = 2,
+  extra = false,
+  fullActions = false,
 }: {
   count?: number
-  /** 管理型单列（小图 72×108 + 右侧动作） */
+  /** 管理型单列（小图 + 右侧动作） */
   single?: boolean
-  /** 封面形态：与真实行一致，避免加载完高度塌一次 */
+  /** 封面形态：与真实行一致 */
   poster?: 'poster' | 'square' | 'none'
+  /** 文字行数（标题 + meta + facts） */
+  lines?: number
+  /** 动作按钮个数，0 表示这一列列表没有操作 */
+  actions?: number
+  /** 是否有跨整行的信息块（求片的「求片记录」这类） */
+  extra?: boolean
+  /** 动作是否等分成整行（求片三键） */
+  fullActions?: boolean
 }) {
-  const posterSize = poster === 'poster' ? { width: 112, height: 168 } : poster === 'square' ? { width: 72, height: 72 } : null
-  if (single) {
-    // 单列（管理型）列表：小图 + 信息条 + 右侧动作条
-    return (
-      <div className="record-rows record-rows--single" aria-busy="true" aria-live="polite">
-        {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="record-row">
-            {posterSize ? <div className="record-row__media skeleton" style={{ height: posterSize.height }} /> : null}
-            <div className="record-row__body">
-              <div className="skeleton" style={{ height: 14, width: '46%' }} />
-              <div className="skeleton" style={{ height: 11, width: '30%' }} />
-              <div className="skeleton" style={{ height: 11, width: '38%' }} />
-            </div>
-            <div className="record-row__actions">
-              <div className="skeleton" style={{ width: 56, height: 32, borderRadius: 'var(--r-item)' }} />
-              <div className="skeleton" style={{ width: 64, height: 32, borderRadius: 'var(--r-item)' }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
+  const posterSize =
+    poster === 'poster' ? { width: 112, height: 168 } : poster === 'square' ? { width: 72, height: 72 } : null
+  const lineWidths = ['46%', '62%', '52%']
+
   return (
-    <div className="record-rows" aria-busy="true" aria-live="polite">
+    <div className={`record-rows${single ? ' record-rows--single' : ''}`} aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="record-row">
-          {/* 封面位按真实比例撑开，与真实卡片同高，避免加载完高度跳一下 */}
           {posterSize ? <div className="record-row__media skeleton" style={{ height: posterSize.height }} /> : null}
           <div className="record-row__body">
-            <div className="skeleton" style={{ height: 14, width: '42%' }} />
-            <div className="skeleton" style={{ height: 12, width: '62%' }} />
-            <div className="skeleton" style={{ height: 12, width: '52%' }} />
+            {Array.from({ length: lines }).map((__, line) => (
+              <div
+                key={line}
+                className="skeleton"
+                style={{ height: line === 0 ? 14 : 12, width: lineWidths[Math.min(line, lineWidths.length - 1)] }}
+              />
+            ))}
           </div>
-          <div className="record-row__actions">
-            <div className="skeleton" style={{ width: 64, height: 32, borderRadius: 'var(--r-item)' }} />
-            <div className="skeleton" style={{ width: 48, height: 32, borderRadius: 'var(--r-item)' }} />
-          </div>
+          {actions > 0 ? (
+            <div className={`record-row__actions${fullActions ? ' record-row__actions--full' : ''}`}>
+              {Array.from({ length: actions }).map((__, action) => (
+                <div
+                  key={action}
+                  className="skeleton"
+                  style={{ width: fullActions ? undefined : 56, height: 32, borderRadius: 'var(--r-item)' }}
+                />
+              ))}
+            </div>
+          ) : null}
+          {/* 信息块按真实块的三行高度占位（求片的「求片记录」就是这个形状） */}
+          {extra ? (
+            <div className="record-row__extra">
+              {[0, 1, 2].map((row) => (
+                <div key={row} className="skeleton" style={{ height: 22, marginTop: row === 0 ? 0 : 2 }} />
+              ))}
+            </div>
+          ) : null}
         </div>
       ))}
     </div>

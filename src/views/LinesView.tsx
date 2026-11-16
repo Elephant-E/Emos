@@ -78,6 +78,8 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         bare
         loadingKind="rows"
         loadingPoster="none"
+        loadingLines={2}
+        loadingActions={1}
         emptyTitle={(lines.data?.length ?? 0) === 0 ? '还没有线路' : `没有匹配「${search.q}」的线路`}
         emptyAction={
           (lines.data?.length ?? 0) > 0 ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined

@@ -145,6 +145,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
         scope={`${search.tab}-${search.q}-${search.mine}-${search.type}`}
         loadingRows={6}
         loadingKind="rows"
+        loadingPoster="poster"
+        loadingLines={2}
+        loadingActions={3}
+        loadingExtra
+        loadingFullActions
         emptyTitle={emptyTitle(search.q, search.mine, search.type)}
         emptyAction={search.q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
       >
