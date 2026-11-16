@@ -16,7 +16,7 @@ import { qk, useSeekPoll, useSession } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useSearchTerm } from '@/lib/useSearchTerm'
-import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
+import { formatDate, formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
@@ -183,7 +183,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
                   <dt>{item.status === 'upload' ? '认领到期' : '最近更新'}</dt>
                   <dd>
                     {item.status === 'upload' && item.upload_expired_at
-                      ? formatRelative(item.upload_expired_at)
+                      ? formatDate(item.upload_expired_at)
                       : formatRelative(item.updated_at)}
                   </dd>
                 </div>

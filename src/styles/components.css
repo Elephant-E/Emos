@@ -345,8 +345,6 @@
  * 页面正文的垂直节奏由容器统一负责，组件不再各自带上边距。
  * 以前是「谁挨着谁」逐条补：.cards 自带 margin-top，
  * 再加 .cards + 
-/* 网格容器自己就带 content-in 时，子项的兄弟间距由 gap 负责 */
-
 
 .cards--wide { grid-template-columns: minmax(0, 1fr); }
 /* 表单页：左边表单、右边附属信息，比三等分实用 */
@@ -429,8 +427,6 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .spacer { flex: 1; }
-
-
 
 /* 列宽按声明走，避免长文本把最后一列挤出卡片 */
 /* 列宽自适应：交给内容决定（数字列贴住自己的宽度，长文本列吃掉剩余）；
@@ -799,7 +795,6 @@ input.input[type='number'] { min-width: 0; }
   flex: none;
 }
 
-
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
@@ -1025,7 +1020,6 @@ input.input[type='number'] { min-width: 0; }
 /* 展开行自己就是一层表面（td 有淡底色），里面再套一张完整的 .card，
    同一个位置会叠出两层边框、两层渐变和一层阴影 */
 
-
 /* 集数可能上百，用固定高度的数字网格，高度不随集数增长 */
 .ep-grid {
   display: grid;
@@ -1111,7 +1105,6 @@ input.input[type='number'] { min-width: 0; }
   animation: overlay-in 140ms var(--ease);
 }
 
-
 .btn[aria-busy='true'] { opacity: 0.6; transition: opacity 140ms var(--ease) 140ms; }
 
 @keyframes toast-out {
@@ -1187,7 +1180,6 @@ input.input[type='number'] { min-width: 0; }
   line-height: 1.5;
   min-height: 20px;
 }
-
 
 .card-head .stat__label { margin: 0; }
 
@@ -1290,7 +1282,6 @@ input.input[type='number'] { min-width: 0; }
 .thumb--wide { width: 44px; height: 25px; }
 .thumb--square { width: 28px; height: 28px; }
 
-
 /* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
 .cards--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1321,8 +1312,6 @@ input.input[type='number'] { min-width: 0; }
 .card--secondary .stat__value { font-size: 30px; }
 
 .note-left { text-align: left; }
-
-
 
 /* ---------------- 登录 ---------------- */
 .login {
@@ -1463,7 +1452,6 @@ input.input[type='number'] { min-width: 0; }
 }
 .login__line i { font-style: normal; color: var(--fg-5); margin: 0 var(--sp-2); }
 
-
 .login__panel {
   position: relative;
   z-index: 2;
@@ -1492,9 +1480,6 @@ input.input[type='number'] { min-width: 0; }
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
   animation: page-in var(--t-enter) var(--ease);
 }
-
-
-
 
 .login__cta {
   height: 42px;
@@ -1622,7 +1607,6 @@ input.input[type='number'] { min-width: 0; }
   to { transform: translate3d(-50%, 0, 0); }
 }
 
-
 /* ── 图床选择器 ───────────────────────────────────────── */
 /* 封面槽：方形。图铺满，操作按钮压在图上，不另外占一行 */
 .image-picker__slot {
@@ -1702,7 +1686,6 @@ input.input[type='number'] { min-width: 0; }
   cursor: pointer;
 }
 .image-picker__del:hover { color: var(--c-red); }
-
 
 /* ── 影片详情：两栏布局 ──────────────── */
 .detail-body {
@@ -1817,9 +1800,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .pick-tabs__scroll::-webkit-scrollbar { display: none; }
 .pick-tabs__item { flex: none; }
 
-
 /* ── 商品卡片网格（浏览用，不是管理表格）──────────────── */
-
 
 .product-tile__cover {
   position: relative;
@@ -1843,7 +1824,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 商品封面是正方形；<Poster> 的首字兜底在列表里是 30×40 的缩略块，这里要撑满 */
 .product-tile__cover .thumb { width: 100%; height: 100%; border-radius: 0; font-size: 28px; }
 
-
 .product-tile__price { display: inline-flex; align-items: center; gap: var(--sp-2); white-space: nowrap; }
 .product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: var(--text-xs); color: var(--fg-5); }
@@ -1857,12 +1837,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
 }
 
-
-
-
-
-
-
 /* 商品详情里的店铺行：封面小图 + 店名 + 简介，整行进店 */
 .seller-line {
   display: flex;
@@ -1875,7 +1849,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .seller-line__name { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; flex: none; }
 .seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
 
 /* 标签输入：已确认的标签在输入框下方单独一行，不塞进框里（塞进去第一个
    会紧贴左边框，看着像被选中） */
@@ -1977,7 +1950,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .search-panel__all:hover { color: var(--fg-2); }
 
-
 /* 中等宽度：卡片栅格最多两列 */
 @media (max-width: 1240px) {
   .cards,
@@ -1999,7 +1971,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     grid-template-columns: minmax(0, 1fr);
   }
 }
-
 
 /* 单元格里放输入框（行内排序）时收紧左右内边距：
    表格默认左右各 24px，加上 72px 的输入框，固定列宽下会溢出被裁 */
@@ -2202,7 +2173,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     padding-bottom: var(--sp-hair);
     mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 32px), transparent 100%);
   }
-
 
   /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
      卡头高度也随之放宽，避免文字挤在一起 */
@@ -2534,8 +2504,6 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   height: 72px;
 }
 /* 没有封面时不留空槽：改成一列文字 + 右侧动作 */
-.record-row--no-poster { grid-template-columns: minmax(0, 1fr) auto; }
-.record-row--no-poster .record-row__media { display: none; }
 .record-row__poster,
 .record-row__poster.poster-img {
   width: 112px;
