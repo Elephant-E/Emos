@@ -110,10 +110,10 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
                   <span>
                     {row.season_number != null ? episodeCode(row.season_number, row.episode_number) : '—'}
                   </span>
-                  <span>{row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—'}</span>
                 </>
               )}
               facts={(row) => <span>{row.ua ?? '未知客户端'}</span>}
+              value={(row) => (row.play_speed ? `${(row.play_speed / 10).toFixed(1)}×` : '—')}
             />
           ) : tab === 'live' ? (
             <RecordRow
