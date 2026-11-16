@@ -2,15 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from '@/ui/layers'
-
-/** 弹层内可聚焦元素；焦点陷阱与「首个可聚焦项」两处共用 */
-export function focusablesOf(root: HTMLElement | null): HTMLElement[] {
-  return Array.from(
-    root?.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    ) ?? [],
-  )
-}
+import { useFocusTrap } from '@/ui/focus'
 
 export function Modal({
   title,
@@ -39,19 +31,8 @@ export function Modal({
     return () => popLayer(id)
   }, [])
 
-  /**
-   * 焦点只在挂载/卸载时处理。依赖不能写 [onClose, onSubmit]：调用点传的是内联箭头函数，
-   * 每次渲染都是新引用，effect 会在每次按键后重跑，清理函数把焦点还给上一个元素。
-   */
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null
-    const box = boxRef.current
-    // 如果弹窗内部没有自动聚焦的元素，把焦点交给第一个可聚焦项
-    if (!box?.contains(document.activeElement)) {
-      requestAnimationFrame(() => focusablesOf(box)[0]?.focus())
-    }
-    return () => previous?.focus?.()
-  }, [])
+  // 焦点进入 / Tab 循环 / 关闭后归还，与确认框共用一套实现
+  useFocusTrap(boxRef, idRef)
 
   // 键盘处理单独一个 effect；回调放进 ref、依赖为空，避免随渲染重挂监听
   const handlers = useRef({ onClose, onSubmit })
@@ -76,20 +57,6 @@ export function Modal({
         event.stopPropagation()
         close()
         return
-      }
-      if (event.key !== 'Tab') return
-      // 叠着的时候焦点只在最上层内循环，否则会跳到被遮罩挡住的下层控件
-      if (!isTopLayer(idRef.current)) return
-      const list = focusablesOf(boxRef.current)
-      if (list.length === 0) return
-      const first = list[0]
-      const last = list[list.length - 1]
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
       }
     }
     document.addEventListener('keydown', onKeyDown)

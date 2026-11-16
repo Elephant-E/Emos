@@ -71,7 +71,9 @@ export function PageHeader({ crumb, title, hint, tools, more }: PageHeaderProps)
       observer.disconnect()
       window.removeEventListener('resize', sync)
     }
-  }, [tools])
+    // 依赖数组留空：tools 在调用点普遍是内联 fragment，每次渲染都是新引用，
+    // 挂上去会让 ResizeObserver 与 resize 监听随每次键入重建（元素引用由 ref 拿）
+  }, [])
   return (
     <div className="page__head">
       <div>

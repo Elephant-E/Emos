@@ -607,11 +607,6 @@ export function useShopProductsInfinite(params: {
 
 export function useShopCounts(sellerId: number) {
   const enabled = sellerId > 0
-  const productsAll = useQuery({
-    queryKey: ['shop', 'count', 'products', sellerId] as const,
-    queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 1, sort_by: 'sort', sort_order: 'asc' }),
-    enabled,
-  })
   const productsOnSale = useQuery({
     queryKey: ['shop', 'count', 'onSale', sellerId] as const,
     queryFn: () =>
@@ -638,13 +633,14 @@ export function useShopCounts(sellerId: number) {
   const salesTotal = salesRows.data?.items.reduce((sum, p) => sum + (p.sales ?? 0), 0)
   const salesCapped = (salesRows.data?.total ?? 0) > (salesRows.data?.page_size ?? 100)
   return {
-    productsAll: productsAll.data?.total,
+    // 总条数直接从下面那次「拉 100 条算销量」的响应里拿，不再单独打一次 page_size=1
+    productsAll: salesRows.data?.total,
     productsOnSale: productsOnSale.data?.total,
     ordersAll: ordersAll.data?.total,
     ordersPending: ordersPending.data?.total,
     salesTotal,
     salesCapped,
-    isLoading: productsAll.isLoading || productsOnSale.isLoading || ordersAll.isLoading || ordersPending.isLoading,
+    isLoading: productsOnSale.isLoading || ordersAll.isLoading || ordersPending.isLoading || salesRows.isLoading,
   }
 }
 
