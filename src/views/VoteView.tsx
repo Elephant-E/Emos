@@ -25,6 +25,8 @@ export interface VoteSearch {
 
 const MAX_OPTIONS = 12
 
+const VOTER_PREVIEW = 50
+
 export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (patch: Partial<VoteSearch>) => void }) {
   const [question, setQuestion] = useState('')
   const [description, setDescription] = useState('')
@@ -34,8 +36,10 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
   const [hideResults, setHideResults] = useState(false)
   const [sending, setSending] = useState(false)
   const [created, setCreated] = useState<{ id: number; timeEnd: string } | null>(null)
+  const [showAllVoters, setShowAllVoters] = useState(false)
   const [idTerm, setIdTerm] = useState(search.id)
-  // 结果接口一次返回全部投票人，几百条一屏铺不完，本页分页
+  // 结果接口一次返回全部投票人（`vote/result` 只收 vote_id，没有分页参数），
+  // 几百人时一次性铺开会卡：默认只渲染前 VOTER_PREVIEW 行，其余点「显示全部」再展开
 
   const result = useQuery({
     queryKey: ['vote', 'result', search.id] as const,
@@ -265,7 +269,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                 <EmptyBlock title="还没有人投票" />
               ) : (
                 <RecordRow
-                  rows={voters}
+                  rows={showAllVoters ? voters : voters.slice(0, VOTER_PREVIEW)}
                   idKey={(row) => `${row.user_id}-${row.index}`}
                   posterShape="square"
                   poster={(row) => row.avatar}
@@ -274,6 +278,13 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   facts={(row) => <span>选了 {result.data?.options[Number(row.option_index)] ?? '—'}</span>}
                 />
               )}
+              {!showAllVoters && voters.length > VOTER_PREVIEW ? (
+                <p className="grid-state">
+                  <button type="button" className="btn btn--quiet" onClick={() => setShowAllVoters(true)}>
+                    显示全部 {formatThousand(voters.length)} 人
+                  </button>
+                </p>
+              ) : null}
             </>
           )}
         </>
