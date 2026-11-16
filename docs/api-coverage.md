@@ -1,11 +1,11 @@
 # API 覆盖对照
 
 文档（`api.postman_collection.json`）：**191** 个接口；
-代码（`src/api/endpoints.ts`）：**169** 个封装。
+代码（`src/api/endpoints.ts`）：**167** 个封装。
 
-- 已接且有界面调用：**166**
+- 已接且有界面调用：**164**
 - 已接但无调用：**0**
-- 未接：**23**
+- 未接：**25**
 - 代码有、文档没有：**3**
 - 文档里 url 是空的：**2**
 
@@ -28,6 +28,8 @@
 | 视频相关 | 搜索获取目录树 | `GET /api/video/tree` |
 | 视频相关 | 获取视频标识id | `GET /api/video/getVideoId` |
 | 片单相关 / 视频类 | 批量设置片单内视频 | `POST /api/watch/{var}/video/update` |
+| 求片相关 | 查询认领信息 | `GET /api/seek/query` |
+| 求片相关 | 查询求片历史 | `GET /api/seek/history` |
 | 支付相关 | 测试回调 | `POST /api/pay/testNotify` |
 | 商城相关 / 商品 | 修改分类 | `PUT /api/shop/product/category` |
 | 红包相关 | 在 telegram 发 html 格式红包 | `POST /api/redPacket/createTelegramHtml` |

@@ -223,8 +223,6 @@ export const seekApi = {
       method: 'POST',
       body: { sort_by: 'updated_at', sort_order: 'desc', ...body },
     }),
-  query: (seekId: number) => request<Record<string, unknown>>('/api/seek/query', { query: { seek_id: seekId } }),
-  history: (seekId: number) => request<Array<{ username: string; carrot: number; created_at: string }>>('/api/seek/history', { query: { seek_id: seekId } }),
   claim: (seekId: number, type: 'confirm' | 'cancel') => request<{ status: string }>('/api/seek/claim', { method: 'PUT', body: { seek_id: seekId, type } }),
   urge: (seekId: number, carrot: number) => request<unknown>('/api/seek/urge', { method: 'PUT', body: { seek_id: seekId, carrot } }),
 }
