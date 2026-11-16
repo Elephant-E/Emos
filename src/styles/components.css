@@ -493,6 +493,8 @@
 .badge--wait { color: var(--c-yellow); }
 .badge--off { color: var(--fg-4); }
 .badge--warn { color: var(--c-red); }
+/* danger 是 Badge 支持的一档（更重的红），之前只在 TS 类型里存在、CSS 缺失 */
+.badge--danger { color: var(--c-red); background: color-mix(in srgb, var(--c-red) 16%, transparent); }
 .row-menu {
   width: 26px;
   height: 26px;
