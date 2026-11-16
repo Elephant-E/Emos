@@ -199,38 +199,33 @@ export function useCarrot() {
   return useQuery({ queryKey: qk.carrotCurrent, queryFn: () => carrotApi.current(), staleTime: 60_000 })
 }
 
-/**
- * 概览的三个待办数字。拆成三个独立查询，是因为它们各自背后的接口慢得不一样
- * （实测封禁列表 5–11s，求片与订单快）：合成一个 Promise.all 会让整行卡在
- * 「读取中」，先回来的数字也只能等着。
- */
-export function useTodoSeeks() {
+export function useTodos() {
   return useQuery({
-    queryKey: [...qk.todos, 'seeks'] as const,
+    queryKey: qk.todos,
     staleTime: 60_000,
-    queryFn: () => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total),
-  })
-}
-
-export function useTodoOrders() {
-  return useQuery({
-    queryKey: [...qk.todos, 'orders'] as const,
-    staleTime: 60_000,
-    queryFn: () =>
-      shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((r) => {
-        // 上游忽略 is_pay（实测把未付款单也吐出来），所以自己按 status_pay 数；
-        // 发货状态没有独立字段，用 time_delivery 是否为空表示
-        const paid = r.items.filter((o) => o.status_pay === 'pay' || o.status_pay === 'paid')
-        return paid.filter((o) => !o.time_delivery).length
-      }),
-  })
-}
-
-export function useTodoBans() {
-  return useQuery({
-    queryKey: [...qk.todos, 'bans'] as const,
-    staleTime: 60_000,
-    queryFn: () => banApi.list().then((r) => r.length),
+    queryFn: async () => {
+      const safe = async (run: () => Promise<number>) => {
+        try {
+          return await run()
+        } catch {
+          return null
+        }
+      }
+      const [seeks, orders, bans] = await Promise.all([
+        safe(() => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total)),
+        // 上游忽略 is_pay（实测把未付款单也吐出来），所以自己按 status_pay 数：
+        // 取一页回来逐条判断，宁可口径准，也不要一个偏大的数字
+        safe(() =>
+          shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((r) => {
+            const paid = r.items.filter((o) => o.status_pay === 'pay' || o.status_pay === 'paid')
+            // 发货状态没有独立字段，用 time_delivery 是否为空表示
+            return paid.filter((o) => !o.time_delivery).length
+          }),
+        ),
+        safe(() => banApi.list().then((r) => r.length)),
+      ])
+      return { seeks, orders, bans }
+    },
   })
 }
 
