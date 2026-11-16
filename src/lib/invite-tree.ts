@@ -5,7 +5,7 @@
  * 这段计算原来以两个 IIFE 写在视图里，每次渲染重算、也没法单独验证。
  */
 
-export interface InviteNode {
+interface InviteNode {
   user_id: string
   username: string
   invite_user_id?: string | null
@@ -19,7 +19,7 @@ export interface InviteHistoryRow {
   invite_remark?: string | null
 }
 
-export interface InviteRow {
+interface InviteRow {
   userId: string
   username: string
   /** 1 = 我直接邀请，2 = 下级再邀请 */

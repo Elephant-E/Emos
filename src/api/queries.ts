@@ -224,7 +224,7 @@ export function useTodos() {
   })
 }
 
-export interface VideoPageParams {
+interface VideoPageParams {
   page: number
   page_size: number
   title?: string

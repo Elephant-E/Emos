@@ -8,7 +8,7 @@ import { Poster } from './Poster'
  * 还要在列表里直接认领/催片，所以不能用网格卡片（网格只适合看图浏览）。
  * 结构与 RecordGrid 一致：一套实现，桌面与手机同一形态，不再分表格式/卡片式。
  */
-export interface RecordRowProps<T> {
+interface RecordRowProps<T> {
   rows: readonly T[]
   idKey: (row: T) => string | number
   /** 管理型列表（片单里的影片等）用单列：一行一条，便于逐个处理 */

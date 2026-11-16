@@ -6,7 +6,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useShopMutations } from '@/api/queries'
 
-export interface SellerDraft {
+interface SellerDraft {
   name: string
   description: string
   cover_url: string | null

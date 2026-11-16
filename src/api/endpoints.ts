@@ -199,7 +199,7 @@ export const lineApi = {
   remove: (id: number) => request<unknown>('/api/proxy/line', { method: 'DELETE', query: { id } }),
 }
 
-export interface SeekQuery {
+interface SeekQuery {
   video_type?: VideoType | null
   sort_by?: 'count_request' | 'seek_carrot' | 'upload_expired_at' | 'updated_at'
   sort_order?: 'asc' | 'desc'

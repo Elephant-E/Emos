@@ -4,7 +4,7 @@ import { ImagePicker } from '@/components/ImagePicker'
 import type { ShopProduct } from '@/api/types'
 
 /** 草稿就是商品字段的部分集合：新增时只有几个默认值，编辑时由详情回填 */
-export type ProductDraft = Partial<ShopProduct>
+type ProductDraft = Partial<ShopProduct>
 
 /**
  * 新增 / 编辑商品。草稿仍由页面持有（编辑时要从 product/info 回填、还要比对原值），

@@ -21,14 +21,14 @@ export type Status =
   | 'failed'
   | 'duplicate'
 
-export interface QueueSong {
+interface QueueSong {
   song_id: number
   name: string
   artists: string
   has_media: boolean
 }
 
-export interface QueueItem {
+interface QueueItem {
   id: string
   file: File
   kind: UploadKind

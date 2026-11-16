@@ -2,7 +2,7 @@ import { useEffect, type RefObject } from 'react'
 import { isTopLayer } from './layers'
 
 /** 弹层内可聚焦元素：焦点陷阱与「首个可聚焦项」两处共用 */
-export function focusablesOf(root: HTMLElement | null): HTMLElement[] {
+function focusablesOf(root: HTMLElement | null): HTMLElement[] {
   return Array.from(
     root?.querySelectorAll<HTMLElement>(
       'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',

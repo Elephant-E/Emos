@@ -16,7 +16,7 @@ import { Poster } from './Poster'
  * 信息型列表（订单、资金、回收站、线路、榜单、设备、邀请、直播…）用 RecordRow：
  * 那些页面要靠数字横向对比，表格密度是刚需。
  */
-export interface RecordGridProps<T> {
+interface RecordGridProps<T> {
   rows: readonly T[]
   idKey: (row: T) => string | number
   onOpen?: (row: T) => void

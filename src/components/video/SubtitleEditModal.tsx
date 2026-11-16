@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 
-export interface SubtitleTarget {
+interface SubtitleTarget {
   id: string
   title: string
   isSelf: boolean
