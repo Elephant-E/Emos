@@ -2830,6 +2830,9 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
 /* 右侧数值列：等宽、右对齐，跨行可比 */
 .record-row__value {
+  /* 固定最小宽度 + 右对齐：有按钮/没按钮的行，金额都落在同一竖线上 */
+  min-width: 96px;
+  text-align: right;
   margin-right: var(--sp-3);
   color: var(--fg);
   font-size: var(--text-sm);
