@@ -34,6 +34,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiOrigin = env.VITE_API_ORIGIN || DEFAULT_API_ORIGIN
 
+  // 生产构建绝不能带 mock：带了就是整站假数据，且会绕过真实鉴权路径。
+  // 放在这里 fail，比部署完发现数据是假的要好。
+  if (mode === 'production' && env.VITE_MOCK) {
+    throw new Error(
+      `生产构建不允许 VITE_MOCK（当前值 "${env.VITE_MOCK}"）。请检查 .env.production 与命令行环境变量。`,
+    )
+  }
+
   return {
   plugins: [react(), fixturesPlugin()],
   resolve: {

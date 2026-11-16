@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { forgetAccount, listAccounts, switchAccount } from '@/lib/accounts'
-import { setToken } from '@/api/client'
+import { clearSession, forgetAccount, listAccounts } from '@/lib/accounts'
 import { Avatar } from '@/components/Avatar'
 import { AddAccountModal } from '@/components/AddAccountModal'
+import type { Account } from '@/lib/accounts'
 
 /**
  * 账号菜单：当前账号、其他已登录账号（可切换 / 移除）、添加账号、退出登录。
@@ -11,6 +11,8 @@ import { AddAccountModal } from '@/components/AddAccountModal'
 export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string; onDone?: () => void }) {
   const [accounts, setAccounts] = useState(() => listAccounts())
   const [adding, setAdding] = useState(false)
+  // 要切到哪个账号（标题里说清是谁，避免贴错令牌）
+  const [switching, setSwitching] = useState<Account | null>(null)
 
   return (
     <>
@@ -23,7 +25,8 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
                     className="rail__menu-item"
                     onClick={() => {
                       if (current) return
-                      if (switchAccount(account.user_id)) location.reload()
+                      // 本地不存令牌了：切号要给一次该账号的令牌
+                      setSwitching(account)
                     }}
                   >
                     <Avatar url={account.avatar} name={account.pseudonym || account.username} size={22} />
@@ -58,21 +61,18 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
               onClick={() => {
                 // 共享设备上要能主动结束会话：清令牌与本地头像缓存，回登录页
                 onDone?.()
-                setToken(null)
-                try {
-                  localStorage.removeItem('emos_admin_profile')
-                } catch {
-                  /* 隐私模式下不可写，忽略 */
-                }
+                clearSession()
                 location.href = '/login'
               }}
             >
               退出登录
             </button>
-      {adding ? (
+      {adding || switching ? (
         <AddAccountModal
+          target={switching ?? undefined}
           onClose={() => {
             setAdding(false)
+            setSwitching(null)
             onDone?.()
           }}
         />

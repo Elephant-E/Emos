@@ -10,7 +10,15 @@ import { setToken as persistToken } from '@/api/client'
  * 校验通过后把令牌落到 localStorage 并整页重载——会话、账号列表、权限都按新账号重建，
  * 和「登录页登录」走的是同一条路（Sidebar 挂载时会把当前账号记进账号列表）。
  */
-export function AddAccountModal({ onClose }: { onClose: () => void }) {
+export function AddAccountModal({
+  onClose,
+  target,
+}: {
+  onClose: () => void
+  /** 要切换到的账号（来自本地账号列表）；不传就是新增一个账号 */
+  target?: { pseudonym?: string | null; username: string }
+}) {
+  const label = target ? target.pseudonym || target.username : ''
   const [token, setToken] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
@@ -44,15 +52,19 @@ export function AddAccountModal({ onClose }: { onClose: () => void }) {
 
   return (
     <Modal
-      title="添加账号"
-      hint="粘贴访问令牌即可在当前页面切换，不需要退出登录。"
+      title={target ? `切换到 ${label}` : '添加账号'}
+      hint={
+        target
+          ? '本地不再保存令牌：粘贴该账号的访问令牌即可切换。'
+          : '粘贴访问令牌即可在当前页面切换，不需要退出登录。'
+      }
       onClose={onClose}
       onSubmit={() => void submit()}
       footer={
         <ModalFooter
           onCancel={onClose}
           onConfirm={() => void submit()}
-          confirmText="添加"
+          confirmText={target ? '切换' : '添加'}
           pending={pending}
           disabled={!token.trim()}
         />
