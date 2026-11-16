@@ -350,14 +350,25 @@ export function WatchlistDetailView({
           current={dynamicUrl}
           pending={setDynamic.isPending}
           onClose={() => setDynamicOpen(false)}
-          onSave={(url) =>
+          onSave={async (url) => {
+            // 弹窗打开时输入框是空的（接口不返回当前地址）：
+            // 直接保存空值等于关掉抓取，必须先确认一次
+            if (!url) {
+              const ok = await confirmDialog({
+                title: '关闭这个片单的动态抓取？',
+                message: '保存空地址等同于关闭抓取，之后不会再自动更新影片。',
+                confirmText: '关闭抓取',
+                danger: true,
+              })
+              if (!ok) return
+            }
             setDynamic.mutate(url, {
               onSuccess: () => {
                 toast(url ? '已开启动态抓取' : '已关闭动态抓取', 'success')
                 setDynamicOpen(false)
               },
             })
-          }
+          }}
         />
       ) : null}
 
