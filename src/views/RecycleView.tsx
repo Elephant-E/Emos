@@ -82,26 +82,6 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
     }
   }
 
-  const restoreVideo = async (videoId: number, label: string) => {
-    const ok = await confirmDialog({
-      title: '恢复这部影片？',
-      message: `《${label}》会重新出现在媒体库里。`,
-      confirmText: '恢复',
-    })
-    if (!ok) return
-    setBusy(String(videoId))
-    try {
-      // 该接口是 toggle：只有返回 is_delete 为 false 才算真的恢复
-      const res = await actions.restoreVideo.mutateAsync(videoId)
-      if (res?.is_delete) toast('这部影片仍是删除状态，请重试', 'error')
-      else toast('已恢复', 'success')
-    } catch (error) {
-      toast(error instanceof Error ? error.message : '恢复失败', 'error')
-    } finally {
-      setBusy(null)
-    }
-  }
-
   return (
     <>
       <PageHeader
@@ -213,22 +193,10 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
                   <span>上映 {String(row.video_date_air ?? '—')}</span>
                 </>
               )}
-              actions={(row) => {
-                const videoId = Number(row.video_id ?? 0)
-                const title = String(row.video_title ?? '—')
-                // 影片接口目前不返回 is_can_restore：给明确状态，不要留空白格
-                return row.is_can_restore === undefined ? (
-                  <span className="meta-sm">暂不支持自助恢复</span>
-                ) : canRestoreRow(row) ? (
-                  <button
-                    type="button"
-                    className="btn btn--quiet"
-                    disabled={busy === String(videoId)}
-                    onClick={() => restoreVideo(videoId, title)}
-                  >
-                    恢复
-                  </button>
-                ) : null
+              actions={() => {
+                // 影片接口不返回 is_can_restore，没有可恢复的判据：
+                // 与其留一个永远不会出现的按钮，不如把状态写出来
+                return <span className="meta-sm">暂不支持自助恢复</span>
               }}
             />
           )}

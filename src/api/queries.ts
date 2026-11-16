@@ -3,6 +3,7 @@ import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, musicApi, pay
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
 import { MUSIC_DISABLED } from '@/lib/feature-flags'
+import { toast } from '@/ui/toast'
 
 /**
  * queryKey 工厂。
@@ -504,7 +505,31 @@ export function useAccountMutations() {
     exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
-    sign: useMutation({ mutationFn: (content?: string) => userApi.sign(content), onSuccess: invalidate }),
+    /**
+     * 签到：429 / 「重复」不是故障，是今天已经签过了——在这里统一吃掉这个错误，
+     * 免得每个调用点都重写一遍（之前概览页为此单独维护了一份签到 mutation）。
+     */
+    sign: useMutation({
+      // content 可选：带上「说点什么」会额外获得随机胡萝卜
+      mutationFn: (content?: string) => userApi.sign(content),
+      onSuccess: () => {
+        invalidate()
+        qc.invalidateQueries({ queryKey: qk.todos })
+      },
+      meta: { skipErrorToast: true },
+      onError: (error) => {
+        const status = (error as { status?: number }).status
+        const message = (error as Error).message ?? ''
+        if (status === 429 || message.includes('重复')) {
+          toast('今天已经签过了', 'info')
+          invalidate()
+          qc.invalidateQueries({ queryKey: qk.todos })
+          return
+        }
+        const text = message || '签到失败'
+        toast(status && !text.includes(`（${status}）`) ? `${text}（${status}）` : text, 'error')
+      },
+    }),
     remarkInvite: useMutation({
       mutationFn: (p: { userId: string; remark: string }) => inviteApi.remark(p.userId, p.remark),
       onSuccess: () => {
@@ -612,7 +637,15 @@ export function useShopCounts(sellerId: number) {
   })
   const ordersPending = useQuery({
     queryKey: ['shop', 'count', 'pending', sellerId] as const,
-    queryFn: () => shopApi.ordersShop({ page: 1, page_size: 1, is_pay: true, is_delivery: false }),
+    // 上游忽略 is_pay（实测把未付款单也吐出来），不能信 total，只能拉回当前页自己数；
+    // 与概览的 useTodos 用同一套口径
+    queryFn: () =>
+      shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((res) => ({
+        ...res,
+        total: res.items.filter(
+          (order) => (order.status_pay === 'pay' || order.status_pay === 'paid') && !order.time_delivery,
+        ).length,
+      })),
     enabled,
   })
   // 没有销量统计接口，只能把商品拉回来自己加。
@@ -865,7 +898,6 @@ export function useRecycleMutations() {
   }
   return {
     restoreMedia: useMutation({ mutationFn: (mediaId: string) => mediaApi.restore(mediaId), onSuccess: invalidate }),
-    restoreVideo: useMutation({ mutationFn: (videoId: number) => videoApi.remove(videoId), onSuccess: invalidate }),
   }
 }
 

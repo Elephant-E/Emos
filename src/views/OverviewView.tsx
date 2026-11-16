@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { PageHeader } from '@/components/PageHeader'
@@ -8,8 +7,7 @@ import { Poster } from '@/components/Poster'
 import { ErrorBlock } from '@/components/StateBlock'
 import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
-import { qk, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
-import { userApi } from '@/api/endpoints'
+import { useAccountMutations, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { formatSize, formatThousand, realmOf } from '@/lib/format'
 
@@ -59,43 +57,23 @@ export function OverviewView() {
   const showWatchlists = !todos.isLoading && !todosFailed && todoItems.length === 0
   const myWatchlists = useWatchPage({ page: 1, page_size: 4, is_self: true, type: 'video' }, showWatchlists)
   const ready = session.isFetched && Boolean(session.data)
-  const qc = useQueryClient()
 
   const [signing, setSigning] = useState(false)
   const [signNote, setSignNote] = useState('')
 
-  const refreshCarrot = () => {
-    void qc.invalidateQueries({ queryKey: qk.session })
-    void qc.invalidateQueries({ queryKey: qk.carrot })
-    void qc.invalidateQueries({ queryKey: qk.todos })
-  }
+  const account = useAccountMutations()
+  const sign = account.sign
 
-  const sign = useMutation({
-    // content 可选：带上「说点什么」会额外获得随机胡萝卜
-    mutationFn: (content?: string) => userApi.sign(content),
-    onSuccess: (res) => {
-      toast(`第 ${res.sign_index} 位签到 · 连续 ${res.continuous_days} 天 · +${res.earn_point} 胡萝卜`, 'success')
-      setSigning(false)
-      setSignNote('')
-      refreshCarrot()
-    },
-    // 自己处理提示（下面的 skipErrorToast），否则 429 会同时弹「已经签过了」和一条错误
-    meta: { skipErrorToast: true },
-    onError: (error) => {
-      const status = (error as { status?: number }).status
-      const message = (error as Error).message ?? ''
-      setSigning(false)
-      if (status === 429 || message.includes('重复')) {
-        // 重复签到不是故障，是今天已经签过了
-        toast('今天已经签过了', 'info')
+  const submitSign = () => {
+    const note = signNote.trim()
+    sign.mutate(note || undefined, {
+      onSuccess: (res: { sign_index: number; continuous_days: number; earn_point: number }) => {
+        toast(`第 ${res.sign_index} 位签到 · 连续 ${res.continuous_days} 天 · +${res.earn_point} 胡萝卜`, 'success')
+        setSigning(false)
         setSignNote('')
-        refreshCarrot()
-        return
-      }
-      const text = message || '签到失败'
-      toast(status && !text.includes(`（${status}）`) ? `${text}（${status}）` : text, 'error')
-    },
-  })
+      },
+    })
+  }
 
   const now = new Date()
   const monthName = `${now.getMonth() + 1} 月`
@@ -402,7 +380,7 @@ export function OverviewView() {
           width={400}
           onClose={() => setSigning(false)}
           onSubmit={() => {
-            if (!sign.isPending) sign.mutate(signNote.trim() || undefined)
+            if (!sign.isPending) submitSign()
           }}
           footer={
             <ModalFooter
