@@ -63,8 +63,11 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
   headers.delete('Cookie')
   if (env.EMOS_PROXY_NAME) headers.set('EMOS-PROXY-NAME', env.EMOS_PROXY_NAME)
   if (env.EMOS_PROXY_ID) headers.set('EMOS-PROXY-ID', env.EMOS_PROXY_ID)
-  // wiki/proxy 要求必须传 X-Forwarded-For，否则记不到调用方真实 IP
-  headers.set('X-Forwarded-For', request.headers.get('CF-Connecting-IP') ?? request.headers.get('X-Forwarded-For') ?? '')
+  // 上游按 X-Forwarded-For 记调用方 IP。只信 Cloudflare 写进来的 CF-Connecting-IP：
+  // 客户端自带的 X-Forwarded-For 可以被任意伪造，转发过去等于让上游记假 IP。
+  const clientIp = request.headers.get('CF-Connecting-IP')
+  if (clientIp) headers.set('X-Forwarded-For', clientIp)
+  else headers.delete('X-Forwarded-For')
 
   const init: RequestInit = { method: request.method, headers, redirect: 'manual' }
   if (request.method !== 'GET' && request.method !== 'HEAD') {
