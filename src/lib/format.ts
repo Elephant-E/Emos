@@ -59,8 +59,6 @@ export function formatRelative(iso: string | null | undefined): string {
 }
 
 export const VIDEO_TYPE_LABEL: Record<string, string> = { movie: '电影', tv: '剧集' }
-export const VIDEO_TYPE_COLOR: Record<string, string> = { movie: 'var(--c-yellow)', tv: 'var(--c-green)' }
-
 export const SEEK_STATUS: Record<string, { label: string; tone: BadgeTone }> = {
   default: { label: '求片中', tone: 'wait' },
   upload: { label: '已认领', tone: 'run' },

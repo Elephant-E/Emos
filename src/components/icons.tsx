@@ -60,16 +60,6 @@ export const IconPlus = (p: IconProps) => (
     <path d="M8 2.5v11M2.5 8h11" />
   </Svg>
 )
-export const IconLeft = (p: IconProps) => (
-  <Svg size={12} {...p}>
-    <path d="M10 3.5 5.5 8l4.5 4.5" />
-  </Svg>
-)
-export const IconRight = (p: IconProps) => (
-  <Svg size={12} {...p}>
-    <path d="M6 3.5 10.5 8 6 12.5" />
-  </Svg>
-)
 export const IconMenu = (p: IconProps) => (
   <Svg {...p}>
     <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
