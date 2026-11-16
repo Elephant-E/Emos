@@ -286,8 +286,14 @@ export const shopApi = {
   categories: (sellerId?: number) => request<ShopCategory[]>('/api/shop/category/list', { query: { seller_id: sellerId } }),
   createCategory: (name: string, sort: number) => request<{ category_id: number }>('/api/shop/category/create', { method: 'POST', body: { name, sort } }),
   deleteCategory: (categoryId: number) => request<unknown>('/api/shop/category/delete', { method: 'DELETE', query: { category_id: categoryId } }),
-  products: (params: { seller_id?: number; category_id?: number; name?: string; sort_by?: string; sort_order?: 'asc' | 'desc'; is_up?: boolean; page?: number; page_size?: number }) =>
-    request<ListResult<ShopProduct>>('/api/shop/product/list', { query: params }),
+  products: (params: { seller_id?: number; category_id?: number; name?: string; sort_by?: string; sort_order?: 'asc' | 'desc'; is_up?: boolean; page?: number; page_size?: number }) => {
+    // 后端要求 sort_by / sort_order 成对：只给 sort_by 会 422「sort order 不能为空」。
+    // 在出口处补齐，调用方就不用每处都记得写。
+    const query = { ...params }
+    if (query.sort_by && !query.sort_order) query.sort_order = 'desc'
+    if (query.sort_order && !query.sort_by) query.sort_by = 'sort'
+    return request<ListResult<ShopProduct>>('/api/shop/product/list', { query })
+  },
   saveProduct: (payload: Record<string, unknown>) => request<{ product_id: number }>('/api/shop/product/createOrUpdate', { method: 'POST', body: payload }),
   deleteProduct: (productId: number) => request<unknown>('/api/shop/product/delete', { method: 'DELETE', query: { product_id: productId } }),
   productSort: (productId: number, sort: number) => request<{ sort: number }>('/api/shop/product/sort', { method: 'PUT', query: { product_id: productId, sort } }),

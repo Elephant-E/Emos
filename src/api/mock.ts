@@ -739,6 +739,11 @@ export async function mockRequest<T>(
     } as T)
   }
   if (clean === '/api/shop/product/list') {
+    // 与后端同一套校验：sort_by / sort_order 必须成对，否则 422。
+    // 放在 mock 里，是为了让「只传 sort_by」这种写法在本地就直接报出来。
+    if (query.sort_by && !query.sort_order) {
+      throw Object.assign(new Error('sort order 不能为空'), { status: 422 })
+    }
     const rows = [
       { product_id: 1000, category_id: 1000, cover_url: poster('shop1'), name: '限量海报 A3', price: 68, price_origin: 98, stock: 24, sales: 132, is_up: true, up_time: '2026-10-20 10:00:00', time_start: null, time_end: null, user_buy_max: 2, sort: 80, updated_at: '2026-11-01T10:00:00Z' },
       { product_id: 1001, category_id: 1001, cover_url: poster('shop2'), name: '一年会员兑换码', price: 198, price_origin: 268, stock: 500, sales: 61, is_up: true, up_time: '2026-10-18 09:00:00', time_start: null, time_end: null, user_buy_max: 1, sort: 70, updated_at: '2026-10-28T09:00:00Z' },
