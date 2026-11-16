@@ -57,5 +57,7 @@
   --page-max: 1680px;
   --z-overlay: 60;
   --z-modal: 80;
+  /* 决策框永远在最上层弹层之上（它可能从弹层内部触发） */
+  --z-decision: 84;
   --z-toast: 90;
 }

@@ -668,6 +668,8 @@ export function useShopMutations() {
     qc.invalidateQueries({ queryKey: qk.shopProduct })
     qc.invalidateQueries({ queryKey: qk.shopMineOrders })
     qc.invalidateQueries({ queryKey: qk.shopOrders })
+    // 分类也会被这组 mutation 改（新增/删除/排序），漏掉它就会出现「建完了列表里没有」
+    qc.invalidateQueries({ queryKey: qk.shopCategories })
     qc.invalidateQueries({ queryKey: qk.session })
     qc.invalidateQueries({ queryKey: qk.carrot })   // 下单/退款都会动余额
   }

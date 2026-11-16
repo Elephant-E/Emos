@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
 import { focusablesOf } from '@/components/Modal'
 
@@ -95,7 +96,8 @@ export function DecisionShell({
   })
   const titleId = useRef(newLayerId('confirm-title')).current
 
-  return (
+  // 挂到 body：决策框可能在任意弹层里触发，就地渲染会被弹层的层叠上下文压住
+  return createPortal(
     <div
       className="modal-overlay modal-overlay--decision"
       onClick={(e) => {
@@ -133,7 +135,8 @@ export function DecisionShell({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

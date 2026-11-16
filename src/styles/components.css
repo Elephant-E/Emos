@@ -819,7 +819,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .btn--danger:active { background: rgba(242, 112, 74, 0.16); }
 
-.modal-overlay--decision { background: rgba(5, 4, 3, 0.74); }
+.modal-overlay--decision { z-index: var(--z-decision); background: rgba(5, 4, 3, 0.74); }
 
 .confirm {
   max-height: calc(100vh - var(--pad-card) * 2);
