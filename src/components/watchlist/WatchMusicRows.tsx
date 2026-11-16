@@ -13,7 +13,6 @@ import { RecordRow } from '@/components/RecordRow'
 
 /** 片单详情页的查询参数（影视与音乐共用） */
 export interface WatchDetailSearch {
-  page_size: number
   q: string
 }
 

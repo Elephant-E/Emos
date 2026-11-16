@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { mediaApi, videoApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
 import { Tabs } from '@/components/Tabs'
@@ -16,7 +17,6 @@ type Tab = 'media' | 'video'
 
 export interface RecycleSearch {
   tab: 'media' | 'video'
-  page_size: number
   q: string
   by: 'media_id' | 'user_id'
 }
@@ -26,10 +26,9 @@ const RECYCLE_TABS = [
   { key: 'video', label: '影片' },
 ] as const
 
-export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
+export function RecycleView({ tab, onTab, q, by, onQuery }: {
   tab: Tab
   onTab: (tab: Tab) => void
-  pageSize: number
   q: string
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
@@ -39,15 +38,15 @@ export function RecycleView({ tab, onTab, pageSize, q, by, onQuery }: {
     (next) =>
       tab === 'media'
         ? mediaApi
-            .listAll({ only_delete: true, page: next, page_size: pageSize, ...(q ? { [by]: q } : {}) } as never)
+            .listAll({ only_delete: true, page: next, ...(q ? { [by]: q } : {}) } as never)
             .then((res) => {
               const r = res as unknown as { items?: Array<Record<string, unknown>>; total?: number; page_size?: number }
-              return { items: r.items ?? [], total: r.total ?? 0, page_size: r.page_size ?? pageSize }
+              return { items: r.items ?? [], total: r.total ?? 0, page_size: r.page_size ?? PAGE_SIZE }
             })
         : videoApi
-            .list({ only_delete: true, page: next, page_size: pageSize, ...(q ? { title: q } : {}) })
+            .list({ only_delete: true, page: next, ...(q ? { title: q } : {}) })
             .then((r) => ({ items: r.items as unknown as Array<Record<string, unknown>>, total: r.total, page_size: r.page_size })),
-    { resetKey: `${tab}|${q}|${by}|${pageSize}` },
+    { resetKey: `${tab}|${q}|${by}|${PAGE_SIZE}` },
   )
   const actions = useRecycleMutations()
   const [busy, setBusy] = useState<string | null>(null)

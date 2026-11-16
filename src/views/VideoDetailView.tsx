@@ -101,7 +101,7 @@ export function VideoDetailView({
         hint={video?.video_date_air?.slice(0, 4)}
         tools={
           <>
-            <Link className="btn btn--ghost" to="/library" search={{ page_size: 20, q: '', type: '' }}>
+            <Link className="btn btn--ghost" to="/library" search={{ q: '', type: '' }}>
               返回列表
             </Link>
             {video ? (
@@ -177,7 +177,7 @@ export function VideoDetailView({
           title="找不到这部影片"
           hint="它可能已被删除（去回收站看看），或这个 ID 不存在。"
           action={
-            <Link className="btn btn--ghost" to="/library" search={{ page_size: 20, q: '', type: '' }}>
+            <Link className="btn btn--ghost" to="/library" search={{ q: '', type: '' }}>
               回到媒体库
             </Link>
           }

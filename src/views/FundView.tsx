@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
@@ -22,11 +23,11 @@ const FUND_TABS = [
   { key: 'carrot', label: '胡萝卜' },
 ] as const
 
-function CarrotSection({ pageSize }: { pageSize: number }) {
+function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
   const carrot = useCarrot()
   const infinite = usePagedInfinite<Record<string, unknown>>(
-    (next) => carrotApi.history({ page: next, page_size: pageSize }) as unknown as Promise<{ items: Array<Record<string, unknown>>; total: number; page_size: number }>,
-    { resetKey: `${pageSize}` },
+    (next) => carrotApi.history({ page: next, page_size: PAGE_SIZE }) as unknown as Promise<{ items: Array<Record<string, unknown>>; total: number; page_size: number }>,
+    { resetKey: `${PAGE_SIZE}` },
   )
   const actions = useAccountMutations()
   const [transferring, setTransferring] = useState(false)
@@ -143,10 +144,9 @@ function CarrotSection({ pageSize }: { pageSize: number }) {
 
 type Row = Record<string, unknown>
 
-export function FundView({ tab, onTab, pageSize }: {
+export function FundView({ tab, onTab }: {
   tab: 'orders' | 'merchant' | 'carrot'
   onTab: (tab: 'orders' | 'merchant' | 'carrot') => void
-  pageSize: number
 }) {
   const qc = useQueryClient()
 
@@ -207,9 +207,9 @@ export function FundView({ tab, onTab, pageSize }: {
   const infinite = usePagedInfinite<Row>(
     (next) =>
       fundApi
-        .orders({ page: next, page_size: Math.min(30, pageSize) })
+        .orders({ page: next, page_size: Math.min(30, PAGE_SIZE) })
         .then((r) => ({ items: r.items as unknown as Row[], total: r.total, page_size: r.page_size })),
-    { enabled: tab === 'orders', resetKey: `${pageSize}` },
+    { enabled: tab === 'orders', resetKey: `${PAGE_SIZE}` },
   )
   const rows = infinite.items
 
@@ -233,7 +233,7 @@ export function FundView({ tab, onTab, pageSize }: {
 
       <div className="content-in" key={tab}>
         {tab === 'merchant' ? <PayView embedded /> : null}
-        {tab === 'carrot' ? <CarrotSection pageSize={pageSize} /> : null}
+        {tab === 'carrot' ? <CarrotSection PAGE_SIZE={PAGE_SIZE} /> : null}
       </div>
 
       {tab === 'orders' ? (
@@ -277,7 +277,7 @@ export function FundView({ tab, onTab, pageSize }: {
             actions={
               // 已打款的订单不需要再传凭证
               (row) =>
-                String(row.payout_status ?? '') === 'paid' ? null : (
+                String(row.payout_status ?? '') === 'pass' ? null : (
                   <button
                     type="button"
                     className="btn btn--quiet"

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { PageHeader } from '@/components/PageHeader'
 import { RecordRow } from '@/components/RecordRow'
@@ -24,7 +25,6 @@ type RedPacketTab = 'send' | 'records'
 export interface RedPacketSearch {
   tab: RedPacketTab
   id: string
-  page_size: number
 }
 
 const MAX_COVER = 80 * 1024 * 1024
@@ -49,8 +49,8 @@ export function RedPacketView({ search, onSearch }: { search: RedPacketSearch; o
   const [idTerm, setIdTerm] = useState(search.id)
 
   const records = useQuery({
-    queryKey: ['redpacket', 'receive', search.id, search.page_size] as const,
-    queryFn: () => redPacketApi.receive({ red_packet_id: search.id, page: 1, page_size: search.page_size }),
+    queryKey: ['redpacket', 'receive', search.id, PAGE_SIZE] as const,
+    queryFn: () => redPacketApi.receive({ red_packet_id: search.id, page: 1, page_size: PAGE_SIZE }),
     enabled: Boolean(search.id),
   })
 

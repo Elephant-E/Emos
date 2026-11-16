@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { PAGE_SIZE } from '@/lib/search'
 import { ListSection } from '@/components/ListSection'
 import { RecordGrid } from '@/components/RecordGrid'
 import { Tabs } from '@/components/Tabs'
@@ -12,7 +13,6 @@ import { VIDEO_TYPE_LABEL } from '@/lib/format'
 import type { VideoType } from '@/api/types'
 
 export interface LibrarySearch {
-  page_size: number
   q: string
   type: '' | VideoType
 }
@@ -37,12 +37,12 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
     (page) =>
       fetchVideoPage({
         page,
-        page_size: search.page_size,
+        page_size: PAGE_SIZE,
         numericId: numeric ? Number(search.q) : undefined,
         title: numeric ? undefined : search.q || undefined,
         type: (search.type || undefined) as VideoType | undefined,
       }),
-    { resetKey: `${search.q}|${search.type}|${search.page_size}` },
+    { resetKey: `${search.q}|${search.type}|${PAGE_SIZE}` },
   )
   const items = list.items
 
@@ -53,7 +53,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
         crumb={['媒体库', search.type ? VIDEO_TYPE_LABEL[search.type] : '全部']}
         title="媒体库"
         tools={
-          <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', page_size: 20, q: '', by: 'media_id' }}>
+          <Link className="btn btn--ghost" to="/recycle" search={{ tab: 'media', q: '', by: 'media_id' }}>
             回收站
           </Link>
         }

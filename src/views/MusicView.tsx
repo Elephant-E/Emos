@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { ListSection } from '@/components/ListSection'
 import { VideoPicker } from '@/components/VideoPicker'
@@ -15,7 +16,6 @@ import { duration } from '@/lib/format'
 import { MUSIC_DISABLED, MUSIC_DISABLED_HINT, MUSIC_DISABLED_TITLE } from '@/lib/feature-flags'
 
 export interface MusicSearch {
-  page_size: number
   tab: 'songs' | 'albums' | 'persons'
   q: string
   filter: '' | 'no_media' | 'favorite'
@@ -32,9 +32,9 @@ export function MusicView({ search, onSearch }: { search: MusicSearch; onSearch:
   const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   // 只查当前 tab：三份一起请求的话，切 tab 会直接命中缓存，看不到加载态
-  const songs = useMusicSongs(1, search.q, search.tab === 'songs', search.page_size, search.filter)
-  const albums = useMusicAlbums(1, search.q, search.tab === 'albums', search.page_size)
-  const persons = useMusicPersons(1, search.q, search.tab === 'persons', search.page_size)
+  const songs = useMusicSongs(1, search.q, search.tab === 'songs', PAGE_SIZE, search.filter)
+  const albums = useMusicAlbums(1, search.q, search.tab === 'albums', PAGE_SIZE)
+  const persons = useMusicPersons(1, search.q, search.tab === 'persons', PAGE_SIZE)
   const [syncArtist, setSyncArtist] = useState<string | null>(null)
   const [mvAlbum, setMvAlbum] = useState<{ albumId: number; name: string } | null>(null)
   const albumActions = useAlbumMutations()

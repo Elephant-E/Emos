@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
@@ -16,7 +17,6 @@ import { useSearchTerm } from '@/lib/useSearchTerm'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface WatchSearch {
-  page_size: number
   scope: 'all' | 'self' | 'subscribed'
   q: string
 }
@@ -42,7 +42,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
   const session = useSession()
   const watchParams = {
-    page_size: search.page_size,
+    page_size: PAGE_SIZE,
     // 不传 type：上游只认 video，传 music 直接 422
     name: search.q || undefined,
     ...(search.scope === 'self' ? { is_self: true } : {}),
@@ -51,7 +51,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.list({ ...watchParams, page }),
-    { resetKey: `${search.scope}|${search.q}|${search.page_size}` },
+    { resetKey: `${search.scope}|${search.q}|${PAGE_SIZE}` },
   )
   const items = infinite.items
 
@@ -133,7 +133,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
             idKey={(watch) => watch.id}
             shape="wide"
             onOpen={(watch) =>
-              navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { page_size: 20, q: '' } })
+              navigate({ to: '/watchlists/$watchId', params: { watchId: String(watch.id) }, search: { q: '' } })
             }
             poster={(watch) => watch.image_poster_url}
             title={(watch) => watch.name}

@@ -16,6 +16,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
  */
 export function Poster({
   src,
+  name,
   shape = 'poster',
   className,
   style,
@@ -23,7 +24,7 @@ export function Poster({
   fallback = 'media',
 }: {
   src?: string | null
-  /** 保留字段：调用方仍在传（原先用于首字兜底），现在不再渲染文字 */
+  /** 首字占位用的名字（人/频道这类没有图时显示首字） */
   name?: string
   shape?: 'poster' | 'wide' | 'square'
   className?: string

@@ -17,7 +17,6 @@ import { formatDateTime, formatThousand } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface OrdersSearch {
-  page_size: number
   pay: 'all' | 'paid' | 'unpaid'
   delivery: 'all' | 'sent' | 'pending'
   q: string
@@ -53,8 +52,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   const infinite = usePagedInfinite<Awaited<ReturnType<typeof shopApi.ordersShop>>['items'][number]>(
     (page) =>
       mineScope
-        ? shopApi.ordersUser({ page, page_size: search.page_size, ...filter })
-        : shopApi.ordersShop({ page, page_size: search.page_size, ...filter }),
+        ? shopApi.ordersUser({ page, ...filter })
+        : shopApi.ordersShop({ page, ...filter }),
     // 筛选与搜索都影响结果集：切换后必须重新查，否则列表还留着旧结果
     { resetKey: `${mineScope}|${search.q}|${search.pay}|${search.delivery}` },
   )

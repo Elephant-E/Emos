@@ -81,7 +81,7 @@ export function SongDetailView({ songId }: { songId: number }) {
         }
         tools={
           <>
-            <Link className="btn btn--ghost" to="/music" search={{ page_size: 20, tab: 'songs', q: '', filter: '' }}>
+            <Link className="btn btn--ghost" to="/music" search={{ tab: 'songs', q: '', filter: '' }}>
               返回列表
             </Link>
             <button type="button" className="btn btn--ghost" onClick={() => setMvOpen(true)}>

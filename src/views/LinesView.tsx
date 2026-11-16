@@ -13,7 +13,6 @@ import { confirmDialog } from '@/ui/confirm'
 import { formatDateTime } from '@/lib/format'
 
 export interface LinesSearch {
-  page_size: number
   q: string
 }
 

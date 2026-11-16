@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
@@ -61,8 +62,8 @@ export function WatchlistDetailView({
   const watch = useWatch(id)
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
-    (page) => watchApi.videos(id, { page, page_size: search.page_size, video_title: search.q || undefined }),
-    { resetKey: `${id}|${search.q}|${search.page_size}` },
+    (page) => watchApi.videos(id, { page, video_title: search.q || undefined }),
+    { resetKey: `${id}|${search.q}|${PAGE_SIZE}` },
   )
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, clearMusic } = useWatchMutations(id)
@@ -74,7 +75,7 @@ export function WatchlistDetailView({
   // 音乐片单的行数据在父组件拉：两种片单共用同一套外壳和操作按钮
   const songs = useWatchMusic(
     id,
-    { page: 1, page_size: search.page_size, song_name: search.q || undefined },
+    { page: 1, page_size: PAGE_SIZE, song_name: search.q || undefined },
     isMusic,
   )
 
@@ -199,7 +200,7 @@ export function WatchlistDetailView({
                     danger: true,
                   })
                   if (!ok) return
-                  removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { page_size: 20, q: '', scope: 'self' } }) })
+                  removeWatch.mutate(id, { onSuccess: () => navigate({ to: '/watchlists', search: { q: '', scope: 'self' } }) })
                 }}
               >
                 删除

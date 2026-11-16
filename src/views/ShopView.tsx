@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { Price } from '@/components/Price'
 import { SellerFormModal } from '@/components/shop/SellerFormModal'
 import { ProductEditModal } from '@/components/shop/ProductEditModal'
@@ -43,7 +44,6 @@ const TABS: Array<{ key: Tab; label: string }> = [
 
 export function ShopView({
   tab,
-  pageSize,
   categoryId,
   q,
   sort,
@@ -51,7 +51,6 @@ export function ShopView({
   onSearch,
 }: {
   tab: Tab
-  pageSize: number
   categoryId: number
   q: string
   sort: '' | 'sales' | 'price'
@@ -82,7 +81,7 @@ export function ShopView({
     (next) =>
       shopApi.products({
         page: next,
-        page_size: pageSize,
+        page_size: PAGE_SIZE,
         seller_id: seller.data?.seller_id ?? 0,
         category_id: categoryId || undefined,
         name: q || undefined,

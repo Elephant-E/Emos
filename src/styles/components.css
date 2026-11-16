@@ -402,6 +402,7 @@
 .stat__delta span { color: var(--fg-3); }
 .stat__delta--quiet { color: var(--fg-3); }
 .toolbar {
+  margin-bottom: var(--gap-card);
   display: flex;
   align-items: center;
   gap: var(--sp-3);
@@ -550,7 +551,6 @@ input.input[type='number'] { min-width: 0; }
   .shell { grid-template-columns: var(--rail-w-compact) minmax(0, 1fr); }
   .page { padding: var(--sp-5) var(--pad-card) var(--sp-page); }
 
-  /* 列表表格（在 
 }
 @media (max-width: 900px) {
   .shell { grid-template-columns: var(--rail-w-icon) minmax(0, 1fr); }
@@ -1217,11 +1217,6 @@ input.input[type='number'] { min-width: 0; }
 .card--stat .stat__label .btn:disabled { color: var(--fg-5); cursor: default; }
 
 .card-body { margin-top: var(--stack); min-width: 0; }
-/* 卡片里的宽表格要能横向滚动；但表单卡片不需要滚动容器 ——
-   滚动容器会把输入框的焦点环在左右两侧切掉（环比输入框宽 4px） */
-.card-body:has(> .table, > 
-.card table { min-width: 420px; }
-
 .card-note {
   margin: 0;
   font-size: var(--text-xs);
@@ -2281,13 +2276,13 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   gap: var(--gap-card);
   row-gap: var(--sp-5);
 }
-.record-grid--poster { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.record-grid--square { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.record-grid--poster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.record-grid--square { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 
 @media (max-width: 1240px) {
   .record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .record-grid--poster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .record-grid--square { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .record-grid--square { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
   .record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); row-gap: var(--sp-5); }
@@ -2489,14 +2484,25 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   justify-content: flex-end;
 }
 @media (max-width: 900px) {
+  /* 登录页两栏在窄屏竖排，海报墙退到背景 */
+  .login {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: var(--sp-5);
+    padding: var(--sp-5) var(--sp-4);
+  }
   /* 手机上文字比图片重要，一张占满整行 */
   .record-rows { grid-template-columns: minmax(0, 1fr); }
   /* 手机宽度放不下「文字 + 右侧按钮」，动作回到底部整行右对齐 */
-  .record-row__actions {
+  /* 提高特异性才能压过基线里后写的 grid-column: 3 */
+  .record-row .record-row__actions,
+  .record-row .record-row__actions:not(.record-row__actions--full) {
     grid-column: 1 / -1;
     margin-top: var(--sp-2);
     flex-wrap: wrap;
   }
+  /* 卡片内行的动作是绝对定位的 ⋯，手机上只需让出 44px，不必 108px */
+  .card .record-row { padding-right: 44px; }
   /* 单列行在手机上回到「图左文右 + 动作整行」的堆叠，避免中间列被压到 90px */
   .record-rows--single .record-row {
     grid-template-columns: 72px minmax(0, 1fr);
@@ -2513,6 +2519,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     margin-top: var(--sp-2);
   }
 }
+.record-row__actions:not(.record-row__actions--full) { grid-column: 3; }
+
 .record-row {
   position: relative;
   display: grid;
@@ -2651,8 +2659,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   justify-content: flex-end;
   gap: var(--sp-2);
   margin: 0;
-  /* 与片单详情一致：动作在右侧、垂直居中，不另占一行 */
-  grid-column: 3;
+  /* 与片单详情一致：动作在右侧、垂直居中，不另占一行（手机端在断点里改回整行） */
   align-self: center;
 }
 /* 待办型（求片）才把动作铺成整行三等分 */

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PAGE_SIZE } from '@/lib/search'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ListSection } from '@/components/ListSection'
@@ -19,7 +20,6 @@ import { formatRelative, formatThousand, SEEK_STATUS, VIDEO_TYPE_LABEL } from '@
 import type { SeekItem, SeekStatus } from '@/api/types'
 
 export interface SeekSearch {
-  page_size: number
   tab: 'all' | 'default' | 'upload' | 'complete'
   q: string
   type: '' | 'movie' | 'tv'
@@ -61,7 +61,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   const [term, setTerm] = useSearchTerm(search.q, (next) => onSearch({ q: next }))
 
   const seekParams = {
-    page_size: search.page_size,
+    page_size: PAGE_SIZE,
     status: statuses,
     video_title: search.q || undefined,
     video_type: search.type || undefined,
@@ -70,7 +70,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
   // 两端都走滚动加载
   const infinite = usePagedInfinite(
     (page) => seekApi.list({ ...seekParams, page, sort_order: 'desc' }),
-    { resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${search.page_size}` },
+    { resetKey: `${search.tab}|${search.q}|${search.mine}|${search.type}|${PAGE_SIZE}` },
   )
   const items = infinite.items
 

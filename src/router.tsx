@@ -1,4 +1,4 @@
-import { asBool, asPage, asPageSize, asString } from '@/lib/search'
+import { asBool, asPage, asString } from '@/lib/search'
 import { createRootRoute, createRoute, createRouter, Outlet, redirect } from '@tanstack/react-router'
 import { AdminLayout } from '@/layouts/AdminLayout'
 import { OverviewView } from '@/views/OverviewView'
@@ -87,7 +87,6 @@ const libraryRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/library',
   validateSearch: (s: Record<string, unknown>): LibrarySearch => ({
-    page_size: asPageSize(s.page_size),
     q: asString(s.q),
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
   }),
@@ -155,7 +154,6 @@ const shopRoute = createRoute({
   path: '/shop',
   validateSearch: (s: Record<string, unknown>): {
     tab: 'products' | 'categories' | 'seller'
-    page_size: number
     category: number
     q: string
     sort: '' | 'sales' | 'price'
@@ -163,7 +161,6 @@ const shopRoute = createRoute({
     scope: 'all' | 'mine'
   } => ({
     tab: s.tab === 'categories' || s.tab === 'seller' ? s.tab : 'products',
-    page_size: asPageSize(s.page_size),
     category: Number(s.category) > 0 ? Number(s.category) : 0,
     q: asString(s.q),
     sort: s.sort === 'sales' || s.sort === 'price' ? s.sort : '',
@@ -178,7 +175,6 @@ function ShopRoute() {
   return (
     <ShopView
       tab={search.tab}
-      pageSize={search.page_size}
       categoryId={search.category}
       q={search.q}
       sort={search.sort}
@@ -192,7 +188,6 @@ const ordersRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/orders',
   validateSearch: (s: Record<string, unknown>): OrdersSearch => ({
-    page_size: asPageSize(s.page_size),
     pay: s.pay === 'paid' || s.pay === 'unpaid' ? s.pay : 'all',
     delivery: s.delivery === 'sent' || s.delivery === 'pending' ? s.delivery : 'all',
     q: asString(s.q),
@@ -227,7 +222,6 @@ const linesRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/lines',
   validateSearch: (s: Record<string, unknown>): LinesSearch => ({
-    page_size: asPageSize(s.page_size),
     q: asString(s.q),
   }),
   component: LinesRoute,
@@ -244,7 +238,6 @@ const recycleRoute = createRoute({
   path: '/recycle',
   validateSearch: (s: Record<string, unknown>): RecycleSearch => ({
     tab: s.tab === 'video' ? 'video' : 'media',
-    page_size: asPageSize(s.page_size),
     q: asString(s.q),
     by: s.by === 'user_id' ? ('user_id' as const) : ('media_id' as const),
   }),
@@ -257,11 +250,10 @@ function RecycleRoute() {
   return (
     <RecycleView
       tab={search.tab}
-      pageSize={search.page_size}
       q={search.q}
       by={search.by}
       onQuery={(q, by) => navigate({ search: { ...search, q, by } })}
-      onTab={(tab) => navigate({ search: { tab, page_size: search.page_size, q: '', by: 'media_id' } })}
+      onTab={(tab) => navigate({ search: { tab, q: '', by: 'media_id' } })}
     />
   )
 }
@@ -270,7 +262,6 @@ const musicRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/music',
   validateSearch: (s: Record<string, unknown>): MusicSearch => ({
-    page_size: asPageSize(s.page_size),
     tab: s.tab === 'albums' || s.tab === 'persons' ? s.tab : 'songs',
     q: asString(s.q),
     filter: s.filter === 'no_media' || s.filter === 'favorite' ? s.filter : '',
@@ -299,15 +290,14 @@ const payRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/pay',
   beforeLoad: () => {
-    throw redirect({ to: '/fund', search: { tab: 'merchant', page_size: 20 } })
+    throw redirect({ to: '/fund', search: { tab: 'merchant', } })
   },
 })
 
 const fundRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/fund',
-  validateSearch: (s: Record<string, unknown>): { page_size: number; tab: 'orders' | 'merchant' | 'carrot' } => ({
-    page_size: asPageSize(s.page_size),
+  validateSearch: (s: Record<string, unknown>): { tab: 'orders' | 'merchant' | 'carrot' } => ({
     tab: s.tab === 'merchant' ? 'merchant' : s.tab === 'carrot' ? 'carrot' : 'orders',
   }),
   component: FundRoute,
@@ -320,7 +310,6 @@ function FundRoute() {
     <FundView
       tab={search.tab}
       onTab={(tab) => navigate({ search: { ...search, tab } })}
-      pageSize={search.page_size}
     />
   )
 }
@@ -331,7 +320,6 @@ const redPacketRoute = createRoute({
   validateSearch: (s: Record<string, unknown>): RedPacketSearch => ({
     tab: s.tab === 'records' ? 'records' : 'send',
     id: asString(s.id),
-    page_size: asPageSize(s.page_size),
   }),
   component: RedPacketRoute,
 })
@@ -421,7 +409,6 @@ const seekRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/seek',
   validateSearch: (s: Record<string, unknown>): SeekSearch => ({
-    page_size: asPageSize(s.page_size),
     tab: s.tab === 'default' || s.tab === 'upload' || s.tab === 'complete' ? s.tab : 'all',
     q: typeof s.q === 'string' ? s.q : '',
     type: s.type === 'movie' || s.type === 'tv' ? s.type : '',
@@ -440,7 +427,6 @@ const watchlistsRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists',
   validateSearch: (s: Record<string, unknown>): WatchSearch => ({
-    page_size: asPageSize(s.page_size),
     scope: s.scope === 'self' || s.scope === 'subscribed' ? s.scope : 'all',
     q: typeof s.q === 'string' ? s.q : '',
   }),
@@ -456,9 +442,7 @@ function WatchlistsRoute() {
 const watchlistDetailRoute = createRoute({
   getParentRoute: () => appLayout,
   path: '/watchlists/$watchId',
-  validateSearch: (s: Record<string, unknown>): { page_size: number; q: string } => ({
-    // 取 URL 的 page_size
-    page_size: asPageSize(s.page_size),
+  validateSearch: (s: Record<string, unknown>): { q: string } => ({
     q: asString(s.q),
   }),
   component: WatchDetailRoute,
