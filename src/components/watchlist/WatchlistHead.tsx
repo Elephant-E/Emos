@@ -1,4 +1,3 @@
-import { Poster } from '@/components/Poster'
 import { DetailHead, DetailStats } from '@/components/DetailHead'
 import { Badge } from '@/components/Badge'
 import { formatRelative, formatThousand } from '@/lib/format'
@@ -22,14 +21,6 @@ export function WatchlistHead({
 }) {
   return (
     <DetailHead
-      media={
-        <Poster
-          src={item.image_poster_url}
-          name={String(item.name ?? '?')}
-          shape="wide"
-          className="detail-head__poster"
-        />
-      }
       chips={
         <>
           <Badge tone={item.is_public ? 'ok' : 'off'}>{item.is_public ? '公开' : '私密'}</Badge>

@@ -773,6 +773,9 @@ input.input[type='number'] { min-width: 0; }
 
 /* 详情页头统一：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
+/* 详情头不带图时，文字列铺满整行 */
+.detail-head__row--text-only { gap: 0; }
+.detail-head__row--text-only .detail-head__text { flex: 1 1 auto; }
 .detail-head__text { display: grid; gap: var(--sp-2); min-width: 0; }
 /* 用户详情头的三行更紧，单独给 4px */
 .detail-head__name + .detail-head__meta { margin-top: calc(var(--sp-1) * -1); }

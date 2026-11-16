@@ -8,7 +8,6 @@ import { VideoSubtitles, type SubtitleRow } from '@/components/video/VideoSubtit
 import { MediaEditModal } from '@/components/video/MediaEditModal'
 import { SubtitleEditModal } from '@/components/video/SubtitleEditModal'
 import { PageHeader } from '@/components/PageHeader'
-import { Poster } from '@/components/Poster'
 import { DetailHead, DetailStats } from '@/components/DetailHead'
 import { EmptyBlock, ErrorBlock, LoadingBlock } from '@/components/StateBlock'
 import { uploadSubtitle } from '@/lib/uploader'
@@ -187,11 +186,6 @@ export function VideoDetailView({
 
       {video ? (
         <DetailHead
-          media={
-            video.video_image_poster ? (
-              <Poster src={video.video_image_poster} name={video.video_title} className="poster-img detail-head__poster" />
-            ) : null
-          }
           chips={
             <>
               <span className="zone">

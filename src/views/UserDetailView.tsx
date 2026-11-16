@@ -5,7 +5,6 @@ import { RecordRow } from '@/components/RecordRow'
 import { CardHead } from '@/components/CardHead'
 import { StatCard } from '@/components/StatCard'
 import { Modal } from '@/components/Modal'
-import { Avatar } from '@/components/Avatar'
 import { DetailHead } from '@/components/DetailHead'
 import { PageHeader } from '@/components/PageHeader'
 import { ErrorBlock, EmptyBlock } from '@/components/StateBlock'
@@ -134,7 +133,6 @@ export function UserDetailView({ userId }: { userId: string }) {
       {/* 详情页头统一形态：左侧头像（图片）、右侧文本与状态 */}
       {known ? (
         <DetailHead
-          media={<Avatar url={info?.avatar ?? null} name={name} size={72} />}
           chips={
             <>
               <span className={`badge ${banned ? 'badge--warn' : 'badge--ok'}`}>
