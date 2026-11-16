@@ -32,7 +32,7 @@ export function LoadingRows({
   count = 6,
   single = false,
   poster = 'poster',
-  lines = 2,
+  lines = 3,
   actions = 2,
   extra = false,
   fullActions = false,
@@ -59,7 +59,12 @@ export function LoadingRows({
     <div className={`record-rows${single ? ' record-rows--single' : ''}`} aria-busy="true" aria-live="polite">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="record-row">
-          {posterSize ? <div className="record-row__media skeleton" style={{ height: posterSize.height }} /> : null}
+          {posterSize ? (
+            <div
+              className="record-row__media skeleton"
+              style={{ width: posterSize.width, height: posterSize.height }}
+            />
+          ) : null}
           <div className="record-row__body">
             {Array.from({ length: lines }).map((__, line) => (
               <div

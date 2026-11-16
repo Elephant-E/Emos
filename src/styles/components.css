@@ -2584,7 +2584,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .record-row__media--square,
 .record-rows--single .record-row__media--square { width: 72px; }
 /* 没有图 / 没有信息块 / 没有动作时，对应的网格单元直接消失，别留空格与额外间距 */
-.record-row__media:empty,
+.record-row__media:empty:not(.skeleton),
 .record-row__extra:empty,
 .record-row__actions:empty { display: none; }
 .record-row__media--square .record-row__poster,
@@ -2662,7 +2662,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 方图/无图行：写在通用规则之后，避免被 112px 覆盖 */
 .record-row__media--square { width: 72px; }
 /* 没有图 / 没有信息块 / 没有动作时，对应的网格单元直接消失，别留空格与额外间距 */
-.record-row__media:empty,
+.record-row__media:empty:not(.skeleton),
 .record-row__extra:empty,
 .record-row__actions:empty { display: none; }
 .record-row__media--square .record-row__poster,
