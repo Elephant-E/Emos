@@ -12,7 +12,7 @@ import { useAccountMutations, useSession, useBanList, useUserCarrot, useUserInvi
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { promptDialog } from '@/ui/prompt'
-import { formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
+import { formatDate, formatDateTime, formatRelative, formatSize, formatThousand } from '@/lib/format'
 
 export function UserDetailView({ userId }: { userId: string }) {
   const pay = useUserPayInfo(userId)
@@ -147,7 +147,7 @@ export function UserDetailView({ userId }: { userId: string }) {
           <p className="detail-head__name">{name}</p>
           <p className="detail-head__meta">
             #{userId}
-            {info?.created_at ? ` · ${formatDateTime(info.created_at)} 注册` : ''}
+            {info?.created_at ? ` · ${formatDate(info.created_at)} 注册` : ''}
           </p>
         </DetailHead>
       ) : null}

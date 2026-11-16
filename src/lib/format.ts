@@ -31,6 +31,15 @@ export function formatDateTime(iso: string | null | undefined): string {
   return `${sameYear ? date : `${d.getFullYear()}-${date}`} ${time}`
 }
 
+/** 只到日：注册、加入、到期这类「身份/期限」时间不需要时分，且必须带年份 */
+export function formatDate(iso: string | null | undefined): string {
+  if (!iso || iso === 'null' || iso === 'undefined') return '—'
+  const d = new Date(iso.replace(' ', 'T'))
+  if (Number.isNaN(d.getTime())) return String(iso)
+  const p = (v: number) => String(v).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+
 export function formatRelative(iso: string | null | undefined): string {
   if (!iso || iso === 'null' || iso === 'undefined') return '—'
   const then = new Date(iso.replace(' ', 'T')).getTime()

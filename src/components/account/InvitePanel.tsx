@@ -6,7 +6,7 @@ import { Modal } from '@/components/Modal'
 import { StatCard } from '@/components/StatCard'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime, formatThousand } from '@/lib/format'
+import { formatDate, formatDateTime, formatThousand } from '@/lib/format'
 import { buildInviteRows, pickMySubtree, type InviteHistoryRow } from '@/lib/invite-tree'
 import {
   useAccountMutations,
@@ -140,7 +140,7 @@ export function InvitePanel() {
                   )}
                   facts={(row) => (
                     <>
-                      <span>{formatDateTime(row.joinAt)} 加入</span>
+                      <span>{formatDate(row.joinAt)} 加入</span>
                       <span>{row.lastPlayed ? `${formatDateTime(row.lastPlayed)} 最近播放` : '从未播放'}</span>
                       {row.remark ? <span className="ellipsis">备注：{row.remark}</span> : null}
                     </>
