@@ -97,8 +97,10 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordRow<Record<string, unknown>>
-            rows={infinite.items}
-            idKey={(row) => `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${String(row.point ?? '')}`}
+            /* 同一天同一类型的批量结算会有完全相同的 created_at/type/point，
+               只用这三项作 key 会撞（React 会报重复 key 并可能漏渲染）→ 拼上序号 */
+            rows={infinite.items.map((row, index) => ({ ...row, __key: `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${index}` }))}
+            idKey={(row) => String(row.__key)}
             title={(row) => String(row.trigger_type_string ?? row.trigger_type ?? '—')}
             facts={(row) => <span>{formatDateTime(String(row.created_at ?? ''))}</span>}
             value={(row) => {
