@@ -33,7 +33,14 @@ export function SubscribersModal({
         <EmptyBlock title="还没有人订阅" />
       ) : null}
       {(subs.data?.items.length ?? 0) > 0 ? (
-        <RecordRow
+        <>
+          <p className="meta-sm" style={{ marginBottom: 'var(--sp-2)' }}>
+            共 {subs.data?.total ?? subs.data?.items.length ?? 0} 人
+            {(subs.data?.total ?? 0) > (subs.data?.items.length ?? 0)
+              ? `，当前显示前 ${subs.data?.items.length ?? 0} 人`
+              : ''}
+          </p>
+          <RecordRow
           rows={subs.data?.items ?? []}
           idKey={(row) => `${row.username}-${row.created_at}`}
           single
@@ -46,7 +53,8 @@ export function SubscribersModal({
               <span>{row.expiration_date ? `${row.expiration_date} 到期` : '长期有效'}</span>
             </>
           )}
-        />
+          />
+        </>
       ) : null}
     </Modal>
   )
