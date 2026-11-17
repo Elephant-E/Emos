@@ -376,12 +376,12 @@ POST /api/redPacket/create
 
 | `must_otp` | 登录凭证 | `GET /user/passwordTemporary` | `PUT /user/passwordReset` |
 |---|---|---|---|
-| `true` | 动态密码，45 秒内有效 | 返回 `{password: 559, second: 45}` | 没有意义（旧项目直接拦住：「请使用动态密码登录，无法设置固定密码」） |
+| `true` | 动态密码，45 秒内有效 | 返回 `{password: 559, second: 45}` | 没有意义（应直接拦住：「请使用动态密码登录，无法设置固定密码」） |
 | `false` | 固定密码，6 位数字 | 返回 `{password: null, second: 45}` | 可用；无 password 时 422「password 不能为空」 |
 
 真机当前账号：`must_otp: false`、`is_viewing: true`、`password: "534387"`（6 位）。
 
-**`is_viewing` 是「观影权限」，不是「是否本人」**：旧项目把它当作改密码的前置条件，属错误用法。
+**`is_viewing` 是「观影权限」，不是「是否本人」**：不能拿它当改密码的前置条件。
 
 界面上同一时刻只出现一个入口（`AccountView` 的 `otpMode` 分支）：
 `must_otp = true` 只显示「获取动态密码」，`false` 只显示「重置登录密码」。
