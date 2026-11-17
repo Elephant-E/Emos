@@ -373,7 +373,7 @@ export function OverviewView() {
                     className="row text-sm"
                   >
                     <span className="text-body ellipsis" style={{ flex: 1 }}>{w.name}</span>
-                    <span className="muted tnum-sm">{w.video_count} 部</span>
+                    <span className="muted tnum-sm">{w.video_count ? `${w.video_count} 部` : ''}</span>
                     <span className="muted tnum-sm" style={{ width: 62, textAlign: 'right' }}>
                       {w.updated_at ? formatRelative(w.updated_at) : ''}
                     </span>

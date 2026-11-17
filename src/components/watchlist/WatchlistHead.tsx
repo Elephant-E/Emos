@@ -37,7 +37,7 @@ export function WatchlistHead({
           {
             value: onSubscribers ? (
               <button type="button" className="detail-stat__link tnum" onClick={onSubscribers} title="看订阅用户">
-                {formatThousand(item.subscribe_count)}
+                {item.subscribe_count ? formatThousand(item.subscribe_count) : ''}
               </button>
             ) : (
               <b>{formatThousand(item.subscribe_count)}</b>

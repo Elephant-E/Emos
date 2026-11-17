@@ -187,11 +187,11 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               <dl className="seek-records">
                 <div>
                   <dt>求片人数</dt>
-                  <dd>{item.count_request} 人</dd>
+                  <dd>{item.count_request ? `${item.count_request} 人` : '—'}</dd>
                 </div>
                 <div>
                   <dt>当前悬赏</dt>
-                  <dd>{item.seek_carrot ? `${formatThousand(item.seek_carrot)} 胡萝卜` : '无'}</dd>
+                  <dd>{item.seek_carrot ? `${formatThousand(item.seek_carrot)} 胡萝卜` : '—'}</dd>
                 </div>
                 <div>
                   <dt>{item.status === 'upload' ? '认领到期' : '最近更新'}</dt>

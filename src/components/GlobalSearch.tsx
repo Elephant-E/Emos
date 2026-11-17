@@ -134,7 +134,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           hits: (watches.data?.items ?? []).map((row) => ({
             key: `watch-${row.id}`,
             title: String(row.name ?? ''),
-            sub: [`${formatThousand(row.video_count)} 部`, row.carrot > 0 ? `${row.carrot} 胡萝卜` : '免费'].join(' · '),
+            sub: [row.video_count ? `${formatThousand(row.video_count)} 部` : '', row.carrot > 0 ? `${row.carrot} 胡萝卜` : '免费'].join(' · '),
             poster: row.image_poster_url,
             shape: 'wide' as const,
             open: () => {

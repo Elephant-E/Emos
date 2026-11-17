@@ -25,7 +25,7 @@ export function ProductTile({
         <span className="product-tile__name">{product.name}</span>
         <Price price={product.price} priceOrigin={product.price_origin} />
         <div className="product-tile__meta">
-          <span>销量 {formatThousand(product.sales)} 件</span>
+          {product.sales ? <span>销量 {formatThousand(product.sales)} 件</span> : null}
           {soldOut ? <span>已售罄</span> : <span>库存 {formatThousand(product.stock)} 件</span>}
           <button type="button"
             className="product-tile__buy"

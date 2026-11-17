@@ -128,7 +128,7 @@ export function WatchlistDetailView({
       <PageHeader
         crumb={['片单', item?.name ?? '详情']}
         title={item?.name ?? '片单'}
-        hint={item ? `${formatThousand(item.video_count)} 部` : undefined}
+        hint={item?.video_count ? `${formatThousand(item.video_count)} 部` : undefined}
         tools={
           item ? (
             <>
