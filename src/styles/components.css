@@ -1594,8 +1594,11 @@ input.input[type='number'] { min-width: 0; }
   position: absolute;
   top: var(--sp-1);
   right: var(--sp-1);
-  width: 20px;
-  height: 20px;
+  /* 破坏性操作也要能点准：20px 在手机上必然误触到缩略图本身 */
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -2071,6 +2074,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 触控目标：手机上没有 hover，32px 的按钮按起来发飘，统一抬到 40px。
      行内小图标按钮（⋯）给 34px 见方，避免把行/卡片撑高。 */
   .btn { height: 36px; }
+  /* 图标按钮只抬了高度没抬宽度，28×36 在手机上宽度不够按 */
+  .btn--icon { width: 36px; height: 36px; }
   .btn--quiet,
   .btn--ghost,
   .btn--danger-text { height: 34px; min-width: 40px; }
