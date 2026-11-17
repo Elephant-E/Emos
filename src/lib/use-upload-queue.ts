@@ -151,6 +151,8 @@ export function useUploadQueue() {
   const resolveByFilename = (fileName: string) => resolveTargetByFilename(fileName)
 
   const startUpload = async (item: QueueItem) => {
+    // 识别中不接上传：稍后识别结果会把手选落点覆盖掉
+    if (item.status === 'recognizing') return
     if (!item.target) {
       setPlacing({ item })
       return

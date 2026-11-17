@@ -122,6 +122,8 @@ export function ShopView({
 
   const saveProduct = () => {
     const categoryId = editing?.category_id ?? categories.data?.[0]?.category_id
+    // 编辑是整体覆盖：详情（简介/兑换方式/时间窗）还在回填时提交，会把它们写成 null
+    if (editing?.product_id && editingDetail.isLoading) return
     if (!editing?.name?.trim() || !categoryId || actions.saveProduct.isPending) return
     actions.saveProduct.mutate(
       {
@@ -440,6 +442,7 @@ export function ShopView({
       {editing ? (
         <ProductEditModal
           draft={editing}
+          detailLoading={Boolean(editing?.product_id) && editingDetail.isLoading}
           categories={categories.data ?? []}
           pending={actions.saveProduct.isPending}
           onChange={(patch) => setEditing((prev) => (prev ? { ...prev, ...patch } : prev))}

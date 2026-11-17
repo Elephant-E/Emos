@@ -15,6 +15,7 @@ export function ProductEditModal({
   draft,
   categories,
   pending,
+  detailLoading = false,
   onChange,
   onClose,
   onSave,
@@ -22,6 +23,8 @@ export function ProductEditModal({
   draft: ProductDraft
   categories: Array<{ category_id: number; name: string }>
   pending: boolean
+  /** 编辑时商品详情还在回填：此时保存会把简介/兑换方式/时间窗写成 null */
+  detailLoading?: boolean
   onChange: (patch: Partial<ProductDraft>) => void
   onClose: () => void
   onSave: () => void
@@ -39,7 +42,8 @@ export function ProductEditModal({
           onConfirm={onSave}
           confirmText="保存"
           pending={pending}
-          disabled={!draft.name?.trim() || !fallbackCategory}
+          /* 详情回填未完成时不许保存：编辑是整体覆盖，会清空简介/兑换方式/时间窗 */
+          disabled={!draft.name?.trim() || !fallbackCategory || detailLoading}
         />
       }
     >

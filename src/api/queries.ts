@@ -628,7 +628,9 @@ export function useShopCounts(sellerId: number) {
     queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 100, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
-  const salesTotal = salesRows.data?.items.reduce((sum, p) => sum + (p.sales ?? 0), 0)
+  // 用 rowsOf 兜底：worker 会把「上游 200 但非 JSON」包成 { message } 且保留 200，
+  // 直接 data?.items.reduce 会在 items 缺失时抛 TypeError 白屏
+  const salesTotal = rowsOf<{ sales?: number }>(salesRows.data?.items).reduce((sum, p) => sum + (p.sales ?? 0), 0)
   const salesCapped = (salesRows.data?.total ?? 0) > (salesRows.data?.page_size ?? 100)
   return {
     // 总条数直接从下面那次「拉 100 条算销量」的响应里拿，不再单独打一次 page_size=1

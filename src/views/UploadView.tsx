@@ -166,7 +166,10 @@ export function UploadView() {
                 ) : null
               ) : item.status === 'duplicate' ? (
                 <span className="meta-sm">已跳过</span>
-              ) : item.status === 'uploading' ? null : (
+              ) : item.status === 'uploading' ? null : item.status === 'recognizing' ? (
+                /* 识别还没回来：此时手选的目标会被识别结果覆盖，先不让点 */
+                <span className="meta-sm">识别中…</span>
+              ) : (
                 <button type="button" className="btn btn--quiet" onClick={() => startUpload(item)}>
                   {item.status === 'need-target' ? '选目标' : item.status === 'failed' ? '重试' : '上传'}
                 </button>
