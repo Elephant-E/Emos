@@ -9,6 +9,7 @@ export function Modal({
   hint,
   children,
   footer,
+  note,
   onClose,
   onSubmit,
   width = 460,
@@ -17,6 +18,8 @@ export function Modal({
   hint?: string
   children: ReactNode
   footer?: ReactNode
+  /** 底栏之上的固定说明（如表单还差哪些字段）：不随内容滚动，短视口也能看到 */
+  note?: ReactNode
   onClose: () => void
   /** 传了它，弹层内按回车等于提交 */
   onSubmit?: () => void
@@ -94,6 +97,7 @@ export function Modal({
             {children}
             {hint ? <p className="modal__hint">{hint}</p> : null}
           </div>
+          {note ? <div className="modal__note">{note}</div> : null}
           {footer ? <div className="modal__foot">{footer}</div> : null}
         </form>
       </div>

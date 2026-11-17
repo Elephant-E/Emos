@@ -52,6 +52,7 @@ export function WatchlistForm({
         // 标签输入框里的回车由 Modal 统一拦截（见 Modal 的 onKeyDown），这里不重复判断
         if (valid && !pending) onSubmit({ ...form, name: form.name.trim() })
       }}
+      note={form.name.trim().length >= 2 ? null : `还差：名称至少 ${2 - form.name.trim().length} 个字`}
       footer={
         <>
           <button type="button" className="btn btn--ghost" onClick={onClose}>
@@ -124,9 +125,6 @@ export function WatchlistForm({
           内容为空时仍展示
         </label>
       </div>
-      <p className="form-hint">
-        {form.name.trim().length >= 2 ? '' : `还差：名称至少 ${2 - form.name.trim().length} 个字`}
-      </p>
     </Modal>
   )
 }

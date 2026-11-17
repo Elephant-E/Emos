@@ -167,7 +167,13 @@ export const Sidebar = forwardRef<
           const Icon = item.icon
           const active = pathname === item.to
           return (
-            <Link key={item.to} to={item.to} className={`rail__item${active ? ' is-active' : ''}`}>
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`rail__item${active ? ' is-active' : ''}`}
+              aria-label={item.label}
+              title={item.label}
+            >
               <span className="rail__ico">
                 <Icon size={16} />
               </span>
@@ -189,6 +195,8 @@ export const Sidebar = forwardRef<
                   to={item.to}
                   className={`rail__item${active ? ' is-active' : ''}`}
                   aria-current={active ? 'page' : undefined}
+                  aria-label={item.label}
+                  title={item.label}
                 >
                   <span className="rail__ico">
                     <Icon size={16} />

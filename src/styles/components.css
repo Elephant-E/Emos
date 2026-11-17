@@ -587,6 +587,14 @@ input.input[type='number'] { min-width: 0; }
   color: var(--fg-3);
 }
 
+.modal__note {
+  flex: none;
+  margin: 0;
+  padding: 0 var(--pad-card) var(--sp-2);
+  font-size: var(--text-xs);
+  color: var(--fg-4);
+}
+
 .modal__foot {
   display: flex;
   justify-content: flex-end;
@@ -1989,10 +1997,24 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
 }
 
-/* 窄屏：所有卡片栅格都退成一列。
+/* 中窄屏（601–900，含平板竖屏 768）：统计卡仍放得下两列，别退成一列
+   （退成一列后卡片只剩 3 行字、右侧大片空白，比手机还空） */
+@media (max-width: 900px) {
+  .cards,
+  .cards--2,
+  .cards--4,
+  .cards--todos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cards--form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 手机：全部退成一列。
    必须放在文件末尾：`.cards--4 / --2 / --form / --todos` 定义在文件后半，
    同特异性下先写的规则会被它们覆盖（这里是显式覆盖它们，所以顺序即语义）。 */
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .cards,
   .cards--2,
   .cards--4,

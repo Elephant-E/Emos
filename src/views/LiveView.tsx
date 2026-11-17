@@ -307,6 +307,11 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           title={form.id ? `编辑频道 · ${form.title}` : '新增频道'}
           onClose={() => setForm(null)}
           onSubmit={submitChannel}
+          note={
+            !form.title.trim() || !form.library
+              ? `还差：${[!form.title.trim() && '频道名称', !form.library && '媒体库'].filter(Boolean).join('、')}`
+              : null
+          }
           footer={
             <ModalFooter
               onCancel={() => setForm(null)}
@@ -355,9 +360,6 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <span>简介</span>
             <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </label>
-          <p className="form-hint">
-            {!form.title.trim() || !form.library ? `还差：${[!form.title.trim() && '频道名称', !form.library && '媒体库'].filter(Boolean).join('、')}` : ''}
-          </p>
         </Modal>
       ) : null}
 

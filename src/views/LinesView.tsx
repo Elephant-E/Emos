@@ -128,6 +128,11 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           title="新增线路"
           onClose={() => setCreating(false)}
           onSubmit={submitLine}
+          note={
+            !form.name.trim() || !form.url.trim() || !form.tagline.trim()
+              ? `还差：${[!form.name.trim() && '名称', !form.url.trim() && '地址', !form.tagline.trim() && '简介'].filter(Boolean).join('、')}`
+              : null
+          }
           footer={
             <ModalFooter
               onCancel={() => setCreating(false)}
@@ -174,12 +179,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
               aria-required
             />
           </label>
-          {/* 按钮禁用时说明还差什么，避免「点不动又不知道为什么」 */}
-          <p className="form-hint">
-            {!form.name.trim() || !form.url.trim() || !form.tagline.trim()
-              ? `还差：${[!form.name.trim() && '名称', !form.url.trim() && '地址', !form.tagline.trim() && '简介'].filter(Boolean).join('、')}`
-              : ''}
-          </p>
         </Modal>
       ) : null}
     </>
