@@ -284,7 +284,7 @@ POST /api/redPacket/create
 
 **`createTelegramHtml` 不接**：该接口把红包发到 Telegram 频道，`html` 字段 6000 字符内、
 需拼 Telegram 支持的 HTML 子集，且说明写明「发送失败会吞红包，等有效期结束才退款」。
-该接口属 bot 侧入口，后台没有对应场景（旧项目也未接）。
+该接口属 bot 侧入口，后台没有对应场景。
 
 ## Telegram相关 / 投票
 

@@ -59,7 +59,7 @@ token 换成生产用户（admin）后直连 `https://emos.best` 成功，取得
 
 ## 代理配置
 
-旧项目的两处配置才是可用的；自己写的 fetch 反代会被上游 RST：
+只有这两处配置可用，自己写的 fetch 反代会被上游 RST：
 
 **开发（旧 vite.config.ts）**
 ```ts
