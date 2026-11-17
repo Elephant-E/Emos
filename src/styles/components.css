@@ -548,7 +548,9 @@ input.input[type='number'] { min-width: 0; }
 
 .modal {
   max-width: calc(100vw - 32px);
+  /* dvh 跟着可视视口缩：键盘弹出时 100vh 不会变，弹层底部会被盖住 */
   max-height: calc(100vh - 64px);
+  max-height: calc(100dvh - 64px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
