@@ -28,10 +28,12 @@ export function setToken(token: string | null) {
   }
 }
 let redirecting = false
-function fail(status: number, message: string, payload?: unknown): ApiError {
+function fail(status: number, message: string, payload?: unknown, name?: string): ApiError {
   const err = new Error(message) as ApiError
   err.status = status
   err.payload = payload
+  // 取消/超时要保留错误名：describeAuthError 靠它区分「超时」与「连不上」
+  if (name) err.name = name
   return err
 }
 interface RequestOptions {
@@ -72,7 +74,8 @@ async function withRetry<T>(fn: () => Promise<T>, attempts: number): Promise<T> 
       lastError = error
       const status = (error as { status?: number }).status
       // 0 = 网络层失败；502/503/504 = 代理或上游临时不可用，GET 可安全重试
-      const retryable = status === 0 || status === 502 || status === 503 || status === 504
+      const aborted = (error as Error)?.name === 'AbortError' || (error as Error)?.name === 'TimeoutError'
+      const retryable = !aborted && (status === 0 || status === 502 || status === 503 || status === 504)
       if (!retryable || i === attempts - 1) throw error
       await new Promise((resolve) => setTimeout(resolve, 300 * (i + 1)))
     }
@@ -107,6 +110,11 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch (e) {
+    const name = (e as Error)?.name
+    if (name === 'AbortError' || name === 'TimeoutError') {
+      // 取消/超时：保留原名，交给调用方判断（重试没有意义，signal 已经作废）
+      throw fail(0, name === 'TimeoutError' ? '请求超时' : '请求已取消', e, name)
+    }
     throw fail(0, '网络不可用，请检查连接后重试', e)
   }
   if (res.status === 401 && !silent401) {
