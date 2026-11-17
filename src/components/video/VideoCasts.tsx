@@ -38,7 +38,13 @@ export function VideoCasts({ persons, limit = 8 }: { persons: VideoPerson[]; lim
             <span className={`person-card__photo${empty ? ' is-empty' : ''}`}>
               {!empty && person.image_profile ? (
                 <img
-                  src={`https://image.theotherdb.org/original/${person.image_profile}`}
+                  src={
+                    // image_profile 有时已经是完整 URL，再拼一次 CDN 前缀会变成
+                    // https://image.theotherdb.org/original/https://… 而必然失败
+                    /^https?:\/\//.test(String(person.image_profile ?? ''))
+                      ? String(person.image_profile)
+                      : `https://image.theotherdb.org/original/${person.image_profile}`
+                  }
                   alt=""
                   loading="lazy"
                   onError={() => setBroken((prev) => new Set(prev).add(key))}

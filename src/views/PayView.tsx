@@ -158,6 +158,11 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
           {order.data ? (
             <>
             <div className="detail-stats" style={{ marginTop: 'var(--gap-card)' }}>
+              {/* 回显订单号：否则用户核对不了查出来的这一单是不是自己要找的 */}
+              <div className="detail-stat">
+                <b style={{ fontSize: 15, wordBreak: 'break-all' }}>{String(order.data.no ?? lookup)}</b>
+                <span>订单号</span>
+              </div>
               <div className="detail-stat">
                 <b>{PAY_STATUS_LABEL[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
                 <span>支付状态</span>
