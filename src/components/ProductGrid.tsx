@@ -35,7 +35,14 @@ export function ProductGrid({
         ))}
       </div>
       {loadingMore ? <LoadingGrid count={4} shape="product" /> : null}
-      {hasMore ? <InfiniteSentinel onLoadMore={onLoadMore} loading={loadingMore} /> : null}
+      {hasMore ? (
+        <InfiniteSentinel onLoadMore={onLoadMore} loading={loadingMore} />
+      ) : (
+        /* 到底了要说一声，否则最后一张卡之后直接断掉 */
+        <p className="list-end" style={{ gridColumn: '1 / -1' }}>
+          已经到底了
+        </p>
+      )}
       {!loadingMore && loadError ? (
         <p className="grid-state">
           <button type="button" className="btn btn--quiet" onClick={onLoadMore}>

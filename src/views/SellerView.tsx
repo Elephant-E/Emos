@@ -20,6 +20,9 @@ export function SellerView({ sellerId }: { sellerId: number }) {
   const [buyTarget, setBuyTarget] = useState<import('@/api/types').ShopProduct | null>(null)
   const categories = useShopCategories(sellerId)
   const query = useShopProductsInfinite({ sellerId, categoryId, name: keyword, sortBy: sort, onlyUp: true })
+  // 店铺级在售总数单独取一次（不随分类/搜索变化）
+  const shopTotalQuery = useShopProductsInfinite({ sellerId, categoryId: 0, name: '', sortBy: '', onlyUp: true })
+  const shopTotal = shopTotalQuery.data?.pages[0]?.total
   const products = query.data?.pages.flatMap((p) => p.items) ?? []
 
   return (
@@ -30,7 +33,8 @@ export function SellerView({ sellerId }: { sellerId: number }) {
         hint={
           [
             seller.data?.description,
-            query.data ? `${query.data.pages[0]?.total ?? 0} 件在售` : null,
+            // 用「不带分类」的总数：否则切到空分类时头部会显示 0 件在售
+            query.data ? `${shopTotal ?? 0} 件在售` : null,
             categories.data?.length ? `${categories.data.length} 个分类` : null,
           ]
             .filter(Boolean)
@@ -63,7 +67,13 @@ export function SellerView({ sellerId }: { sellerId: number }) {
 
       {!query.isLoading && !query.error && products.length === 0 ? (
         <EmptyBlock
-          title={keyword ? `这家店没有「${keyword}」` : '这家店还没有在售商品'}
+          title={
+            keyword
+              ? `这家店没有「${keyword}」`
+              : categoryId
+                ? '这个分类下还没有商品'
+                : '这家店还没有在售商品'
+          }
           action={
             keyword ? <ClearSearchButton onClick={() => setKeyword('')} /> : undefined
           }
