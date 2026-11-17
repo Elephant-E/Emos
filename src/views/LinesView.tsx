@@ -138,17 +138,48 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
           }
         >
           <label className="field">
-            <span>名称（建议用自己 ID）</span>
-            <input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="@proxy" autoFocus />
+            <span>
+              名称<span className="field__req">*</span>
+            </span>
+            <input
+              className="input"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="建议用自己的 ID，例如 @proxy"
+              aria-required
+              autoFocus
+            />
           </label>
           <label className="field">
-            <span>地址（不要带尾部斜杠）</span>
-            <input className="input" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="http://proxy.local" />
+            <span>
+              地址<span className="field__req">*</span>
+            </span>
+            <input
+              className="input"
+              value={form.url}
+              onChange={(e) => setForm({ ...form, url: e.target.value })}
+              placeholder="http://proxy.local（不要带尾部斜杠）"
+              aria-required
+            />
           </label>
           <label className="field">
-            <span>一句话简介（必填）</span>
-            <input className="input" value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="三网绕路" />
+            <span>
+              一句话简介<span className="field__req">*</span>
+            </span>
+            <input
+              className="input"
+              value={form.tagline}
+              onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+              placeholder="三网绕路"
+              aria-required
+            />
           </label>
+          {/* 按钮禁用时说明还差什么，避免「点不动又不知道为什么」 */}
+          <p className="form-hint">
+            {!form.name.trim() || !form.url.trim() || !form.tagline.trim()
+              ? `还差：${[!form.name.trim() && '名称', !form.url.trim() && '地址', !form.tagline.trim() && '简介'].filter(Boolean).join('、')}`
+              : ''}
+          </p>
         </Modal>
       ) : null}
     </>

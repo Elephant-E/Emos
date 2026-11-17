@@ -71,7 +71,9 @@ export function WatchlistForm({
         height={116}
       />
       <label className="field">
-        <span>名称</span>
+        <span>
+          名称<span className="field__req">*</span>
+        </span>
         <input
           className="input"
           value={form.name}
@@ -122,6 +124,9 @@ export function WatchlistForm({
           内容为空时仍展示
         </label>
       </div>
+      <p className="form-hint">
+        {form.name.trim().length >= 2 ? '' : `还差：名称至少 ${2 - form.name.trim().length} 个字`}
+      </p>
     </Modal>
   )
 }

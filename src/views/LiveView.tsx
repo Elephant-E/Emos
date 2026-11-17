@@ -313,7 +313,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               onConfirm={submitChannel}
               confirmText={form.id ? '保存' : '创建'}
               pending={actions.saveChannel.isPending}
-              disabled={!form.title.trim()}
+              disabled={!form.title.trim() || !form.library}
             />
           }
         >
@@ -330,11 +330,15 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             />
           )}
           <label className="field">
-            <span>频道名称</span>
+            <span>
+              频道名称<span className="field__req">*</span>
+            </span>
             <input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} autoFocus />
           </label>
           <label className="field">
-            <span>媒体库</span>
+            <span>
+              媒体库<span className="field__req">*</span>
+            </span>
             <select className="input" value={form.library} onChange={(e) => setForm({ ...form, library: Number(e.target.value) })}>
               {(library.data ?? []).map((item) => (
                 <option key={item.id} value={item.id}>
@@ -351,6 +355,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
             <span>简介</span>
             <textarea className="input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </label>
+          <p className="form-hint">
+            {!form.title.trim() || !form.library ? `还差：${[!form.title.trim() && '频道名称', !form.library && '媒体库'].filter(Boolean).join('、')}` : ''}
+          </p>
         </Modal>
       ) : null}
 
