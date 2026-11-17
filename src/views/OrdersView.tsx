@@ -132,7 +132,8 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
         infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
         loadingKind="rows"
         loadingPoster="square"
-        loadingLines={3}
+        // 订单行的标题/单号/备注在窄屏会折行，骨架按 4 行画才不至于加载完往下跳
+        loadingLines={4}
         loadingActions={3}
         loadingRows={6}
         emptyTitle={search.q ? `没有找到「${search.q}」` : filtered ? '没有符合条件的订单' : '没有订单'}
