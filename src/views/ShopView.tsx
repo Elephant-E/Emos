@@ -287,7 +287,32 @@ export function ShopView({
               infinite={{ hasMore: infinite.hasMore, loading: infinite.loadingMore, onLoadMore: infinite.loadMore }}
               loadingRows={6}
               emptyTitle={q ? `没有找到「${q}」` : categoryId ? '这个分类还没有商品' : '还没有商品'}
-              emptyAction={q ? <ClearSearchButton onClick={() => onSearch({ q: '' })} /> : undefined}
+              // 我的店铺没有商品时给出下一步：能上架就给按钮，缺分类就说清先建分类
+              emptyHint={
+                !q && mine
+                  ? categories.data?.length
+                    ? '上架后买家就能在全部商品里看到'
+                    : '先创建一个分类，才能上架商品'
+                  : undefined
+              }
+              emptyAction={
+                q ? (
+                  <ClearSearchButton onClick={() => onSearch({ q: '' })} />
+                ) : mine && categories.data?.length ? (
+                  <button
+                    type="button"
+                    className="btn btn--primary"
+                    onClick={() => setEditing({ stock: 100, price_origin: 100, price: 1, sort: 80, category_id: categories.data?.[0]?.category_id })}
+                  >
+                    <IconPlus />
+                    新增商品
+                  </button>
+                ) : mine ? (
+                  <button type="button" className="btn btn--ghost" onClick={() => onSearch({ tab: 'categories' })}>
+                    去店铺设置建分类
+                  </button>
+                ) : undefined
+              }
             >
               <RecordRow
                 rows={infinite.items}

@@ -210,7 +210,10 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
               // 求片页要在列表里就能处理，三个动作缺一不可：详情 / 认领 / 催片
               const isMine =
                 Boolean(item.upload_username) && myNames.includes(String(item.upload_username))
-              const canClaim = item.status === 'default' && item.is_can_claim
+              // 后端可能 status 仍是 default 但已经有 upload_username（已被他人认领）：
+              // 只看 status 会渲染出「已认领」的行旁边还有「认领」按钮
+              const claimed = Boolean(item.upload_username)
+              const canClaim = item.status === 'default' && item.is_can_claim && !claimed
               return (
                 <>
                   <button
