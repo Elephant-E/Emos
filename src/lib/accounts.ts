@@ -1,4 +1,4 @@
-import { TOKEN_KEY, getToken, setToken } from '@/api/client'
+import { SESSION_CACHE_KEY, getToken, setToken } from '@/api/client'
 
 /**
  * 本地记住的账号列表。
@@ -58,9 +58,8 @@ export function forgetAccount(userId: string): Account[] {
 export function clearSession() {
   setToken(null)
   try {
-    localStorage.removeItem('emos_admin_profile')
+    localStorage.removeItem(SESSION_CACHE_KEY)
   } catch {
     /* 隐私模式下不可写，忽略 */
   }
-  return TOKEN_KEY
 }

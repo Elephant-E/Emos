@@ -40,6 +40,27 @@ import type { WatchSearch } from '@/views/WatchlistsView'
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
+  /**
+   * 渲染期抛错的兜底：上游会返回「HTTP 200 + { message }」的业务失败，
+   * 组件里读 data.items.length 这类字段就会抛 TypeError。
+   * 没有这一层的话整页纯白、也没有重试入口。
+   */
+  errorComponent: ({ error }) => (
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 'var(--sp-3)', padding: 'var(--sp-6)' }}>
+      <p style={{ fontSize: 20 }}>这一页出错了</p>
+      <p className="meta-sm" style={{ maxWidth: 520, textAlign: 'center' }}>
+        {error instanceof Error ? error.message : '未知错误'}
+      </p>
+      <div style={{ display: 'flex', gap: 'var(--sp-3)' }}>
+        <button type="button" className="btn btn--primary" onClick={() => window.location.reload()}>
+          重新加载
+        </button>
+        <a className="btn btn--ghost" href="/">
+          回到概览
+        </a>
+      </div>
+    </div>
+  ),
   notFoundComponent: () => (
     <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 'var(--sp-3)' }}>
       <p style={{ fontSize: 20 }}>页面不存在</p>
@@ -58,7 +79,7 @@ const loginRoute = createRoute({
     <LoginView
       onDone={() => {
         const next = new URLSearchParams(location.search).get('next')
-        const safe = next && next.startsWith('/') && !next.startsWith('//') ? next : '/'
+        const safe = next && /^\/(?![/\\])/.test(next) && !next.includes('\\') ? next : '/'
         location.href = safe
       }}
     />

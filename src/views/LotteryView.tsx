@@ -353,14 +353,14 @@ export function LotteryView({ search, onSearch }: { search: LotterySearch; onSea
                       </div>
                       <div>
                         <dt>中奖人数</dt>
-                        <dd>{formatThousand(winners.data?.users.length ?? 0)}</dd>
+                        <dd>{formatThousand((winners.data?.users ?? []).length)}</dd>
                       </div>
                     </dl>
                   </div>
                 </article>
               </section>
 
-              {(winners.data?.users.length ?? 0) === 0 ? (
+              {(winners.data?.users ?? []).length === 0 ? (
                 <EmptyBlock title="还没开奖或没人中奖" />
               ) : (
                 <RecordRow

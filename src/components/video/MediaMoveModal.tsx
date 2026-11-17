@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { useDebounced } from '@/lib/useDebounced'
 import { toast } from '@/ui/toast'
@@ -42,7 +42,14 @@ export function MediaMoveModal({
   // 换目标影片后季号要归位，否则会停在上一个影片的季上
   // 停手 300ms 才发查询，避免连打六个字就六个请求
   useDebounced(term, setKeyword, { delay: 300 })
-  useEffect(() => setActiveSeason(1), [targetId])
+  // 只在目标影片**真的变化**时归位：这个 effect 挂载时也会跑，
+  // 否则会把手上的当前季覆盖成 1，导致「当前位置」按钮失效、容易误移
+  const lastTarget = useRef(targetId)
+  useEffect(() => {
+    if (lastTarget.current === targetId) return
+    lastTarget.current = targetId
+    setActiveSeason(1)
+  }, [targetId])
 
   // 走 mutation：成功后统一失效（目标影片/集的资源、计数、余额），并带上 pending
   const moveMedia = useVideoMutations(0).moveMedia

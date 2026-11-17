@@ -294,7 +294,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                         danger: true,
                       })
                       if (!ok) return
-                      remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
+                      remove.mutate(order.order_no, { onSuccess: () => toast('已移除', 'success') })
                     }}
                   >
                     移除

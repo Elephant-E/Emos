@@ -177,7 +177,13 @@ export function useUploadQueue() {
         void qc.invalidateQueries({ queryKey: qk.videos })
         void qc.invalidateQueries({ queryKey: qk.media })
         void qc.invalidateQueries({ queryKey: qk.session })
-        toast(`《${item.target.title}》入库完成，+${result.carrot} 胡萝卜`, 'success')
+        // 网关误报 502 时写操作已生效但响应是空对象：没有数值就只说入库完成
+        toast(
+          result.carrot == null
+            ? `《${item.target.title}》入库完成`
+            : `《${item.target.title}》入库完成，+${result.carrot} 胡萝卜`,
+          'success',
+        )
       }
     } catch (err) {
       patch(item.id, { status: 'failed', message: err instanceof Error ? err.message : '上传失败' })

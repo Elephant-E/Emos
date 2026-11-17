@@ -82,7 +82,8 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
     }
   }
 
-  const totalVotes = result.data?.users.length ?? 0
+  const voteUsers = result.data?.users ?? []
+  const totalVotes = voteUsers.length
   const voters = result.data?.users ?? []
 
   return (
@@ -274,7 +275,7 @@ export function VoteView({ search, onSearch }: { search: VoteSearch; onSearch: (
                   poster={(row) => row.avatar}
                   title={(row) => row.username}
                   meta={(row) => <span>#{row.index}</span>}
-                  facts={(row) => <span>选了 {result.data?.options[Number(row.option_index)] ?? '—'}</span>}
+                  facts={(row) => <span>选了 {(result.data?.options ?? [])[Number(row.option_index)] ?? '—'}</span>}
                 />
               )}
               {!showAllVoters && voters.length > VOTER_PREVIEW ? (

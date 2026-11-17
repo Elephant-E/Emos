@@ -14,6 +14,13 @@ export function getToken(): string | null {
   }
 }
 export function setToken(token: string | null) {
+  // 换号时把 profile 快照一起清掉：否则首帧会用上一个账号的身份驱动权限与请求
+  try {
+    const previous = localStorage.getItem(TOKEN_KEY)
+    if (previous !== token) localStorage.removeItem(SESSION_CACHE_KEY)
+  } catch {
+    /* 隐私模式忽略 */
+  }
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token)
     else localStorage.removeItem(TOKEN_KEY)

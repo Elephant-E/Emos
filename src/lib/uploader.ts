@@ -216,7 +216,8 @@ export async function uploadAndSave(
     } catch (error) {
       lastError = error
       const message = (error as Error)?.message ?? ''
-      if (!message.includes('合并')) throw error
+      // 只有「正在合并」可重试；最后一次失败直接抛，不再白等
+      if (!message.includes('合并') || attempt === 2) throw error
       await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)))
     }
   }

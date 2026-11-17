@@ -79,13 +79,16 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
     upstream = await fetch(new Request(target, init))
   } catch (error) {
     // 与 vite dev 的代理口径一致：连不上上游一律 504，客户端按重试集合处理
-    return new Response(JSON.stringify({ message: '上游响应超时，已重试' }), {
+    return new Response(JSON.stringify({ message: '上游没有响应，稍后重试' }), {
       status: 504,
       headers: JSON_HEADERS,
     })
   }
 
-  if (upstream.status === 204) return new Response(null, { status: 204 })
+  // 101/204/205/304 都属于「不能带 body」的状态码，带 body 构造会直接 TypeError
+  if ([101, 204, 205, 304].includes(upstream.status)) {
+    return new Response(null, { status: upstream.status })
+  }
 
   const contentType = upstream.headers.get('Content-Type') ?? ''
   if (!contentType.includes('application/json')) {
@@ -99,6 +102,12 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
 
   const forwarded = new Headers(upstream.headers)
   forwarded.delete('cf-ray')
+  // 上游的会话 cookie 不该写到管理台自己的源（请求侧已剥掉 Cookie）；
+  // Content-Length/Encoding 也与 Workers 解码后的流不一致
+  forwarded.delete('set-cookie')
+  forwarded.delete('content-length')
+  forwarded.delete('content-encoding')
+  forwarded.delete('server')
   forwarded.delete('cf-cache-status')
   return new Response(upstream.body, {
     status: upstream.status,

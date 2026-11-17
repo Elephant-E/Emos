@@ -29,10 +29,10 @@ export function SubscribersModal({
     >
       {subs.error ? <ErrorBlock error={subs.error} onRetry={() => subs.refetch()} /> : null}
       {subs.isLoading ? <LoadingRows count={4} single poster="square" lines={2} actions={0} /> : null}
-      {(subs.data?.items.length ?? 0) === 0 && !subs.isLoading && !subs.error ? (
+      {(subs.data?.items ?? []).length === 0 && !subs.isLoading && !subs.error ? (
         <EmptyBlock title="还没有人订阅" />
       ) : null}
-      {(subs.data?.items.length ?? 0) > 0 ? (
+      {(subs.data?.items ?? []).length > 0 ? (
         <>
           <p className="meta-sm" style={{ marginBottom: 'var(--sp-2)' }}>
             共 {subs.data?.total ?? subs.data?.items.length ?? 0} 人

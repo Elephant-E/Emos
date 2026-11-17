@@ -3,6 +3,7 @@ import { banApi, carrotApi, inviteApi, lineApi, liveApi, mediaApi, payApi, recor
 import type { VideoType } from './types'
 import { SESSION_CACHE_KEY } from './client'
 import { rowsOf } from '@/lib/rows'
+import { isOrderPaid } from '@/lib/format'
 import { toast } from '@/ui/toast'
 
 /**
@@ -616,7 +617,7 @@ export function useShopCounts(sellerId: number) {
       shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((res) => ({
         ...res,
         total: res.items.filter(
-          (order) => (order.status_pay === 'pay' || order.status_pay === 'paid') && !order.time_delivery,
+          (order) => isOrderPaid(order.status_pay) && !order.time_delivery,
         ).length,
       })),
     enabled,
