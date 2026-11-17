@@ -1597,24 +1597,13 @@ input.input[type='number'] { min-width: 0; }
 }
 .image-picker__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .image-picker__cell.is-picked .image-picker__thumb { border-color: var(--fg); }
+/* 复用 .btn--icon，只补两点：压在图片上要定位、要有底色才看得清 */
 .image-picker__del {
   position: absolute;
   top: var(--sp-1);
   right: var(--sp-1);
-  /* 命中区 32px（20px 必然误触到缩略图），但视觉圆点仍只有 20px：
-     用径向渐变画圆，比控件本身小，看着不抢眼 */
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.62) 0 10px, transparent 10px);
+  background: rgba(0, 0, 0, 0.55);
   color: var(--fg-2);
-  font-size: var(--text-sm);
-  line-height: 1;
-  cursor: pointer;
 }
 .image-picker__del:hover { color: var(--c-red); }
 
