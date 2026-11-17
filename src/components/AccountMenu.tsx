@@ -21,7 +21,6 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
               return (
                 <div key={account.user_id} className="rail__menu-row">
                   <button type="button"
-                    role="menuitem"
                     className="rail__menu-item"
                     onClick={() => {
                       if (current) return
@@ -48,7 +47,6 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
             <button
               type="button"
               className="rail__menu-add"
-              role="menuitem"
               // 先开弹层再收菜单：菜单一卸载，弹层会跟着消失
               onClick={() => setAdding(true)}
             >
@@ -57,7 +55,6 @@ export function AccountMenu({ currentUserId, onDone }: { currentUserId?: string;
             <button
               type="button"
               className="rail__menu-add"
-              role="menuitem"
               onClick={() => {
                 // 共享设备上要能主动结束会话：清令牌与本地头像缓存，回登录页
                 onDone?.()

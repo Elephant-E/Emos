@@ -222,7 +222,7 @@ export const Sidebar = forwardRef<
         </button>
 
         {menuOpen ? (
-          <div className="rail__menu" role="menu">
+          <div className="rail__menu" role="group" aria-label="账号">
             <AccountMenu currentUserId={user?.user_id} onDone={() => setMenuOpen(false)} />
           </div>
         ) : null}
