@@ -65,8 +65,10 @@ export function VideoSeasons({
 
       {seasonEpisodes.length > 0 ? (
         <>
+          {/* role=listbox 承诺「一个停靠点 + 方向键」：集数可能上百，
+              每个 chip 都在 Tab 顺序里的话根本走不出去 → roving tabindex + ←/→ */}
           <div className="ep-grid" role="listbox" aria-label="选择集">
-            {seasonEpisodes.map((ep) => {
+            {seasonEpisodes.map((ep, index) => {
               const active = currentEpisode?.episode_id === ep.episode_id
               return (
                 <button
@@ -74,9 +76,27 @@ export function VideoSeasons({
                   key={ep.episode_id}
                   role="option"
                   aria-selected={active}
+                  tabIndex={active ? 0 : -1}
                   className={`ep-chip${active ? ' is-active' : ''}`}
                   title={ep.episode_title || `第 ${ep.episode_number} 集`}
                   onClick={() => onPickEpisode(ep.season_number, ep.episode_number)}
+                  onKeyDown={(event) => {
+                    const delta =
+                      event.key === 'ArrowRight' || event.key === 'ArrowDown'
+                        ? 1
+                        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+                          ? -1
+                          : 0
+                    const jump = event.key === 'Home' ? 0 : event.key === 'End' ? seasonEpisodes.length - 1 : null
+                    const next = jump ?? (delta ? (index + delta + seasonEpisodes.length) % seasonEpisodes.length : null)
+                    if (next == null) return
+                    event.preventDefault()
+                    const target = seasonEpisodes[next]
+                    if (!target) return
+                    onPickEpisode(target.season_number, target.episode_number)
+                    const chips = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('.ep-chip')
+                    chips?.[next]?.focus()
+                  }}
                 >
                   {String(ep.episode_number).padStart(2, '0')}
                   {ep.seek ? <span className="ep-chip__dot ep-chip__dot--seek" aria-hidden="true" /> : null}
