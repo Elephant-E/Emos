@@ -151,8 +151,8 @@ const seeks: SeekItem[] = videos.map((v, i) => ({
   video_season_number: null,
   video_episode_id: null,
   video_episode_number: null,
-  count_request: [1, 3, 8, 12, 2, 5, 1, 4, 9, 2][i],
-  status: seekStatuses[i],
+  count_request: [1, 3, 8, 12, 2, 5, 1, 4, 9][i % 9],
+  status: seekStatuses[i % seekStatuses.length],
   upload_expired_at: null,
   updated_at: new Date(Date.now() - i * 5400000).toISOString(),
   video_title: v.video_title,
@@ -438,7 +438,20 @@ export async function mockRequest<T>(
   if (clean === '/api/user/agreeDownAgreement') return {} as T
   if (clean === '/api/pay/getUserInfo') {
     const id = String(query.user_id ?? 'e7E6K6OE4s')
-    return { user_id: id, username: id === 'e7E6K6OE4s' ? 'elephant' : 'lin', carrot: 120, is_viewing: true, size_upload: 1024, created_at: '2026-01-01T00:00:00Z' } as T
+    // 字段按 api-shapes 的真机形状给：这里没有 carrot（余额走 getUserCarrot），
+    // 也不能缺 telegram_user_id / invite_user_id / is_disable / avatar，
+    // 否则用户详情那些「有值就显示」的字段在本地永远是占位符
+    return {
+      user_id: id,
+      username: id === 'e7E6K6OE4s' ? 'elephant' : 'lin',
+      avatar: null,
+      is_viewing: true,
+      invite_user_id: null,
+      size_upload: 1024,
+      telegram_user_id: null,
+      is_disable: false,
+      created_at: '2026-01-01T00:00:00Z',
+    } as T
   }
   if (clean === '/api/pay/getUserCarrot') return { carrot: 120 } as T
   if (clean === '/api/pay/apply') return { status: 'review' } as T
@@ -451,14 +464,22 @@ export async function mockRequest<T>(
   if (clean === '/api/fund/order/evidence') return { payout_status: 'reviewing' } as T
   if (clean === '/api/video/record/list') {
     return paginate([
-      { video_id: 1, video_media_id: 'md_1', video_title: '夜航西飞', video_type: 'movie', record_time: '2026-11-10 21:00:00', play_seconds: 1280, media_seconds: 2700, season_number: 1, episode_number: 1, video_username: 'sorakand', video_image_poster: poster('night') },
-      { video_id: 2, video_media_id: 'md_2', video_title: '雾港', video_type: 'tv', record_time: '2026-11-09 20:10:00', play_seconds: 2400, media_seconds: 2700, season_number: 1, episode_number: 2, video_username: 'lin', video_image_poster: poster('fog') },
+      // is_complete 是真机字段（api-shapes 有），缺了它「继续观看」的过滤永远不生效
+      { video_id: 1, video_media_id: 'md_1', video_title: '夜航西飞', video_type: 'movie', play_seconds: 1280, media_seconds: 2700, is_complete: false, season_number: 1, episode_number: 1, video_username: 'sorakand', video_image_poster: poster('night') },
+      { video_id: 2, video_media_id: 'md_2', video_title: '雾港', video_type: 'tv', play_seconds: 2400, media_seconds: 2700, is_complete: false, season_number: 1, episode_number: 2, video_username: 'lin', video_image_poster: poster('fog') },
+      { video_id: 3, video_media_id: 'md_3', video_title: '静默频率', video_type: 'movie', play_seconds: 2700, media_seconds: 2700, is_complete: true, season_number: 1, episode_number: 1, video_username: 'chen', video_image_poster: poster('quiet') },
     ], 1, 6) as T
   }
   if (clean === '/api/user/stats/video/history') {
-    return Array.from({ length: 7 }, (_, i) => ({
-      date: `2026-11-0${i + 4}`, video_watch_second_real: 600 + i * 900, video_watch_count: 1 + i,
-    })) as T
+    // 日期必须是「最近 7 天」：写死日期会让概览的「本周」柱图永远是空的，
+    // 而那段逻辑（过滤 + 空态）就永远不会被本地验证到
+    return Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(Date.now() - (6 - i) * 86_400_000)
+      return {
+        date: `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`,
+        video_watch_second_real: 600 + i * 900,
+      }
+    }) as T
   }
   if (clean === '/api/video/media/listAll') {
     return paginate([
