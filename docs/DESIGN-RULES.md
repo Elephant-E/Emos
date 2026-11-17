@@ -13,7 +13,7 @@
 | 列表外壳（四态 + 触底加载） | `ListSection`：出错 / 加载（同形骨架）/ 空 / 内容 + 哨兵 |
 | 详情页头 | `DetailHead` + `DetailStats`（只放文字，不放图） |
 | 状态徽标 | `Badge`（六档色调 `ok/wait/run/warn/off/danger`） |
-| 搜索框状态 | `useSearchTerm`（本地即时 + 防抖写回 URL） |
+| 搜索框 | `SearchField`（输入状态在组件内 + 防抖写回 URL） |
 | 数值列 | `RecordRow` 的 `value`（等宽、右对齐，跨行可比） |
 
 不要再引入第五种列表实现，也不要给列表套外层容器（卡片自带边框）。
@@ -51,4 +51,4 @@
 
 - 全站无分页器：`usePagedInfinite` + `InfiniteSentinel`，滚到底续页
 - 每页条数固定 `PAGE_SIZE = 20`（URL 里不再有 `page_size`）
-- 筛选/排序条件必须进 `resetKey`，否则切换后列表还是旧结果
+- 筛选/排序条件必须进 `queryKey`，否则切换后列表还是旧结果
