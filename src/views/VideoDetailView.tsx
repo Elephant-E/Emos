@@ -152,6 +152,7 @@ export function VideoDetailView({
             {video ? (
             <button type="button"
               className="btn btn--danger-text"
+              disabled={actions.removeVideo.isPending}
               onClick={async () => {
                 const ok = await confirmDialog({
                   title: '删除这部影片？',
@@ -402,7 +403,7 @@ export function VideoDetailView({
               },
             )
           }}
-          pending={actions.renameSubtitle.isPending}
+          pending={actions.renameSubtitle.isPending || actions.removeSubtitle.isPending}
         />
       ) : null}
     </>

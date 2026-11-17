@@ -373,6 +373,7 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               onCancel={() => setAddingSource(false)}
               onConfirm={submitSource}
               confirmText="添加"
+              pending={actions.addMedia.isPending}
               disabled={!source.name.trim() || !source.path_url.trim()}
             />
           }

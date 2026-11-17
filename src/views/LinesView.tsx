@@ -138,6 +138,7 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
               onCancel={() => setCreating(false)}
               onConfirm={() => void submitLine()}
               confirmText="创建"
+              pending={actions.create.isPending}
               disabled={!form.name.trim() || !form.url.trim() || !form.tagline.trim()}
             />
           }

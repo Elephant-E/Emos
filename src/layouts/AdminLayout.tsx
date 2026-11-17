@@ -50,6 +50,8 @@ export function AdminLayout() {
   const locationKey = useRouterState({ select: (s) => s.location.href })
 
   useEffect(() => {
+    // 换页就收起抽屉，否则手机上新页面会被导航盖住
+    setNavOpen(false)
     // 返回上一页时恢复位置；首次进入某个 URL 才回顶部。
     // 列表数据是异步回来的，内容高度没撑开前 scrollTop 会被夹住，
     // 所以要在随后几帧里反复尝试，直到到位或超时。
@@ -71,8 +73,6 @@ export function AdminLayout() {
     }
     raf = requestAnimationFrame(retry)
     return () => cancelAnimationFrame(raf)
-    // 换页就收起抽屉，否则手机上新页面会被导航盖住
-    setNavOpen(false)
   }, [locationKey])
 
   // 滚动位置按 URL 记住（节流到每帧一次）

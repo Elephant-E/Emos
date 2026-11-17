@@ -324,6 +324,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                                     },
                                   )}
               confirmText="保存"
+              pending={actions.remark.isPending}
             />
           }
         >
