@@ -102,11 +102,18 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
                同键撞车的问题一并消失（聚合后每组的 key 唯一） */
             rows={groupCarrotRows(infinite.items)}
             idKey={(row) => String(row.__key)}
+            /* 一行装完：事件名 + 时间inline，数值在右侧。原来时间单独占一行，
+               每条流水 116px，一屏只能看 5 条 */
             title={(row) => {
               const count = Number(row.__count ?? 1)
-              return `${String(row.trigger_type_string ?? row.trigger_type ?? '—')}${count > 1 ? ` ×${count}` : ''}`
+              const label = `${String(row.trigger_type_string ?? row.trigger_type ?? '—')}${count > 1 ? ` ×${count}` : ''}`
+              return (
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--sp-2)', minWidth: 0 }}>
+                  <span>{label}</span>
+                  <span className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</span>
+                </span>
+              )
             }}
-            facts={(row) => <span>{formatDateTime(String(row.created_at ?? ''))}</span>}
             value={(row) => {
               // point 恒为正数（金额大小），收支方向在 type：earn / cost
               const signed = row.type === 'cost' ? -Number(row.point) : Number(row.point)

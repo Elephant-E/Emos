@@ -2463,6 +2463,19 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     margin-top: var(--sp-2);
     flex-wrap: wrap;
   }
+  /* 动作区里只有数值（没有按钮）时留在右侧同一行：
+     胡萝卜流水这类纯数值列表，数值换行会让每条多出 37px */
+  /* 没有封面、动作区只有数值的行（胡萝卜流水）：改成两列，标题在左、数值在右。
+     有封面的行不能套这条，否则封面列会被吃掉 */
+  .record-row:has(> .record-row__actions > .record-row__value:only-child):not(:has(> .record-row__media)) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .record-row .record-row__actions:has(> .record-row__value:only-child) {
+    grid-column: auto;
+    margin-top: 0;
+    align-self: center;
+  }
   /* 卡片内行的动作是绝对定位的 ⋯，手机上只需让出 44px，不必 108px */
   /* 单列行在手机上回到「图左文右 + 动作整行」的堆叠，避免中间列被压到 90px */
   .record-rows--single .record-row {
