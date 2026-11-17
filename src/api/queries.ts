@@ -585,6 +585,8 @@ export function useShopProductsInfinite(params: {
       shopProductsQuery({ sellerId, page: pageParam, pageSize, categoryId, name, sortBy, onlyUp }),
     // 后端可能收敛 page_size（片单影片固定 15 条），末页按响应里的实际条数判断，
     // 否则请求 24 条只回 15 条时会被误判成「没有下一页」
+    // 这里不能复用 nextPageParam：上游会忽略 is_pay 之类的筛选（total 不可信），
+    // 只能用「本页是否满页」判断还有没有下一页
     getNextPageParam: (last, pages) => {
       const actual = Number(last.page_size) || pageSize
       if (last.items.length < actual) return undefined

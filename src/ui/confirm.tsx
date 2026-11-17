@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { DecisionShell } from './decision'
+import { useDialogHost } from './dialog-host'
 
 interface ConfirmOptions {
   title: string
@@ -10,10 +11,6 @@ interface ConfirmOptions {
   danger?: boolean
 }
 
-interface Pending extends ConfirmOptions {
-  resolve: (ok: boolean) => void
-}
-
 let open: ((options: ConfirmOptions) => Promise<boolean>) | null = null
 
 export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
@@ -22,27 +19,14 @@ export function confirmDialog(options: ConfirmOptions): Promise<boolean> {
 }
 
 export function ConfirmHost() {
-  const [pending, setPending] = useState<Pending | null>(null)
-  const current = useRef<Pending | null>(null)
+  const { pending, begin, settle } = useDialogHost<ConfirmOptions, boolean>()
 
   useEffect(() => {
-    open = (options) =>
-      new Promise<boolean>((resolve) => {
-        const next: Pending = { ...options, resolve }
-        current.current = next
-        setPending(next)
-      })
+    open = begin
     return () => {
       open = null
     }
-  }, [])
-
-  const settle = (ok: boolean) => {
-    if (!current.current) return
-    current.current.resolve(ok)
-    current.current = null
-    setPending(null)
-  }
+  }, [begin])
 
 
   if (!pending) return null

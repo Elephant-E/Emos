@@ -24,10 +24,7 @@ export function usePagedInfinite<T>(
     queryFn: ({ pageParam }) => fetchPage(pageParam as number),
     // 已加载条数没到 total 就还有下一页；用 items 计数而不是页码，
     // 避免上游 page_size 与实际返回不一致时提前停
-    getNextPageParam: (lastPage, allPages) => {
-      const loaded = allPages.reduce((sum, page) => sum + page.items.length, 0)
-      return loaded < lastPage.total ? allPages.length + 1 : undefined
-    },
+    getNextPageParam: (lastPage, allPages) => nextPageParam(allPages, lastPage.total),
   })
 
   const items = useMemo(() => query.data?.pages.flatMap((page) => page.items) ?? [], [query.data])
@@ -51,4 +48,18 @@ export function usePagedInfinite<T>(
       void query.refetch()
     },
   }
+}
+
+/**
+ * 「还有没有下一页」的唯一判定：按**已加载条数**与 total 比较，而不是页码。
+ * 上游经常把 page_size 压回自己的值（图库固定 15、商品固定 100），
+ * 用页码算会提前停或重复翻同一页。三处原本各写一遍，统一到这里。
+ */
+export function nextPageParam(
+  pages: ReadonlyArray<{ items: readonly unknown[] }>,
+  total: number | undefined,
+): number | undefined {
+  if (total == null) return undefined
+  const loaded = pages.reduce((sum, page) => sum + page.items.length, 0)
+  return loaded < total ? pages.length + 1 : undefined
 }

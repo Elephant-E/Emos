@@ -1,3 +1,4 @@
+import { nextPageParam } from '@/lib/usePagedInfinite'
 import { useRef, useState } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Modal } from '@/components/Modal'
@@ -150,16 +151,13 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
   const fileRef = useRef<HTMLInputElement>(null)
 
   // 图库接口每页固定 15 条（传别的值会被压回 15），必须翻页才能拿到旧图
+  const imagesTotal = (all: ReadonlyArray<{ total?: number }>) => all[0]?.total
   const images = useInfiniteQuery({
     queryKey: ['upload', 'images', term] as const,
     queryFn: ({ pageParam }) => uploadApi.images({ name: term || undefined, page: pageParam, page_size: 15 }),
     initialPageParam: 1,
-    getNextPageParam: (last) => {
-      // 没带 page_size 就无从判断：直接停止，避免哨兵无限翻同一页
-      if (!last.page_size) return undefined
-      const loaded = last.page * last.page_size
-      return loaded < last.total ? last.page + 1 : undefined
-    },
+    // 没带 total 就无从判断（helper 会返回 undefined，避免哨兵无限翻同一页）
+    getNextPageParam: (_last, all) => nextPageParam(all, imagesTotal(all)),
   })
   const imageRows = images.data?.pages.flatMap((page) => page.items) ?? []
 

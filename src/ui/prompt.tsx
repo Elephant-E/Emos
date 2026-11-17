@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { DecisionShell } from './decision'
+import { useDialogHost } from './dialog-host'
 
 interface PromptOptions {
   title: string
@@ -14,10 +15,6 @@ interface PromptOptions {
   required?: boolean
 }
 
-interface Pending extends PromptOptions {
-  resolve: (value: string | null) => void
-}
-
 let open: ((options: PromptOptions) => Promise<string | null>) | null = null
 
 /** 需要输入内容的确认框，例如「删除理由」 */
@@ -30,30 +27,19 @@ export function promptDialog(options: PromptOptions): Promise<string | null> {
 }
 
 export function PromptHost() {
-  const [pending, setPending] = useState<Pending | null>(null)
+  const { pending, begin, settle } = useDialogHost<PromptOptions, string | null>()
   const [value, setValue] = useState('')
-  const current = useRef<Pending | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    open = (options) =>
-      new Promise<string | null>((resolve) => {
-        const next: Pending = { ...options, resolve }
-        current.current = next
-        setValue(options.defaultValue ?? '')
-        setPending(next)
-      })
+    open = (options) => {
+      setValue(options.defaultValue ?? '')
+      return begin(options)
+    }
     return () => {
       open = null
     }
-  }, [])
-
-  const settle = (result: string | null) => {
-    if (!current.current) return
-    current.current.resolve(result)
-    current.current = null
-    setPending(null)
-  }
+  }, [begin])
 
   const canSubmit = !pending?.required || value.trim().length > 0
 
