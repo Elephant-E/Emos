@@ -67,8 +67,14 @@ export function OverviewView() {
   const submitSign = () => {
     const note = signNote.trim()
     sign.mutate(note || undefined, {
-      onSuccess: (res: { sign_index: number; continuous_days: number; earn_point: number }) => {
-        toast(`第 ${res.sign_index} 位签到 · 连续 ${res.continuous_days} 天 · +${res.earn_point} 胡萝卜`, 'success')
+      onSuccess: (res: { sign_index?: number; continuous_days?: number; earn_point?: number }) => {
+        // 网关误报 502 时写操作已生效但响应是空对象：数值缺失就只说「已签到」，不拼 undefined
+        toast(
+          res.sign_index == null || res.continuous_days == null || res.earn_point == null
+            ? '已签到'
+            : `第 ${res.sign_index} 位签到 · 连续 ${res.continuous_days} 天 · +${res.earn_point} 胡萝卜`,
+          'success',
+        )
         setSigning(false)
         setSignNote('')
       },

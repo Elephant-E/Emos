@@ -190,6 +190,9 @@ export function FundView({ tab, onTab }: {
       toast(`已创建订单 ${res.no}`, 'success')
       setCreating(false)
       qc.invalidateQueries({ queryKey: qk.fund })
+      // 下单会扣胡萝卜：概览/资金页的余额与签到信息都读这两个 key
+      qc.invalidateQueries({ queryKey: qk.carrot })
+      qc.invalidateQueries({ queryKey: qk.session })
     },
   })
 

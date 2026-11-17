@@ -155,6 +155,8 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
     queryFn: ({ pageParam }) => uploadApi.images({ name: term || undefined, page: pageParam, page_size: 15 }),
     initialPageParam: 1,
     getNextPageParam: (last) => {
+      // 没带 page_size 就无从判断：直接停止，避免哨兵无限翻同一页
+      if (!last.page_size) return undefined
       const loaded = last.page * last.page_size
       return loaded < last.total ? last.page + 1 : undefined
     },

@@ -69,7 +69,8 @@ export function WatchlistDetailView({
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos } = useWatchMutations(id)
 
-  const item = watch.data?.items[0]
+  // 同上：片单接口按 id 过滤，但不能假定第一条就是我们要的那份
+  const item = watch.data?.items.find((row) => row.id === id)
 
   const openVideo = (videoId: number) =>
     navigate({ to: '/media/$videoId', params: { videoId: String(videoId) }, search: { season: 1, episode: 1 } })

@@ -92,7 +92,15 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     },
   })
 
-  const urge = useMutation({ mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot), onSuccess: () => { invalidate(); toast('已催片', 'success') } })
+  const urge = useMutation({
+    mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot),
+    onSuccess: () => {
+      invalidate()
+      qc.invalidateQueries({ queryKey: qk.carrot })   // 催片扣胡萝卜
+      qc.invalidateQueries({ queryKey: qk.session })
+      toast('已催片', 'success')
+    },
+  })
 
   // Number('') 是 0，非法输入可能是 NaN，而 NaN 与任何数比较都为 false，
   // 会让按钮保持可用并提交空值：只有 1 – 5000 的有限数才算可提交

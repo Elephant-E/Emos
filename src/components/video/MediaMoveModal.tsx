@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { useDebounced } from '@/lib/useDebounced'
 import { toast } from '@/ui/toast'
-import { mediaApi } from '@/api/endpoints'
-import { useEpisodes, useSeasons, useVideoPage } from '@/api/queries'
+import { useEpisodes, useSeasons, useVideoPage, useVideoMutations } from '@/api/queries'
 
 /**
  * 移动资源：先搜目标影片（留空表示在当前影片内移动），再选季/集。
@@ -45,15 +44,20 @@ export function MediaMoveModal({
   useDebounced(term, setKeyword, { delay: 300 })
   useEffect(() => setActiveSeason(1), [targetId])
 
+  // 走 mutation：成功后统一失效（目标影片/集的资源、计数、余额），并带上 pending
+  const moveMedia = useVideoMutations(0).moveMedia
   const move = (type: 'vl' | 've', itemId: number, done: string) => {
-    mediaApi
-      .move(media.mediaId, type, itemId)
-      .then(() => {
-        toast(done, 'success')
-        onMoved()
-        onClose()
-      })
-      .catch((error) => toast(error instanceof Error ? error.message : '移动失败', 'error'))
+    moveMedia.mutate(
+      { mediaId: media.mediaId, type, itemId },
+      {
+        onSuccess: () => {
+          toast(done, 'success')
+          onMoved()
+          onClose()
+        },
+        onError: (error: Error) => toast(error.message || '移动失败', 'error'),
+      },
+    )
   }
 
   return (
@@ -155,10 +159,10 @@ export function MediaMoveModal({
                   <button
                     type="button"
                     className="btn btn--quiet"
-                    disabled={samePlace}
+                    disabled={samePlace || moveMedia.isPending}
                     onClick={() => move('ve', ep.episode_id, '已移动')}
                   >
-                    {samePlace ? '当前位置' : '移到这里'}
+                    {samePlace ? '当前位置' : moveMedia.isPending ? '移动中…' : '移到这里'}
                   </button>
                 </div>
               )

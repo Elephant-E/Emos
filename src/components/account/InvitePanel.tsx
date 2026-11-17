@@ -55,7 +55,10 @@ export function InvitePanel() {
     if (!ok) return
     actions.inviteEmps.mutate(inviteId.trim(), {
       onSuccess: (res) => {
-        toast(`已邀请，花掉 ${Math.abs(res.carrot)} 胡萝卜`, 'success')
+        toast(
+          res.carrot == null ? '已邀请' : `已邀请，花掉 ${Math.abs(res.carrot)} 胡萝卜`,
+          'success',
+        )
         void session.refetch()
       },
     })

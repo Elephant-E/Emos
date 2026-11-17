@@ -102,6 +102,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
   const close = () => {
     onClose()
     setTerm('')
+    setDebounced('')
   }
 
   const blocks = useMemo<Block[]>(() => {

@@ -344,7 +344,11 @@ export function VideoDetailView({
               { mediaId: renaming.mediaId, reason },
               {
                 onSuccess: (res) => {
-                  toast(`已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`, 'success')
+                  // 响应可能是空对象（网关误报 502 时写操作已生效）：数值缺失只说「已删除」
+                  toast(
+                    res.carrot == null ? '已删除' : `已删除，${res.carrot > 0 ? '+' : ''}${res.carrot} 胡萝卜`,
+                    'success',
+                  )
                   setRenaming(null)
                 },
               },

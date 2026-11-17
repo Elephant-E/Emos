@@ -322,7 +322,9 @@ export function useVideoDetail(videoId: number) {
     queryKey: ['video', videoId, 'detail'] as const,
     queryFn: async () => {
       const res = await videoApi.list({ video_id: videoId, page: 1, page_size: 1 })
-      return res.items[0] ?? null
+      // 上游对不存在的 id 会静默返回别的影片：必须比对 id，对不上就当查不到
+      const hit = res.items.find((item) => item.video_id === videoId)
+      return hit ?? null
     },
     enabled: videoId > 0,
   })
@@ -396,6 +398,13 @@ export function useVideoMutations(videoId: number) {
       onSuccess: invalidate,
     }),
     syncMetadata: useMutation({ mutationFn: (mediaId: string) => mediaApi.syncMetadata(mediaId), onSuccess: invalidate }),
+    /** 把资源移到另一部影片/另一集：目标那边也要刷新，所以并到这里的失效集合里 */
+    moveMedia: useMutation({
+      mutationFn: (p: { mediaId: string; type: 'vl' | 've'; itemId: number }) =>
+        mediaApi.move(p.mediaId, p.type, p.itemId),
+      onSuccess: invalidate,
+      meta: { skipErrorToast: true },   // 弹窗自己弹，避免同一条错误弹两次
+    }),
     renameSubtitle: useMutation({ mutationFn: (p: { id: string; title: string }) => subtitleApi.rename(p.id, p.title), onSuccess: invalidate }),
     removeSubtitle: useMutation({
       mutationFn: (p: { subtitleId: string; reason: string }) => subtitleApi.remove(p.subtitleId, p.reason),
