@@ -3,6 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { watchApi } from '@/api/endpoints'
 import { ListSection } from '@/components/ListSection'
+import { DetailHead } from '@/components/DetailHead'
 import { SearchField } from '@/components/SearchField'
 import { RecordRow } from '@/components/RecordRow'
 import { AddVideoModal } from '@/components/watchlist/AddVideoModal'
@@ -214,6 +215,32 @@ export function WatchlistDetailView({
               : undefined
           }
         />
+      ) : watch.isLoading ? (
+        /* 页头等高的骨架：不占位的话数据到达时整张列表会被顶下去 200px+ */
+        <DetailHead
+          chips={
+            <>
+              <span className="skeleton" style={{ width: 44, height: 20, borderRadius: 6 }} />
+              <span className="skeleton" style={{ width: 52, height: 20, borderRadius: 6 }} />
+            </>
+          }
+        >
+          {/* 描述行：真实页头里有 1–2 行简介，占位也画出来，否则还是会差几十像素 */}
+          <div className="skeleton-stack" style={{ display: 'grid', gap: 6, margin: 'var(--sp-2) 0 0' }}>
+            <span className="skeleton" style={{ display: 'block', width: '72%', height: 13 }} />
+            <span className="skeleton" style={{ display: 'block', width: '48%', height: 13 }} />
+          </div>
+          <div className="detail-stats">
+            {[0, 1, 2, 3].map((key) => (
+              <div className="detail-stat" key={key}>
+                <span className="skeleton" style={{ display: 'block', width: 52, height: 26 }} />
+                <span>
+                  <span className="skeleton" style={{ display: 'block', width: 36, height: 12 }} />
+                </span>
+              </div>
+            ))}
+          </div>
+        </DetailHead>
       ) : null}
 
       <div className="toolbar">
