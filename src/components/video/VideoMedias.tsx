@@ -5,10 +5,7 @@ import { IconDots } from '@/components/icons'
 import { formatDateTime, formatSize } from '@/lib/format'
 import type { MediaTarget } from './MediaEditModal'
 
-/**
- * 资源卡：表（资源名/大小/上传者/行内菜单）。
- * 空态文案按「电影挂影片级、剧集挂当前集」区分，标题右侧显示当前集标题。
- */
+/** 资源卡：列表（资源名/大小/上传者/行内菜单）；空态与标题按电影/剧集区分。 */
 export function VideoMedias({
   rows,
   error,

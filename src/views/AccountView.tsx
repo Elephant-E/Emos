@@ -56,7 +56,7 @@ export function AccountView({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => voi
 
       {session.error ? <ErrorBlock error={session.error} onRetry={() => session.refetch()} /> : null}
 
-      {/* 会话还没到时给同形占位：原来这里直接渲染空内容，接口一慢就是长时间白屏 */}
+      {/* 会话未到时给同形占位：直接渲染空内容时接口一慢就是长时间白屏 */}
       {session.isLoading ? (
         <>
           <section className="cards" aria-busy="true" aria-live="polite">

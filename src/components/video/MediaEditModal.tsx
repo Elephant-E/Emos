@@ -9,10 +9,7 @@ export interface MediaTarget {
   owner?: string | null
 }
 
-/**
- * 编辑资源：改名字，另有三个动作（同步元数据 / 移到其他位置 / 删除）。
- * 名称用弹窗内 state，保存时才回传；「移到其他位置」不关这个弹窗，关掉移动弹窗后要能回来。
- */
+/** 编辑资源：改名 + 三个动作（同步元数据 / 移动 / 删除）；名称用弹窗内 state，保存时回传。 */
 export function MediaEditModal({
   media,
   onClose,

@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react'
 
-/**
- * 页内切换。容器 role=tablist 并带 aria-label，按钮 role=tab 且带 aria-selected。
- * 动态来源的 tab（媒体库、店铺分类）由调用方先 map 成 items 再传进来。
- */
+/** 页内切换：容器 role=tablist 带 aria-label，按钮 role=tab 带 aria-selected；动态来源由调用方 map 成 items。 */
 export function Tabs<K extends string | number>({
   items,
   value,

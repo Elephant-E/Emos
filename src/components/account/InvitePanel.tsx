@@ -18,12 +18,7 @@ import {
   useSession,
 } from '@/api/queries'
 
-/**
- * 邀请面板：名额卡、邀请入口、我的邀请表，以及备注/邀请两个弹窗。
- *
- * 这一整块原来混在 AccountView 里和资料、账号设置挤在一起，状态有 5 个、弹窗 2 个、
- * 还带一次全站 3000+ 节点的树计算。拆出来后 AccountView 只按 tab 决定渲染哪块。
- */
+/** 邀请面板：名额卡、邀请入口、我的邀请表，以及备注 / 邀请两个弹窗；状态与查询一并收在这里。 */
 export function InvitePanel() {
   const session = useSession()
   const caps = useCapabilities()

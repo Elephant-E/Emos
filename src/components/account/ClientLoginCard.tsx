@@ -3,10 +3,7 @@ import { CardHead } from '@/components/CardHead'
 import { toast } from '@/ui/toast'
 import { copyText } from '@/lib/clipboard'
 
-/**
- * 客户端登录：访问令牌、三台服务器地址、登录密码。
- * 「显示」状态收在卡片内部——它只影响这一张卡的呈现，页面上没必要保管。
- */
+/** 客户端登录：访问令牌、三台服务器地址、登录密码；「显示」状态收在卡片内部。 */
 export function ClientLoginCard({
   token,
   servers,

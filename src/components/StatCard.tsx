@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react'
 import { CardHead } from './CardHead'
 
-/**
- * 大数字卡片：标签 → 数值（可带单位）→ 一行说明，数值 44px。
- * action 是卡片头右侧的操作（如「胡萝卜余额」上的「转赠」），有它时标签行改用 CardHead。
- */
+/** 大数字卡片：标签 → 数值（可带单位）→ 说明行；有 action 时标签行改用 CardHead。 */
 export function StatCard({
   label,
   value,

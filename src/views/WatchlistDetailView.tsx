@@ -48,7 +48,7 @@ export function WatchlistDetailView({
   const [maintainerOpen, setMaintainerOpen] = useState(false)
   // 订阅用户与清空：都是片单主才有的操作
   const [subsOpen, setSubsOpen] = useState(false)
-  // 上游这个接口固定 15 条/页（传 20 也回 15），页码按响应的 page_size 算
+  // 上游接口固定 15 条/页（传 20 也回 15），偏移按响应的 page_size 算
   const [dynamicOpen, setDynamicOpen] = useState(false)
   const [dynamicUrl, setDynamicUrl] = useState('')
 
@@ -62,7 +62,7 @@ export function WatchlistDetailView({
   })
 
   const watch = useWatch(id)
-  // 两端都走滚动加载
+  // 滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.videos(id, { page, video_title: search.q || undefined }),
     { queryKey: [...qk.watchOne(id), 'videos', { q: search.q }] },
@@ -70,7 +70,7 @@ export function WatchlistDetailView({
   const videoRows = infinite.items
   const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, sort: sortWatch } = useWatchMutations(id)
 
-  // 同上：片单接口按 id 过滤，但不能假定第一条就是我们要的那份
+  // 同上：片单接口按 id 过滤，但不能假定第一条就是目标那份
   const item = watch.data?.items.find((row) => row.id === id)
 
   const openVideo = (videoId: number) =>

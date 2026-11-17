@@ -7,10 +7,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useShopCategories, useShopMutations } from '@/api/queries'
 
-/**
- * 分类管理：新增、行内排序、删除（删前说明「商品会变为未分类」）。
- * 列表、新建框与排序都只服务这个面板，状态收在这里；页面只传「是不是店主」和关闭回调。
- */
+/** 分类管理：新增、行内排序、删除（删前说明「商品会变为未分类」）；状态收在这里。 */
 export function CategoryPanel({
   sellerId,
   isSeller,

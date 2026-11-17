@@ -66,7 +66,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     video_type: search.type || undefined,
     upload_self: search.mine || undefined,
   }
-  // 两端都走滚动加载
+  // 滚动加载
   const infinite = usePagedInfinite(
     (page) => seekApi.list({ ...seekParams, page, sort_order: 'desc' }),
     { queryKey: [...qk.seeks, { tab: search.tab, q: search.q, mine: search.mine, type: search.type }] },
@@ -96,7 +96,7 @@ export function SeekView({ search, onSearch }: { search: SeekSearch; onSearch: (
     mutationFn: (payload: { id: number; carrot: number }) => seekApi.urge(payload.id, payload.carrot),
     onSuccess: () => {
       invalidate()
-      qc.invalidateQueries({ queryKey: qk.carrot })   // 催片扣胡萝卜
+      qc.invalidateQueries({ queryKey: qk.carrot })
       qc.invalidateQueries({ queryKey: qk.session })
       toast('已催片', 'success')
     },

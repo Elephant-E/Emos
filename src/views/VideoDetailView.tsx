@@ -227,7 +227,7 @@ export function VideoDetailView({
             </>
           }
         >
-          {/* 这一行是简介位：原来放的是「原名」，于是剧情简介在全站没有任何地方可见 */}
+          {/* 这一行是简介位：剧情简介在全站只有这里能显示 */}
           {video.video_description ? <p className="detail-desc">{video.video_description}</p> : null}
           {video.video_origin_title ? (
             <p className="meta-sm">原名 {video.video_origin_title}</p>

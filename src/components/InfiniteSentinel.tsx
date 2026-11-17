@@ -1,10 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-/**
- * 列表底部的哨兵：进入视口就触发下一次加载（页面滚动容器）。
- *
- * 回调用 ref 收住：调用点普遍传内联箭头函数，直接进依赖会让观察器每翻一页重建一次。
- */
+/** 列表底部哨兵：进入视口触发下一页加载；回调经 ref 收住，避免内联箭头函数让观察器每页重建。 */
 export function InfiniteSentinel({
   onLoadMore,
   disabled = false,

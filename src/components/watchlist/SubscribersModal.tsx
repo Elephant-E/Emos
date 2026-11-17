@@ -4,7 +4,7 @@ import { EmptyBlock, ErrorBlock, LoadingRows } from '@/components/StateBlock'
 import { formatThousand } from '@/lib/format'
 import { useWatchSubscribers } from '@/api/queries'
 
-/** 订阅用户名单：分页 15 条，页状态与查询都收在这一个弹窗里 */
+/** 订阅用户名单：接口固定 15 条/页，页状态与查询都收在这一个弹窗里。 */
 export function SubscribersModal({
   watchId,
   watchName,

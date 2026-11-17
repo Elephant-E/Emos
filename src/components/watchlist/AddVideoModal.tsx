@@ -7,11 +7,7 @@ import { VIDEO_TYPE_LABEL } from '@/lib/format'
 import { useDebounced } from '@/lib/useDebounced'
 import { useWatchMutations, useWatchSearch } from '@/api/queries'
 
-/**
- * 添加影片：按片名搜、点「加入」。
- * 搜索词、候选列表与新增 mutation 都只服务这个弹窗，状态一并收进来；
- * 排序值取「当前列表最大值 + 10」，由调用方把当前最大 sort 传进来（它才知道列表）。
- */
+/** 添加影片：按片名搜、点「加入」；新条目排序值取「当前列表最大值 + 10」，由调用方传入。 */
 export function AddVideoModal({
   watchId,
   maxSort,

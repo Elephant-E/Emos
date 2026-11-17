@@ -10,10 +10,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { IconPlus } from '@/components/icons'
 
-/**
- * 图床选择器：上传进图库，需要的地方选一张，返回直链。
- * 与资源上传（视频/字幕要绑到某部影片某一集）是两件事。
- */
+/** 图床选择器：上传进图库，选一张返回直链（与资源上传是两件事）。 */
 export function ImagePicker({
   value,
   onChange,
@@ -88,10 +85,7 @@ export function ImagePicker({
   )
 }
 
-/**
- * 多张图（基金凭证这类）：仍然用同一个图库弹窗与同一套 slot 样式，
- * 各页面不要再自己拼一套「图片列表 + 上传按钮」。
- */
+/** 多张图（基金凭证这类）：复用同一个图库弹窗与 slot 样式。 */
 export function ImagePickerMulti({
   value,
   onChange,

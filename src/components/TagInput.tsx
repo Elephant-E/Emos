@@ -1,9 +1,6 @@
 import { useRef, useState } from 'react'
 
-/**
- * 标签输入。已确认的标签单独一行放在输入框下面，不塞进输入框：
- * 塞进去时第一个标签紧贴左边框，且框内空间被占掉后看不出还能继续输入。
- */
+/** 标签输入：已确认的标签在输入框下方单独一行；塞进框里会紧贴左边框，且看不出还能继续输入。 */
 export function TagInput({
   value,
   onChange,

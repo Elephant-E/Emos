@@ -5,9 +5,7 @@ export function formatPrice(value: number | null | undefined): string {
   return value == null ? '—' : `${formatThousand(value)} 胡萝卜`
 }
 
-/**
- * 商品价格：现价 +（有折扣时）划掉的原价。
- */
+/** 商品价格：现价 +（有折扣时）划掉的原价 */
 export function Price({
   price,
   priceOrigin,

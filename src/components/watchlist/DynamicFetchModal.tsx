@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 
-/**
- * 动态抓取：填 URL 即按该地址定期同步内容，留空关闭。
- * 地址用弹窗内 state，保存时才回传——失败时输入框内容也不会丢（原先是先关弹窗再发请求）。
- */
+/** 动态抓取：填 URL 即按该地址定期同步内容，留空关闭；地址用弹窗内 state，保存时才回传（失败时输入不丢）。 */
 export function DynamicFetchModal({
   current,
   onClose,

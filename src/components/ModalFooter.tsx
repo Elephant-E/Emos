@@ -1,9 +1,6 @@
 /**
  * 弹窗底部：左「取消」右「确认」。
- *
- * 站内 36 个弹窗各手写一遍同一段 JSX（含文案、disabled、提交中状态），
- * 写法不统一的地方全在这里收敛：取消一律 `btn--ghost`、确认一律 `btn--primary`，
- * 提交中时确认键同时禁用并把文案换成进行时。
+ * 取消一律 `btn--ghost`、确认一律 `btn--primary`，提交中时确认键禁用并把文案换成进行时。
  */
 export function ModalFooter({
   onCancel,

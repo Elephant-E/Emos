@@ -5,10 +5,7 @@ import { PickList } from '@/components/PickList'
 import { videoApi } from '@/api/endpoints'
 import { useDebounced } from '@/lib/useDebounced'
 
-/**
- * 选一部影片（只取 video_id 与片名）。
- * 关联 MV 这类动作只需要影片 id，不像上传落点那样要选到季集。
- */
+/** 选一部影片（只取 video_id 与片名）；关联 MV 这类动作不需要选到季集。 */
 export function VideoPicker({
   title,
   onClose,

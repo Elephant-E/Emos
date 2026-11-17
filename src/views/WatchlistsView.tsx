@@ -47,7 +47,7 @@ export function WatchlistsView({ search, onSearch }: { search: WatchSearch; onSe
     ...(search.scope === 'self' ? { is_self: true } : {}),
     ...(search.scope === 'subscribed' ? { is_subscribe: true } : {}),
   }
-  // 两端都走滚动加载
+  // 滚动加载
   const infinite = usePagedInfinite(
     (page) => watchApi.list({ ...watchParams, page }),
     { queryKey: [...qk.watches, { scope: search.scope, q: search.q }] },

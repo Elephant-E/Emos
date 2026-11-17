@@ -12,10 +12,7 @@ interface SellerDraft {
   cover_url: string | null
 }
 
-/**
- * 店铺设置：已开店是「编辑店铺」，未开店是「申请开店（扣 3000 胡萝卜）」。
- * 两个分支的提交载荷不同——申请接口没有封面上传能力，只有更新才带 cover_url。
- */
+/** 店铺设置：已开店是编辑，未开店是申请（扣 3000 胡萝卜）；申请接口没有封面上传能力。 */
 export function SellerFormModal({
   current,
   isSeller,

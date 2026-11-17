@@ -32,7 +32,7 @@ export function LibraryView({ search, onSearch }: { search: LibrarySearch; onSea
 
   // 纯数字：先当站内 ID 查，查不到再当 TMDB ID（见 useVideoPage）；其余按片名
   const numeric = /^\d{1,12}$/.test(search.q.trim())
-  // 两端都是滚动加载：不再有分页器，也就不分「桌面用分页查询」这条路
+  // 滚动加载：逐页累加（usePagedInfinite）
   const list = usePagedInfinite(
     (page) =>
       fetchVideoPage({

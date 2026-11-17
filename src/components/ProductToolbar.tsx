@@ -11,10 +11,7 @@ const SORTS: ReadonlyArray<{ key: ProductSort; label: string }> = [
   { key: 'price', label: '价格' },
 ]
 
-/**
- * 商品列表的工具栏：分类 → 搜索 → 排序（→ 可选的操作按钮）。
- * 商城的「我的店铺」与别人的店铺页共用，差异由 props 决定。
- */
+/** 商品列表工具栏：分类 → 搜索 → 排序（→ 可选操作按钮）；商城与店铺页共用。 */
 export function ProductToolbar({
   categories,
   categoryId,

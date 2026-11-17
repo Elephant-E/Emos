@@ -1,9 +1,6 @@
 import { useRef } from 'react'
 
-/**
- * 表格里的行内排序输入框：平时是一行数字，聚焦时才露出输入框，
- * 失焦时把新值提交上去（值没变就不提交）。
- */
+/** 行内排序输入框：平时一行数字，聚焦才露出输入框，失焦提交（值没变不提交）。 */
 export function InlineSortInput({
   value,
   label,
@@ -46,7 +43,7 @@ export function InlineSortInput({
         commit(e.currentTarget)
       }}
       onKeyDown={(e) => {
-        // 回车就地提交：原先只有失焦才提交，敲完数字按回车会静默无效
+        // 回车就地提交：敲完数字按回车不该静默无效
         if (e.key === 'Enter') {
           e.preventDefault()
           committedByEnter.current = true

@@ -48,7 +48,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
     // 后端对 order_no 与 order_title 是分开的两个参数，长串数字当单号、其余当商品名
     ...(search.q ? (/^[0-9A-Za-z]{12,}$/.test(search.q) ? { order_no: search.q } : { order_title: search.q }) : {}),
   }
-  // 两端都滚动加载：两个接口按视角二选一
+  // 两个视角都滚动加载，各走一个接口
   const infinite = usePagedInfinite<Awaited<ReturnType<typeof shopApi.ordersShop>>['items'][number]>(
     (page) =>
       mineScope

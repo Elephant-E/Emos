@@ -30,12 +30,12 @@ const PATH_TYPE_LABEL: Record<string, string> = {
 
 export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (patch: Partial<LiveSearch>) => void }) {
   const library = useLiveLibrary()
-  // 两端都滚动加载
+  // 滚动加载
   const infinite = usePagedInfinite(
     (page) => liveApi.list({ page, page_size: 15, library_id: search.library || undefined }),
     { queryKey: [...qk.live, 'channels', { library: search.library }] },
   )
-  // 源列表也走滚动加载：接口固定 15 条/页，原来只有 page=1，第 16 条起永远看不到
+  // 源列表也滚动加载：接口固定 15 条/页，只取 page=1 会永远看不到第 16 条起的内容
   const media = usePagedInfinite(
     (page) => liveApi.media(search.channel, { page }),
     { enabled: search.channel > 0, queryKey: [...qk.live, 'media', search.channel] },

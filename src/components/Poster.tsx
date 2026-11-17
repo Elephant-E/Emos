@@ -7,12 +7,9 @@ import { useEffect, useState, type CSSProperties } from 'react'
  * - `wide` 16:9 横版：片单封面（实测 600×495 / 1280×720 / 1920×1080）
  * - `square` 1:1：直播频道 logo、商品封面
  *
- * 没有图（或加载失败）时只留同尺寸的空白块：SPEC §2.6 明确不做首字方块假图，
- * 但表格行仍需要一个固定宽度的位置，否则标题起点会跳。
- *
- * 注意：**不要**做「加载完成前先隐藏」的处理——图片的尺寸已经由外层容器
- * （.record-tile__media / .record-row__media 的 aspect-ratio）占住，
- * 隐藏只会让懒加载没触发的图永远看不见。
+ * 没有图（或加载失败）时只留同尺寸空白块，但行内仍需固定宽度占位，否则标题起点会跳。
+ * 不要做「加载完成前先隐藏」：尺寸已由外层容器的 aspect-ratio 占住，隐藏只会让
+ * 懒加载没触发的图永远看不见。
  */
 export function Poster({
   src,
@@ -29,7 +26,7 @@ export function Poster({
   shape?: 'poster' | 'wide' | 'square'
   className?: string
   style?: CSSProperties
-  /** 卡片等自由布局：没有图就完全不占位（表格里必须占位，否则标题会跳） */
+  /** 自由布局：没有图就完全不占位（行内必须占位，否则标题会跳） */
   collapseOnEmpty?: boolean
   /** 没有图时显示什么：媒体用默认占位图，用户头像用首字 */
   fallback?: 'media' | 'initial'
@@ -43,8 +40,7 @@ export function Poster({
 
   if (!url || failed) {
     if (collapseOnEmpty) return null
-    // 没有图也要有个东西：媒体位显示默认占位，人显示首字
-    // 没有名字时不要显示一个「?」，退回媒体占位（一条淡横杠）
+    // 没有图也要有东西：媒体位显示默认占位，人显示首字；没有名字时退回媒体占位（一条淡横杠）
     const initial = (name ?? '').trim().slice(0, 1)
     const kind = fallback === 'initial' && initial ? 'initial' : 'media'
     return (

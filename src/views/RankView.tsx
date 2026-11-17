@@ -20,7 +20,7 @@ export interface RankSearch {
   tab: RankTab
 }
 
-/** 榜单都是「前 30 条、10 分钟缓存」，一次拉完，不分页 */
+/** 榜单都是「前 30 条、10 分钟缓存」，一次拉全 */
 export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (patch: Partial<RankSearch>) => void }) {
   const tab = search.tab
   const carrot = useQuery({ queryKey: ['rank', 'carrot'], queryFn: rankApi.carrot, enabled: tab === 'carrot', staleTime: 10 * 60_000 })

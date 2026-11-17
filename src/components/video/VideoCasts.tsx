@@ -23,7 +23,7 @@ const JOB_LABEL: Record<string, string> = {
 
 /** 演职员卡：只展示前 8 位，岗位翻成中文 */
 export function VideoCasts({ persons, limit = 8 }: { persons: VideoPerson[]; limit?: number }) {
-  // 头像地址是拼出来的，缺图时切到「首字」状态；用 state 记录失败项，不再手改 DOM
+  // 头像地址是拼出来的，缺图时切「首字」：用 state 记录失败项
   const [broken, setBroken] = useState<Set<string>>(new Set())
   const keyOf = (person: VideoPerson) => String(person.person_id_tmdb ?? person.name)
   return (

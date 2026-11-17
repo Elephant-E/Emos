@@ -9,10 +9,7 @@ interface SubtitleTarget {
   owner?: string | null
 }
 
-/**
- * 编辑字幕：改标题、删字幕。
- * 标题改成弹窗内 state，保存时才回传——父组件不再为「改一个字」保管半成品状态。
- */
+/** 编辑字幕：改标题、删字幕；标题用弹窗内 state，保存时回传。 */
 export function SubtitleEditModal({
   subtitle,
   onClose,

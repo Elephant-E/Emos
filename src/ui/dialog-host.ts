@@ -1,12 +1,6 @@
 import { useRef, useState } from 'react'
 
-/**
- * 命令式弹窗的宿主状态：`let open` 单例 + 当前待处理项 + promise 结算。
- *
- * `confirm.tsx` 与 `prompt.tsx` 原本各写一遍同一套（useState + useRef + settle），
- * 只有「结算值是 boolean 还是 string | null」不同，这里把管道抽出来，
- * 两边只保留自己的渲染。
- */
+/** 命令式弹窗的宿主状态：`let open` 单例 + 当前待处理项 + promise 结算。 */
 export function useDialogHost<TOptions, TResult>() {
   type Pending = TOptions & { resolve: (value: TResult) => void }
   const [pending, setPending] = useState<Pending | null>(null)

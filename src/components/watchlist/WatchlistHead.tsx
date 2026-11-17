@@ -3,10 +3,7 @@ import { Badge } from '@/components/Badge'
 import { formatRelative, formatThousand } from '@/lib/format'
 import type { WatchItem } from '@/api/types'
 
-/**
- * 片单详情头部：封面 + 可见性/标签/订阅价 + 四项统计 + 维护者。
- * 影视与音乐两种片单共用，只有计数单位不同。
- */
+/** 片单详情头部：封面 + 可见性/标签/订阅价 + 四项统计 + 维护者。 */
 export function WatchlistHead({
   item,
   count,

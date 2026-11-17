@@ -15,10 +15,7 @@ interface PickTarget {
   episode?: number
 }
 
-/**
- * 选一个上传的落点：搜片名 → 电影直接选中，剧集再选季、选集。
- * 剧集的资源与字幕都挂在集上（`ve` + episode_id），只选到影片挂不上去。
- */
+/** 选上传落点：搜片名 → 电影直接选中，剧集再选季、选集（资源与字幕挂在集上，只选影片挂不上去）。 */
 export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void }) {
   const [term, setTerm] = useState('')
   // 同上：防抖后再查，避免逐键一个请求

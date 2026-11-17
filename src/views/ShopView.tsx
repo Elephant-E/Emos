@@ -72,8 +72,7 @@ export function ShopView({
   const categories = useShopCategories(seller.data?.seller_id)
   const mine = scope === 'mine'
   // 逛全站时只显示上架商品：下架商品对买家不存在
-  // 表格只在「我的店铺」用；全站是卡片网格，走 browse
-  // 逛全站：无限网格；我的店铺：同一个「滚动加载」模型
+  // 逛全站：无限网格；我的店铺：同一个滚动加载模型
   const browse = useShopProductsInfinite({ sellerId: 0, name: q, sortBy: sort, onlyUp: true, enabled: !mine })
   const browseItems = browse.data?.pages.flatMap((p) => p.items) ?? []
   const counts = useShopCounts(seller.data?.seller_id ?? 0)

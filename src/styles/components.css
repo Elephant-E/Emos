@@ -155,12 +155,7 @@
   justify-content: space-between;
   gap: var(--pad-card);
   max-width: var(--page-max);
-  /*
-   * 标题与页面内容之间的间距由这里统一负责。
-   * 以前是靠各页恰好渲染的 .toolbar 的 margin-top 撑开的，没有工具栏的页面
-   * （比如整页只有一句说明时）就会贴着标题——间距不该取决于内容长什么样。
-   * 与下方元素的 margin-top 相邻折叠，不会叠加成双倍。
-   */
+  /* 标题与内容的间距由这里负责（不靠内容自带的 margin-top）；与下方 margin-top 折叠，不叠加 */
   margin: 0 auto var(--gap-card);
 }
 
@@ -289,8 +284,7 @@
   transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .seg button:hover { color: var(--fg-2); }
-/* 表单里的分段控件是「输入项」而不是工具栏上的筛选器，不要那层胶囊底色。
-   用上下文选择器表达，避免又长出一个单点使用的变体类。 */
+/* 表单里的分段控件是「输入项」而不是工具栏筛选器，不要那层胶囊底色；用上下文选择器表达，避免多一个单点变体类 */
 .field .seg {
   padding: 0;
   gap: var(--sp-2);
@@ -311,10 +305,7 @@
   max-width: var(--page-max);
   margin-inline: auto;
 }
-/*
- * 页面正文的垂直节奏由容器统一负责：.page-body / .content-in 的子元素之间留 18px，
- * 组件自己不再带上边距（否则会出现「有的块有间距、有的没有」）。
- */
+/* 页面正文的垂直节奏由容器统一负责：.page-body / .content-in 的子元素间留 18px，组件自带边距会破坏一致性 */
 .page-body > * + *,
 .content-in > * + * { margin-top: var(--gap-card); }
 /* 网格容器自己就带 content-in 时，子项的兄弟间距由 gap 负责 */
@@ -341,11 +332,7 @@
   color: var(--fg-2);
   font-size: var(--text-sm);
 }
-/*
- * 主数字 36px：44px 是按 4 位数挑的，余额到 5 位（38,773）时数字 + 单位
- * 已顶到卡片内边距（实测内容宽 162px、内容 164px）。统一降到 36px，
- * 与次级 30px 只差一档，不再抢焦点，也不会因数据长短而变大小。
- */
+/* 主数字 36px：44px 时 5 位数会顶到卡片内边距（实测内容 162px、需要 164px），与次级 30px 只差一档 */
 .stat__value {
   margin: 0;
   /* 主卡 36px、次卡 30px，高度不一致会让下面的说明行错位 6px：统一盒子高度 */
@@ -405,15 +392,7 @@
 }
 .spacer { flex: 1; }
 
-/* 列宽按声明走，避免长文本把最后一列挤出卡片 */
-/* 列宽自适应：交给内容决定（数字列贴住自己的宽度，长文本列吃掉剩余）；
-   与 --fixed 一样保持单行省略，避免长文本把行撑高 */
-
-/* 可点的整行（RecordRow 给行加 role 与键盘事件），光标不用每个调用点各写一次内联 */
-
 .cell-title { display: flex; align-items: center; gap: var(--sp-3); }
-/* 首列带缩略图时，表头对齐标题文字而不是缩略图，否则视线落在标题上会错开一格。
-   间距 = 行左内边距 + 缩略图宽 + 与文字的间距，缩略图宽由行上的变量决定 */
 /* 信息密的行：左右内边距收窄，否则窄屏下每段可用的宽度不够放徽标与时间 */
 .thumb {
   width: 28px;
@@ -461,7 +440,7 @@
 .badge--wait { color: var(--c-yellow); }
 .badge--off { color: var(--fg-4); }
 .badge--warn { color: var(--c-red); }
-/* danger 是 Badge 支持的一档（更重的红），之前只在 TS 类型里存在、CSS 缺失 */
+/* danger 是 Badge 支持的一档（更重的红） */
 .badge--danger { color: var(--c-red); background: color-mix(in srgb, var(--c-red) 16%, transparent); }
 .row-menu {
   width: 26px;
@@ -489,8 +468,7 @@
   transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
   min-width: 200px;
 }
-/* 200px 是文本框的下限；下拉和数字框应该按内容/显式宽度走 ——
-   否则写死 width:130 / maxWidth:100 会被这个下限默默盖掉 */
+/* 200px 是文本框的下限，下拉与数字框按内容/显式宽度走，否则写死的 width 会被这个下限默默盖掉 */
 select.input,
 input.input[type='number'] { min-width: 0; }
 .input::placeholder { color: var(--fg-3); }
@@ -543,8 +521,7 @@ input.input[type='number'] { min-width: 0; }
     justify-content: space-between;
     gap: var(--sp-2) var(--sp-3);
   }
-  /* 左侧标题块优先拿到空间，工具最多占一半并横向滚动——
-     否则片单详情那种 7 个按钮会把标题挤成一列竖排 */
+  /* 左侧标题块优先拿到空间，工具最多占一半并横向滚动，否则 7 个按钮会把标题挤成竖排 */
   .page__head > :first-child {
     flex: 1 1 auto;
     min-width: 0;
@@ -678,7 +655,7 @@ input.input[type='number'] { min-width: 0; }
   margin-top: var(--gap-card);
 }
 
-/* 详情页头统一：左图右文 */
+/* 详情页头：左图右文 */
 .detail-head__row { display: flex; align-items: flex-start; gap: var(--gap-card); }
 
 /* 文字列要吃掉整行剩余宽度：不给 flex:1 时它是 max-content 宽，
@@ -700,8 +677,7 @@ input.input[type='number'] { min-width: 0; }
 
 .detail-desc { color: var(--fg-3); font-size: var(--text-sm); line-height: 1.75; max-width: 74ch; }
 
-/* 列宽按内容算、间距恒定：数字位数不同（1001 vs 3）时，
-   每个标签仍紧贴在自己的数字下面，列与列之间保持一致的 32px */
+/* 列宽按内容算、间距恒定：数字位数不同（1001 vs 3）时每个标签仍紧贴自己的数字，列间保持 32px */
 .detail-stats {
   display: grid;
   grid-auto-flow: column;
@@ -710,8 +686,7 @@ input.input[type='number'] { min-width: 0; }
 }
 .detail-stat { display: grid; gap: var(--sp-1); min-width: 0; }
 .detail-stat__link {
-  /* 与 .detail-stat b 完全同字号同字重：这个数字可以点（看订阅用户），
-     但视觉上不能和旁边的统计值不一致——原来它是 inherit 字号 + 600 字重 + 一条虚线下划线 */
+  /* 与 .detail-stat b 同字号同字重：这个数字可以点（看订阅用户），但视觉上不能和旁边的统计值不一致 */
   font: inherit;
   font-size: 19px;
   font-weight: 500;
@@ -988,10 +963,6 @@ input.input[type='number'] { min-width: 0; }
   to { opacity: 1; }
 }
 
-/* 同一页面内切换筛选时，内容淡入一次，避免旧列表被硬替换 */
-/* 展开行自己就是一层表面（td 有淡底色），里面再套一张完整的 .card，
-   同一个位置会叠出两层边框、两层渐变和一层阴影 */
-
 /* 集数可能上百，用固定高度的数字网格，高度不随集数增长 */
 .ep-grid {
   display: grid;
@@ -1190,8 +1161,7 @@ input.input[type='number'] { min-width: 0; }
 
 /* 尾部动作对齐：墨迹对齐内容边缘，而不是盒子对齐 */
 /* 行内输入（排序、评分）是小控件，不该被 .input 的 200px 最小宽度撑开 */
-/* 行内可编辑的数字：平时就是一行文字，指上去/聚焦时才露出输入框。
-   整行摆六个带边框的输入框，视觉重心会全跑到这些框上，把片名压下去。 */
+/* 行内可编辑的数字：平时一行文字，指上去/聚焦才露出输入框——整行六个带边框输入框会把视觉重心全拉过去 */
 .input--cell {
   width: 56px;
   height: 26px;
@@ -1237,7 +1207,7 @@ input.input[type='number'] { min-width: 0; }
 /* 直播频道 logo 与商品封面是方图 */
 .poster-img--square { width: 28px; height: 28px; }
 
-/* ---- 布局工具类：替代视图里的内联栅格与堆叠 ---- */
+/* 布局工具类：替代视图里的内联栅格与堆叠 */
 .cards--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .cards--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -1254,8 +1224,7 @@ input.input[type='number'] { min-width: 0; }
 .text-xs { font-size: var(--text-xs); }
 .text-body { color: var(--fg-2); font-size: var(--text-sm); }
 .meta-end { margin-left: auto; font-size: var(--text-2xs); }
-/* 收支方向：涨绿跌红。之前删表格规则体时把选择器留在这儿，
-   结果这两条被并进了下面的 .cards--todos，mark-up/mark-down 完全没有样式 */
+/* 收支方向：涨绿跌红 */
 .mark-up { color: var(--c-green); }
 .mark-down { color: var(--c-red); }
 
@@ -1268,7 +1237,7 @@ input.input[type='number'] { min-width: 0; }
 
 .note-left { text-align: left; }
 
-/* ---------------- 登录 ---------------- */
+/* 登录 */
 .login {
   position: relative;
   min-height: 100vh;
@@ -1359,12 +1328,7 @@ input.input[type='number'] { min-width: 0; }
   100% { background-position: 0 0; }
 }
 
-/*
- * 层级：海报墙 0 → 蒙版 1 → 文案与卡片 2。
- * 之前 aside 没有定位，被绝对定位的 .login__veil 整个压在下面，
- * 标题看起来灰得几乎看不清（右侧卡片因为自带 position: relative 而没事）。
- * 这里把三层写成显式顺序，不依赖绘制顺序的巧合。
- */
+/* 层级：海报墙 0 → 蒙版 1 → 文案与卡片 2，显式写死，不依赖绘制顺序 */
 .login__aside {
   position: relative;
   z-index: 2;
@@ -1562,7 +1526,7 @@ input.input[type='number'] { min-width: 0; }
   to { transform: translate3d(-50%, 0, 0); }
 }
 
-/* ── 图床选择器 ───────────────────────────────────────── */
+/* 图床选择器 */
 /* 封面槽：方形。图铺满，操作按钮压在图上，不另外占一行 */
 .image-picker__slot {
   position: relative;
@@ -1643,14 +1607,13 @@ input.input[type='number'] { min-width: 0; }
 }
 .image-picker__del:hover { color: var(--c-red); }
 
-/* ── 影片详情：两栏布局 ──────────────── */
+/* 影片详情：两栏布局 */
 .detail-body {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   gap: var(--gap-card);
   margin-top: var(--gap-card);
-  /* 两列等高：底边对齐——矮的那列由它最后一张卡补足剩余高度，
-     否则短列会在页面背景上留一条永远对不齐的空档 */
+  /* 两列等高：矮的那列由最后一张卡补足剩余高度，否则短列会在页面背景上留一条对不齐的空档 */
   align-items: stretch;
 }
 .detail-col {
@@ -1663,11 +1626,10 @@ input.input[type='number'] { min-width: 0; }
 .detail-col > :last-child { flex: 1 1 auto; }
 /* 电影没有季集，去掉左栏后资源与字幕占满整行 */
 .detail-body--single { grid-template-columns: minmax(0, 1fr); }
-/* 演职员 */
-/* 演职员：自适应列数，头像按 3:4 铺满列宽，不再固定 84px 留下参差的右侧空隙 */
+/* 演职员：自适应列数，头像按 3:4 铺满列宽 */
 .person-grid {
   display: grid;
-  /* 手机三列铺满；宽屏固定 96px 卡片、左对齐，不再被 1fr 拉成十几列 */
+  /* 手机三列铺满；宽屏固定 96px 卡片、左对齐 */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-3);
   margin-top: var(--sp-3);
@@ -1720,8 +1682,7 @@ input.input[type='number'] { min-width: 0; }
 }
 
 /* 添加影片/字幕的候选行 */
-/* 检索结果列表：行之间靠留白分区，不加分隔线——弹窗里已经有边框，
-   再加线会显得重；gap 与行内边距一起决定密度 */
+/* 检索结果列表：行之间靠留白分区，不加分隔线（弹窗里已有边框）；gap 与行内边距一起决定密度 */
 .pick-list { display: grid; gap: var(--sp-2); max-height: 340px; overflow-y: auto; min-width: 0; }
 .pick-row {
   display: flex;
@@ -1741,7 +1702,7 @@ input.input[type='number'] { min-width: 0; }
 button.pick-row { cursor: pointer; }
 button.pick-row:hover { color: var(--fg); }
 button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
-/* 主标题 + 副行：副行紧跟标题，不再被 flex:1 推到右边 */
+/* 主标题 + 副行：副行紧跟标题 */
 .pick-row > .pick-row__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .pick-row__sub {
   font-size: var(--text-2xs);
@@ -1755,8 +1716,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 两行式行标题（主标题 + 副标题），和单行的 .pick-row__title 区分 */
 .pick-row__text { display: grid; min-width: 0; }
 .pick-tabs { display: flex; gap: var(--sp-2); }
-/* 季多的时候横向滚动，但滚动条本身会压住 tab 文字；
-   另外不要 sticky + 底色——那会在弹窗里凭空多出一条色块 */
+/* 季多的时候横向滚动，但滚动条会压住 tab 文字；另外不要 sticky + 底色，那会在弹窗里凭空多出一条色块 */
 .pick-tabs__scroll {
   overflow-x: auto;
   flex-wrap: nowrap;
@@ -1766,7 +1726,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .pick-tabs__scroll::-webkit-scrollbar { display: none; }
 .pick-tabs__item { flex: none; }
 
-/* ── 商品卡片网格（浏览用，不是管理表格）──────────────── */
+/* 商品卡片网格（浏览用） */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(208px, 1fr));
@@ -1809,8 +1769,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   display: flex;
   flex-direction: column;
   gap: var(--sp-2);
-  /* 正文撑满卡片剩余高度，销量/库存（含购买键）贴底：
-     否则有角标或多一行的卡会把按钮顶下去，同一行两张卡按钮高低不齐 */
+  /* 正文撑满卡片剩余高度，销量/库存（含购买键）贴底，否则有角标的卡会把按钮顶下去、同排两张按钮不齐 */
   flex: 1;
 }
 .product-tile__name {
@@ -1840,7 +1799,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   margin-top: auto;
   display: flex;
   align-items: center;
-  /* 允许换行：销量/库存在极端数值下原来会被卡片圆角切断，看起来像渲染错误 */
+  /* 允许换行：极端数值会被卡片圆角切断，看起来像渲染错误 */
   flex-wrap: wrap;
   gap: var(--sp-2);
   font-size: var(--text-2xs);
@@ -1878,8 +1837,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 .seller-line__name { color: var(--fg-2); text-decoration: underline; text-underline-offset: 2px; flex: none; }
 .seller-line__desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* 标签输入：已确认的标签在输入框下方单独一行，不塞进框里（塞进去第一个
-   会紧贴左边框，看着像被选中） */
+/* 标签输入：已确认标签在输入框下方单独一行，不塞进框里（塞进去会紧贴左边框、像被选中） */
 .tag-field { display: grid; gap: var(--sp-2); }
 .tag-field__list { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .tag-field__chip { padding-right: var(--sp-1); }
@@ -1899,7 +1857,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .tag-field__remove:hover { color: var(--fg); background: rgba(255, 255, 255, 0.08); }
 
-/* 次要的小字：灰色、11.5px。这个组合在各页面重复了十几次 */
+/* 次要小字：灰色 11.5px */
 .meta-sm { font-size: var(--text-2xs); color: var(--fg-4); }
 
 /* 弹窗里两列并排的字段。左列窄一点的那档用来放「类型 / 数量」这类短字段 */
@@ -2000,8 +1958,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
 }
 
-/* 单元格里放输入框（行内排序）时收紧左右内边距：
-   左右各 24px 的内边距，加上 72px 的输入框，窄屏下会溢出被裁 */
+/* 单元格里放输入框（行内排序）时收紧左右内边距：各 24px 加 72px 输入框，窄屏下会溢出被裁 */
 
 /* 窄屏：详情页两栏折叠成单栏，否则右列会被推出视口（820 实测页面级横向滚动 65px） */
 @media (max-width: 980px) {
@@ -2011,17 +1968,14 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 手机顶栏：桌面端不渲染，≤600px 才出现（样式在文件末尾的手机档里） */
 .topbar { display: none; }
 
-/* ── 手机档（≤600px）───────────────────────────────────────────
-   导航收成抽屉：内容区拿到完整宽度；汉堡在页头左侧，点遮罩或选完入口自动收起 */
+/* 手机档（≤600px）：导航收成抽屉，内容区拿到完整宽度 */
 @media (max-width: 600px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
-  /* 展开的是顶栏本身：整宽面板从顶栏下沿拉开。
-     高度由 Radix Collapsible 提供的 --radix-collapsible-content-height 驱动，动画就是真实展开 */
+  /* 展开的是顶栏本身：整宽面板从顶栏下沿拉开，高度由 Radix Collapsible 的 --radix-collapsible-content-height 驱动 */
   .rail {
     position: fixed;
     inset: 52px 0 auto;
-    /* 面板高度=内容高度，但要封顶并留出底部 96px 遮罩可点区域：
-       否则 18 个入口里靠后的几个既滚不到、也点不到遮罩关闭 */
+    /* 面板高度=内容高度，但封顶并留出底部 96px 遮罩可点区域，否则靠后的入口既滚不到也点不到遮罩 */
     max-height: calc(100vh - 148px);
     max-height: calc(100dvh - 148px);
     width: auto;
@@ -2033,8 +1987,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     overscroll-behavior: contain;
     padding: var(--sp-3) var(--sp-4) var(--sp-4);
   }
-  /* 展开/收起都用 Radix 写入的 --radix-collapsible-content-height；
-     收起态存在动画时，Radix 会等内容动画播完再卸载 */
+  /* 展开/收起都用 Radix 写入的 --radix-collapsible-content-height；收起态有动画时 Radix 会等播完再卸载 */
   .rail[data-state='open'] {
     overflow-y: auto;
     animation: nav-expand 240ms var(--ease);
@@ -2042,7 +1995,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail[data-state='closed'] {
     overflow: hidden;
     animation: nav-collapse 200ms var(--ease);
-    /* 侧栏现在是恒挂载的（修跨断点不挂载），手机端收起时要真的不占位 */
+    /* 侧栏恒挂载，手机端收起时要真的不占位 */
     display: none;
   }
   .shell__scrim {
@@ -2062,7 +2015,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .rail__item > span:not(.rail__ico) { display: initial; }
   .rail__label { display: block; }
   .rail__item { justify-content: flex-start; height: 40px; }
-  /* 面板紧贴顶栏：搜索框不再叠 --sp-4 的间距，键帽在手机上没有意义 */
+  /* 面板紧贴顶栏：搜索框不叠 --sp-4 间距，键帽在手机上没有意义 */
   .rail__search {
     display: flex;
     margin: 0 0 var(--sp-1);
@@ -2122,7 +2075,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .btn--ghost,
   .btn--danger-text { height: 34px; min-width: 40px; }
   .row-menu { width: 34px; height: 34px; }
-  /* 分段筛选器（全部商品/销量/价格…）本来 24px，手机上点不准 */
+  /* 分段筛选器原 24px，手机上点不准 */
   .seg { height: 40px; align-items: center; }
   .seg button { height: 32px; }
   /* 工具栏里还有几个无类名的筛选按钮（全部/电影/剧集这类） */
@@ -2132,8 +2085,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .dropzone { cursor: pointer; }
 
   /* 统计卡片：手机上两列。单列时概览 7 张卡要滑四屏，且每张卡只有一行数字 */
-  /* 两列只给「多张小卡」的页面（概览、用户详情、商城）。.
-     .cards--2 通常只有一张带按钮和说明的大卡，缩成半屏会挤（资金·胡萝卜余额） */
+  /* 两列只给「多张小卡」的页面（概览、用户详情、商城）：.cards--2 通常是带按钮和说明的大卡，缩成半屏会挤 */
   /* 至少两张统计卡才分两列：单张（资金·胡萝卜余额）要占满整行 */
   .cards:has(.card--stat + .card--stat),
   .cards--4:has(.card--stat + .card--stat),
@@ -2141,8 +2093,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .card--stat { padding: var(--sp-3); }
-  /* 两列后卡片变窄：note 里的片段会被 flex 拆开换行（「片单槽位 … 2」断成两行），
-     窄屏改回普通文本流，按整句换行 */
+  /* 两列后卡片变窄，note 里的片段会被 flex 拆开换行；窄屏改回普通文本流，按整句换行 */
   .card--stat .stat__delta {
     display: block;
     margin-top: var(--sp-2);
@@ -2153,7 +2104,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 详情头：缺图时不要留一块空海报位 */
   .thumb:empty { display: none; }
 
-  /* 筛选工具栏：去掉「tabs 后强制换行」的撑杆，控件自然回流，压到 2 行以内 */
+  /* 筛选工具栏：控件自然回流，压到 2 行以内 */
   .toolbar { gap: var(--sp-2); row-gap: var(--sp-2); }
   .toolbar .spacer { display: none; }
   /* 搜索框可与分段筛选同排：允许收缩，省掉一整行 */
@@ -2165,8 +2116,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 上传队列的页脚：手机上收紧内边距，两行更紧凑 */
   .table-foot { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
 
-  /* 页头工具：这是页面级次要入口，不该跟主操作抢注意力——
-     比正文按钮矮一档、字号小一号、去掉多余的描边感 */
+  /* 页头工具：页面级次要入口，比正文按钮矮一档、字号小一号、去掉多余描边 */
   .head-tools .btn,
   .head-tools .btn--ghost,
   .head-tools .btn--quiet {
@@ -2184,8 +2134,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .head-tools .seg { height: 34px; }
   .head-tools .seg button { height: 32px; }
 
-  /* 页头工具区：手机上不换行，改成单行横向滚动。
-     否则片单详情那种 7 个按钮会堆成 3 行、把标题挤到 168px 高 */
+  /* 页头工具区：手机上不换行、改单行横向滚动，否则 7 个按钮会堆成 3 行、把标题挤到 168px 高 */
   .head-tools {
     /* 不裁切、不横滚：宽度按内容算，放不下就由父级换到下一行，
        内部再按需折成两行（右对齐） */
@@ -2197,23 +2146,20 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   }
   .head-tools::-webkit-scrollbar { display: none; }
   .head-tools > * { flex: none; }
-  /* 只有真的能横向滑动时才加右侧渐隐，并且留出 3px 免得描边被裁；
-     没有溢出时按钮右边缘必须完整 */
+  /* 只有真能横向滑动时才加右侧渐隐，并留 3px 免得描边被裁；没有溢出时按钮右边缘必须完整 */
   .head-tools.is-scrollable {
     padding-bottom: var(--sp-hair);
     mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 32px), transparent 100%);
   }
 
-  /* 卡片头里的文字按钮（去媒体库、转赠…）原先 20px；
-     卡头高度也随之放宽，避免文字挤在一起 */
+  /* 卡片头里的文字按钮（去媒体库、转赠…）放大一档，卡头高度随之放宽，避免文字挤在一起 */
   .card-head { min-height: 32px; height: auto; }
   .card-head .btn--quiet { height: 32px; padding: 0 var(--sp-1); }
   /* 登录页「显示令牌」24px 高 */
   .login__reveal { min-height: 32px; }
   /* 商品卡上的购买按钮只有 26px 见方，手指按不到 */
   .product-tile__buy { width: 36px; height: 36px; }
-  /* 订阅数是按钮，触控要 36px；但只把它撑高会让这一格的数字与标签比旁边低 5px，
-     所以所有统计值统一成同一个盒子高度，各自的文字在盒内居中 */
+  /* 订阅数是按钮，触控要 36px；只把它撑高会让这格数字与标签比旁边低 5px，所以所有统计值统一盒子高度 */
   .detail-stat b,
   .detail-stat__link {
     display: inline-flex;
@@ -2239,7 +2185,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   to { height: 0; opacity: 0.5; }
 }
 
-/* ── 图片型列表：图浮在画布上，不套卡片外框 ──────────────────── */
+/* 图片型列表：图浮在画布上，不套卡片外框 */
 .record-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2277,7 +2223,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .record-grid--square { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* 卡片：只有图与字，没有边框、没有底色——外框会把它变成"表格式卡片" */
+/* 卡片：只有图与字，不加边框与底色 */
 .record-tile {
   min-width: 0;
   display: flex;
@@ -2374,9 +2320,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   text-overflow: ellipsis;
 }
 .record-tile.is-clickable:hover .record-tile__title { color: var(--fg); }
-/* 信息行用 flex 逐项居中：原来靠「行内文字 + inline-flex 的类型」混排，
-   inline-flex 的盒高与纯文字盒高不同，年份会被顶高一两个像素，
-   看上去就是「电影」和「· 年份」没对齐 */
+/* 信息行 flex 逐项居中：inline-flex 与纯文字盒高不同，混排时年份会差一两个像素 */
 .record-tile__meta,
 .record-tile__sub {
   margin: 0;
@@ -2394,8 +2338,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 /* 分隔点由样式生成，避免各页自己拼「· 」的空格差异 */
 .record-tile__meta > * + *::before,
 .record-tile__sub > * + *::before {
-  /* 用真实的小圆点而不是「·」字符：字符点的大小取决于字体的中点，
-     12.5px 下只有 1px 多，看不清；这里固定 3px，跨字体一致 */
+  /* 用真实的小圆点而不是「·」字符：字符点大小取决于字体中点，12.5px 下只有 1px 多，这里固定 3px */
   content: '';
   display: inline-block;
   width: 3px;
@@ -2406,12 +2349,11 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   vertical-align: middle;
 }
 
-/* ── 信息量大的列表：一行一条（RecordRow）────────────────────── */
+/* 信息量大的列表：一行一条（RecordRow） */
 .record-rows {
   display: grid;
   gap: var(--gap-card);
-  /* 信息型列表默认单列全宽：列一窄，状态徽标、订单号这类字段就会被裁掉，
-     「一行一条」本来也是表格时代最要紧的可扫读性 */
+  /* 信息型列表默认单列全宽：列一窄，状态徽标、订单号这类字段就会被裁掉 */
   grid-template-columns: minmax(0, 1fr);
 }
 /* 待办型（求片）：字段少、以卡片为单位浏览，可以并排多列 */
@@ -2589,8 +2531,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* 需要换行的标题（悄悄话正文、求片片名）：必须写在上面那条之后，
-   两条选择器特异性相同，写在前面会被 nowrap 覆盖掉——之前就是这样失效的 */
+/* 需要换行的标题（悄悄话正文、求片片名）必须写在上面那条之后：同特异性下会被 nowrap 覆盖 */
 .record-row__title--wrap {
   white-space: normal;
   display: -webkit-box;
@@ -2691,9 +2632,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   text-overflow: ellipsis;
 }
 
-/* ── 手机卡片列表（RecordList 的窄屏形态）────────────────────── */
-/* 卡片自带边框：列表容器在卡片模式下不再画外框（避免一层套一层）。
-   用 :has 统一兜住还没接 ListSection cardList 的页面 */
+/* 手机卡片列表 */
+/* 卡片自带边框：列表容器在卡片模式下不画外框，避免一层套一层 */
 
 /* 滚动加载哨兵：占位很小，只是在进入视口时触发下一次请求 */
 /* 续页骨架是列表后面的第二个容器：与列表之间保持同样的行距，别贴在一起 */
@@ -2712,8 +2652,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 
 /* 卡片头沿用列表里的缩略图 + 两行标题排版，不另做一套 */
 /* 行里的值必须能收缩并省略：长片名/长路径否则会把卡片顶宽（手机上没有横向滚动兜底） */
-/* 卡片头：有海报时标题必须能收缩。flex 子项默认 min-width:auto，
-   长片名会把整张卡顶宽（手机上没有横向滚动兜底），这里逐层放开 */
+/* 卡片头：有海报时标题必须能收缩——flex 子项默认 min-width:auto，长片名会把整张卡顶宽 */
 
 /* 上传队列：行卡 + 自己的一行脚（已入库/待处理 + 清理） */
 .upload-queue { margin-top: var(--gap-card); }
@@ -2774,7 +2713,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   opacity: 0.45;
 }
 
-/* 「官方」「我的」这类标注：纯文字，用颜色区分，不再套胶囊 */
+/* 「官方」「我的」这类标注：纯文字，用颜色区分 */
 .mark-official { color: var(--c-yellow); }
 .mark-mine { color: var(--fg-3); }
 
@@ -2794,7 +2733,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   font-variant-numeric: tabular-nums;
 }
 
-/* 运营页「创建成功」横幅：卡片质感 + 一行内容（原来借用 .table-card） */
+/* 运营页「创建成功」横幅：卡片质感 + 一行内容 */
 .op-banner {
   margin-bottom: var(--gap-card);
   padding: var(--sp-3) var(--pad-card);

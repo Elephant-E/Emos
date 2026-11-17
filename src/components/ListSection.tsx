@@ -3,17 +3,13 @@ import { EmptyBlock, ErrorBlock, LoadingGrid, LoadingRows } from './StateBlock'
 import { InfiniteSentinel } from './InfiniteSentinel'
 
 /**
- * 列表页的「四态 + 容器」外壳。
- *
- * 站内每个列表页原本各写一遍 `error ? ErrorBlock : isLoading ? 骨架 :
- * items.length === 0 ? EmptyBlock : …`，经常漏掉某种情形。这里一次说清：
- *
+ * 列表页的「四态 + 容器」外壳：
  * - 出错 → 错误块（带重试）
  * - 加载 → 与真实内容同形的骨架（`loadingKind` 决定行卡 / 网格 / 单行）
  * - 空 → 空态（标题与动作由调用方给）
- * - 有数据 → 内容 + 触底哨兵（滚动加载；分页器已全站移除）
+ * - 有数据 → 内容 + 触底哨兵
  *
- * 列表本身就是卡片，不再套额外的壳层；内容自带网格（`RecordGrid`）时也不加容器。
+ * 列表本身就是卡片，不再套壳层；内容自带网格（`RecordGrid`）时不加容器。
  */
 export function ListSection<T>({
   isLoading,
@@ -46,9 +42,9 @@ export function ListSection<T>({
   emptyAction?: ReactNode
   emptyHint?: string
   loadingRows?: number
-  /** 网格骨架的图片比例（ 页用） */
+  /** 网格骨架的图片比例 */
   gridShape?: 'poster' | 'wide' | 'square'
-  /** 骨架形态：默认按  推断（网格 / 表格），行卡片页显式指定 rows */
+  /** 骨架形态：默认按列表类型推断，行卡片页显式指定 rows */
   loadingKind: 'grid' | 'rows' | 'single-rows'
   /** 行骨架的封面形态：跟真实行一致，避免加载完高度塌一次 */
   loadingPoster?: 'poster' | 'square' | 'none'

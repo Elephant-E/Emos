@@ -13,11 +13,7 @@ export interface SubtitleRow {
   created_at?: string | null
 }
 
-/**
- * 字幕卡：上传按钮 + 表（字幕/格式/上传者/行内菜单）。
- * 上传的动作与进度留在页面上（要按「电影挂影片级、剧集挂当前集」判断落点），
- * 这里只负责呈现。
- */
+/** 字幕卡：上传按钮 + 列表（字幕/格式/上传者/行内菜单）；上传动作与进度留在页面（落点要按电影/剧集判断）。 */
 export function VideoSubtitles({
   rows,
   error,

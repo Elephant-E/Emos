@@ -34,7 +34,7 @@ export function RecycleView({ tab, onTab, q, by, onQuery }: {
   by: 'media_id' | 'user_id'
   onQuery: (q: string, by: 'media_id' | 'user_id') => void
 }) {
-  // 只查当前 tab；两端都滚动加载
+  // 只查当前 tab，滚动加载
   const infinite = usePagedInfinite<Record<string, unknown>>(
     (next) =>
       tab === 'media'

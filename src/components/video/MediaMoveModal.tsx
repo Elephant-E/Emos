@@ -4,12 +4,7 @@ import { useDebounced } from '@/lib/useDebounced'
 import { toast } from '@/ui/toast'
 import { useEpisodes, useSeasons, useVideoPage, useVideoMutations } from '@/api/queries'
 
-/**
- * 移动资源：先搜目标影片（留空表示在当前影片内移动），再选季/集。
- *
- * 搜片名、选中的目标影片、当前季这些状态都收在组件里：它们只在「移动」这一件事上有意义，
- * 放在页面上只会让页面替一个弹窗保管 5 个中间态。
- */
+/** 移动资源：先搜目标影片（留空表示在当前影片内移动），再选季/集；中间态收在组件内。 */
 export function MediaMoveModal({
   media,
   videoId,

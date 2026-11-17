@@ -7,10 +7,7 @@ import type { ShopProduct } from '@/api/types'
 /** 草稿就是商品字段的部分集合：新增时只有几个默认值，编辑时由详情回填 */
 type ProductDraft = Partial<ShopProduct>
 
-/**
- * 新增 / 编辑商品。草稿仍由页面持有（编辑时要从 product/info 回填、还要比对原值），
- * 这里只做呈现，改动通过 onChange 回传。
- */
+/** 新增 / 编辑商品：草稿由页面持有，这里只呈现，改动经 onChange 回传。 */
 export function ProductEditModal({
   draft,
   categories,

@@ -20,7 +20,6 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const [editing, setEditing] = useState<{ name: string; description: string; notify_url: string } | null>(null)
   // 服务商转账（与上面的胡萝卜转赠是两套：这个走支付服务，费率千六）
   const [payout, setPayout] = useState({ userId: '', carrot: 100 })
-  // 建支付单
   const [draft, setDraft] = useState<{ payWay: 'telegram_bot' | 'web'; price: number; name: string; param: string } | null>(null)
   const [created, setCreated] = useState<{ no: string; pay_url?: string } | null>(null)
   const payActions = usePayMutations()

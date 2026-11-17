@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 
-/**
- * 影片备注（只有自己看得到）。备注用弹窗内 state，保存时才回传。
- * `sort` 由调用方在保存时读取当前列表值——不用弹窗打开那一刻的快照。
- */
+/** 影片备注（只有自己看得到）：备注用弹窗内 state，保存时回传；`sort` 由调用方在保存时读当前列表值。 */
 export function RemarkModal({
   title,
   current,

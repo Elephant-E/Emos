@@ -16,10 +16,7 @@ function decodeDeviceName(raw?: string | null): string {
   }
 }
 
-/**
- * 已登录设备：逐台下线，或一次全部下线（含当前这台）。
- * 设备列表只在这张卡里用到，查询与 mutation 一并收进来。
- */
+/** 已登录设备：逐台下线或一次全部下线；设备列表只在这张卡里用到，查询与 mutation 一并收进来。 */
 export function DevicesCard() {
   const devices = useVideoDevices()
   const actions = useAccountMutations()

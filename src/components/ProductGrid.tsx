@@ -3,10 +3,7 @@ import { LoadingGrid } from '@/components/StateBlock'
 import { ProductTile } from '@/components/ProductTile'
 import type { ShopProduct } from '@/api/types'
 
-/**
- * 商品网格 + 触底加载。
- * 卡片视图没有「第几页」的概念，所以用触底加载代替翻页。
- */
+/** 商品网格：卡片视图，触底加载。 */
 export function ProductGrid({
   products,
   hasMore,

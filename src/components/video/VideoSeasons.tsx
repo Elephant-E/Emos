@@ -2,10 +2,7 @@ import { CardHead } from '@/components/CardHead'
 import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import type { VideoEpisode, VideoSeason } from '@/api/types'
 
-/**
- * 季与集卡（左栏）：季下拉 + 集号矩阵 + 当前集信息。
- * 数据与选中状态都由页面持有，这里只负责呈现与回调。
- */
+/** 季与集卡（左栏）：季下拉 + 集号矩阵 + 当前集信息；数据与选中状态由页面持有。 */
 export function VideoSeasons({
   seasons,
   seasonsError,

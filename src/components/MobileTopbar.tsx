@@ -6,10 +6,7 @@ import { AccountMenu } from './AccountMenu'
 import { Modal } from './Modal'
 import type { UserInfo } from '@/api/types'
 
-/**
- * 手机顶栏：左汉堡开导航抽屉，右头像开账号菜单。
- * 桌面端不渲染（`.topbar { display: none }`，≤600px 才显示）。
- */
+/** 手机顶栏：左汉堡开导航抽屉，右头像开账号菜单；桌面端不渲染（`.topbar` 隐藏，≤600px 才显示）。 */
 export function MobileTopbar({
   user,
 }: {

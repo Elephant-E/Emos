@@ -5,11 +5,7 @@ import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
 import { useAccountMutations, useCapabilities, useSession } from '@/api/queries'
 
-/**
- * 账号设置：笔名、两个显示开关、Telegram 绑定、权限与槽位、动态/固定密码入口。
- *
- * 笔名草稿、动态密码结果都只服务这张卡；页面只保留「打开重置密码弹窗」这个动作。
- */
+/** 账号设置：笔名、两个显示开关、Telegram 绑定、权限与槽位、动态/固定密码入口；草稿只服务这张卡。 */
 export function AccountSettingsCard({ onResetPassword }: { onResetPassword: () => void }) {
   const session = useSession()
   const caps = useCapabilities()

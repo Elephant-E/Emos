@@ -5,12 +5,7 @@ import { ModalFooter } from '@/components/ModalFooter'
 import { sessionApi } from '@/api/endpoints'
 import { setToken as persistToken } from '@/api/client'
 
-/**
- * 添加账号：在后台里直接粘令牌换账号，不用跳登录页。
- *
- * 校验通过后把令牌落到 localStorage 并整页重载——会话、账号列表、权限都按新账号重建，
- * 和「登录页登录」走的是同一条路（Sidebar 挂载时会把当前账号记进账号列表）。
- */
+/** 添加账号：在后台直接粘令牌换账号；校验通过后把令牌写进 localStorage 并整页重载（与登录页同一条路）。 */
 export function AddAccountModal({
   onClose,
   target,

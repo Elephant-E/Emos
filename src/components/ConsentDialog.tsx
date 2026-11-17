@@ -3,14 +3,7 @@ import { ModalFooter } from '@/components/ModalFooter'
 import { toast } from '@/ui/toast'
 import { useAccountMutations } from '@/api/queries'
 
-/**
- * 权限开通：先给用户看须知，本人确认后才调用接口。
- *
- * 上传须知的正文与措辞沿用旧项目（emos_home 的 showUploadAgreement），
- * 那里是「点击阅读 → 我再想想 / 认可并同意 → PUT agreeUploadAgreement」。
- * 下载权限在旧项目里没有须知文本，直接调接口；这里按同样的两段式补一段说明，
- * 文案是我们写的，需要时可以替换。
- */
+/** 权限开通：先给用户看须知，本人确认后才调用接口（权限类操作不静默生效）。 */
 export function ConsentDialog({ kind, onClose }: { kind: 'upload' | 'download'; onClose: () => void }) {
   const actions = useAccountMutations()
   const mutation = kind === 'upload' ? actions.agreeUpload : actions.agreeDown

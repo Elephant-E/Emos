@@ -1,13 +1,6 @@
 import type { ReactNode } from 'react'
 
-/**
- * 详情页页头：只放文字（状态、标签、描述、统计）。
- *
- * 影片、片单、用户三处原本各写一遍同样的结构，间距与层级各不相同，这里统一：
- *
- * - `chips`：状态徽标与标签那一行（可空）
- * - `children`：自由内容（描述、统计），按顺序排在 chips 下面
- */
+/** 详情页页头：只放文字。`chips` 是徽标行，`children`（描述、统计）按顺序排在下面。 */
 export function DetailHead({
   chips,
   children,

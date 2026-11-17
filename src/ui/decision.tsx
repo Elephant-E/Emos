@@ -3,10 +3,7 @@ import { createPortal } from 'react-dom'
 import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
 import { useFocusTrap } from './focus'
 
-/**
- * 决策框外壳：遮罩 + 卡片 + 头部 + 说明 + 底部两个按钮。
- * confirmDialog 与 promptDialog 共用，区别只在中间内容。
- */
+/** 决策框外壳：遮罩 + 卡片 + 头部 + 说明 + 底部两个按钮；confirmDialog 与 promptDialog 共用，区别只在中间内容。 */
 export function DecisionShell({
   title,
   danger,
