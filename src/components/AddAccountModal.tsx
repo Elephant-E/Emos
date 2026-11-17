@@ -1,3 +1,4 @@
+import { describeAuthError } from '@/lib/auth-error'
 import { useState } from 'react'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
@@ -33,20 +34,8 @@ export function AddAccountModal({
       persistToken(trimmed)
       location.reload()
     } catch (cause) {
-      const status = (cause as { status?: number }).status
-      const aborted = (cause as Error).name === 'TimeoutError' || (cause as Error).name === 'AbortError'
       setPending(false)
-      setError(
-        aborted
-          ? '验证超时，服务器没有及时响应。'
-          : status === 401
-            ? '令牌无效或已失效，请重新获取。'
-            : status === 403
-              ? '这个令牌没有后台权限。'
-              : status === 0
-                ? '连不上服务器，检查网络后重试。'
-                : (cause as Error).message || '验证失败，稍后再试。',
-      )
+      setError(describeAuthError(cause))
     }
   }
 

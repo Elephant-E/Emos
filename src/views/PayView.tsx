@@ -8,16 +8,8 @@ import { EmptyBlock, ErrorBlock } from '@/components/StateBlock'
 import { usePayBase, usePayOrder, usePayMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatThousand } from '@/lib/format'
+import { formatThousand, PAY_STATUS_LABEL } from '@/lib/format'
 import { copyText } from '@/lib/clipboard'
-
-const PAY_STATUS: Record<string, string> = {
-  default: '待支付',
-  pay: '已支付',
-  paid: '已支付',
-  close: '已关闭',
-  refund: '已退款',
-}
 
 export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
   const base = usePayBase()
@@ -168,7 +160,7 @@ export function PayView({ embedded = false }: { embedded?: boolean } = {}) {
             <>
             <div className="detail-stats" style={{ marginTop: 'var(--gap-card)' }}>
               <div className="detail-stat">
-                <b>{PAY_STATUS[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
+                <b>{PAY_STATUS_LABEL[String(order.data.pay_status)] ?? String(order.data.pay_status)}</b>
                 <span>支付状态</span>
               </div>
               <div className="detail-stat">

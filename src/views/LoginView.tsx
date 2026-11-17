@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LINKS } from '@/lib/links'
+import { describeAuthError } from '@/lib/auth-error'
 import { sessionApi } from '@/api/endpoints'
 import { setToken as persistToken } from '@/api/client'
 import { LOGIN_POSTERS } from '@/views/login-posters'
@@ -55,20 +56,8 @@ export function LoginView({ onDone }: { onDone: () => void }) {
       persistToken(trimmed)
       onDone()
     } catch (error) {
-      const status = (error as { status?: number }).status
-      const aborted = (error as Error).name === 'TimeoutError' || (error as Error).name === 'AbortError'
       setPhase('error')
-      setMessage(
-        aborted
-          ? '验证超时，服务器没有及时响应。检查网络后重试。'
-          : status === 401
-            ? '令牌无效或已失效，请重新获取。'
-            : status === 403
-              ? '这个令牌没有后台权限。'
-              : status === 0
-                ? '连不上服务器，检查网络后重试。'
-                : (error as Error).message || '验证失败，稍后再试。',
-      )
+      setMessage(describeAuthError(error))
     }
   }
 

@@ -14,7 +14,7 @@ import { shopApi } from '@/api/endpoints'
 import { qk, useShopMutations } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime, formatThousand } from '@/lib/format'
+import { formatDateTime, formatThousand, isOrderPaid } from '@/lib/format'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
 export interface OrdersSearch {
@@ -75,7 +75,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
   // 所以在当前页上再筛一遍：后端生效时等于没筛，不生效时也不会把已支付的算进「待支付」
   const visibleOrders = infinite.items.filter((order) => {
     if (search.pay !== 'all') {
-      const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+      const paid = isOrderPaid(order.status_pay)
       if (search.pay === 'paid' ? !paid : paid) return false
     }
     if (search.q) {
@@ -160,10 +160,10 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                 ) : order.user?.username ? (
                   <span>{order.user.username}</span>
                 ) : null}
-                <Badge tone={order.status_pay === 'pay' || order.status_pay === 'paid' ? 'ok' : 'wait'}>
-                  {order.status_pay === 'pay' || order.status_pay === 'paid' ? '已支付' : '待支付'}
+                <Badge tone={isOrderPaid(order.status_pay) ? 'ok' : 'wait'}>
+                  {isOrderPaid(order.status_pay) ? '已支付' : '待支付'}
                 </Badge>
-                {order.status_pay === 'pay' || order.status_pay === 'paid' ? (
+                {isOrderPaid(order.status_pay) ? (
                   <Badge tone={order.time_delivery ? 'ok' : (order.urge_number ?? 0) > 0 ? 'warn' : 'off'}>
                     {order.time_delivery ? '已发货' : (order.urge_number ?? 0) > 0 ? `催发货 ${order.urge_number}` : '待发货'}
                   </Badge>
@@ -184,7 +184,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
               </>
             )}
             actions={(order) => {
-              const paid = order.status_pay === 'pay' || order.status_pay === 'paid'
+              const paid = isOrderPaid(order.status_pay)
               const sent = Boolean(order.time_delivery)
               return (
                 <>

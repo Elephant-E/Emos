@@ -137,3 +137,17 @@ export function episodeCode(season?: number | null, episode?: number | null): st
   const e = episode != null ? `E${pad2(episode)}` : ''
   return `${s}${e}`
 }
+
+/** 订单支付状态：后端 `pay` 与 `paid` 都表示已支付（字段名是 status_pay） */
+export function isOrderPaid(status: unknown): boolean {
+  return status === 'pay' || status === 'paid'
+}
+
+/** 支付记录的状态文案（字段名是 pay_status，取值与订单不同） */
+export const PAY_STATUS_LABEL: Record<string, string> = {
+  default: '待支付',
+  pay: '已支付',
+  paid: '已支付',
+  close: '已关闭',
+  refund: '已退款',
+}
