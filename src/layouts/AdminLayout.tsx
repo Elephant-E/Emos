@@ -33,6 +33,17 @@ export function AdminLayout() {
     setNavOpen(false)
   }, [pathname])
 
+  // 抽屉只属于窄屏：视口变宽（横屏/拖窗口）时必须收起来，
+  // 否则 .shell--nav-open 的遮罩与 body 锁滚动会带到桌面断点，整页被压成一列
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 601px)')
+    const onChange = () => {
+      if (mql.matches) setNavOpen(false)
+    }
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+
   // 抽屉：Esc 收起 + 打开时锁住背景滚动（与 Modal 的行为保持一致）
   useEffect(() => {
     if (!navOpen) return
