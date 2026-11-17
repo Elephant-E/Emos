@@ -26,7 +26,7 @@
 
 1. **全局 toast**：`ui/toast.tsx`，最多 5 条、超出顶掉最旧的。
 2. **命令式 confirm / prompt**：`ui/confirm.tsx`、`ui/prompt.tsx`，`await confirmDialog({...})`。
-3. **多账号切换**：`lib/accounts.ts` + 侧栏切换，本地同时存多个 token。
+3. **多账号**：`lib/accounts.ts` 只存账号快照（不存令牌，避免一次 XSS 全丢），切号要重新贴一次令牌。
 4. **上传队列**：`UploadView` 的队列（3 并发 + 每条独立状态 + 失败可重试）。
 
 ## 仍然缺的
