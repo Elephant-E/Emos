@@ -287,17 +287,17 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
                     disabled={remove.isPending}
                     onClick={async () => {
                       const ok = await confirmDialog({
-                        title: '删除这个订单？',
-                        message: `订单 ${order.order_no} 会从列表移除。`,
+                        title: '把这个订单从列表里移除？',
+                        message: `订单 ${order.order_no} 只是不再显示在这里，订单本身与款项不受影响。`,
                         hint: '此操作不可撤销。',
-                        confirmText: '删除',
+                        confirmText: '移除',
                         danger: true,
                       })
                       if (!ok) return
                       remove.mutate(order.order_no, { onSuccess: () => toast('已删除', 'success') })
                     }}
                   >
-                    删除
+                    移除
                   </button>
                 </>
               )

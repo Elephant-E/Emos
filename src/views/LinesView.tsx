@@ -83,7 +83,8 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         <RecordRow<LineItem>
             rows={rows}
             idKey={(line) => line.id}
-            title={(line) => line.name}
+            /* 后端在创建者缺失时会把名字拼成「xxx by NaN」，显示前剥掉这一段 */
+            title={(line) => line.name.replace(/\s*by\s*NaN\s*$/i, '')}
             meta={(line) => (
               <>
                 <span className="ellipsis">{line.url}</span>

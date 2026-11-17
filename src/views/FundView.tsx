@@ -97,11 +97,15 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
         emptyTitle="还没有胡萝卜记录"
       >
           <RecordRow<Record<string, unknown>>
-            /* 同一天同一类型的批量结算会有完全相同的 created_at/type/point，
-               只用这三项作 key 会撞（React 会报重复 key 并可能漏渲染）→ 拼上序号 */
-            rows={infinite.items.map((row, index) => ({ ...row, __key: `${String(row.created_at ?? '')}-${String(row.trigger_type ?? '')}-${index}` }))}
+            /* 批量结算会产生几十条完全相同的记录（同类型、同一时间、同一分值），
+               接口不返回片单名，逐条列出等于一屏「片单结算 +1」——聚合成一行 ×N 更好读。
+               同键撞车的问题一并消失（聚合后每组的 key 唯一） */
+            rows={groupCarrotRows(infinite.items)}
             idKey={(row) => String(row.__key)}
-            title={(row) => String(row.trigger_type_string ?? row.trigger_type ?? '—')}
+            title={(row) => {
+              const count = Number(row.__count ?? 1)
+              return `${String(row.trigger_type_string ?? row.trigger_type ?? '—')}${count > 1 ? ` ×${count}` : ''}`
+            }}
             facts={(row) => <span>{formatDateTime(String(row.created_at ?? ''))}</span>}
             value={(row) => {
               // point 恒为正数（金额大小），收支方向在 type：earn / cost
@@ -373,4 +377,22 @@ export function FundView({ tab, onTab }: {
       ) : null}
     </>
   )
+}
+
+/**
+ * 把连续的完全相同记录聚合成一行：同类型 + 同一时间 + 同一分值。
+ * 批量结算一次会写几十条同样的流水，接口又没有片单名可以区分。
+ */
+function groupCarrotRows(rows: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+  const out: Array<Record<string, unknown>> = []
+  for (const row of rows) {
+    const key = `${String(row.created_at ?? '')}|${String(row.trigger_type ?? '')}|${String(row.point ?? '')}`
+    const last = out[out.length - 1]
+    if (last && last.__key === key) {
+      last.__count = Number(last.__count ?? 1) + 1
+      continue
+    }
+    out.push({ ...row, __key: key, __count: 1 })
+  }
+  return out
 }
