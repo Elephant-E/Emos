@@ -29,7 +29,10 @@ export function useFocusTrap(boxRef: RefObject<HTMLElement>, idRef: { current: s
     if (!box?.contains(document.activeElement)) {
       requestAnimationFrame(() => {
         if (box?.contains(document.activeElement)) return
-        focusables()[0]?.focus()
+        // 优先落到输入框：弹层打开就能直接打字；否则焦点会落在右上角的关闭键上，
+        // 那个位置一打开就带焦点环，看着比标题还抢眼
+        const field = box?.querySelector<HTMLElement>('input:not([type="hidden"]), textarea, select')
+        ;(field ?? focusables()[0])?.focus()
       })
     }
 

@@ -1597,15 +1597,45 @@ input.input[type='number'] { min-width: 0; }
 }
 .image-picker__thumb img { width: 100%; height: 100%; object-fit: cover; }
 .image-picker__cell.is-picked .image-picker__thumb { border-color: var(--fg); }
-/* 复用 .btn--icon，只补两点：压在图片上要定位、要有底色才看得清 */
+/* 压在缩略图右上角的删除点：22px 的圆，比缩略图小得多、不抢画面，
+   靠半透明底 + 内描边在亮暗图片上都立得住 */
 .image-picker__del {
   position: absolute;
-  top: var(--sp-1);
-  right: var(--sp-1);
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--fg-2);
+  top: 3px;
+  right: 3px;
+  transform: none;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  /* 字形不参与布局：用两条线画 ×，才能在圆里精确居中（字体里的 × 带基线偏移） */
+  font-size: 0;
+  transition: background var(--t-fast) var(--ease);
 }
-.image-picker__del:hover { color: var(--c-red); }
+.image-picker__del::before,
+.image-picker__del::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.92);
+  transition: background var(--t-fast) var(--ease);
+}
+.image-picker__del::before { transform: translate(-50%, -50%) rotate(45deg); }
+.image-picker__del::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.image-picker__del:hover { background: rgba(0, 0, 0, 0.68); }
+.image-picker__del:hover::before,
+.image-picker__del:hover::after { background: #fff; }
 
 /* 影片详情：两栏布局 */
 .detail-body {

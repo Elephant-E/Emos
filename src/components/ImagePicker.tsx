@@ -240,7 +240,7 @@ function ImagePickerModal({ onClose, onPick }: { onClose: () => void; onPick: (u
             </button>
             <button
               type="button"
-              className="btn btn--icon image-picker__del"
+              className="image-picker__del"
               aria-label={`删除 ${img.file_name}`}
               disabled={removing === img.file_id}
               onClick={() => {
