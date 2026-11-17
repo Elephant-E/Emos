@@ -409,12 +409,12 @@
 /* 列宽自适应：交给内容决定（数字列贴住自己的宽度，长文本列吃掉剩余）；
    与 --fixed 一样保持单行省略，避免长文本把行撑高 */
 
-/* 可点的表格行（rowLink 会给 tr 加 role），光标不用每个调用点各写一次内联 */
+/* 可点的整行（RecordRow 给行加 role 与键盘事件），光标不用每个调用点各写一次内联 */
 
 .cell-title { display: flex; align-items: center; gap: var(--sp-3); }
 /* 首列带缩略图时，表头对齐标题文字而不是缩略图，否则视线落在标题上会错开一格。
-   间距 = 单元格左内边距 + 缩略图宽 + 与文字的间距，缩略图宽由表格上的变量决定 */
-/* 列多的表格：左右内边距收窄，否则固定布局下每格可用的宽度不够放徽标与时间 */
+   间距 = 行左内边距 + 缩略图宽 + 与文字的间距，缩略图宽由行上的变量决定 */
+/* 信息密的行：左右内边距收窄，否则窄屏下每段可用的宽度不够放徽标与时间 */
 .thumb {
   width: 28px;
   height: 42px;
@@ -435,7 +435,7 @@
   display: block;
   color: var(--fg);
   font-size: var(--text-sm);
-  /* 长片名/长用户名在固定列宽下省略，避免撑破表格 */
+  /* 长片名/长用户名截断，避免撑破行 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -988,7 +988,7 @@ input.input[type='number'] { min-width: 0; }
   to { opacity: 1; }
 }
 
-/* 同一页面内切换筛选/分页时，内容淡入一次，避免旧列表被硬替换 */
+/* 同一页面内切换筛选时，内容淡入一次，避免旧列表被硬替换 */
 /* 展开行自己就是一层表面（td 有淡底色），里面再套一张完整的 .card，
    同一个位置会叠出两层边框、两层渐变和一层阴影 */
 
@@ -1189,7 +1189,7 @@ input.input[type='number'] { min-width: 0; }
 .card-body > .card-note + * { margin-top: var(--stack); }
 
 /* 尾部动作对齐：墨迹对齐内容边缘，而不是盒子对齐 */
-/* 表格里的输入（排序、评分）是内联小控件，不该被 .input 的 200px 最小宽度撑开 */
+/* 行内输入（排序、评分）是小控件，不该被 .input 的 200px 最小宽度撑开 */
 /* 行内可编辑的数字：平时就是一行文字，指上去/聚焦时才露出输入框。
    整行摆六个带边框的输入框，视觉重心会全跑到这些框上，把片名压下去。 */
 .input--cell {
@@ -2001,7 +2001,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 
 /* 单元格里放输入框（行内排序）时收紧左右内边距：
-   表格默认左右各 24px，加上 72px 的输入框，固定列宽下会溢出被裁 */
+   左右各 24px 的内边距，加上 72px 的输入框，窄屏下会溢出被裁 */
 
 /* 窄屏：详情页两栏折叠成单栏，否则右列会被推出视口（820 实测页面级横向滚动 65px） */
 @media (max-width: 980px) {
@@ -2116,7 +2116,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .page-title { font-size: 26px; }
 
   /* 触控目标：手机上没有 hover，32px 的按钮按起来发飘，统一抬到 40px。
-     行内小图标按钮（⋯）给 34px 见方，避免把表格/卡片行撑高。 */
+     行内小图标按钮（⋯）给 34px 见方，避免把行/卡片撑高。 */
   .btn { height: 36px; }
   .btn--quiet,
   .btn--ghost,
@@ -2162,7 +2162,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .toolbar .seg { overflow-x: auto; flex-wrap: nowrap; max-width: 100%; scrollbar-width: none; }
   .toolbar .seg::-webkit-scrollbar { display: none; }
   .toolbar .seg > * { flex: none; }
-  /* 分页脚：手机上收紧内边距，两行更紧凑 */
+  /* 上传队列的页脚：手机上收紧内边距，两行更紧凑 */
   .table-foot { padding: var(--sp-2) var(--sp-3); gap: var(--sp-2); }
 
   /* 页头工具：这是页面级次要入口，不该跟主操作抢注意力——

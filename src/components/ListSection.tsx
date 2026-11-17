@@ -9,12 +9,11 @@ import { InfiniteSentinel } from './InfiniteSentinel'
  * items.length === 0 ? EmptyBlock : …`，经常漏掉某种情形。这里一次说清：
  *
  * - 出错 → 错误块（带重试）
- * - 加载 → 与真实内容同形的骨架（行卡片 / 网格 / 表格）
+ * - 加载 → 与真实内容同形的骨架（`loadingKind` 决定行卡 / 网格 / 单行）
  * - 空 → 空态（标题与动作由调用方给）
  * - 有数据 → 内容 + 触底哨兵（滚动加载；分页器已全站移除）
  *
- * 容器由三个开关决定：``（内容自带网格，不套任何壳）、`cardList`（手机端卡片列表）、
- * 默认则套一层 `.table-card`。
+ * 列表本身就是卡片，不再套额外的壳层；内容自带网格（`RecordGrid`）时也不加容器。
  */
 export function ListSection<T>({
   isLoading,
@@ -70,7 +69,6 @@ export function ListSection<T>({
   children: ReactNode
 }) {
 
-  // 列表自己就是卡片：不再套 .table-card / .record-section 那层历史容器
   if (error) return <ErrorBlock error={error} onRetry={onRetry} />
   if (isLoading) {
     if (loadingKind === 'single-rows') {

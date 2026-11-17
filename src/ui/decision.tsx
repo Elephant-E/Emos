@@ -4,10 +4,6 @@ import { isTopLayer, newLayerId, popLayer, pushLayer } from './layers'
 import { useFocusTrap } from './focus'
 
 /**
- * 决策框的焦点管理，做法与 components/Modal.tsx 一致：打开时聚焦框内第一个可交互元素，
- * Tab 在框内循环，关闭时把焦点还给打开前的元素（否则焦点掉回 body）；框内已有 autoFocus 时不抢焦点。
- */
-/**
  * 决策框外壳：遮罩 + 卡片 + 头部 + 说明 + 底部两个按钮。
  * confirmDialog 与 promptDialog 共用，区别只在中间内容。
  */

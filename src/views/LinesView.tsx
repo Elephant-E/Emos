@@ -70,7 +70,6 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
         onRetry={() => lines.refetch()}
         items={rows}
         // 线路一次取全，直接列出
-        infinite={{ hasMore: false, loading: false, onLoadMore: () => {} }}
         loadingRows={5}
         loadingKind="rows"
         loadingPoster="none"
