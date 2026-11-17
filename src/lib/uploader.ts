@@ -93,10 +93,24 @@ async function uploadObject(
         retryDelays: [0, 1000, 3000],
         removeFingerprintOnSuccess: true,
         metadata: { user_id: raw.user_id ?? currentUserId(), file_id: fileId },
-        onError: (error) => reject(error instanceof Error ? error : new Error(String(error))),
-        onProgress: (uploaded, total) => onProgress(total > 0 ? uploaded / total : 0),
+        onError: (error) => {
+          // 失败要在服务端终止这次上传，否则 R2 上留半成品、指纹也清不掉
+          void upload.abort(true).catch(() => undefined)
+          reject(error instanceof Error ? error : new Error(String(error)))
+        },
+        onProgress: (uploaded, total) => {
+          try {
+            onProgress(total > 0 ? uploaded / total : 0)
+          } catch {
+            /* 进度回调抛错不能让上传卡住 */
+          }
+        },
         onSuccess: () => {
-          onProgress(1)
+          try {
+            onProgress(1)
+          } catch {
+            /* 同上 */
+          }
           resolve(fileId)
         },
       })
@@ -162,19 +176,49 @@ async function uploadMultipart(
     let done = 0
     for (const p of presigns) {
       const start = (p.number - 1) * partSize
-      const res = await fetch(p.upload_url, {
-        method: 'PUT',
-        body: file.slice(start, Math.min(start + partSize, file.size)),
-      })
-      if (!res.ok) throw new Error(`分片 ${p.number} 上传失败（${res.status}）`)
-      parts.push({ number: p.number, etag: res.headers.get('ETag') ?? '' })
+      // 单块重试：大文件传了几十分钟，最后一块抖动一次就整单重来不可接受
+      let etag = ''
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const res = await fetch(p.upload_url, {
+          method: 'PUT',
+          body: file.slice(start, Math.min(start + partSize, file.size)),
+        })
+        if (res.ok) {
+          // 跨域没暴露 ETag 时拿不到值：空 etag 提交上去只会拼出坏对象
+          etag = res.headers.get('ETag') ?? ''
+          if (!etag) throw new Error('分片响应缺少 ETag（检查存储桶的 Access-Control-Expose-Headers）')
+          break
+        }
+        const status = res.status
+        const retryable = status >= 500 || status === 429 || status === 408
+        if (!retryable || attempt === 2) throw new Error(`分片 ${p.number} 上传失败（${status}）`)
+        await new Promise((r) => setTimeout(r, 800 * (attempt + 1)))
+      }
+      parts.push({ number: p.number, etag })
       done += 1
-      onProgress(done / presigns.length)
+      try {
+        onProgress(done / presigns.length)
+      } catch {
+        /* 进度回调抛错不该中断上传 */
+      }
     }
-    await uploadApi.multipartComplete(fileId, parts)
-    onProgress(1)
+    // 分片都传成功后才 complete：complete 失败要保留分片（重试只补这一步），不能 abort
+    try {
+      await uploadApi.multipartComplete(fileId, parts)
+    } catch (error) {
+      if (error && typeof error === 'object') (error as { partsReady?: boolean }).partsReady = true
+      throw error
+    }
+    try {
+      onProgress(1)
+    } catch {
+      /* 同上 */
+    }
   } catch (error) {
-    await uploadApi.multipartAbort(fileId).catch(() => undefined)
+    // 只有「分片没传完」才丢弃；分片已齐、只是 complete 失败时留着，重试能续上
+    if (!(error as { partsReady?: boolean })?.partsReady) {
+      await uploadApi.multipartAbort(fileId).catch(() => undefined)
+    }
     throw error
   }
 }
@@ -192,6 +236,8 @@ export async function uploadAndSave(
   target: UploadTarget,
   onProgress: (ratio: number) => void,
   fileStorage?: string,
+  /** 已经传完拿到的 fileId：重试时只重跑 saveVideo，不重传整份文件 */
+  existingFileId?: string,
 ): Promise<UploadResult> {
   if (USE_MOCK) {
     await fakeProgress(onProgress)
@@ -199,7 +245,8 @@ export async function uploadAndSave(
     return { media_id: saved.media_id, carrot: saved.carrot }
   }
 
-  const fileId = await uploadObject(file, 'video', onProgress, fileStorage)
+  const fileId = existingFileId ?? (await uploadObject(file, 'video', onProgress, fileStorage))
+  if (existingFileId) onProgress(1)
   // 只有「视频正在合并中」是可重试信号；saveVideo 非幂等（会建档并结算胡萝卜），
   // 其余错误盲重试会重复入库、重复扣款
   let lastError: unknown
@@ -210,6 +257,9 @@ export async function uploadAndSave(
     } catch (error) {
       lastError = error
       const message = (error as Error)?.message ?? ''
+      // 把已上传的 fileId 挂在错误上：重试时只补 saveVideo，不重传整份文件，
+      // 否则「首次其实已生效但响应丢了」会变成重复入库、重复扣胡萝卜
+      if (error && typeof error === 'object') (error as { fileId?: string }).fileId = fileId
       // 最后一次失败直接抛，不再白等
       if (!message.includes('合并') || attempt === 2) throw error
       await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)))

@@ -30,6 +30,8 @@ interface QueueItem {
   message?: string
   /** 目标上已有的资源数，上传前先展示 */
   existing?: number
+  /** 文件已经传完拿到的 fileId：重试只补入库，不重传整份文件（避免重复扣费） */
+  fileId?: string
 }
 
 /** 上传队列的状态机：收文件、识别落点、逐个/批量上传、查重 */
@@ -158,12 +160,12 @@ export function useUploadQueue() {
     try {
       if (item.kind === 'subtitle' && item.target) {
         await uploadSubtitle(item.file, { item_type: item.target.item_type, item_id: item.target.item_id }, onProgress, fileStorage)
-        patch(item.id, { status: 'done', progress: 1 })
+        patch(item.id, { status: 'done', progress: 1, fileId: undefined })
         void qc.invalidateQueries({ queryKey: qk.subtitles })
         void qc.invalidateQueries({ queryKey: qk.videoOne(item.target.video_id ?? item.target.item_id) })
         toast(`字幕已入库：${item.target.title}`, 'success')
       } else if (item.target) {
-        const result = await uploadAndSave(item.file, item.target, onProgress, fileStorage)
+        const result = await uploadAndSave(item.file, item.target, onProgress, fileStorage, item.fileId)
         patch(item.id, { status: 'done', progress: 1 })
         // 入库会改媒体列表、该影片的资源数与胡萝卜余额
         // 剧集的 item_id 是 episode_id，缓存键要用所属影片
@@ -180,7 +182,12 @@ export function useUploadQueue() {
         )
       }
     } catch (err) {
-      patch(item.id, { status: 'failed', message: err instanceof Error ? err.message : '上传失败' })
+      // 文件已经传完（只是入库失败）时记下 fileId：重试只补入库，避免重传与重复扣费
+      patch(item.id, {
+        status: 'failed',
+        message: err instanceof Error ? err.message : '上传失败',
+        fileId: (err as { fileId?: string })?.fileId ?? item.fileId,
+      })
       toast(err instanceof Error ? err.message : '上传失败', 'error')
     } finally {
       running.current.delete(item.id)
