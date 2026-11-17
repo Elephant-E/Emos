@@ -81,67 +81,71 @@ export function useUploadQueue() {
     }))
     setQueue((prev) => [...prev, ...next])
 
-    for (const item of next) {
-      // 先用本地解析器拆片名/季/集：上游 recognize 会把「剧名.S02.mkv」判成 S00E02
-      const byName = await resolveByFilename(item.file.name)
-      if (byName === 'need-target') {
-        patch(item.id, { status: 'need-target', message: '只从文件名认出季，手选一下具体哪一集' })
-        continue
-      }
-      if (byName) {
-        patch(item.id, { status: 'ready', target: byName })
-        continue
-      }
+    // 识别是逐文件独立的网络请求，并行跑：一批 10 个文件串行要等 15s+，
+    // 并行只需最慢那一条的时间（约 1.5s）
+    await Promise.all(
+      next.map(async (item) => {
+        // 先用本地解析器拆片名/季/集：上游 recognize 会把「剧名.S02.mkv」判成 S00E02
+        const byName = await resolveByFilename(item.file.name)
+        if (byName === 'need-target') {
+          patch(item.id, { status: 'need-target', message: '只从文件名认出季，手选一下具体哪一集' })
+          return
+        }
+        if (byName) {
+          patch(item.id, { status: 'ready', target: byName })
+          return
+        }
 
-      // 视频与字幕都要绑到某一部影片 / 某一集，识别方式相同
-      try {
-        const res = await uploadApi.recognize(item.file.name)
-        const itemId = Number(res.item_id ?? 0)
-        if (!itemId) {
-          patch(item.id, { status: 'need-target', message: String(res.message ?? '手选一个目标') })
-          continue
-        }
-        const itemType = String(res.item_type ?? 'vl')
-        const target: UploadTarget = {
-          item_type: itemType,
-          item_id: itemId,
-          title: String(res.video_title ?? res.title ?? item.file.name),
-          video_id: Number(res.video_id ?? 0) || itemId,
-          season: Number(res.video_season_number ?? 0) || undefined,
-          episode: Number(res.video_episode_number ?? 0) || undefined,
-        }
-        patch(item.id, { status: 'ready', target })
-        // recognize 是猜的，video/base 给的才是入库后真正显示的名字
-        // （剧集形如「【我推的孩子】 - S01E03 - 漫画原作的电视剧」）
+        // 视频与字幕都要绑到某一部影片 / 某一集，识别方式相同
         try {
-          const base = await uploadApi.videoBase(itemType, itemId)
-          const medias = base?.video_medias ?? []
-          if (item.kind === 'video') {
-            // 查重：同一个落点上已经有同样大小的资源，基本就是同一份文件
-            const same = medias.find((m) => m.media_file_size === item.file.size)
-            if (same) {
-              patch(item.id, {
-                status: 'duplicate',
-                existing: medias.length,
-                message: `已存在相同大小的资源：${same.media_name}${
-                  same.is_self_upload ? '（本人上传）' : same.user_pseudonym ? `（${same.user_pseudonym}）` : ''
-                }`,
-              })
-              continue
-            }
+          const res = await uploadApi.recognize(item.file.name)
+          const itemId = Number(res.item_id ?? 0)
+          if (!itemId) {
+            patch(item.id, { status: 'need-target', message: String(res.message ?? '手选一个目标') })
+            return
           }
-          patch(item.id, {
-            existing: item.kind === 'video' ? medias.length : undefined,
-            target: { ...target, title: base?.title || target.title },
-          })
+          const itemType = String(res.item_type ?? 'vl')
+          const target: UploadTarget = {
+            item_type: itemType,
+            item_id: itemId,
+            title: String(res.video_title ?? res.title ?? item.file.name),
+            video_id: Number(res.video_id ?? 0) || itemId,
+            season: Number(res.video_season_number ?? 0) || undefined,
+            episode: Number(res.video_episode_number ?? 0) || undefined,
+          }
+          patch(item.id, { status: 'ready', target })
+          // recognize 是猜的，video/base 给的才是入库后真正显示的名字
+          // （剧集形如「【我推的孩子】 - S01E03 - 漫画原作的电视剧」）
+          try {
+            const base = await uploadApi.videoBase(itemType, itemId)
+            const medias = base?.video_medias ?? []
+            if (item.kind === 'video') {
+              // 查重：同一个落点上已经有同样大小的资源，基本就是同一份文件
+              const same = medias.find((m) => m.media_file_size === item.file.size)
+              if (same) {
+                patch(item.id, {
+                  status: 'duplicate',
+                  existing: medias.length,
+                  message: `已存在相同大小的资源：${same.media_name}${
+                    same.is_self_upload ? '（本人上传）' : same.user_pseudonym ? `（${same.user_pseudonym}）` : ''
+                  }`,
+                })
+                return
+              }
+            }
+            patch(item.id, {
+              existing: item.kind === 'video' ? medias.length : undefined,
+              target: { ...target, title: base?.title || target.title },
+            })
+          } catch {
+            /* 拿不到就沿用识别结果，不影响上传 */
+          }
         } catch {
-          /* 拿不到就沿用识别结果，不影响上传 */
+          // 识别只是便利，失败时转成「手动选目标」
+          patch(item.id, { status: 'need-target', message: '没能识别出是哪一部，手动选一下' })
         }
-      } catch {
-        // 识别只是便利，失败时转成「手动选目标」
-        patch(item.id, { status: 'need-target', message: '没能识别出是哪一部，手动选一下' })
-      }
-    }
+      }),
+    )
   }
 
   const resolveByFilename = (fileName: string) => resolveTargetByFilename(fileName)
