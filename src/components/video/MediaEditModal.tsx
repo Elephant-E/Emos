@@ -35,6 +35,7 @@ export function MediaEditModal({
     <Modal
       title="编辑资源"
       onClose={onClose}
+      onSubmit={() => onRename({ ...media, name })}
       footer={
         <ModalFooter
           onCancel={onClose}

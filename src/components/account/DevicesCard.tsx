@@ -69,7 +69,7 @@ export function DevicesCard() {
             </span>
           )}
           facts={(device) => (
-            <span>{device.last_used_at ? formatDateTime(device.last_used_at) : '从未使用'}</span>
+            <span>{device.last_used_at ? `最后使用 ${formatDateTime(device.last_used_at)}` : '从未使用'}</span>
           )}
           actions={(device) => (
             <button

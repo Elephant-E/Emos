@@ -31,6 +31,7 @@ export function SubtitleEditModal({
     <Modal
       title="编辑字幕"
       onClose={onClose}
+      onSubmit={() => onSave({ ...subtitle, title })}
       footer={
         <ModalFooter
           onCancel={onClose}

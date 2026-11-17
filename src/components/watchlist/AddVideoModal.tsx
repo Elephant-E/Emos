@@ -4,6 +4,7 @@ import { PickList } from '@/components/PickList'
 import { Poster } from '@/components/Poster'
 import { toast } from '@/ui/toast'
 import { VIDEO_TYPE_LABEL } from '@/lib/format'
+import { useDebounced } from '@/lib/useDebounced'
 import { useWatchMutations, useWatchSearch } from '@/api/queries'
 
 /**
@@ -22,7 +23,10 @@ export function AddVideoModal({
   onClose: () => void
 }) {
   const [term, setTerm] = useState('')
-  const candidates = useWatchSearch(watchId, term)
+  // 敲字不直接查：防抖后再发请求（否则每键一个请求 + 一条 30 分钟缓存）
+  const [keyword, setKeyword] = useState('')
+  useDebounced(term, setKeyword, { delay: 300 })
+  const candidates = useWatchSearch(watchId, keyword)
   const { addVideo } = useWatchMutations(watchId)
 
   return (

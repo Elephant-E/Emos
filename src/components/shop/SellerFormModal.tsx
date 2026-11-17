@@ -57,6 +57,7 @@ export function SellerFormModal({
       title={isSeller ? '编辑店铺' : '申请开店'}
       hint={isSeller ? '修改后会重新进入审核。' : '提交后由管理员审核，通过后才能上架商品。'}
       onClose={onClose}
+      onSubmit={() => void submit()}
       footer={
         <ModalFooter
           onCancel={onClose}

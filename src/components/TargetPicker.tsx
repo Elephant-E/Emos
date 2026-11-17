@@ -1,3 +1,4 @@
+import { useDebounced } from '@/lib/useDebounced'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { videoApi } from '@/api/endpoints'
@@ -20,12 +21,15 @@ interface PickTarget {
  */
 export function TargetPicker({ onPick }: { onPick: (target: PickTarget) => void }) {
   const [term, setTerm] = useState('')
+  // 同上：防抖后再查，避免逐键一个请求
+  const [keyword, setKeyword] = useState('')
+  useDebounced(term, setKeyword, { delay: 300 })
   const [series, setSeries] = useState<{ videoId: number; title: string; season: number } | null>(null)
 
   const search = useQuery({
-    queryKey: ['upload', 'pick', 'search', term],
-    queryFn: () => videoApi.search({ title: term, page: 1, page_size: 8 }),
-    enabled: term.trim().length > 0,
+    queryKey: ['upload', 'pick', 'search', keyword],
+    queryFn: () => videoApi.search({ title: keyword, page: 1, page_size: 8 }),
+    enabled: keyword.trim().length > 0,
   })
   const seasons = useQuery({
     queryKey: ['upload', 'pick', 'seasons', series?.videoId ?? 0],

@@ -22,6 +22,7 @@ export function DynamicFetchModal({
     <Modal
       title="动态抓取"
       onClose={onClose}
+      onSubmit={() => onSave(url.trim() ? url.trim() : null)}
       footer={
         <ModalFooter
           onCancel={onClose}

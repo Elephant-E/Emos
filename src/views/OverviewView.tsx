@@ -233,7 +233,9 @@ export function OverviewView() {
           ) : null}
 
           <ul className="stack">
-            {(watching.data ?? []).map((row, index) => {
+            {(watching.data ?? [])
+              .filter((row) => Number(row.play_seconds ?? 0) > 0)
+              .map((row, index) => {
               const played = Number(row.play_seconds ?? 0)
               const total = Number(row.media_seconds ?? 0)
               const ratio = total > 0 ? Math.min(1, played / total) : 0

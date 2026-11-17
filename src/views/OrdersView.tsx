@@ -173,7 +173,7 @@ export function OrdersView({ search, onSearch }: { search: OrdersSearch; onSearc
             facts={(order) => (
               <>
                 <span className="tnum">
-                  {order.price_order} × {order.buy_number ?? 1}
+                  {order.price_order} 胡萝卜 × {order.buy_number ?? 1}
                 </span>
                 {mineScope ? null : (
                   <span className="tnum">结算 {order.price_settle == null ? '—' : order.price_settle}</span>
