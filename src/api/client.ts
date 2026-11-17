@@ -4,7 +4,7 @@ const MOCK_MODE = import.meta.env.VITE_MOCK ?? ''
 export const USE_FIXTURES = MOCK_MODE === 'fixtures'
 export const USE_MOCK = MOCK_MODE === '1' || USE_FIXTURES
 export const TOKEN_KEY = 'emos_admin_token'
-/** 会话快照缓存（侧栏与登录前预渲染用），与 uploader 共用同一个键 */
+/** 会话快照（登录前预渲染用）；与 uploader 共用同一键，改名要同步 */
 export const SESSION_CACHE_KEY = 'emos_admin_profile'
 export function getToken(): string | null {
   try {
@@ -14,7 +14,7 @@ export function getToken(): string | null {
   }
 }
 export function setToken(token: string | null) {
-  // 换号时把 profile 快照一起清掉：否则首帧会用上一个账号的身份驱动权限与请求
+  // 换号时一并清掉 profile 快照，否则首帧仍会被上一个账号的身份驱动
   try {
     const previous = localStorage.getItem(TOKEN_KEY)
     if (previous !== token) localStorage.removeItem(SESSION_CACHE_KEY)
@@ -92,8 +92,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 async function requestOnce<T>(path: string, options: RequestOptions): Promise<T> {
   const { method = 'GET', query, body, signal, silent401 } = options
   if (USE_MOCK) {
-    // 动态引入：mock 里的几百条假数据不该被打进生产主包
-    // （以前静态 import，dist 的入口 chunk 里能直接 grep 到「夜航西飞」「picsum.photos」）
+    // 动态引入：mock 的假数据不该被打进生产主包
     const { mockRequest } = await import('./mock')
     return mockRequest<T>(path, { method, query, body })
   }
@@ -136,13 +135,12 @@ async function requestOnce<T>(path: string, options: RequestOptions): Promise<T>
     }
   }
   if (!res.ok) {
-    // 网关误报：上游已返回 200（动作完成）但 body 为空，网关判成失败并包成 502；此时写操作已生效。
     const upstreamFailed =
       payload && typeof payload === 'object' && 'message' in payload
         ? String((payload as Record<string, unknown>).message ?? '')
         : ''
-    // 网关把「上游 200 + 空 body」误报成 502：写操作确实已生效，按成功返回空对象；
-    // 但读操作拿到 {} 会让 calling 方读 items/length 直接崩，所以读操作当失败抛出
+    // 网关把「上游 200 + 空 body」误报成 502：写操作已生效，按成功返回空对象；
+    // 读操作拿到 {} 会让调用方读 items 时崩，所以读操作按失败抛出
     if (res.status === 502 && upstreamFailed === 'API 请求失败: 200') {
       if (method !== 'GET') return {} as T
       throw fail(502, '响应为空，请重试', payload)

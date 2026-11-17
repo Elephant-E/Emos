@@ -2,16 +2,9 @@ import { useMemo } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 
 /**
- * 滚动加载：把分页接口当无限列表用。
- *
- * 内部走 `useInfiniteQuery`，**queryKey 由调用方给**——这一点很关键：
- * 早先这层用 `useState` 自持数据，与 QueryClient 毫无连接，
- * 于是所有 `invalidateQueries` 对这些列表全部空转（改了数据列表不动）。
- * 现在列表本身就是缓存条目，mutation 的失效立刻见效。
- *
- * - 首屏取第 1 页
- * - `loadMore()` 取下一页并追加，直到 total 取完
- * - `loading` 是「有请求在飞」，`loadingMore` 只在续页时为真
+ * 滚动加载：把分页接口当无限列表用。queryKey 必须由调用方给——列表本身要是缓存条目，
+ * 否则 mutation 的 invalidateQueries 对这些列表全部空转。
+ * `loading` 是「有请求在飞」，`loadingMore` 只在续页时为真。
  */
 export function usePagedInfinite<T>(
   fetchPage: (page: number) => Promise<{ items: T[]; total: number; page_size: number }>,
@@ -51,9 +44,8 @@ export function usePagedInfinite<T>(
 }
 
 /**
- * 「还有没有下一页」的唯一判定：按**已加载条数**与 total 比较，而不是页码。
- * 上游经常把 page_size 压回自己的值（图库固定 15、商品固定 100），
- * 用页码算会提前停或重复翻同一页。三处原本各写一遍，统一到这里。
+ * 「还有没有下一页」的唯一判定：按已加载条数而非页码与 total 比较——上游常把 page_size
+ * 压回自己的值（图库 15、商品 100），用页码算会提前停或重复翻同一页。
  */
 export function nextPageParam(
   pages: ReadonlyArray<{ items: readonly unknown[] }>,

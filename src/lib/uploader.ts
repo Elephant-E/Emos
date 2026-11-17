@@ -18,10 +18,7 @@ function authHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-/**
- * 上传落点。global / internal / default 已不再分配可用存储设备，
- * 只对用户开放 zn_r2_upload 与 google_drive。
- */
+/** 上传落点：上游已不给 global / internal / default 分配存储设备，只开放下面两个 */
 export const UPLOAD_STORAGES = [
   { value: 'zn_r2_upload', label: 'Zn 存档服', hint: '直连 R2，国内可用' },
   { value: 'google_drive', label: '谷歌盘', hint: '不支持国内直传，有 CORS 限制' },
@@ -79,8 +76,8 @@ async function uploadObject(
     fileStorage,
   )) as Token
 
-  // 业务失败是 HTTP 200 + { message }（如「此资源您一周内上传过」），先判 message
-  // 才不会盖成「没有返回 file_id」
+  // 业务失败是 HTTP 200 + { message }（如「此资源您一周内上传过」），
+  // 先判 message 才不会盖成「没有返回 file_id」
   if (raw.message) throw new Error(raw.message)
   const fileId = raw.file_id ?? ''
   const uploadUrl = raw.data?.upload_url ?? ''
@@ -182,10 +179,7 @@ async function uploadMultipart(
   }
 }
 
-/**
- * mock 模式下的假进度：没有真实上传，也要让进度条走完并给出结束回调。
- * 五处原来各写一遍同样的循环。
- */
+/** mock 模式的假进度：没有真实上传，也要让进度条走完并触发结束回调 */
 async function fakeProgress(onProgress: (ratio: number) => void, steps = 10, delay = 90) {
   for (let i = 1; i <= steps; i += 1) {
     await new Promise((resolve) => setTimeout(resolve, delay))
@@ -216,7 +210,7 @@ export async function uploadAndSave(
     } catch (error) {
       lastError = error
       const message = (error as Error)?.message ?? ''
-      // 只有「正在合并」可重试；最后一次失败直接抛，不再白等
+      // 最后一次失败直接抛，不再白等
       if (!message.includes('合并') || attempt === 2) throw error
       await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)))
     }
@@ -239,10 +233,7 @@ export async function uploadSubtitle(
   await uploadApi.saveSubtitle(target.item_type, target.item_id, fileId)
 }
 
-/**
- * 图片：传上去之后直接进图库（GET /api/upload/image/list 能查到），
- * 返回的 file_id 就是图库里那一张的标识。
- */
+/** 图片：传上去直接进图库（GET /api/upload/image/list 可查），返回的 file_id 即图库里的标识 */
 export async function uploadImage(
   file: File,
   onProgress: (ratio: number) => void,
@@ -256,10 +247,8 @@ export async function uploadImage(
 }
 
 /**
- * 临时上传：不属于「入库」体系，只换一个可以直接用的直链。
- * 服务是独立的 temporary.emos.best，单文件 80MB，FormData 带 file + emos_id。
- *
- * 当前用于红包封面；协议见 docs/UPLOAD-PROTOCOL.md，能力边界见 docs/WIKI-NOTES.md。
+ * 临时上传：不进「入库」体系，只换一个可直接用的直链。独立服务 temporary.emos.best，
+ * 单文件 80MB，FormData 带 file + emos_id；目前用于红包封面，协议见 docs/UPLOAD-PROTOCOL.md。
  */
 export async function uploadTemporary(file: File): Promise<{ url: string }> {
   if (USE_MOCK) {

@@ -1,10 +1,8 @@
 import { useEffect } from 'react'
 
 /**
- * 输入即搜：输入停顿 delay 毫秒后，才把输入框的值推给查询（或 URL）。
- *
- * current 传当前已经生效的值（通常是 URL 里的 q）：值没变就什么都不做，
- * 免得每敲一个字都往历史里推一条同样的地址。
+ * 输入即搜：停顿 delay 毫秒后才把输入框的值推给查询（或 URL）。
+ * current 传已生效的值（通常是 URL 里的 q）：值没变就不推，免得历史里多一条同样的地址。
  */
 export function useDebounced(
   value: string,

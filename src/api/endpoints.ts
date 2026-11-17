@@ -4,7 +4,7 @@ import type {
 
 
 export const sessionApi = {
-  /** 验 token 用：只回 { is_sign, user_id }，比拉整份 /api/user 轻得多 */
+  /** 验 token：只回 { is_sign, user_id }，比拉整份 /api/user 轻得多 */
   check: (token?: string) =>
     request<SignCheck>('/api/sign/check', { token, silent401: true, signal: AbortSignal.timeout(12_000) }),
   profile: () => request<UserInfo>('/api/user'),
@@ -19,9 +19,9 @@ export const userApi = {
     request<{ logout_count: number }>('/api/user/server/videoLogout', { method: 'POST', body: { device_id: deviceId } }),
   showEmpty: (isShowEmpty: boolean) => request<{ is_show_empty: boolean }>('/api/user/showEmpty', { method: 'PUT', body: { is_show_empty: isShowEmpty } }),
   pseudonym: (name: string) => request<{ pseudonym: string }>('/api/user/pseudonym', { method: 'PUT', query: { name } }),
-  /** 同意上传须知；旧项目也是「先读文本、用户确认后再调用」，不是代同意 */
+  /** 同意上传须知：须用户确认后调用，不代同意 */
   agreeUpload: () => request<unknown>('/api/user/agreeUploadAgreement', { method: 'PUT' }),
-  /** 同意下载须知（契约里没有这条，旧项目在用） */
+  /** 同意下载须知：契约未收录 */
   agreeDown: () => request<unknown>('/api/user/agreeDownAgreement', { method: 'PUT' }),
   sign: (content?: string) => request<{ sign_index: number; earn_point: number; continuous_days: number }>('/api/user/sign', { method: 'PUT', query: { content } }),
   // must_otp 未启用时 password 为 null
@@ -29,7 +29,7 @@ export const userApi = {
   passwordReset: (password: string) => request<unknown>('/api/user/passwordReset', { method: 'PUT', query: { password } }),
   // originalImage 是 toggle：请求体参数被忽略，返回翻转后的值。
   originalImage: () => request<{ is_original_image: boolean }>('/api/user/originalImage', { method: 'PUT', body: {} }),
-  /** 同样是 toggle：真机实测请求体被忽略、返回翻转后的值（2026-11-15 双向验证并还原） */
+  /** 同样是 toggle：忽略请求体，返回翻转后的值 */
   showAdult: () => request<{ is_show_adult: boolean }>('/api/user/showAdult', { method: 'PUT', body: {} }),
   unbindTelegram: () => request<unknown>('/api/user/telegram', { method: 'DELETE' }),
   statsVideoHistory: (dates: string[]) => request<Array<Record<string, unknown>>>('/api/user/stats/video/history', { query: { dates } }),
@@ -76,8 +76,7 @@ export const uploadApi = {
     request<{ file_id: string }>(`/api/upload/multipart/${fileId}/complete`, { method: 'POST', body: { parts } }),
   multipartAbort: (fileId: string) => request<unknown>(`/api/upload/multipart/${fileId}/abort`, { method: 'DELETE' }),
 
-  // 图片：上传后进图库，image/list 能查到
-  // 服务端每页固定 15 条（传别的值会被压回 15），只能靠 page 翻页
+  // 图库：上传后 image/list 可查；服务端每页固定 15 条（传别的值被压回），只能靠 page 翻页
   images: (params: { name?: string; date?: string; page?: number; page_size?: number }) =>
     request<ListResult<{ file_id: string; url: string; file_name: string; file_size: number; file_type: string; created_at: string }>>(
       '/api/upload/image/list',
@@ -125,8 +124,7 @@ export const mediaApi = {
   move: (mediaId: string, itemType: string, itemId: number) =>
     request<CarrotDelta>('/api/video/media/move', { method: 'PUT', query: { media_id: mediaId, item_type: itemType, item_id: itemId } }),
   rename: (mediaId: string, name: string) => request<CarrotDelta>('/api/video/media/rename', { method: 'PUT', query: { media_id: mediaId, name } }),
-  // 已有 metadata 的视频返回 422：「此视频已存在 metadata 信息」是「已经是目标状态」
-  // 而非失败，因此按成功处理。
+  // 已有 metadata 的视频回 422「此视频已存在 metadata 信息」——已是目标状态，按成功处理
   syncMetadata: async (mediaId: string) => {
     try {
       return await request<CarrotDelta>('/api/video/media/syncMetadata', { method: 'PUT', query: { media_id: mediaId } })
@@ -272,9 +270,8 @@ export const shopApi = {
   createCategory: (name: string, sort: number) => request<{ category_id: number }>('/api/shop/category/create', { method: 'POST', body: { name, sort } }),
   deleteCategory: (categoryId: number) => request<unknown>('/api/shop/category/delete', { method: 'DELETE', query: { category_id: categoryId } }),
   products: (params: { seller_id?: number; category_id?: number; name?: string; sort_by?: string; sort_order?: 'asc' | 'desc'; is_up?: boolean; page?: number; page_size?: number }) => {
-    // 后端把 sort_by / sort_order 当必填：两个都不传也会 422「sort order 不能为空」。
-    // 所以这里无条件补齐——不排序时用 sort/asc（与计数接口同一口径），
-    // 指定了排序字段则默认倒序。调用方不需要记任何规则。
+    // 后端把 sort_by / sort_order 当必填：都不传也 422。这里无条件补齐：
+    // 不排序时 sort/asc，指定了排序字段则倒序，调用方不用记规则。
     const sortBy = params.sort_by || 'sort'
     const sortOrder = params.sort_order || (params.sort_by ? 'desc' : 'asc')
     return request<ListResult<ShopProduct>>('/api/shop/product/list', {

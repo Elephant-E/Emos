@@ -7,11 +7,8 @@ import { isOrderPaid } from '@/lib/format'
 import { toast } from '@/ui/toast'
 
 /**
- * queryKey 工厂。
- *
- * 失效用**具体键**（如 `qk.shopProducts` / `qk.watchOne(id)`）；
- * 前缀失效只在确实要覆盖整个域时用（`qk.videos` 这类已把前缀本身做成键）。
- * 不要在各处手写数组字面量——键拼错不会报错，只会静默不刷新。
+ * queryKey 工厂：失效用具体键（`qk.shopProducts` / `qk.watchOne(id)`），前缀失效只用于
+ * 覆盖整个域；不要手写数组字面量——键拼错不会报错，只会静默不刷新。
  */
 export const qk = {
   session: ['session'] as const,
@@ -96,7 +93,7 @@ interface Capabilities {
 
 export function useCapabilities(): Capabilities {
   const { data } = useSession()
-  // 与 useShopSeller() 是同一个接口，共用一份缓存（否则每个页面各拉一次）
+  // 与 useShopSeller() 同一接口，共用缓存（否则每个页面各拉一次）
   const seller = useShopSeller()
 
   const isAdmin = Boolean(data?.roles?.includes('admin'))
@@ -106,7 +103,7 @@ export function useCapabilities(): Capabilities {
     canUpload: Boolean(data?.is_can_upload),
     canDown: Boolean(data?.is_can_down),
     slotRemaining: data?.slot_remaining ?? 0,
-    // 后端对管理员也返回具体数字（当前 1），不是「不限」的哨兵值
+    // 后端对管理员也返回具体数字，不是「不限」的哨兵值
     inviteRemaining: data?.invite_remaining ?? 0,
     sizeUpload: data?.size_upload ?? 0,
     signedToday: Boolean(data?.sign),
@@ -204,8 +201,8 @@ export function useTodos() {
       }
       const [seeks, orders, bans] = await Promise.all([
         safe(() => seekApi.list({ status: ['default'], page: 1, page_size: 1 }).then((r) => r.total)),
-        // 上游忽略 is_pay（实测把未付款单也吐出来），所以自己按 status_pay 数：
-        // 取一页回来逐条判断，宁可口径准，也不要一个偏大的数字
+        // 上游忽略 is_pay（把未付款单也吐出来），total 不可信：
+        // 取一页回来按 status_pay 逐条数
         safe(() =>
           shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((r) => {
             const paid = r.items.filter((o) => o.status_pay === 'pay' || o.status_pay === 'paid')
@@ -230,7 +227,7 @@ interface VideoPageParams {
   numericId?: number
 }
 
-/** 单页取数的纯函数：分页 hook 与手机端滚动加载共用同一套兜底逻辑 */
+/** 单页取数：分页 hook 与滚动加载共用同一套兜底逻辑 */
 export async function fetchVideoPage(params: VideoPageParams) {
   if (params.numericId) {
     const byVideoId = await videoApi.list({ ...params, video_id: params.numericId, tmdb_id: undefined })
@@ -264,7 +261,7 @@ export function useSeekApply() {
   })
 }
 
-/** 轮询只看比 lastId 更新的求片，有新的才让列表重查，避免每 30 秒白刷 2.4 万条。 */
+/** 轮询只取比 lastId 更新的求片，有新的才让列表重查（避免每 30 秒全量刷） */
 export function useSeekPoll(lastId: number) {
   return useQuery({
     queryKey: ['seek', 'poll', lastId] as const,
@@ -477,10 +474,7 @@ export function useAccountMutations() {
     exchangeSlot: useMutation({ mutationFn: () => watchApi.slot(), onSuccess: invalidate }),
     temporaryPassword: useMutation({ mutationFn: () => userApi.passwordTemporary() }),
     resetPassword: useMutation({ mutationFn: (password: string) => userApi.passwordReset(password), onSuccess: invalidate }),
-    /**
-     * 签到：429 / 「重复」不是故障，是今天已经签过了——在这里统一吃掉这个错误，
-     * 免得每个调用点都重写一遍（之前概览页为此单独维护了一份签到 mutation）。
-     */
+    /** 签到：429 / 「重复」是今天已经签过了，不是故障——统一在这里吃掉，免得调用点各写一遍 */
     sign: useMutation({
       // content 可选：带上「说点什么」会额外获得随机胡萝卜
       mutationFn: (content?: string) => userApi.sign(content),
@@ -584,10 +578,8 @@ export function useShopProductsInfinite(params: {
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
       shopProductsQuery({ sellerId, page: pageParam, pageSize, categoryId, name, sortBy, onlyUp }),
-    // 后端可能收敛 page_size（片单影片固定 15 条），末页按响应里的实际条数判断，
-    // 否则请求 24 条只回 15 条时会被误判成「没有下一页」
-    // 这里不能复用 nextPageParam：上游会忽略 is_pay 之类的筛选（total 不可信），
-    // 只能用「本页是否满页」判断还有没有下一页
+    // 后端会把 page_size 压回自己的值（片单固定 15 条），末页按响应里的实际条数判断，
+    // 否则请求 24 条只回 15 条会误判成「没有下一页」；total 因上游忽略筛选而不可信
     getNextPageParam: (last, pages) => {
       const actual = Number(last.page_size) || pageSize
       if (last.items.length < actual) return undefined
@@ -611,8 +603,8 @@ export function useShopCounts(sellerId: number) {
   })
   const ordersPending = useQuery({
     queryKey: ['shop', 'count', 'pending', sellerId] as const,
-    // 上游忽略 is_pay（实测把未付款单也吐出来），不能信 total，只能拉回当前页自己数；
-    // 与概览的 useTodos 用同一套口径
+    // 上游忽略 is_pay（把未付款单也吐出来），不能信 total，只能拉回当前页自己数；
+    // 与概览的 useTodos 同一口径
     queryFn: () =>
       shopApi.ordersShop({ page: 1, page_size: 100, is_delivery: false }).then((res) => ({
         ...res,
@@ -622,19 +614,18 @@ export function useShopCounts(sellerId: number) {
       })),
     enabled,
   })
-  // 没有销量统计接口，只能把商品拉回来自己加。
-  // 服务端 page_size 硬顶 100（实测传 200 只回 100），所以按响应里的实际条数判是否被截断
+  // 没有销量统计接口，只能把商品拉回来自己加；服务端 page_size 硬顶 100（传 200 只回 100）
   const salesRows = useQuery({
     queryKey: ['shop', 'count', 'sales', sellerId] as const,
     queryFn: () => shopApi.products({ seller_id: sellerId, page: 1, page_size: 100, sort_by: 'sort', sort_order: 'asc' }),
     enabled,
   })
   // 用 rowsOf 兜底：worker 会把「上游 200 但非 JSON」包成 { message } 且保留 200，
-  // 直接 data?.items.reduce 会在 items 缺失时抛 TypeError 白屏
+  // 直接 reduce items 会因缺失抛 TypeError 白屏
   const salesTotal = rowsOf<{ sales?: number }>(salesRows.data?.items).reduce((sum, p) => sum + (p.sales ?? 0), 0)
   const salesCapped = (salesRows.data?.total ?? 0) > (salesRows.data?.page_size ?? 100)
   return {
-    // 总条数直接从下面那次「拉 100 条算销量」的响应里拿，不再单独打一次 page_size=1
+    // 总条数复用下面「拉 100 条算销量」的响应，不再单独打一次 page_size=1
     productsAll: salesRows.data?.total,
     productsOnSale: productsOnSale.data?.total,
     ordersAll: ordersAll.data?.total,
@@ -703,8 +694,7 @@ export function useShopMutations() {
       onSuccess: () => invalidate(),
     }),
     closeOrder: useMutation({ mutationFn: (orderNo: string) => shopApi.closeOrder(orderNo), onSuccess: invalidate }),
-    // 下单改库存与销量，付款改订单状态：商品网格、商品详情、两个视角的订单列表
-    // 与「我的店铺」的四张统计卡都会变，统一按 ['shop'] 前缀失效
+    // 下单改库存与销量、付款改订单状态：商品、两个视角的订单列表与统计都要失效
     createOrder: useMutation({
       mutationFn: (p: { productId: number; buyNumber: number; remark?: string | null }) =>
         shopApi.createOrder(p.productId, p.buyNumber, p.remark),
@@ -756,7 +746,7 @@ export function useRecycleMutations() {
     qc.invalidateQueries({ queryKey: qk.carrot })
   }
   return {
-    // 视图自己 try/catch 并弹提示（要显示扣了多少胡萝卜），全局不要再弹一条
+    // 视图自己弹提示（要显示扣了多少胡萝卜），全局不要再弹
     restoreMedia: useMutation({
       mutationFn: (mediaId: string) => mediaApi.restore(mediaId),
       onSuccess: invalidate,
@@ -765,7 +755,7 @@ export function useRecycleMutations() {
   }
 }
 
-/** 余额单独一个接口：getUserInfo 的字段里没有 carrot（契约与真机快照都没有） */
+/** 余额单独一个接口：getUserInfo 里没有 carrot 字段 */
 export function useUserCarrot(userId: string) {
   return useQuery({
     queryKey: ['user', userId, 'carrot'] as const,
@@ -863,8 +853,8 @@ export function useWatchMutations(watchId: number) {
     mutationFn: (videoId: number) => watchApi.removeVideo(watchId, videoId),
     onSuccess: invalidate,
   })
-  // POST 同一个 video_id 就是更新这一行的 sort / remark
-  /** 整体替换片单里的影片：契约写明「每次提交会重置当前片单」，最多 1000 条 */
+  // POST 同一个 video_id 即更新该行的 sort / remark
+  /** 提交会重置整个片单，最多 1000 条 */
   const updateVideoEntry = useMutation({
     mutationFn: (p: { videoId: number; sort: number; remark: string | null }) =>
       watchApi.addVideo(watchId, p.videoId, p.sort, p.remark),

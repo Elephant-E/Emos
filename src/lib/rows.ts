@@ -1,9 +1,6 @@
 /**
- * 行数据转换的唯一出口。
- *
- * 后台大量列表的后端形态是「弱类型记录」（字段随业务变化），而表格/卡片组件需要
- * `Record<string, unknown>[]`。这类转换以前散在各处写 `as unknown as`，
- * 既看不出意图也不好审计。统一收在这里，调用点写 `rowsOf(x)` 即可。
+ * 行数据转换的唯一出口：后端大量列表是「弱类型记录」（字段随业务变化），
+ * 列表组件统一按 `Record<string, unknown>[]` 消费，调用点写 `rowsOf(x)`。
  */
 export function rowsOf<T extends Record<string, unknown> = Record<string, unknown>>(
   input: unknown,

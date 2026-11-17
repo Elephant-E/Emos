@@ -9,11 +9,9 @@ interface Env {
 const JSON_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' }
 
 /**
- * 静态资源的安全响应头。
- *
- * 这是个纯前端管理台：令牌放 localStorage，所以必须尽量避免 XSS 与点击劫持。
- * - script-src 只允许同源（没有内联脚本，Vite 产物是外链 module）
- * - style-src 放开 inline：卡片样式用了大量 style 属性，改成 nonce 成本过高
+ * 静态资源的安全响应头。这是个纯前端管理台、令牌在 localStorage，必须尽量压住 XSS 与点击劫持：
+ * - script-src 仅同源（无内联脚本，Vite 产物是外链 module）
+ * - style-src 放开 inline：卡片用了大量 style 属性，改 nonce 成本过高
  * - connect-src 放开 https:：接口走同源 /api 代理，上传直连 temporary.emos.best
  * - frame-ancestors 'none'：后台不允许被任何页面嵌套
  */
@@ -102,8 +100,8 @@ async function proxyApi(request: Request, url: URL, env: Env): Promise<Response>
 
   const forwarded = new Headers(upstream.headers)
   forwarded.delete('cf-ray')
-  // 上游的会话 cookie 不该写到管理台自己的源（请求侧已剥掉 Cookie）；
-  // Content-Length/Encoding 也与 Workers 解码后的流不一致
+  // 上游的会话 cookie 不该落到管理台自己的源（请求侧已剥 Cookie）；
+  // Content-Length/Encoding 与 Workers 解码后的流也不一致
   forwarded.delete('set-cookie')
   forwarded.delete('content-length')
   forwarded.delete('content-encoding')

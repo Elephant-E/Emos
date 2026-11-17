@@ -3,10 +3,7 @@ import { episodeCode } from './format'
 import { parseFilename } from './filename'
 import type { UploadTarget } from './uploader'
 
-/**
- * 上传前的解析，从视图里搬出来的纯逻辑（只依赖 api 封装，不碰 React state）：
- * `resolveTargetByFilename`：文件名 → 上传落点
- */
+/** 上传前的解析：只依赖 api 封装，不碰 React state */
 
 /**
  * 文件名 → 上传落点：

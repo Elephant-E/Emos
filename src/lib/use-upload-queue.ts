@@ -32,12 +32,7 @@ interface QueueItem {
   existing?: number
 }
 
-/**
- * 上传队列的状态机：收文件、识别落点、逐个/批量上传、查重。
- *
- * 这段逻辑原来全在视图里，和渲染混了 300 行；抽出来之后视图只负责呈现，
- * 「队列怎么推进」集中在这一个文件，改并发或改识别策略都不用碰 JSX。
- */
+/** 上传队列的状态机：收文件、识别落点、逐个/批量上传、查重 */
 export function useUploadQueue() {
   const qc = useQueryClient()
   const [queue, setQueue] = useState<QueueItem[]>([])
@@ -81,8 +76,8 @@ export function useUploadQueue() {
     }))
     setQueue((prev) => [...prev, ...next])
 
-    // 识别是逐文件独立的网络请求，并行跑：一批 10 个文件串行要等 15s+，
-    // 并行只需最慢那一条的时间（约 1.5s）
+    // 识别是逐文件独立的请求，并行跑：10 个文件串行要等 15s+，
+    // 并行只需最慢那一条的时间
     await Promise.all(
       next.map(async (item) => {
         // 先用本地解析器拆片名/季/集：上游 recognize 会把「剧名.S02.mkv」判成 S00E02
@@ -114,8 +109,7 @@ export function useUploadQueue() {
             episode: Number(res.video_episode_number ?? 0) || undefined,
           }
           patch(item.id, { status: 'ready', target })
-          // recognize 是猜的，video/base 给的才是入库后真正显示的名字
-          // （剧集形如「【我推的孩子】 - S01E03 - 漫画原作的电视剧」）
+          // recognize 是猜的，video/base 给的才是入库后真正显示的名字（剧集形如「剧名 - S01E03 - 副标题」）
           try {
             const base = await uploadApi.videoBase(itemType, itemId)
             const medias = base?.video_medias ?? []
@@ -193,10 +187,9 @@ export function useUploadQueue() {
     }
   }
 
-  /** 批量上传：按 3 个并发把队列跑完 */
+  /** 批量上传：按 3 个并发把队列跑完，避免一次性打满带宽 */
   const uploadAll = async () => {
     const pending = queue.filter((item) => item.status === 'ready' && item.target)
-    // 同时开 3 个，避免一次性打满带宽
     await runPool(pending, 3, startUpload)
   }
 
@@ -204,7 +197,6 @@ export function useUploadQueue() {
   const readyCount = queue.filter((item) => item.status === 'ready' && item.target).length
   const uploading = queue.some((item) => item.status === 'uploading')
 
-  /** 清掉已完成的行 */
   const clearDone = () => setQueue((prev) => prev.filter((item) => item.status !== 'done'))
 
   return {

@@ -1,4 +1,4 @@
-/** 列表每页条数：全站固定值（分页器已移除，靠滚动加载续页） */
+/** 列表每页条数（全站固定值） */
 export const PAGE_SIZE = 20
 
 export function asPage(value: unknown, fallback = 1): number {

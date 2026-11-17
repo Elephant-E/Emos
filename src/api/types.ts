@@ -7,7 +7,7 @@ export interface ListResult<T> {
 
 export interface CarrotDelta {
   carrot: number
-  /** 只有签到类接口会带；恢复/移动这些只回 carrot（真机核对过） */
+  /** 只有签到类接口会带；恢复/移动只回 carrot */
   sign?: { sign_index: number; sign_at: string | null; earn_point: number; continuous_days: number } | null
 }
 
@@ -147,7 +147,7 @@ export interface VideoEpisode {
 export interface VideoPerson {
   /** 文件 id（不是 URL），拼 https://image.theotherdb.org/original/{id} 使用 */
   image_profile: string | null
-  /** 本地人物 id：来自 TMDb 的人没有，实测 39/39 为 null */
+  /** 本地人物 id：来自 TMDb 的人没有（实测全为 null） */
   id: number | null
   person_id: number | null
   /** TMDb 人物 id，实际能用来做唯一标识的是它 */
@@ -197,7 +197,7 @@ export interface VideoMedia {
   subtitle_count?: number | null
 }
 
-/** `/api/video/search` 只回这 5 个字段（真机核对），别按 VideoItem 用 */
+/** `/api/video/search` 只回这 5 个字段，别按 VideoItem 用 */
 export interface VideoSearchItem {
   video_id: number
   video_type: string

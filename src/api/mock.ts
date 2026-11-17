@@ -239,8 +239,7 @@ export async function mockRequest<T>(
     ] as T
   }
   if (/\/api\/watch\/\d+\/user$/.test(clean)) {
-    // 上游这个接口固定 15 条/页；总数要与片单的 subscribe_count 对得上，
-    // 否则详情卡写「订阅 128」而弹窗只有 2 个人
+    // 上游固定 15 条/页；总数要与片单的 subscribe_count 对得上，否则两处人数不一致
     const page = Number(query.page ?? 1)
     const rows = Array.from({ length: 128 }, (_, i) => ({
       username: `sub_${String(i + 1).padStart(3, '0')}`,
@@ -407,8 +406,7 @@ export async function mockRequest<T>(
     const video = videos.find((v) => v.video_id === Number(episodeMatch[1]))
     if (video?.video_type === 'movie') return [] as T
     const seasonNumber = Number(query.season_number ?? 1)
-    // 每季的集数与 /season 给的 episodes_count 一致（都是 4）；
-    // episode_id 与标题随季变化，切季时必须换一批内容
+    // 集数与 /season 的 episodes_count 一致（都是 4）；episode_id 与标题随季变化
     const count = 4
     return Array.from({ length: count }, (_, i) => ({
       item_id: `ve-${seasonNumber}-${i + 1}`,
@@ -432,7 +430,7 @@ export async function mockRequest<T>(
   if (clean === '/api/invite/remark') return {} as T
   if (clean === '/api/pay/query') return { pay_status: 'pay', price_order: 68, pay_way: 'alipay', order_name: '限量海报 A3' } as T
   if (clean === '/api/user/showAdult') {
-    // 真机是 toggle：忽略请求体，返回翻转值；这里同步改 fixture，方便验「失效 → 重取」
+    // 真机是 toggle：忽略请求体、返回翻转值；这里同步改 fixture 以验证重取
     user.is_show_adult = !user.is_show_adult
     return { is_show_adult: user.is_show_adult } as T
   }
@@ -660,8 +658,7 @@ export async function mockRequest<T>(
     } as T)
   }
   if (clean === '/api/shop/product/list') {
-    // 与后端同一套校验：sort_by / sort_order 必须成对，否则 422。
-    // 放在 mock 里，是为了让「只传 sort_by」这种写法在本地就直接报出来。
+    // 与后端同一套校验：sort_by / sort_order 必须成对，否则 422——本地就直接报出来
     if (!query.sort_by || !query.sort_order) {
       throw Object.assign(new Error(query.sort_by ? 'sort order 不能为空' : 'sort by 不能为空'), { status: 422 })
     }
@@ -867,7 +864,6 @@ export async function mockRequest<T>(
   if (/^\/api\/watch\/\d+\/dynamic$/.test(clean)) return { url: (body.url as string | null) ?? null } as T
   if (/^\/api\/watch\/\d+\/sort$/.test(clean)) return {} as T
 
-  // ---- 运营动作（转账 / 建单 / 签到 / 通知）----
   if (clean === '/api/pay/getUserSign') {
     return { sign_index: 1804, sign_at: '2026-11-11 16:00:00', earn_point: 2, continuous_days: 155, content: null } as T
   }

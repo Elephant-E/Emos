@@ -1,12 +1,6 @@
 import { toast } from '@/ui/toast'
 
-/**
- * 复制到剪贴板。
- *
- * 站内原先 8 处各写一遍 `navigator.clipboard?.writeText(...)`，写法有两套
- * （有的带 `?.` 有的不带），失败时也没有任何反馈——非安全上下文（http）
- * 下 clipboard 是 undefined，点了完全没反应。
- */
+/** 复制到剪贴板：非安全上下文（http）下 navigator.clipboard 为 undefined，必须兜住 */
 export async function copyText(text: string, label = '内容'): Promise<boolean> {
   if (!text) {
     toast(`没有可复制的${label}`, 'error')

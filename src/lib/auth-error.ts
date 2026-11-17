@@ -1,10 +1,4 @@
-/**
- * 登录 / 切号时把接口错误翻成人话。
- *
- * 两个入口（登录页、添加账号弹窗）原本各写一份逐字相同的阶梯，
- * 后来文案还分叉了（「验证超时，服务器没有及时响应。」 vs 「…检查网络后重试。」）。
- * 统一在这里，改文案只需要改一个地方。
- */
+/** 登录 / 切号的接口错误翻成人话：登录页与添加账号弹窗共用同一套阶梯 */
 export function describeAuthError(error: unknown): string {
   const status = (error as { status?: number }).status
   const name = (error as Error).name
