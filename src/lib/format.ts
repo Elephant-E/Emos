@@ -151,3 +151,15 @@ export const PAY_STATUS_LABEL: Record<string, string> = {
   close: '已关闭',
   refund: '已退款',
 }
+
+/**
+ * 数字输入框的取值。空串返回 `null`（未填），非法输入也返回 `null`，
+ * 由调用方决定用默认值还是不提交——之前各表单各写一套（`Number('')` 得 0、
+ * 有的用 `|| 0`、有的用 `Math.min/max` 夹取），清空输入框的语义各不相同。
+ */
+export function numberFromInput(raw: string): number | null {
+  const text = raw.trim()
+  if (!text) return null
+  const value = Number(text)
+  return Number.isFinite(value) ? value : null
+}

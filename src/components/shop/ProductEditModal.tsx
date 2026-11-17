@@ -1,3 +1,4 @@
+import { numberFromInput } from '@/lib/format'
 import { Modal } from '@/components/Modal'
 import { ModalFooter } from '@/components/ModalFooter'
 import { ImagePicker } from '@/components/ImagePicker'
@@ -75,7 +76,7 @@ export function ProductEditModal({
             type="number"
             min={1}
             value={draft.price ?? 1}
-            onChange={(e) => onChange({ price: e.target.value === '' ? 0 : Number(e.target.value) })}
+            onChange={(e) => onChange({ price: numberFromInput(e.target.value) ?? 0 })}
           />
         </label>
         <label className="field">
@@ -85,16 +86,16 @@ export function ProductEditModal({
             type="number"
             min={1}
             value={draft.price_origin ?? 1}
-            onChange={(e) => onChange({ price_origin: Number(e.target.value) })}
+            onChange={(e) => onChange({ price_origin: numberFromInput(e.target.value) ?? 0 })}
           />
         </label>
         <label className="field">
           <span>库存</span>
-          <input className="input" type="number" value={draft.stock ?? 0} onChange={(e) => onChange({ stock: Number(e.target.value) })} />
+          <input className="input" type="number" value={draft.stock ?? 0} onChange={(e) => onChange({ stock: numberFromInput(e.target.value) ?? 0 })} />
         </label>
         <label className="field">
           <span>排序</span>
-          <input className="input" type="number" value={draft.sort ?? 80} onChange={(e) => onChange({ sort: Number(e.target.value) })} />
+          <input className="input" type="number" value={draft.sort ?? 80} onChange={(e) => onChange({ sort: numberFromInput(e.target.value) ?? 0 })} />
         </label>
       </div>
       <label className="field">

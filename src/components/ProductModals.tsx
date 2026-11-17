@@ -112,7 +112,7 @@ export function ProductDetailModal({
                 min={1}
                 max={Math.max(1, p.stock)}
                 value={buyNumber}
-                onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, p.stock)))}
+                onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, p.stock ?? 0)))}
               />
             </label>
             <label className="field">
@@ -183,7 +183,7 @@ export function BuyModal({ product, onClose }: { product: ShopProduct; onClose: 
           min={1}
           max={max}
           value={buyNumber}
-          onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), max))}
+          onChange={(e) => setBuyNumber(Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, max)))}
         />
       </label>
       <label className="field">
