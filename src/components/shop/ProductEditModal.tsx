@@ -48,6 +48,11 @@ export function ProductEditModal({
         <span>名称</span>
         <input className="input" value={draft.name ?? ''} onChange={(e) => onChange({ name: e.target.value })} autoFocus />
       </label>
+      {/* 放在最前面：原来在弹层底部，手机上落在滚动区外，看不到上架状态就点了保存 */}
+      <label className="switch">
+        <input type="checkbox" checked={draft.is_up ?? false} onChange={(e) => onChange({ is_up: e.target.checked })} />
+        立即上架
+      </label>
       <ImagePicker label="封面" value={draft.cover_url ?? null} onChange={(url) => onChange({ cover_url: url })} />
       <label className="field">
         <span>简介</span>
@@ -112,10 +117,6 @@ export function ProductEditModal({
             </option>
           ))}
         </select>
-      </label>
-      <label className="switch">
-        <input type="checkbox" checked={draft.is_up ?? false} onChange={(e) => onChange({ is_up: e.target.checked })} />
-        立即上架
       </label>
     </Modal>
   )

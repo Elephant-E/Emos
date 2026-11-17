@@ -108,8 +108,9 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
               const count = Number(row.__count ?? 1)
               const label = `${String(row.trigger_type_string ?? row.trigger_type ?? '—')}${count > 1 ? ` ×${count}` : ''}`
               return (
-                <span style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--sp-2)', minWidth: 0 }}>
-                  <span>{label}</span>
+                /* 时间单独一列：flex 排会让时间随事件名长度左右漂移，多行扫读时对不齐 */
+                <span style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', columnGap: 'var(--sp-2)', alignItems: 'baseline', minWidth: 0 }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
                   <span className="muted tnum">{formatDateTime(String(row.created_at ?? ''))}</span>
                 </span>
               )
