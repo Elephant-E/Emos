@@ -3,7 +3,7 @@ import { ListSection } from '@/components/ListSection'
 import { RecordRow } from '@/components/RecordRow'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import { formatDateTime } from '@/lib/format'
+import { formatRelative } from '@/lib/format'
 import { useAccountMutations, useVideoDevices } from '@/api/queries'
 
 /** 设备名来自客户端上报，可能是 URL 编码（如 Apple%20TV） */
@@ -66,7 +66,7 @@ export function DevicesCard() {
             </span>
           )}
           facts={(device) => (
-            <span>{device.last_used_at ? `最后使用 ${formatDateTime(device.last_used_at)}` : '从未使用'}</span>
+            <span>{device.last_used_at ? `最后使用 ${formatRelative(device.last_used_at)}` : '从未使用'}</span>
           )}
           actions={(device) => (
             <button

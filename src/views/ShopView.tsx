@@ -22,7 +22,7 @@ import { BuyModal, ProductDetailModal } from '@/components/ProductModals'
 import { qk, useShopCategories, useShopCounts, useShopMutations, useShopProduct, useShopProductsInfinite, useShopSeller } from '@/api/queries'
 import { toast } from '@/ui/toast'
 import { confirmDialog } from '@/ui/confirm'
-import {formatDateTime, formatThousand} from '@/lib/format'
+import { formatThousand, formatDate } from '@/lib/format'
 import type { ShopProduct } from '@/api/types'
 import { usePagedInfinite } from '@/lib/usePagedInfinite'
 
@@ -330,7 +330,7 @@ export function ShopView({
                 )}
                 facts={(product) => (
                   <>
-                    {product.up_time ? <span>{formatDateTime(product.up_time)} 上架</span> : null}
+                    {product.up_time ? <span>{formatDate(product.up_time)} 上架</span> : null}
                     {mine ? (
                       <>
                         <span>排序</span>

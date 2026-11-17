@@ -260,19 +260,19 @@ export function UserDetailView({ userId }: { userId: string }) {
             <dl className="kv">
               <div>
                 <dt>邀请时间</dt>
-                <dd>{invited ? formatDateTime(String(invited.invite_at)) : invite.isLoading ? '读取中…' : '—'}</dd>
+                <dd>{invited ? formatDate(String(invited.invite_at)) : invite.isLoading ? '读取中…' : '—'}</dd>
               </div>
               <div>
                 <dt>最近播放</dt>
-                <dd>{invited ? formatDateTime(invited.last_video_player as string) : '—'}</dd>
+                <dd>{invited ? formatRelative(invited.last_video_player as string) : '—'}</dd>
               </div>
               <div>
                 <dt>最近签到</dt>
-                <dd>{invited ? formatDateTime(invited.last_user_sign as string) : '—'}</dd>
+                <dd>{invited ? formatRelative(invited.last_user_sign as string) : '—'}</dd>
               </div>
               <div>
                 <dt>最近 Telegram</dt>
-                <dd>{invited?.last_telegram_message ? formatDateTime(String(invited.last_telegram_message)) : '—'}</dd>
+                <dd>{invited?.last_telegram_message ? formatRelative(String(invited.last_telegram_message)) : '—'}</dd>
               </div>
             </dl>
           </div>

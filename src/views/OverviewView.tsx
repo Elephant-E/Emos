@@ -9,7 +9,7 @@ import { ModalFooter } from '@/components/ModalFooter'
 import { Modal } from '@/components/Modal'
 import { useAccountMutations, useCapabilities, useCarrot, useCarrotHistory, useContinueWatching, useSession, useTodos, useWatchPage, useWatchStats } from '@/api/queries'
 import { toast } from '@/ui/toast'
-import { formatSize, formatThousand, realmOf } from '@/lib/format'
+import { formatSize, formatThousand, realmOf, formatRelative } from '@/lib/format'
 
 const GREETINGS = ['早上好', '中午好', '下午好', '晚上好', '夜深了']
 
@@ -375,7 +375,7 @@ export function OverviewView() {
                     <span className="text-body ellipsis" style={{ flex: 1 }}>{w.name}</span>
                     <span className="muted tnum-sm">{w.video_count} 部</span>
                     <span className="muted tnum-sm" style={{ width: 62, textAlign: 'right' }}>
-                      {w.updated_at ? w.updated_at.slice(5, 10) : ''}
+                      {w.updated_at ? formatRelative(w.updated_at) : ''}
                     </span>
                   </Link>
                 </li>
