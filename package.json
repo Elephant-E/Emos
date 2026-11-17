@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "EMOS 媒体服务管理台 · 暗色数据台（React + TanStack + Cloudflare Workers）",
+  "description": "EMOS 片库后台管理台",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
