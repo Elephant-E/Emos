@@ -67,7 +67,7 @@ export function WatchlistDetailView({
     { queryKey: [...qk.watchOne(id), 'videos', { q: search.q }] },
   )
   const videoRows = infinite.items
-  const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos } = useWatchMutations(id)
+  const { removeVideo, updateVideoEntry, subscribe, toggleShow, setDynamic, update, clearVideos, sort: sortWatch } = useWatchMutations(id)
 
   // 同上：片单接口按 id 过滤，但不能假定第一条就是我们要的那份
   const item = watch.data?.items.find((row) => row.id === id)
@@ -141,9 +141,8 @@ export function WatchlistDetailView({
                   <InlineSortInput
                     value={item.user_sort}
                     label="片单排序"
-                    onCommit={(sort) =>
-                      watchApi.sort(id, sort).then(() => qc.invalidateQueries({ queryKey: qk.watches }))
-                    }
+                    /* 走 mutation：片单详情自己也读 user_sort，只失效列表会让这一页停在旧值 */
+                    onCommit={(sort) => sortWatch.mutate(sort)}
                   />
                 </span>
               ) : null}

@@ -47,6 +47,11 @@ export function Modal({
       if (event.key === 'Enter' && submit && !target?.closest('textarea, .tag-field')) {
         if (!isTopLayer(idRef.current)) return
         if (target?.closest('button, a, [role="button"], [role="link"]')) return
+        // 回车必须和底栏主按钮同一条路径：按钮被禁用（pending / 校验不过）时回车也不能提交，
+        // 否则每个调用点都得自己再判一次，漏一个就是重复提交
+        const dialog = target?.closest('.modal')
+        const primary = dialog?.querySelector<HTMLButtonElement>('.modal__foot .btn--primary, .modal__foot .btn--danger')
+        if (primary?.disabled) return
         event.preventDefault()
         submit()
         return

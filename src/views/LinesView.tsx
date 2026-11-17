@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ListSection } from '@/components/ListSection'
+import { SearchField } from '@/components/SearchField'
 import { RecordRow } from '@/components/RecordRow'
 import { PageHeader } from '@/components/PageHeader'
 import { ClearSearchButton } from '@/components/StateBlock'
@@ -50,13 +51,11 @@ export function LinesView({ search, onSearch }: { search: LinesSearch; onSearch:
       />
 
       <div className="toolbar">
-        <input
-          className="input"
-          type="search"
-            aria-label="搜索名称、地址或简介"
+        <SearchField
+          label="搜索名称、地址或简介"
           placeholder="搜索名称、地址或简介"
           value={search.q}
-          onChange={(e) => onSearch({ q: e.target.value })}
+          onCommit={(next) => onSearch({ q: next })}
         />
         <span className="spacer" />
         <button type="button" className="btn btn--primary" onClick={() => setCreating(true)}>
