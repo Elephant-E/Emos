@@ -378,7 +378,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
           }
         >
           <label className="field">
-            <span>源名称</span>
+            <span>
+              源名称<span className="field__req">*</span>
+            </span>
             <input className="input" value={source.name} onChange={(e) => setSource({ ...source, name: e.target.value })} placeholder="三网直达 1080p" autoFocus />
           </label>
           <div className="field-row field-row--wide">
@@ -390,7 +392,9 @@ export function LiveView({ search, onSearch }: { search: LiveSearch; onSearch: (
               </select>
             </label>
             <label className="field">
-              <span>地址</span>
+              <span>
+                地址<span className="field__req">*</span>
+              </span>
               <input className="input" value={source.path_url} onChange={(e) => setSource({ ...source, path_url: e.target.value })} placeholder="http://…" />
             </label>
           </div>

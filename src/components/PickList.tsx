@@ -22,6 +22,8 @@ export function PickList({
       {!loading && query?.trim() && count === 0 ? (
         <p className="muted">{emptyText ?? `没有找到「${query.trim()}」`}</p>
       ) : null}
+      {/* 还没输入时给一句引导：否则弹层里只有一个输入框 */}
+      {!loading && !query?.trim() ? <p className="muted">输入片名开始搜索</p> : null}
     </div>
   )
 }

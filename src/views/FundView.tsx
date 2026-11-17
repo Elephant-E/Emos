@@ -130,6 +130,15 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
 
       {transferring ? (
         <Modal
+          note={
+            !transferTo.trim()
+              ? '还差：对方用户 ID'
+              : transferAmount < 2 || transferAmount > 6000
+                ? '数量需在 2 – 6000 之间'
+                : balance != null && transferAmount > balance
+                  ? '数量超过当前余额'
+                  : null
+          }
           title="转赠胡萝卜"
           hint="单次 2 – 6000 个，转账后不可撤回。"
           onClose={() => setTransferring(false)}
@@ -145,8 +154,17 @@ function CarrotSection({ PAGE_SIZE }: { PAGE_SIZE: number }) {
           }
         >
           <label className="field">
-            <span>对方用户 ID</span>
-            <input className="input" value={transferTo} onChange={(e) => setTransferTo(e.target.value)} autoFocus />
+            <span>
+              对方用户 ID<span className="field__req">*</span>
+            </span>
+            <input
+              className="input"
+              value={transferTo}
+              onChange={(e) => setTransferTo(e.target.value)}
+              placeholder="对方的用户 ID"
+              aria-required
+              autoFocus
+            />
           </label>
           <label className="field">
             <span>数量</span>

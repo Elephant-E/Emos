@@ -1641,8 +1641,8 @@ input.input[type='number'] { min-width: 0; }
   font-size: 0;
   transition: background var(--t-fast) var(--ease);
 }
-.image-picker__del::before,
-.image-picker__del::after {
+.image-picker__del::after,
+.image-picker__del::before {
   content: '';
   position: absolute;
   left: 50%;
@@ -2142,6 +2142,8 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   .btn--quiet,
   .btn--ghost,
   .btn--danger-text { height: 34px; min-width: 40px; }
+  /* 弹层底栏里两个按钮要等高：次按钮 34 与主按钮 36 并排会让底边差 2px */
+  .modal__foot .btn { height: 36px; }
   .row-menu { width: 34px; height: 34px; }
   /* 分段筛选器原 24px，手机上点不准 */
   .seg { height: 40px; align-items: center; }

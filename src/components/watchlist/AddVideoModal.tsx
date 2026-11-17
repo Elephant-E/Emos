@@ -26,7 +26,16 @@ export function AddVideoModal({
   const { addVideo } = useWatchMutations(watchId)
 
   return (
-    <Modal title="添加影片" onClose={onClose} width={460}>
+    <Modal
+      title="添加影片"
+      onClose={onClose}
+      width={460}
+      footer={
+        <button type="button" className="btn btn--ghost" onClick={onClose}>
+          取消
+        </button>
+      }
+    >
       <label className="field">
         <span>按片名搜索</span>
         <input
