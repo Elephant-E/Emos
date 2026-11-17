@@ -778,6 +778,8 @@ input.input[type='number'] { min-width: 0; }
 
 .confirm {
   max-height: calc(100vh - var(--pad-card) * 2);
+  /* 提示型确认框里可能有输入框，键盘弹起时同样要缩 */
+  max-height: calc(100dvh - var(--pad-card) * 2);
   overflow: auto;
   animation: modal-in var(--t-enter) var(--ease);
   width: min(424px, calc(100vw - 32px));
@@ -1259,6 +1261,7 @@ input.input[type='number'] { min-width: 0; }
 .login {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 460px;
   align-items: center;

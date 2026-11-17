@@ -158,7 +158,7 @@ export function GlobalSearch({ open, onClose }: { open: boolean; onClose: () => 
           hits: (seeks.data?.items ?? []).map((row) => ({
             key: `seek-${row.id}`,
             title: row.video_title_display,
-            sub: [row.video_type === 'movie' ? '电影' : '剧集', `${formatThousand(row.count_request)} 人求`].join(' · '),
+            sub: [row.video_type === 'movie' ? '电影' : '剧集', row.count_request == null ? '—' : `${formatThousand(row.count_request)} 人求`].join(' · '),
             poster: row.video_image_poster,
             shape: 'poster' as const,
             open: () => {

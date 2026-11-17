@@ -46,7 +46,7 @@ const rootRoute = createRootRoute({
    * 没有这一层的话整页纯白、也没有重试入口。
    */
   errorComponent: ({ error }) => (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 'var(--sp-3)', padding: 'var(--sp-6)' }}>
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh', gap: 'var(--sp-3)', padding: 'var(--sp-5)' }}>
       <p style={{ fontSize: 20 }}>这一页出错了</p>
       <p className="meta-sm" style={{ maxWidth: 520, textAlign: 'center' }}>
         {error instanceof Error ? error.message : '未知错误'}
@@ -62,7 +62,7 @@ const rootRoute = createRootRoute({
     </div>
   ),
   notFoundComponent: () => (
-    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', gap: 'var(--sp-3)' }}>
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100dvh', gap: 'var(--sp-3)' }}>
       <p style={{ fontSize: 20 }}>页面不存在</p>
       <a className="btn btn--ghost" href="/">
         回到概览

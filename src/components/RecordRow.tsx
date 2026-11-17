@@ -65,13 +65,15 @@ function RecordRowBase<T>({
       {rows.map((row) => {
         const metaNode = meta?.(row)
         const factsNode = facts?.(row)
+        // 整行可点只是鼠标便利：行内还有真按钮时不要再宣告 role="button"
+        //（ARIA 规定 button 的子节点是表现性的，读屏会把行内动作吞掉）
         return (
           <article
             key={idKey(row)}
             className={`record-row${onOpen ? ' is-clickable' : ''}${poster ? '' : ' record-row--plain'}`}
-            {...(onOpen
+            {...(onOpen && !actions
               ? {
-                  role: 'button',
+                  role: 'link',
                   tabIndex: 0,
                   onClick: (event: React.MouseEvent) => {
                     // 卡片内的控件（按钮、链接、输入框）自己处理交互，不要连带触发整卡跳转

@@ -50,8 +50,8 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
       index: row.index,
       username: row.username,
       avatar: row.avatar,
-      level: row.level_name ?? '',
-      value: `${formatThousand(row.carrot)} 胡萝卜`,
+      level: row.level_name ?? '—',
+      value: row.carrot == null ? '—' : `${formatThousand(row.carrot)} 胡萝卜`,
     })),
     ...(upload.data ?? []).map((row) => ({
       key: `u-${row.index}-${row.username}`,
@@ -59,7 +59,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
       username: row.username,
       avatar: row.avatar,
       level: '',
-      value: `${formatSize(row.size)} 上传`,
+      value: row.size == null ? '—' : `${formatSize(row.size)} 上传`,
     })),
   ]
   // 按连续天数降序后再编号：`#1` 必须是天数最多的那位，
@@ -72,7 +72,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
     username: row.username,
     avatar: row.avatar,
     level: row.sign_content ?? '—',
-    value: `${formatThousand(row.continuous_days)} 天连续签到`,
+    value: row.continuous_days == null ? '—' : `${formatThousand(row.continuous_days)} 天连续签到`,
   }))
 
   return (
