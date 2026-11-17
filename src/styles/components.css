@@ -1156,6 +1156,13 @@ input.input[type='number'] { min-width: 0; }
   line-height: 1.7;
   color: var(--fg-3);
 }
+/* 列表到底的提示：居中，读作「到此为止」而不是一条内容 */
+.list-end {
+  margin: var(--sp-2) 0 var(--sp-1);
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--fg-4);
+}
 
 .card-body > .card-note + * { margin-top: var(--stack); }
 

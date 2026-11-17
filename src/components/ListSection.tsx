@@ -144,7 +144,7 @@ export function ListSection<T>({
         <InfiniteSentinel onLoadMore={infinite.onLoadMore} disabled={!infinite.hasMore} loading={infinite.loading} />
       ) : null}
       {/* 到底了要说一声：哨兵消失后用户分不清「加载完了」和「卡住了」 */}
-      {infinite && !infinite.hasMore && !infinite.loading ? <p className="card-note">已经到底了</p> : null}
+      {infinite && !infinite.hasMore && !infinite.loading ? <p className="list-end">已经到底了</p> : null}
     </>
   )
 }
