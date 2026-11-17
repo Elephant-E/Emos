@@ -8,7 +8,8 @@ import { toast } from '@/ui/toast'
 /**
  * queryKey 工厂。
  *
- * 失效一律用**域前缀**（`['video']` 会匹配 `['video', id, …]` 全部），
+ * 失效用**具体键**（如 `qk.shopProducts` / `qk.watchOne(id)`）；
+ * 前缀失效只在确实要覆盖整个域时用（`qk.videos` 这类已把前缀本身做成键）。
  * 不要在各处手写数组字面量——键拼错不会报错，只会静默不刷新。
  */
 export const qk = {
@@ -24,7 +25,6 @@ export const qk = {
   subtitles: ['subtitles'] as const,
   media: ['media'] as const,
 
-  watch: ['watch'] as const,
   watchOne: (id: number) => ['watch', id] as const,
   watches: ['watches'] as const,
   watchesPage: (p: object) => ['watches', p] as const,
@@ -33,7 +33,6 @@ export const qk = {
 
   seeks: ['seeks'] as const,
   whisper: ['whisper'] as const,
-  upload: ['upload'] as const,
   uploadImages: ['upload', 'images'] as const,
 
   user: ['user'] as const,
@@ -41,7 +40,6 @@ export const qk = {
   invite: ['invite'] as const,
   ban: ['ban'] as const,
 
-  shop: ['shop'] as const,
   shopSeller: ['shop', 'seller'] as const,
   shopCount: ['shop', 'count'] as const,
   shopProducts: ['shop', 'products'] as const,

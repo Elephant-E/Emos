@@ -122,13 +122,6 @@
   color: var(--fg-5);
   flex: none;
 }
-.rail__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
-}
 .avatar img {
   width: 100%;
   height: 100%;
@@ -169,24 +162,6 @@
    * 与下方元素的 margin-top 相邻折叠，不会叠加成双倍。
    */
   margin: 0 auto var(--gap-card);
-}
-.head-lead {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  min-width: 0;
-}
-.head-menu {
-  display: none;
-  width: 36px;
-  height: 36px;
-  flex: none;
-  place-items: center;
-  border-radius: var(--r-item);
-  border: 1px solid var(--line);
-  background: var(--field);
-  color: var(--fg-2);
-  cursor: pointer;
 }
 
 .crumb {
@@ -473,8 +448,6 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
-.zone { display: inline-flex; align-items: center; gap: var(--sp-2); color: var(--fg-2); }
-.zone .rail__dot { box-shadow: none; width: 6px; height: 6px; }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -1249,16 +1222,7 @@ input.input[type='number'] { min-width: 0; }
 .btn--danger-text { color: color-mix(in srgb, var(--c-red) 62%, var(--fg-3)); }
 .btn--danger-text:hover { color: var(--c-red); background: transparent; }
 
-/* 详情页头部的封面：列表缩略图 30×40 拿到这里比旁边的字还矮 */
-/* 详情页头图：影片/歌曲是 2:3 海报，片单是横版封面 */
-.poster-img.detail-head__poster,
-.thumb.detail-head__poster {
-  width: 72px;
-  height: 108px;
-  border-radius: 8px;
-}
-.poster-img--wide.detail-head__poster,
-
+/* 列表缩略图：影片与求片是 2:3 海报（TMDB w185 实测 185×278） */
 .poster-img {
   /* 影片与求片的海报是 2:3（TMDB w185 实测 185×278） */
   width: 28px;
@@ -2505,8 +2469,7 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
   /* 手机宽度放不下「文字 + 右侧按钮」，动作回到底部整行右对齐 */
   /* 卡片内的行在手机上：正文占满、动作换到下一行右对齐，避免压住标题 */
   .card .record-row,
-  .card .record-row--no-poster { grid-template-columns: minmax(0, 1fr); }
-  .card .record-row .record-row__actions {
+  .card   .card .record-row .record-row__actions {
     grid-column: 1;
     margin-top: var(--sp-2);
   }
