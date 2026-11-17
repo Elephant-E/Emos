@@ -1867,6 +1867,11 @@ button.pick-row:disabled { cursor: progress; color: var(--fg-3); }
 }
 .product-tile__price b { font-size: 16px; font-weight: 550; color: var(--fg); }
 .product-tile__price s { font-size: var(--text-xs); color: var(--fg-5); }
+/* 商品卡骨架的第二行标题：窄屏标题会折两行，宽屏只有一行 */
+@media (min-width: 601px) {
+  .product-skel__title2 { display: none; }
+}
+
 .product-tile__meta {
   margin-top: auto;
   display: flex;

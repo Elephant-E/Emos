@@ -23,12 +23,14 @@ export function LoadingGrid({
             <div className="product-tile__cover skeleton" style={{ boxShadow: 'none' }} />
             {/* 与真实商品卡同形：名称 / 价格 / 销量库存 + 一颗购买键 */}
             <div className="product-tile__body">
+              {/* 标题在窄屏会折成两行，占位也按两行画 */}
               <div className="skeleton" style={{ height: 16, width: '82%' }} />
+              <div className="skeleton product-skel__title2" style={{ height: 14, width: '54%' }} />
               <div className="skeleton" style={{ height: 20, width: '52%' }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', marginTop: 'var(--sp-hair)' }}>
                 <div className="skeleton" style={{ height: 12, width: '42%' }} />
                 <div className="skeleton" style={{ height: 12, width: '30%' }} />
-                <div className="skeleton" style={{ height: 26, width: 26, marginLeft: 'auto', borderRadius: 7 }} />
+                <div className="skeleton" style={{ height: 32, width: 32, marginLeft: 'auto', borderRadius: 8 }} />
               </div>
             </div>
           </div>
@@ -53,7 +55,11 @@ export function LoadingGrid({
               <div
                 key={line}
                 className="skeleton"
-                style={{ height: line === 0 ? 14 : 12, width: line === 0 ? '62%' : line === 1 ? '38%' : '48%' }}
+                /* 与真实卡片同形：第一行是标题（约 18px），第二行是 24px 高的标签块 */
+                style={{
+                  height: line === 0 ? 18 : line === 1 ? 24 : 12,
+                  width: line === 0 ? '100%' : line === 1 ? 43 : '48%',
+                }}
               />
             ))}
           </div>
