@@ -71,7 +71,7 @@ export function RankView({ search, onSearch }: { search: RankSearch; onSearch: (
     index: position + 1,
     username: row.username,
     avatar: row.avatar,
-    level: row.sign_content ?? '签到',
+    level: row.sign_content ?? '—',
     value: `${formatThousand(row.continuous_days)} 天连续签到`,
   }))
 

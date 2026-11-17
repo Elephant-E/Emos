@@ -96,8 +96,9 @@ export function VideoSeasons({
               </span>
               <span className="meta-sm">
                 {currentEpisode.date_air ? `${currentEpisode.date_air.slice(0, 10)} · ` : ''}
+                {/* 这里的 `{' '}` 会和 JSX 自身的换行空白叠成两个空格 */}
                 {currentEpisode.runtime ? `${currentEpisode.runtime} 分钟` : '—'} ·{' '}
-                {currentEpisode.medias_count} 资源 · {currentEpisode.subtitles_count} 字幕
+                {`${currentEpisode.medias_count} 资源 · ${currentEpisode.subtitles_count} 字幕`}
                 {currentEpisode.seek ? ` · 求片中 ${currentEpisode.seek.seek_carrot ?? 0} 胡萝卜` : ''}
               </span>
               {currentEpisode.episode_description ? (

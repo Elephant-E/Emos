@@ -20,7 +20,8 @@ export function Price({
   return (
     <span className="product-tile__price">
       <b>{formatPrice(price)}</b>
-      {now > 0 && origin > now ? <s>{formatThousand(origin)}</s> : null}
+      {/* 原价与现价同一单位：只写数字会被读成别的计价方式 */}
+      {now > 0 && origin > now ? <s>{formatThousand(origin)} 胡萝卜</s> : null}
     </span>
   )
 }
