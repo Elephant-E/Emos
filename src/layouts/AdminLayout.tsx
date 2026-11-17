@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar'
 import { MobileTopbar } from '@/components/MobileTopbar'
 import { useSession } from '@/api/queries'
 import { ToastHost } from '@/ui/toast'
+import { hasLayer } from '@/ui/layers'
 import { ConfirmHost } from '@/ui/confirm'
 import { PromptHost } from '@/ui/prompt'
 import * as Collapsible from '@radix-ui/react-collapsible'
@@ -110,7 +111,9 @@ export function AdminLayout() {
   useEffect(() => {
     if (!navOpen) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setNavOpen(false)
+      // 上方还压着弹层/确认框时，Esc 属于那一层；否则一次按键关掉两层
+      if (event.key !== 'Escape' || hasLayer()) return
+      setNavOpen(false)
     }
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
